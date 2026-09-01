@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kuis Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .option-btn:active { transform: scale(0.98); }
+        .timer-pulse { animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .timer-warning { background-color: #ef4444; color: white; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-50 to-blue-100 min-h-screen flex items-center justify-center p-4">
+
+    <div id="app" class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 fade-in relative overflow-hidden">
+        <!-- Konten akan di-render oleh JavaScript -->
+    </div>
+
+<script>
+    // ================= KONFIGURASI =================
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS2iAukCAgWVsTCBJ9Z7vJmv-KyRzZSNQy294XKH9gdgLcgiNu7K47NzkdkExKAhx7HUgIGGjRYyZvM/pub?gid=1480384525&single=true&output=csv";
+    
+    // ⚠️ GANTI URL DI BAWAH INI DENGAN URL DEPLOYMENT APPS SCRIPT ANDA
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbx...CONTOH_URL_APPS_SCRIPT_ANDA.../exec"; 
+    // ===============================================
+
+    let state = {
+        step: 'home',
+        name: '',
+        kelas: '',
+        kategori: '',
+        questions: [],
+        currentIndex: 0,
+        score: 0,
+        answers: [],
+        timer: {
+            totalSeconds: 0,
+            remainingSeconds: 0,
+            intervalId: null,
+            startTime: null,
+            canSubmit: false
+        }
+    };
+
+    // --- Fungsi Utilitas ---
+    function getQueryParams() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+            nama: params.get('nama') || params.get('Nama') || '',
+            kelas: params.get('kelas') || params.get('Kelas') || '',
+            kategori: params.get('kategori') || params.get('Kategori') || 'C'
+        };
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function saveState() { localStorage.setItem('quizState', JSON.stringify(state)); }
+    function clearCache() { localStorage.removeItem('quizState'); }
+
+    function parseCSV(text) {
+        const lines = text.split('\n').filter(l => l.trim() !== '');
+        if (lines.length < 2) return [];
+        
+        const parseLine = (line) => {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current.trim().replace(/^"|"$/g, ''));
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim().replace(/^"|"$/g, ''));
+            return result;
+        };
+        
+        const headers = parseLine(lines[0]);
+        const result = [];
+        
+        for (let i = 1; i < lines.length; i++) {
+            const values = parseLine(lines[i]);
+            const obj = {};
+            
+            headers.forEach((header, index) => {
+                obj[header.trim()] = values[index] || '';
+            });
+            
+            result.push(obj);
+        }
+        
+        return result;
+    }
+
+    function mapQuestions(rawData) {
+        return rawData.map((row, index) => {
+            const soal = row.Soal || row.soal || '';
+            const kategori = (row.Kategori || row.kategori || 'C').trim().toUpperCase();
+            const jawabanBenar = (row.Jawaban || row.jawaban || '').trim().toUpperCase();
+            
+            const options = [
+                { text: row.OpsiA || row.opsiA || '', key: 'A', isCorrect: false },
+                { text: row.OpsiB || row.opsiB || '', key: 'B', isCorrect: false },
+                { text: row.OpsiC || row.opsiC || '', key: 'C', isCorrect: false },
+                { text: row.OpsiD || row.opsiD || '', key: 'D', isCorrect: false }
+            ];
+            
+            options.forEach(opt => {
+                if (opt.key === jawabanBenar) {
+                    opt.isCorrect = true;
+                }
+            });
+            
+            return {
+                noUrut: row.NoUrut || index + 1,
+                mapel: row.Mapel || row.mapel || 'Umum',
+                materi: row.Materi || row.materi || '-',
+                soal: soal,
+                options: options,
+                kategori: kategori,
+                jawabanBenar: jawabanBenar
+            };
+        }).filter(q => q.soal && q.options.length >= 2);
+    }
+
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function startTimer(totalMinutes) {
+        state.timer.totalSeconds = totalMinutes * 60;
+        state.timer.remainingSeconds = totalMinutes * 60;
+        state.timer.startTime = Date.now();
+        state.timer.canSubmit = false;
+        
+        state.timer.intervalId = setInterval(() => {
+            state.timer.remainingSeconds--;
+            
+            // Cek apakah sudah melewati 1/2 waktu
+            const elapsedSeconds = state.timer.totalSeconds - state.timer.remainingSeconds;
+            if (elapsedSeconds >= state.timer.totalSeconds / 2) {
+                state.timer.canSubmit = true;
+            }
+            
+            // Waktu habis
+            if (state.timer.remainingSeconds <= 0) {
+                clearInterval(state.timer.intervalId);
+                if (state.step === 'quiz') {
+                    finishQuiz();
+                }
+            }
+            
+            // Update UI timer jika sedang di quiz
+            if (state.step === 'quiz') {
+                updateTimerUI();
+            }
+            
+            saveState();
+        }, 1000);
+    }
+
+    function updateTimerUI() {
+        const timerEl = document.getElementById('timer-display');
+        if (!timerEl) return;
+        
+        const timeStr = formatTime(state.timer.remainingSeconds);
+        const elapsedSeconds = state.timer.totalSeconds - state.timer.remainingSeconds;
+        const canSubmit = elapsedSeconds >= state.timer.totalSeconds / 2;
+        
+        // Warna timer - merah jika waktu < 1 menit
+        const isWarning = state.timer.remainingSeconds < 60;
+        timerEl.className = `text-2xl font-bold font-mono ${isWarning ? 'timer-warning timer-pulse px-3 py-1 rounded-lg' : 'text-indigo-600'}`;
+        
+        timerEl.innerHTML = `
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                ${timeStr}
+            </div>
+        `;
+        
+        // Update status submit button
+        const submitBtn = document.getElementById('submit-btn');
+        if (submitBtn) {
+            if (!canSubmit) {
+                const remainingWait = Math.ceil((state.timer.totalSeconds / 2 - elapsedSeconds) / 60);
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                submitBtn.innerHTML = `⏱️ Tunggu ${remainingWait} menit lagi`;
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                submitBtn.innerHTML = '🏁 Selesai & Kirim';
+            }
+        }
+    }
+
+    // --- Render UI ---
+    function render() {
+        const app = document.getElementById('app');
+        if (state.step === 'home') renderHome(app);
+        else if (state.step === 'loading') renderLoading(app);
+        else if (state.step === 'quiz') renderQuiz(app);
+        else if (state.step === 'result') renderResult(app);
+        else if (state.step === 'success') renderSuccess(app);
+        else if (state.step === 'error') renderError(app);
+    }
+
+    function renderHome(app) {
+        const params = getQueryParams();
+        
+        // Validasi parameter
+        if (!params.nama || !params.kelas) {
+            renderError(app);
+            return;
+        }
+        
+        // Simpan ke state
+        state.name = params.nama;
+        state.kelas = params.kelas;
+        state.kategori = params.kategori || 'C';
+        
+        const kategoriLabel = {
+            'A': 'A - Sulit',
+            'B': 'B - Sedang',
+            'C': 'C - Mudah'
+        };
+        
+        app.innerHTML = `
+            <div class="text-center fade-in">
+                <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-3xl">📚</span>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-800 mb-1">Kuis Interaktif</h1>
+                <p class="text-gray-500 text-sm mb-6">Uji pemahamanmu dengan soal-soal menarik!</p>
+                
+                <div class="space-y-4 text-left">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                        <input type="text" value="${state.name}" disabled 
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-600 cursor-not-allowed">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kelas</label>
+                            <input type="text" value="${state.kelas}" disabled 
+                                class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-600 cursor-not-allowed text-center">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                            <input type="text" value="${kategoriLabel[state.kategori] || state.kategori}" disabled 
+                                class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-600 cursor-not-allowed text-center">
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-4">
+                        <p class="text-sm text-blue-800">
+                            <span class="font-semibold">ℹ️ Info:</span><br>
+                            Waktu pengerjaan: <span class="font-bold">Jumlah Soal × 2 menit</span><br>
+                            Minimal pengerjaan: <span class="font-bold">50% dari total waktu</span>
+                        </p>
+                    </div>
+                    
+                    <button onclick="handleStart()" 
+                        class="w-full bg-indigo-600 text-white font-bold py-3.5 px-6 rounded-xl hover:bg-indigo-700 transition-all duration-200 shadow-lg mt-2 flex items-center justify-center gap-2">
+                        <span>🚀 Mulai Kuis</span>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderLoading(app) {
+        app.innerHTML = `
+            <div class="text-center py-10 fade-in">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+                <p class="text-gray-600">Memuat bank soal...</p>
+            </div>
+        `;
+    }
+
+    function renderQuiz(app) {
+        const q = state.questions[state.currentIndex];
+        const progress = ((state.currentIndex + 1) / state.questions.length) * 100;
+        
+        let html = `
+            <div class="fade-in">
+                <!-- Timer -->
+                <div class="mb-4 flex justify-between items-center bg-gray-50 rounded-xl p-3">
+                    <div class="text-sm text-gray-600">
+                        <span class="font-semibold">Soal ${state.currentIndex + 1}</span> dari ${state.questions.length}
+                    </div>
+                    <div id="timer-display" class="text-2xl font-bold font-mono text-indigo-600">
+                        <!-- Timer akan diupdate oleh JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div class="mb-6">
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-indigo-600 h-2 rounded-full transition-all duration-500" style="width: ${progress}%"></div>
+                    </div>
+                </div>
+                
+                <!-- Info Soal -->
+                <div class="mb-4 text-xs text-gray-500 flex justify-between">
+                    <span class="bg-gray-100 px-2 py-1 rounded">${q.materi}</span>
+                    <span>Kategori ${state.kategori}</span>
+                </div>
+                
+                <!-- Pertanyaan -->
+                <h2 class="text-lg font-semibold text-gray-800 mb-6 leading-relaxed">${q.soal}</h2>
+                
+                <!-- Pilihan Jawaban -->
+                <div class="space-y-3 mb-6">
+        `;
+        
+        q.shuffledOptions.forEach((opt, idx) => {
+            html += `
+                <button onclick="selectOption(${idx}, ${opt.isCorrect})" 
+                    class="option-btn w-full text-left p-4 rounded-xl border-2 border-gray-100 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200 font-medium text-gray-700 flex items-start gap-3">
+                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 text-center leading-8 font-bold text-sm">${opt.key}</span>
+                    <span class="pt-0.5">${opt.text}</span>
+                </button>
+            `;
+        });
+        
+        html += `</div>`;
+        
+        // Tombol Selesai
+        const elapsedSeconds = state.timer.totalSeconds - state.timer.remainingSeconds;
+        const canSubmit = elapsedSeconds >= state.timer.totalSeconds / 2;
+        
+        html += `
+            <button onclick="finishQuiz()" id="submit-btn" 
+                class="w-full ${canSubmit ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400'} text-white font-bold py-3.5 px-6 rounded-xl transition-all duration-200 shadow-lg flex items-center justify-center gap-2">
+                ${canSubmit ? ' Selesai & Kirim' : `⏱️ Tunggu ${Math.ceil((state.timer.totalSeconds / 2 - elapsedSeconds) / 60)} menit lagi`}
+            </button>
+        `;
+        
+        html += `</div>`;
+        app.innerHTML = html;
+        
+        // Update timer UI setelah render
+        updateTimerUI();
+    }
+
+    function renderResult(app) {
+        const total = state.questions.length;
+        const correct = state.answers.filter(a => a.isCorrect).length;
+        const finalScore = Math.round((correct / total) * 100);
+        state.score = finalScore;
+        saveState();
+
+        let detailJawaban = state.answers.map((a, i) => {
+            const q = state.questions[a.questionIndex];
+            const correctOpt = q.options.find(o => o.isCorrect);
+            
+            if (a.isCorrect) {
+                return `<li class="flex items-center text-green-700 text-sm py-1"><span class="mr-2">✅</span><span><b>No.${i+1}:</b> Benar (${a.selectedKey})</span></li>`;
+            } else {
+                return `<li class="flex items-start text-red-700 text-sm py-1"><span class="mr-2">❌</span><span><b>No.${i+1}:</b> Salah (Jawab: ${a.selectedKey}, Kunci: ${correctOpt ? correctOpt.key : '?'})</span></li>`;
+            }
+        }).join('');
+
+        app.innerHTML = `
+            <div class="text-center fade-in">
+                <div class="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-4xl">🏆</span>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-1">Kuis Selesai!</h2>
+                <p class="text-gray-500 text-sm mb-6">Berikut adalah hasil kuis Anda</p>
+                
+                <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-6 mb-6 text-white shadow-lg">
+                    <div class="text-5xl font-bold mb-1">${finalScore}</div>
+                    <div class="text-indigo-100 text-sm">Skor Akhir</div>
+                    <div class="text-xs text-indigo-200 mt-3 pt-3 border-t border-indigo-400/30">Benar ${correct} dari ${total} soal</div>
+                </div>
+                
+                <div class="text-left bg-gray-50 rounded-xl p-4 mb-6 max-h-48 overflow-y-auto border border-gray-100">
+                    <h3 class="font-semibold mb-3 text-sm text-gray-700 border-b pb-2">Detail Jawaban:</h3>
+                    <ul class="space-y-1">${detailJawaban}</ul>
+                </div>
+                
+                <button onclick="sendToGAS()" id="sendBtn" 
+                    class="w-full bg-green-600 text-white font-bold py-3.5 px-6 rounded-xl hover:bg-green-700 transition-all duration-200 shadow-lg flex items-center justify-center gap-2">
+                    <span>📤 Kirim Nilai ke Guru</span>
+                </button>
+                <p class="text-xs text-gray-400 mt-3">*Data akan dikirim ke Google Sheet dan cache dihapus.</p>
+            </div>
+        `;
+    }
+
+    function renderSuccess(app) {
+        app.innerHTML = `
+            <div class="text-center fade-in py-6">
+                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-4xl">✅</span>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Berhasil Dikirim!</h2>
+                <p class="text-gray-600 mb-8 text-sm">Nilai kamu telah tersimpan dengan aman di database guru.</p>
+                <button onclick="resetQuiz()" 
+                    class="w-full bg-indigo-600 text-white font-bold py-3.5 px-6 rounded-xl hover:bg-indigo-700 transition-all duration-200 shadow-lg">
+                    🔄 Kembali ke Awal
+                </button>
+            </div>
+        `;
+    }
+
+    function renderError(app) {
+        app.innerHTML = `
+            <div class="text-center fade-in py-6">
+                <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-4xl">⚠️</span>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Parameter Tidak Lengkap</h2>
+                <p class="text-gray-600 mb-4 text-sm">URL harus mengandung parameter: nama, kelas, dan kategori</p>
+                <div class="bg-gray-50 rounded-lg p-4 mb-6 text-left text-xs">
+                    <p class="font-semibold mb-2">Contoh URL yang benar:</p>
+                    <code class="text-indigo-600 break-all">
+                        kuis.html?nama=Shella Amanda&kelas=8.A&kategori=A
+                    </code>
+                </div>
+                <button onclick="window.location.href='/'" 
+                    class="w-full bg-indigo-600 text-white font-bold py-3.5 px-6 rounded-xl hover:bg-indigo-700 transition-all duration-200 shadow-lg">
+                     Kembali ke Beranda
+                </button>
+            </div>
+        `;
+    }
+
+    // --- Logika Aplikasi ---
+    function handleStart() {
+        state.step = 'loading';
+        render();
+        
+        fetch(CSV_URL)
+            .then(res => res.text())
+            .then(csvText => {
+                const rawData = parseCSV(csvText);
+                let filtered = mapQuestions(rawData).filter(q => q.kategori === state.kategori);
+                
+                if (filtered.length === 0) {
+                    alert(`Tidak ada soal untuk Kategori ${state.kategori}. Periksa kolom 'Kategori' di CSV.`);
+                    state.step = 'home';
+                    render();
+                    return;
+                }
+                
+                // Acak soal
+                filtered = shuffleArray(filtered);
+                
+                // Simpan semua soal (tidak ada batasan jumlah)
+                state.questions = filtered.map(q => ({
+                    ...q,
+                    shuffledOptions: shuffleArray([...q.options])
+                }));
+                
+                // Hitung waktu: jumlah soal × 2 menit
+                const totalMinutes = state.questions.length * 2;
+                
+                state.currentIndex = 0;
+                state.score = 0;
+                state.answers = [];
+                state.step = 'quiz';
+                
+                // Mulai timer
+                startTimer(totalMinutes);
+                saveState();
+                render();
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Gagal memuat soal. Periksa koneksi internet atau URL CSV.");
+                state.step = 'home';
+                render();
+            });
+    }
+
+    function selectOption(idx, isCorrect) {
+        const q = state.questions[state.currentIndex];
+        const selected = q.shuffledOptions[idx];
+        
+        state.answers.push({
+            questionIndex: state.currentIndex,
+            selectedKey: selected.key,
+            selectedText: selected.text,
+            isCorrect: isCorrect
+        });
+        
+        if (state.currentIndex < state.questions.length - 1) {
+            state.currentIndex++;
+            saveState();
+            render();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        // Cek apakah sudah boleh submit
+        const elapsedSeconds = state.timer.totalSeconds - state.timer.remainingSeconds;
+        if (elapsedSeconds < state.timer.totalSeconds / 2) {
+            const remainingWait = Math.ceil((state.timer.totalSeconds / 2 - elapsedSeconds) / 60);
+            alert(`⏱️ Anda harus menunggu minimal ${remainingWait} menit lagi sebelum menyelesaikan kuis.`);
+            return;
+        }
+        
+        // Hentikan timer
+        if (state.timer.intervalId) {
+            clearInterval(state.timer.intervalId);
+        }
+        
+        state.step = 'result';
+        saveState();
+        render();
+    }
+
+    async function sendToGAS() {
+        const btn = document.getElementById('sendBtn');
+        btn.disabled = true;
+        btn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Mengirim...`;
+        
+        const jawabanDetail = state.answers.map((a, i) => {
+            const q = state.questions[a.questionIndex];
+            const correctOpt = q.options.find(o => o.isCorrect);
+            const status = a.isCorrect ? '✅' : '❌';
+            return `No.${i+1}: ${status} (${a.selectedKey}${a.isCorrect ? '' : ', Kunci: ' + (correctOpt ? correctOpt.key : '?')})`;
+        }).join(' | ');
+
+        const payload = {
+            nama: state.name,
+            kelas: state.kelas,
+            kategori: state.kategori,
+            skor: state.score,
+            waktuPengerjaan: state.timer.totalSeconds - state.timer.remainingSeconds, // dalam detik
+            jawaban: jawabanDetail
+        };
+        
+        try {
+            await fetch(GAS_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            });
+            
+            clearCache();
+            state.step = 'success';
+            render();
+        } catch (error) {
+            console.error(error);
+            alert("Gagal mengirim nilai. Periksa koneksi internet Anda.");
+            btn.disabled = false;
+            btn.innerHTML = `<span>📤 Kirim Nilai ke Guru</span>`;
+        }
+    }
+
+    function resetQuiz() {
+        // Hentikan timer jika ada
+        if (state.timer.intervalId) {
+            clearInterval(state.timer.intervalId);
+        }
+        
+        state = {
+            step: 'home',
+            name: '',
+            kelas: '',
+            kategori: '',
+            questions: [],
+            currentIndex: 0,
+            score: 0,
+            answers: [],
+            timer: {
+                totalSeconds: 0,
+                remainingSeconds: 0,
+                intervalId: null,
+                startTime: null,
+                canSubmit: false
+            }
+        };
+        render();
+    }
+
+    // --- Inisialisasi ---
+    function init() {
+        // Cek cache
+        const cached = localStorage.getItem('quizState');
+        if (cached) {
+            const parsed = JSON.parse(cached);
+            
+            // Restore timer jika sedang quiz
+            if (parsed.step === 'quiz' && parsed.timer) {
+                state = parsed;
+                
+                // Restart timer interval
+                state.timer.intervalId = setInterval(() => {
+                    state.timer.remainingSeconds--;
+                    
+                    const elapsedSeconds = state.timer.totalSeconds - state.timer.remainingSeconds;
+                    if (elapsedSeconds >= state.timer.totalSeconds / 2) {
+                        state.timer.canSubmit = true;
+                    }
+                    
+                    if (state.timer.remainingSeconds <= 0) {
+                        clearInterval(state.timer.intervalId);
+                        if (state.step === 'quiz') {
+                            finishQuiz();
+                        }
+                    }
+                    
+                    if (state.step === 'quiz') {
+                        updateTimerUI();
+                    }
+                    
+                    saveState();
+                }, 1000);
+                
+                render();
+                return;
+            }
+            
+            // Jika ada hasil yang belum terkirim
+            if (parsed.step === 'result') {
+                state = parsed;
+                render();
+                return;
+            }
+        }
+        
+        render();
+    }
+
+    // Cleanup timer saat halaman ditutup
+    window.addEventListener('beforeunload', () => {
+        if (state.timer.intervalId) {
+            clearInterval(state.timer.intervalId);
+        }
+    });
+
+    init();
+</script>
+</body>
+</html>
