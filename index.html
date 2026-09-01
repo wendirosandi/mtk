@@ -1,644 +1,961 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LKPD Menyederhanakan Bentuk Akar</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- MathJax (hanya untuk rumus statis) -->
-    <script>
-        MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']]
-            }
-        };
-    </script>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
-        .hidden { display: none !important; }
-
-        .math-plain { font-size: 1.05rem; font-weight: 500; color: #1f2937; line-height: 2.4; }
-
-        .num-input {
-            width: 52px; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 6px;
-            text-align: center; display: inline-block; margin: 0 3px; font-size: 1rem; background-color: #f8fafc;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LKPD & Kuis Menyederhanakan Bentuk Akar</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script>
+    MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']]
         }
-        .num-input::-webkit-outer-spin-button, .num-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .num-input { -moz-appearance: textfield; appearance: textfield; }
+    };
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-        .math-input, .lkpd-input {
-            width: 100%; padding: 12px; font-size: 1.2rem; border: 2px solid #e0e0e0; border-radius: 8px;
-            box-sizing: border-box; transition: border-color 0.2s; margin-bottom: 15px;
-        }
-        .math-input:focus, .lkpd-input:focus { border-color: #4a90e2; outline: none; }
+<style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; }
+    .hidden { display: none !important; }
+    .math-plain { font-size: 1.05rem; font-weight: 500; color: #1f2937; line-height: 2.4; }
+    .num-input { width: 52px; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; display: inline-block; margin: 0 3px; font-size: 1rem; background: #f8fafc; }
+    .num-input::-webkit-outer-spin-button, .num-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .num-input { -moz-appearance: textfield; appearance: textfield; }
+    .math-input { width: 100%; padding: 12px; font-size: 1.2rem; border: 2px solid #e0e0e0; border-radius: 8px; box-sizing: border-box; transition: border-color .2s; margin-bottom: 15px; }
+    .math-input:focus { border-color: #4a90e2; outline: none; }
 
-        /* Toolbar simbol kontekstual: melayang tepat di atas input aktif */
-        .math-toolbar {
-            position: absolute; bottom: calc(100% + 6px); left: 0; right: 0;
-            background: #2c3e50; border-radius: 10px; padding: 6px;
-            display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; align-items: center;
-            z-index: 70; box-shadow: 0 6px 18px rgba(0,0,0,.28);
-        }
-        .math-toolbar .kbd-btn {
-            flex: 1 1 34px; max-width: 56px; background: #f39c12; color: #fff; border: none;
-            padding: 9px 0; font-size: 1.05rem; font-weight: 700; border-radius: 7px; cursor: pointer;
-            user-select: none; -webkit-user-select: none; touch-action: manipulation;
-        }
-        .math-toolbar .kbd-btn:active { transform: scale(.93); }
-        .math-toolbar .tb-hide {
-            flex: 0 0 auto; background: #e74c3c; color: #fff; border: none;
-            padding: 8px 10px; border-radius: 7px; font-weight: 700; cursor: pointer;
-        }
-    </style>
+    /* Toolbar simbol melayang di atas input */
+    .math-toolbar {
+        position: absolute; bottom: calc(100% + 6px); left: 0; right: 0;
+        background: #2c3e50; border-radius: 10px; padding: 6px;
+        display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; align-items: center;
+        z-index: 70; box-shadow: 0 6px 18px rgba(0,0,0,.28);
+    }
+    .math-toolbar .kbd-btn { flex: 1 1 34px; max-width: 56px; background: #f39c12; color: #fff; border: none; padding: 9px 0; font-size: 1.05rem; font-weight: 700; border-radius: 7px; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+    .math-toolbar .kbd-btn:active { transform: scale(.93); }
+    .math-toolbar .tb-hide { flex: 0 0 auto; background: #e74c3c; color: #fff; border: none; padding: 8px 10px; border-radius: 7px; font-weight: 700; cursor: pointer; }
+
+    /* Kuis */
+    .fade-in { animation: fadeIn .3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .option-btn:active { transform: scale(.98); }
+    .timer-warning { background: #ef4444; color: #fff; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.8} }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
 </head>
 <body>
 
-    <!-- ============ PANEL ERROR: LINK TIDAK VALID ============ -->
-    <div id="lkpd-error" class="hidden max-w-2xl mx-auto mt-10 bg-white border-2 border-red-300 rounded-xl p-6 shadow-sm">
-        <div class="flex items-center gap-3 mb-3 text-red-600">
-            <i class="fas fa-exclamation-triangle text-2xl"></i>
-            <h2 class="text-lg font-bold">Link LKPD Tidak Valid</h2>
-        </div>
-        <p class="text-sm text-gray-700 mb-3">
-            Maaf, LKPD tidak dapat ditampilkan. Silakan <strong>tanyakan dan cek kembali link yang diberikan oleh guru</strong>
-            (pastikan link lengkap dan benar).
-        </p>
-        <ul id="error-list" class="list-disc list-inside text-sm text-red-600 space-y-1 mb-4"></ul>
-        <p class="text-xs text-gray-500">Contoh format link yang benar: <code>LKPD1.html?nama1=Nama+Siswa1&amp;kelas=8.A&amp;kategori=A</code></p>
+<!-- ============ PANEL ERROR LINK TIDAK VALID ============ -->
+<div id="error-panel" class="hidden max-w-2xl mx-auto mt-10 bg-white border-2 border-red-300 rounded-xl p-6 shadow">
+    <div class="flex items-center gap-3 mb-3 text-red-600">
+        <i class="fas fa-exclamation-triangle text-2xl"></i>
+        <h2 class="text-lg font-bold">Link LKPD Tidak Valid</h2>
     </div>
+    <p class="text-sm text-gray-700 mb-3">
+        Maaf, LKPD tidak dapat ditampilkan. Silakan <strong>tanyakan dan cek kembali link yang diberikan oleh guru</strong>.
+    </p>
+    <ul id="error-list" class="list-disc list-inside text-sm text-red-600 space-y-1 mb-4"></ul>
+    <p class="text-xs text-gray-500">Contoh format link benar: <code>LKPD.html?nama1=Nama+Siswa1&amp;kelas=8.A&amp;kategori=A</code></p>
+</div>
 
-    <!-- ============ KONTEN UTAMA LKPD ============ -->
-    <div id="lkpd-main">
+<!-- ============ KONTEN UTAMA ============ -->
+<div id="main-container">
 
-        <div class="max-w-4xl mx-auto space-y-6">
+<!-- ===================== FASE 1: LKPD ===================== -->
+<div id="fase-lkpd">
+    <div class="max-w-4xl mx-auto space-y-6">
 
-            <!-- Header / Identitas -->
-            <div class="bg-white rounded-xl border p-4 text-gray-700 space-y-3 shadow-sm">
-                <h1 class="text-xl font-bold text-gray-800 text-center">LKPD MENYEDERHANAKAN BENTUK AKAR</h1>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-                    <div>
-                        <span class="font-semibold block mb-1">Kode LKPD:</span>
-                        <input type="text" value="MTK-001" disabled class="px-3 py-2 bg-gray-100 border border-gray-300 rounded text-gray-600 w-full cursor-not-allowed">
-                    </div>
-                    <div>
-                        <span class="font-semibold block mb-1">Nama Siswa 1:</span>
-                        <input type="text" id="input-nama1" maxlength="50" disabled class="px-3 py-2 bg-gray-100 border border-gray-300 rounded text-gray-600 w-full cursor-not-allowed">
-                    </div>
-                    <div>
-                        <span class="font-semibold block mb-1">Kelas:</span>
-                        <input type="text" id="input-kelas" maxlength="20" disabled class="px-3 py-2 bg-gray-100 border border-gray-300 rounded text-gray-600 w-full cursor-not-allowed">
-                    </div>
-                    <div>
-                        <span class="font-semibold block mb-1">Nama Siswa 2:</span>
-                        <input type="text" id="input-nama2" maxlength="50" autocomplete="off" class="px-3 py-2 border border-gray-300 rounded w-full" placeholder="Isi nama lengkap...">
-                    </div>
+        <div class="bg-white rounded-xl border p-4 text-gray-700 space-y-3 shadow-sm">
+            <h1 class="text-xl font-bold text-gray-800 text-center">LKPD MENYEDERHANAKAN BENTUK AKAR</h1>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                    <span class="font-semibold block mb-1">Kode LKPD:</span>
+                    <input type="text" value="MTK-001" disabled class="px-3 py-2 bg-gray-100 border border-gray-300 rounded text-gray-600 w-full cursor-not-allowed">
                 </div>
-                <div class="flex items-center gap-2 pt-3 border-t text-sm text-gray-700">
-                    <i class="fas fa-stopwatch text-blue-600"></i>
-                    <span class="font-semibold">Waktu:</span>
-                    <span id="timer-display" class="font-mono text-base font-bold text-blue-700">00.00</span>
-                    <span id="timer-hint" class="text-xs text-gray-500">(berjalan saat jawaban pertama diketik)</span>
+                <div>
+                    <span class="font-semibold block mb-1">Nama Siswa 1:</span>
+                    <input type="text" id="input-nama1" maxlength="50" disabled class="px-3 py-2 bg-gray-100 border border-gray-300 rounded text-gray-600 w-full cursor-not-allowed">
                 </div>
-                <div class="text-sm">
-                    <label class="font-semibold block mb-1">Kategori Soal:</label>
-                    <select id="kategori-select" class="w-full md:w-64 p-2 border border-gray-300 rounded-lg bg-gray-100">
-                        <option value="A">Kategori A (Sulit)</option>
-                        <option value="B">Kategori B (Sedang)</option>
-                        <option value="C">Kategori C (Mudah)</option>
-                    </select>
+                <div>
+                    <span class="font-semibold block mb-1">Kelas:</span>
+                    <input type="text" id="input-kelas" maxlength="20" disabled class="px-3 py-2 bg-gray-100 border border-gray-300 rounded text-gray-600 w-full cursor-not-allowed">
+                </div>
+                <div>
+                    <span class="font-semibold block mb-1">Nama Siswa 2:</span>
+                    <input type="text" id="input-nama2" maxlength="50" autocomplete="off" class="px-3 py-2 border border-gray-300 rounded w-full" placeholder="Isi nama lengkap...">
                 </div>
             </div>
-
-            <!-- Banner sudah terkirim -->
-            <div id="submitted-banner" class="hidden max-w-4xl mx-auto bg-green-100 border border-green-300 text-green-800 rounded-xl p-4 text-sm font-medium">
-                <i class="fas fa-check-circle mr-2"></i> LKPD sudah terkirim pada <span id="submitted-at"></span>. Jawaban terkunci (mode baca).
+            <div class="flex items-center gap-2 pt-3 border-t text-sm text-gray-700">
+                <i class="fas fa-stopwatch text-blue-600"></i>
+                <span class="font-semibold">Waktu:</span>
+                <span id="timer-display" class="font-mono text-base font-bold text-blue-700">00.00</span>
+                <span id="timer-hint" class="text-xs text-gray-500">(berjalan saat jawaban pertama diketik)</span>
             </div>
-
-            <!-- Tujuan Pembelajaran -->
-            <section class="lkpd-soal-area bg-white rounded-xl border p-4 shadow-sm">
-                <h2 class="font-semibold text-gray-800 mb-2 text-lg">Tujuan Pembelajaran</h2>
-                <p class="text-sm text-gray-700">Peserta Didik dapat menyederhanakan bentuk akar dengan tepat.</p>
-            </section>
-
-            <!-- Ayo Memahami -->
-            <section class="lkpd-soal-area bg-white rounded-xl border p-4 shadow-sm">
-                <h2 class="font-semibold text-gray-800 mb-3 text-lg">Ayo Memahami</h2>
-                <h3 class="font-semibold text-gray-700 mb-2">Masih Ingat Langkah-langkah Penjumlahan atau Pengurangan Bentuk Akar?</h3>
-                <div class="mb-4 text-gray-700 space-y-2 bg-blue-50 p-3 rounded-lg">
-                    <p>$2\sqrt{3}+6\sqrt{3}=(2+6)\sqrt{3}=8\sqrt{3}$</p>
-                    <p>$6\sqrt{12}-2\sqrt{12}=(6-2)\sqrt{12}=4\sqrt{12}$</p>
-                </div>
-                <h3 class="font-semibold text-gray-700 mb-2">Masih Ingat Langkah-langkah Perkalian/Pembagian Bentuk Akar?</h3>
-                <div class="mb-4 text-gray-700 space-y-2 bg-blue-50 p-3 rounded-lg">
-                    <p>$2\sqrt{2} \times 2\sqrt{3} = (2 \times 2) \times \sqrt{2 \times 3} = 4\sqrt{6}$</p>
-                    <p>$\frac{6\sqrt{96}}{3\sqrt{3}} = \frac{6}{3}\sqrt{\frac{96}{3}} = 2\sqrt{32}$</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <div>
-                        <p class="font-bold text-blue-800 mb-1">Penjumlahan atau Pengurangan:</p>
-                        <p>Bentuk Akar, Perlakukan Seperti Variabel.</p>
-                        <p class="text-xs italic text-red-600 mt-1">(Syarat Akar nya harus sama)</p>
-                    </div>
-                    <div>
-                        <p class="font-bold text-blue-800 mb-1">Perkalian atau Pembagian Bentuk Akar:</p>
-                        <p>Kali/Bagi Angka yang di luar akar dan Kali/Bagi Angka yang di dalam akar.</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Ayo Berkomunikasi -->
-            <section class="lkpd-soal-area bg-white rounded-xl border p-4 shadow-sm">
-                <h2 class="font-semibold text-gray-800 mb-3 text-lg">Ayo Berkomunikasi</h2>
-                <p class="text-sm text-gray-700 mb-4">Coba diskusikan dengan temanmu untuk menyelesaikan operasi berikut:</p>
-                <div class="space-y-6">
-                    <div class="flex items-baseline flex-wrap gap-2">
-                        <span class="text-gray-800 font-medium">1. $5\sqrt{3}+2\sqrt{12} =$</span>
-                        <input type="text" inputmode="numeric" autocomplete="off" data-label="Kom1" class="math-input flex-1 min-w-[200px] mb-0" maxlength="50" placeholder="Klik untuk mengetik...">
-                    </div>
-                    <div class="flex items-baseline flex-wrap gap-2">
-                        <span class="text-gray-800 font-medium">2. $12\sqrt{2}-3\sqrt{8} =$</span>
-                        <input type="text" inputmode="numeric" autocomplete="off" data-label="Kom2" class="math-input flex-1 min-w-[200px] mb-0" maxlength="50" placeholder="Klik untuk mengetik...">
-                    </div>
-                </div>
-                <p class="text-sm text-gray-600 mt-6 italic border-t pt-4">
-                    Untuk dapat menyelesaikan soal tersebut, terlebih dahulu coba kalian pahami menyederhanakan bilangan bentuk akar.
-                    Kemudian Lengkapi tabel berikut ini:
-                </p>
-            </section>
-
-            <!-- ================= TABEL KATEGORI A ================= -->
-            <section class="kategori-A lkpd-kategori-section bg-white rounded-xl border p-4 shadow-sm" id="section-A">
-                <h3 class="font-semibold text-blue-700 text-lg mb-4 flex items-center">
-                    <i class="fas fa-star text-blue-500 mr-2"></i> Kategori A
-                </h3>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full border border-gray-300 text-sm">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="border border-gray-300 p-3 w-1/5 text-left">Bentuk akar</th>
-                                <th class="border border-gray-300 p-3 text-left">Bentuk Sederhana</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-gray-700">
-                            <tr>
-                                <td class="border border-gray-300 p-3 text-center font-medium">$\sqrt{8}$</td>
-                                <td class="border border-gray-300 p-3">$\sqrt{8}=\sqrt{4 \times 2}=\sqrt{4} \times \sqrt{2}=2 \times \sqrt{2}=2\sqrt{2}$</td>
-                            </tr>
-                            <tr data-label="√98">
-                                <td class="border border-gray-300 p-3 text-center font-medium">√98</td>
-                                <td class="border border-gray-300 p-3">
-                                    <div class="math-plain flex items-center flex-wrap gap-y-2">
-                                        <span>√98 = √(</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span>) = √</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr data-label="5√245">
-                                <td class="border border-gray-300 p-3 text-center font-medium">$5\sqrt{245}$</td>
-                                <td class="border border-gray-300 p-3"><input type="text" inputmode="numeric" autocomplete="off" class="math-input mb-0" maxlength="50" placeholder="Klik untuk mengetik..."></td>
-                            </tr>
-                            <tr data-label="4√288">
-                                <td class="border border-gray-300 p-3 text-center font-medium">$4\sqrt{288}$</td>
-                                <td class="border border-gray-300 p-3"><input type="text" inputmode="numeric" autocomplete="off" class="math-input mb-0" maxlength="50" placeholder="Klik untuk mengetik..."></td>
-                            </tr>
-                            <tr data-label="5√675">
-                                <td class="border border-gray-300 p-3 text-center font-medium">$5\sqrt{675}$</td>
-                                <td class="border border-gray-300 p-3"><input type="text" inputmode="numeric" autocomplete="off" class="math-input mb-0" maxlength="50" placeholder="Klik untuk mengetik..."></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- ================= TABEL KATEGORI B ================= -->
-            <section class="kategori-B lkpd-kategori-section bg-white rounded-xl border p-4 shadow-sm hidden" id="section-B">
-                <h3 class="font-semibold text-purple-700 text-lg mb-4 flex items-center">
-                    <i class="fas fa-star-half-alt text-purple-500 mr-2"></i> Kategori B
-                </h3>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full border border-gray-300 text-sm">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="border border-gray-300 p-3 w-1/5 text-left">Bentuk akar</th>
-                                <th class="border border-gray-300 p-3 text-left">Bentuk Sederhana</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-gray-700">
-                            <tr>
-                                <td class="border border-gray-300 p-3 text-center font-medium">$\sqrt{8}$</td>
-                                <td class="border border-gray-300 p-3">$\sqrt{8}=\sqrt{4 \times 2}=\sqrt{4} \times \sqrt{2}=2 \times \sqrt{2}=2\sqrt{2}$</td>
-                            </tr>
-                            <tr data-label="√80">
-                                <td class="border border-gray-300 p-3 text-center font-medium">√80</td>
-                                <td class="border border-gray-300 p-3">
-                                    <div class="math-plain flex items-center flex-wrap gap-y-2">
-                                        <span>√80 = √(</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span>× 5) = √</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><span>√5 =</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><span>√5 =</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span>√5</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr data-label="√75">
-                                <td class="border border-gray-300 p-3 text-center font-medium">√75</td>
-                                <td class="border border-gray-300 p-3">
-                                    <div class="math-plain flex items-center flex-wrap gap-y-2">
-                                        <span>√75 = √(</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span>) = √</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr data-label="√128">
-                                <td class="border border-gray-300 p-3 text-center font-medium">√128</td>
-                                <td class="border border-gray-300 p-3">
-                                    <div class="math-plain flex items-center flex-wrap gap-y-2">
-                                        <span>√128 = √(</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span>) = √</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr data-label="3√108">
-                                <td class="border border-gray-300 p-3 text-center font-medium">$3\sqrt{108}$</td>
-                                <td class="border border-gray-300 p-3"><input type="text" inputmode="numeric" autocomplete="off" class="math-input mb-0" maxlength="50" placeholder="Klik untuk mengetik..."></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- ================= TABEL KATEGORI C ================= -->
-            <section class="kategori-C lkpd-kategori-section bg-white rounded-xl border p-4 shadow-sm hidden" id="section-C">
-                <h3 class="font-semibold text-orange-700 text-lg mb-4 flex items-center">
-                    <i class="fas fa-check-circle text-orange-500 mr-2"></i> Kategori C
-                </h3>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full border border-gray-300 text-sm">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="border border-gray-300 p-3 w-1/5 text-left">Bentuk akar</th>
-                                <th class="border border-gray-300 p-3 text-left">Bentuk Sederhana</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-gray-700">
-                            <tr>
-                                <td class="border border-gray-300 p-3 text-center font-medium">$\sqrt{8}$</td>
-                                <td class="border border-gray-300 p-3">$\sqrt{8}=\sqrt{4 \times 2}=\sqrt{4} \times \sqrt{2}=2 \times \sqrt{2}=2\sqrt{2}$</td>
-                            </tr>
-                            <tr data-label="√72">
-                                <td class="border border-gray-300 p-3 text-center font-medium">√72</td>
-                                <td class="border border-gray-300 p-3">
-                                    <div class="math-plain flex items-center flex-wrap gap-y-2">
-                                        <span>√72 = √(</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span>× 2) = √</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><span>√2 =</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><span>√2 =</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span>√2</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr data-label="√75">
-                                <td class="border border-gray-300 p-3 text-center font-medium">√75</td>
-                                <td class="border border-gray-300 p-3">
-                                    <div class="math-plain flex items-center flex-wrap gap-y-2">
-                                        <span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span>= √(</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span>) = √</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr data-label="√128">
-                                <td class="border border-gray-300 p-3 text-center font-medium">√128</td>
-                                <td class="border border-gray-300 p-3">
-                                    <div class="math-plain flex items-center flex-wrap gap-y-2">
-                                        <span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span>= √(</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span>) = √</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr data-label="√147">
-                                <td class="border border-gray-300 p-3 text-center font-medium">√147</td>
-                                <td class="border border-gray-300 p-3">
-                                    <div class="math-plain flex items-center flex-wrap gap-y-2">
-                                        <span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span>= √(</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span>) = √</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                        <span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- Refleksi -->
-            <section class="lkpd-soal-area bg-white rounded-xl border p-4 shadow-sm">
-                <h2 class="font-semibold text-gray-800 mb-3 text-lg">Refleksi</h2>
-                <p class="text-sm text-gray-700 mb-3 font-medium">Apakah kamu sudah paham cara menyederhanakan bentuk akar?</p>
-                <div class="flex flex-col gap-2 mb-6" role="radiogroup">
-                    <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded-lg">
-                        <input type="radio" name="refleksi-paham" value="Sangat Paham" class="h-4 w-4 text-blue-600"> Sangat Paham
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded-lg">
-                        <input type="radio" name="refleksi-paham" value="Sudah paham" class="h-4 w-4 text-blue-600"> Sudah paham
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded-lg">
-                        <input type="radio" name="refleksi-paham" value="Masih perlu latihan" class="h-4 w-4 text-blue-600"> Masih perlu latihan
-                    </label>
-                </div>
-                <h3 class="font-semibold text-gray-800 mb-2">Refleksi Umum</h3>
-                <p class="text-sm text-gray-700 mb-2">Tuliskan satu hal baru yang kamu pelajari dari LKPD ini.</p>
-                <textarea id="refleksi-umum" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" rows="4" placeholder="Tuliskan refleksimu di sini..."></textarea>
-            </section>
-
-            <!-- Tombol Kirim -->
-            <div class="text-center pt-4 pb-16">
-                <button id="btn-kirim" class="bg-green-600 hover:bg-green-700 active:scale-95 text-white font-bold px-10 py-3 rounded-full shadow-lg text-lg transition">
-                    <i class="fas fa-paper-plane mr-2"></i>Kirim LKPD
-                </button>
+            <div class="text-sm">
+                <label class="font-semibold block mb-1">Kategori Soal:</label>
+                <select id="kategori-select" class="w-full md:w-64 p-2 border border-gray-300 rounded-lg bg-gray-100" disabled>
+                    <option value="A">Kategori A (Sulit)</option>
+                    <option value="B">Kategori B (Sedang)</option>
+                    <option value="C">Kategori C (Mudah)</option>
+                </select>
             </div>
         </div>
+
+        <!-- Banner status -->
+        <div id="lkpd-submitted-banner" class="hidden max-w-4xl mx-auto bg-green-100 border border-green-300 text-green-800 rounded-xl p-4 text-sm font-medium">
+            <i class="fas fa-check-circle mr-2"></i> LKPD sudah terkirim pada <span id="lkpd-submitted-at"></span>. Silakan lanjut ke Kuis di bawah.
+        </div>
+        <div id="kuis-submitted-banner" class="hidden max-w-4xl mx-auto bg-emerald-100 border border-emerald-400 text-emerald-800 rounded-xl p-4 text-sm font-bold">
+            <i class="fas fa-flag-checkered mr-2"></i> Semua tugas (LKPD + Kuis) sudah selesai. Terima kasih!
+        </div>
+
+        <section class="bg-white rounded-xl border p-4 shadow-sm">
+            <h2 class="font-semibold text-gray-800 mb-2 text-lg">Tujuan Pembelajaran</h2>
+            <p class="text-sm text-gray-700">Peserta Didik dapat menyederhanakan bentuk akar dengan tepat.</p>
+        </section>
+
+        <section class="bg-white rounded-xl border p-4 shadow-sm">
+            <h2 class="font-semibold text-gray-800 mb-3 text-lg">Ayo Memahami</h2>
+            <h3 class="font-semibold text-gray-700 mb-2">Masih Ingat Langkah Penjumlahan/Pengurangan Bentuk Akar?</h3>
+            <div class="mb-4 text-gray-700 space-y-2 bg-blue-50 p-3 rounded-lg">
+                <p>$2\sqrt{3}+6\sqrt{3}=(2+6)\sqrt{3}=8\sqrt{3}$</p>
+                <p>$6\sqrt{12}-2\sqrt{12}=(6-2)\sqrt{12}=4\sqrt{12}$</p>
+            </div>
+            <h3 class="font-semibold text-gray-700 mb-2">Masih Ingat Perkalian/Pembagian Bentuk Akar?</h3>
+            <div class="mb-4 text-gray-700 space-y-2 bg-blue-50 p-3 rounded-lg">
+                <p>$2\sqrt{2} \times 2\sqrt{3} = (2 \times 2) \times \sqrt{2 \times 3} = 4\sqrt{6}$</p>
+                <p>$\frac{6\sqrt{96}}{3\sqrt{3}} = \frac{6}{3}\sqrt{\frac{96}{3}} = 2\sqrt{32}$</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700 bg-gray-50 p-4 rounded-lg border">
+                <div>
+                    <p class="font-bold text-blue-800 mb-1">Penjumlahan/Pengurangan:</p>
+                    <p>Perlakukan Seperti Variabel.</p>
+                    <p class="text-xs italic text-red-600 mt-1">(Syarat Akarnya harus sama)</p>
+                </div>
+                <div>
+                    <p class="font-bold text-blue-800 mb-1">Perkalian/Pembagian:</p>
+                    <p>Kali/Bagi Angka di luar akar dan di dalam akar.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-xl border p-4 shadow-sm">
+            <h2 class="font-semibold text-gray-800 mb-3 text-lg">Ayo Berkomunikasi</h2>
+            <p class="text-sm text-gray-700 mb-4">Diskusikan dengan temanmu:</p>
+            <div class="space-y-6">
+                <div class="flex items-baseline flex-wrap gap-2">
+                    <span class="text-gray-800 font-medium">1. $5\sqrt{3}+2\sqrt{12} =$</span>
+                    <input type="text" inputmode="numeric" autocomplete="off" data-label="Kom1" class="math-input flex-1 min-w-[200px] mb-0" maxlength="50" placeholder="Klik untuk mengetik...">
+                </div>
+                <div class="flex items-baseline flex-wrap gap-2">
+                    <span class="text-gray-800 font-medium">2. $12\sqrt{2}-3\sqrt{8} =$</span>
+                    <input type="text" inputmode="numeric" autocomplete="off" data-label="Kom2" class="math-input flex-1 min-w-[200px] mb-0" maxlength="50" placeholder="Klik untuk mengetik...">
+                </div>
+            </div>
+            <p class="text-sm text-gray-600 mt-6 italic border-t pt-4">Lengkapi tabel berikut sesuai kategorimu:</p>
+        </section>
+
+        <!-- KATEGORI A -->
+        <section class="kategori-A lkpd-kategori-section bg-white rounded-xl border p-4 shadow-sm" id="section-A">
+            <h3 class="font-semibold text-blue-700 text-lg mb-4 flex items-center"><i class="fas fa-star text-blue-500 mr-2"></i> Kategori A</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full border border-gray-300 text-sm">
+                    <thead class="bg-gray-100"><tr><th class="border border-gray-300 p-3 w-1/5 text-left">Bentuk akar</th><th class="border border-gray-300 p-3 text-left">Bentuk Sederhana</th></tr></thead>
+                    <tbody class="text-gray-700">
+                        <tr><td class="border border-gray-300 p-3 text-center font-medium">$\sqrt{8}$</td><td class="border border-gray-300 p-3">$\sqrt{8}=\sqrt{4 \times 2}=\sqrt{4} \times \sqrt{2}=2 \times \sqrt{2}=2\sqrt{2}$</td></tr>
+                        <tr data-label="√98"><td class="border border-gray-300 p-3 text-center font-medium">√98</td>
+                            <td class="border border-gray-300 p-3"><div class="math-plain flex items-center flex-wrap gap-y-2"><span>√98 = √(</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>) = √</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"></div></td></tr>
+                        <tr data-label="5√245"><td class="border border-gray-300 p-3 text-center font-medium">$5\sqrt{245}$</td><td class="border border-gray-300 p-3"><input type="text" inputmode="numeric" autocomplete="off" class="math-input mb-0" maxlength="50" placeholder="Klik untuk mengetik..."></td></tr>
+                        <tr data-label="4√288"><td class="border border-gray-300 p-3 text-center font-medium">$4\sqrt{288}$</td><td class="border border-gray-300 p-3"><input type="text" inputmode="numeric" autocomplete="off" class="math-input mb-0" maxlength="50" placeholder="Klik untuk mengetik..."></td></tr>
+                        <tr data-label="5√675"><td class="border border-gray-300 p-3 text-center font-medium">$5\sqrt{675}$</td><td class="border border-gray-300 p-3"><input type="text" inputmode="numeric" autocomplete="off" class="math-input mb-0" maxlength="50" placeholder="Klik untuk mengetik..."></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- KATEGORI B -->
+        <section class="kategori-B lkpd-kategori-section bg-white rounded-xl border p-4 shadow-sm hidden" id="section-B">
+            <h3 class="font-semibold text-purple-700 text-lg mb-4 flex items-center"><i class="fas fa-star-half-alt text-purple-500 mr-2"></i> Kategori B</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full border border-gray-300 text-sm">
+                    <thead class="bg-gray-100"><tr><th class="border border-gray-300 p-3 w-1/5 text-left">Bentuk akar</th><th class="border border-gray-300 p-3 text-left">Bentuk Sederhana</th></tr></thead>
+                    <tbody class="text-gray-700">
+                        <tr><td class="border border-gray-300 p-3 text-center font-medium">$\sqrt{8}$</td><td class="border border-gray-300 p-3">$\sqrt{8}=\sqrt{4 \times 2}=\sqrt{4} \times \sqrt{2}=2 \times \sqrt{2}=2\sqrt{2}$</td></tr>
+                        <tr data-label="√80"><td class="border border-gray-300 p-3 text-center font-medium">√80</td>
+                            <td class="border border-gray-300 p-3"><div class="math-plain flex items-center flex-wrap gap-y-2"><span>√80 = √(</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>× 5) = √</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><span>√5 =</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><span>√5 =</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√5</span></div></td></tr>
+                        <tr data-label="√75"><td class="border border-gray-300 p-3 text-center font-medium">√75</td>
+                            <td class="border border-gray-300 p-3"><div class="math-plain flex items-center flex-wrap gap-y-2"><span>√75 = √(</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>) = √</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"></div></td></tr>
+                        <tr data-label="√128"><td class="border border-gray-300 p-3 text-center font-medium">√128</td>
+                            <td class="border border-gray-300 p-3"><div class="math-plain flex items-center flex-wrap gap-y-2"><span>√128 = √(</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>) = √</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"></div></td></tr>
+                        <tr data-label="3√108"><td class="border border-gray-300 p-3 text-center font-medium">$3\sqrt{108}$</td><td class="border border-gray-300 p-3"><input type="text" inputmode="numeric" autocomplete="off" class="math-input mb-0" maxlength="50" placeholder="Klik untuk mengetik..."></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- KATEGORI C -->
+        <section class="kategori-C lkpd-kategori-section bg-white rounded-xl border p-4 shadow-sm hidden" id="section-C">
+            <h3 class="font-semibold text-orange-700 text-lg mb-4 flex items-center"><i class="fas fa-check-circle text-orange-500 mr-2"></i> Kategori C</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full border border-gray-300 text-sm">
+                    <thead class="bg-gray-100"><tr><th class="border border-gray-300 p-3 w-1/5 text-left">Bentuk akar</th><th class="border border-gray-300 p-3 text-left">Bentuk Sederhana</th></tr></thead>
+                    <tbody class="text-gray-700">
+                        <tr><td class="border border-gray-300 p-3 text-center font-medium">$\sqrt{8}$</td><td class="border border-gray-300 p-3">$\sqrt{8}=\sqrt{4 \times 2}=\sqrt{4} \times \sqrt{2}=2 \times \sqrt{2}=2\sqrt{2}$</td></tr>
+                        <tr data-label="√72"><td class="border border-gray-300 p-3 text-center font-medium">√72</td>
+                            <td class="border border-gray-300 p-3"><div class="math-plain flex items-center flex-wrap gap-y-2"><span>√72 = √(</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>× 2) = √</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><span>√2 =</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><span>√2 =</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√2</span></div></td></tr>
+                        <tr data-label="√75C"><td class="border border-gray-300 p-3 text-center font-medium">√75</td>
+                            <td class="border border-gray-300 p-3"><div class="math-plain flex items-center flex-wrap gap-y-2"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>= √(</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>) = √</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"></div></td></tr>
+                        <tr data-label="√128C"><td class="border border-gray-300 p-3 text-center font-medium">√128</td>
+                            <td class="border border-gray-300 p-3"><div class="math-plain flex items-center flex-wrap gap-y-2"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>= √(</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>) = √</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"></div></td></tr>
+                        <tr data-label="√147"><td class="border border-gray-300 p-3 text-center font-medium">√147</td>
+                            <td class="border border-gray-300 p-3"><div class="math-plain flex items-center flex-wrap gap-y-2"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>= √(</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>) = √</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">×</span><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span class="mx-1">=</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"></div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Refleksi -->
+        <section class="bg-white rounded-xl border p-4 shadow-sm">
+            <h2 class="font-semibold text-gray-800 mb-3 text-lg">Refleksi</h2>
+            <p class="text-sm text-gray-700 mb-3 font-medium">Apakah kamu sudah paham cara menyederhanakan bentuk akar?</p>
+            <div class="flex flex-col gap-2 mb-6" role="radiogroup">
+                <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="radio" name="refleksi-paham" value="Sangat Paham" class="h-4 w-4 text-blue-600"> Sangat Paham</label>
+                <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="radio" name="refleksi-paham" value="Sudah paham" class="h-4 w-4 text-blue-600"> Sudah paham</label>
+                <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="radio" name="refleksi-paham" value="Masih perlu latihan" class="h-4 w-4 text-blue-600"> Masih perlu latihan</label>
+            </div>
+            <h3 class="font-semibold text-gray-800 mb-2">Refleksi Umum</h3>
+            <p class="text-sm text-gray-700 mb-2">Tuliskan satu hal baru yang kamu pelajari.</p>
+            <textarea id="refleksi-umum" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" rows="4" placeholder="Tuliskan refleksimu..."></textarea>
+        </section>
+
+        <!-- Indikator progres + tombol kirim LKPD -->
+        <div class="bg-white rounded-xl border p-4 shadow-sm">
+            <div class="flex items-center justify-between mb-2 text-sm">
+                <span class="font-semibold text-gray-700">Progres LKPD:</span>
+                <span id="progress-text" class="text-blue-700 font-mono">0/0</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+                <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all" style="width: 0%"></div>
+            </div>
+            <button id="btn-kirim-lkpd" class="w-full bg-green-600 hover:bg-green-700 active:scale-95 text-white font-bold px-6 py-3 rounded-xl shadow text-base transition">
+                <i class="fas fa-paper-plane mr-2"></i>Kirim LKPD
+            </button>
+            <p class="text-xs text-gray-500 mt-2 text-center">*Semua butir wajib terisi sebelum kirim.</p>
+        </div>
     </div>
+</div>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
+<!-- ===================== FASE 2: KUIS ===================== -->
+<div id="fase-kuis" class="hidden max-w-md mx-auto bg-white rounded-2xl shadow-xl p-5 relative min-h-[500px]">
+    <div id="kuis-content"></div>
+</div>
 
-        /* ==========================================================
-           KONFIGURASI GURU
-           1) GS_URL : isi dengan URL Web App Apps Script (akhiran /exec)
-           2) ENABLE_MATH_KEYBOARD : false = hapus total toolbar simbol
-        ========================================================== */
-        const GS_URL = 'https://script.google.com/macros/s/AKfycbxfRvwMB6mmclsOuppziIsjUXKjBUWhTp4nsJnHMzuwJPhxlxiu-mxTh13rW3Di1F3_/exec';
-        const ENABLE_MATH_KEYBOARD = true;
+</div><!-- /main-container -->
 
-        const $ = s => document.querySelector(s);
-        const pad = n => String(n).padStart(2, '0');
-        const slug = t => String(t).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
-        const fmtMs = ms => {
-            const s = Math.floor(ms / 1000);
-            const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), d = s % 60;
-            return h > 0 ? (pad(h) + '.' + pad(m) + '.' + pad(d)) : (pad(m) + '.' + pad(d));
-        };
+<script>
+document.addEventListener('DOMContentLoaded', () => {
 
-        /* ============ 1. BACA & VALIDASI QUERY PARAMETER ============ */
-        const qp = new URLSearchParams(window.location.search);
-        const getParam = n => { for (const [k, v] of qp.entries()) { if (k.toLowerCase() === n) return v; } return ''; };
-        const nama1 = getParam('nama1').trim();
-        const kelas = getParam('kelas').trim();
-        const kategori = getParam('kategori').trim().toUpperCase();
+    /* =====================================================
+       KONFIGURASI (GURU EDIT DI SINI)
+    ===================================================== */
+    const GS_URL   = 'PASTE_URL_WEB_APP_APPS_SCRIPT_DI_SINI';  // URL /exec Apps Script
+    const CSV_URL  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5u_MP8qFVe53hTJUvKBun__A0RAM9rDh4GyrSaUrfc5qwAV0Y_OHA_7mxIKjZ8AOpSSUcTy172j_f/pub?gid=1343827068&single=true&output=csv';
+    const SYARAT_KIRIM = 'FULL';           // 'FULL' = semua butir terisi; 'PERCENT_90' = min 90%
+    const MIN_PCT      = 0.90;             // hanya dipakai jika SYARAT_KIRIM = 'PERCENT_90'
+    const MENIT_PER_SOAL = 2;              // waktu kuis per soal
+    const MIN_WAKTU_RATIO = 0.5;           // 50% waktu sebelum tombol Selesai aktif
+    const ENABLE_MATH_KEYBOARD = true;     // false = toolbar simbol dihapus total
 
-        const errors = [];
-        if (!nama1) errors.push('Parameter "nama1" tidak ada / kosong.');
-        else if (nama1.length > 50) errors.push('Parameter "nama1" lebih dari 50 karakter.');
-        if (!kelas) errors.push('Parameter "kelas" tidak ada / kosong.');
-        if (!['A', 'B', 'C'].includes(kategori)) errors.push('Parameter "kategori" tidak valid (harus A, B, atau C).');
+    /* =====================================================
+       UTILITAS
+    ===================================================== */
+    const $ = s => document.querySelector(s);
+    const $$ = s => document.querySelectorAll(s);
+    const pad = n => String(n).padStart(2, '0');
+    const slug = t => String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    const fmtMs = ms => {
+        const s = Math.floor(ms / 1000);
+        const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), d = s % 60;
+        return h > 0 ? (pad(h) + '.' + pad(m) + '.' + pad(d)) : (pad(m) + '.' + pad(d));
+    };
+    const fmtSec = sec => {
+        sec = Math.max(0, Math.floor(sec));
+        const m = Math.floor(sec / 60), d = sec % 60;
+        return pad(m) + ':' + pad(d);
+    };
 
-        if (errors.length) {
-            $('#lkpd-main').classList.add('hidden');
-            $('#lkpd-error').classList.remove('hidden');
-            errors.forEach(e => {
-                const li = document.createElement('li'); li.textContent = e; $('#error-list').appendChild(li);
+    /* =====================================================
+       1. BACA & VALIDASI PARAMETER URL
+    ===================================================== */
+    const qp = new URLSearchParams(window.location.search);
+    const getParam = n => { for (const [k, v] of qp.entries()) if (k.toLowerCase() === n) return v; return ''; };
+    const nama1    = getParam('nama1').trim();
+    const kelas    = getParam('kelas').trim();
+    const kategori = getParam('kategori').trim().toUpperCase();
+
+    const errors = [];
+    if (!nama1) errors.push('Parameter "nama1" kosong.');
+    else if (nama1.length > 50) errors.push('"nama1" lebih dari 50 karakter.');
+    if (!kelas) errors.push('Parameter "kelas" kosong.');
+    if (!['A','B','C'].includes(kategori)) errors.push('Parameter "kategori" harus A, B, atau C.');
+
+    if (errors.length) {
+        $('#main-container').classList.add('hidden');
+        $('#error-panel').classList.remove('hidden');
+        errors.forEach(e => {
+            const li = document.createElement('li'); li.textContent = e; $('#error-list').appendChild(li);
+        });
+        return;
+    }
+
+    $('#input-nama1').value = nama1;
+    $('#input-kelas').value = kelas;
+    $('#kategori-select').value = kategori;
+    ['section-A','section-B','section-C'].forEach(id => $('#'+id).classList.add('hidden'));
+    $('#section-' + kategori).classList.remove('hidden');
+
+    /* =====================================================
+       2. LOCAL STORAGE UNIK PER SISWA
+    ===================================================== */
+    const storeKey = 'LKPD_KUIS_MTK001_' + slug(nama1) + '_' + slug(kelas) + '_' + slug(kategori);
+    let db = {
+        lkpdStarted: false, lkpdAccMs: 0, lkpdResumeEpoch: null,
+        lkpdSubmitted: false, lkpdSubmittedAt: null, lkpdFinalMs: 0, lkpdAnswers: {},
+        kuisSubmitted: false, kuisSubmittedAt: null,
+        kuisState: null // { step, questions, currentIndex, userAnswers, totalSeconds, remainingSeconds, startedEpoch, totalMs }
+    };
+    try { const r = localStorage.getItem(storeKey); if (r) db = Object.assign(db, JSON.parse(r)); } catch(e) {}
+    const save = () => { try { localStorage.setItem(storeKey, JSON.stringify(db)); } catch(e) {} };
+
+    /* =====================================================
+       3. LKPD: TOOLBAR SIMBOL
+    ===================================================== */
+    const insertAtCursor = (input, val) => {
+        const s = input.selectionStart ?? input.value.length;
+        const e = input.selectionEnd ?? s;
+        input.value = input.value.substring(0, s) + val + input.value.substring(e);
+        input.selectionStart = input.selectionEnd = s + val.length;
+        input.focus(); input.dispatchEvent(new Event('input'));
+    };
+
+    if (ENABLE_MATH_KEYBOARD && !db.lkpdSubmitted) {
+        $$('.math-input').forEach(input => {
+            const w = document.createElement('div');
+            w.className = 'relative flex-1 min-w-[200px]';
+            input.parentNode.insertBefore(w, input); w.appendChild(input);
+            input.classList.remove('flex-1','min-w-[200px]');
+            const tb = document.createElement('div');
+            tb.className = 'math-toolbar hidden';
+            ['√','^','(',')','+','-','×','÷'].forEach(sym => {
+                const b = document.createElement('button');
+                b.type = 'button'; b.className = 'kbd-btn'; b.textContent = sym;
+                b.addEventListener('pointerdown', e => e.preventDefault());
+                b.addEventListener('click', e => { e.preventDefault(); insertAtCursor(input, sym); });
+                tb.appendChild(b);
             });
-            return; // LKPD tidak dirender
-        }
+            const c = document.createElement('button');
+            c.type = 'button'; c.className = 'tb-hide'; c.textContent = '✕';
+            c.addEventListener('click', () => { tb.classList.add('hidden'); input.blur(); });
+            tb.appendChild(c); w.appendChild(tb);
+            input.addEventListener('focus', () => { tb.classList.remove('hidden'); setTimeout(() => input.scrollIntoView({block:'center',behavior:'smooth'}), 250); });
+            input.addEventListener('blur',  () => setTimeout(() => tb.classList.add('hidden'), 120));
+        });
+    }
 
-        // Isi & kunci identitas dari parameter
-        $('#input-nama1').value = nama1;
-        $('#input-kelas').value = kelas;
-        const select = $('#kategori-select');
-        select.value = kategori;
-        select.disabled = true;
+    /* =====================================================
+       4. LKPD: TIMER (waktu aktif) + VALIDASI + AUTOSAVE
+    ===================================================== */
+    $$('.num-input, .math-input').forEach((el,i) => el.dataset.key = 'q'+i);
 
-        const sections = { A: $('#section-A'), B: $('#section-B'), C: $('#section-C') };
-        Object.keys(sections).forEach(k => sections[k].classList.toggle('hidden', k !== kategori));
+    const collectLKPD = () => {
+        const o = {};
+        $$('.num-input, .math-input').forEach(el => o[el.dataset.key] = el.value);
+        o.nama2 = $('#input-nama2').value;
+        const r = document.querySelector('input[name="refleksi-paham"]:checked');
+        o.refPaham = r ? r.value : '';
+        o.refUmum  = $('#refleksi-umum').value;
+        return o;
+    };
 
-        /* ============ 2. LOCAL STORAGE (unik per link) ============ */
-        const storeKey = 'LKPD_MTK001_' + slug(nama1) + '_' + slug(kelas) + '_' + slug(kategori);
-        let db = { started: false, accMs: 0, resumeEpoch: null, submitted: false, submittedAt: null, finalMs: null, answers: {} };
-        try { const raw = localStorage.getItem(storeKey); if (raw) db = Object.assign(db, JSON.parse(raw)); } catch (e) {}
-        const save = () => { try { localStorage.setItem(storeKey, JSON.stringify(db)); } catch (e) {} };
-
-        /* ============ 3. KUNCI JAWABAN (key stabil untuk autosave) ============ */
-        document.querySelectorAll('.num-input, .math-input').forEach((el, i) => { el.dataset.key = 'q' + i; });
-
-        const collectAnswers = () => {
-            const obj = {};
-            document.querySelectorAll('.num-input, .math-input').forEach(el => { obj[el.dataset.key] = el.value; });
-            obj.nama2 = $('#input-nama2').value;
-            const r = document.querySelector('input[name="refleksi-paham"]:checked');
-            obj.refPaham = r ? r.value : '';
-            obj.refUmum = $('#refleksi-umum').value;
-            return obj;
-        };
-
-        // Pulihkan autosave (jika ada & belum terkirim)
-        if (!db.submitted && db.answers) {
-            const a = db.answers;
-            document.querySelectorAll('.num-input, .math-input').forEach(el => {
-                if (a[el.dataset.key] !== undefined) el.value = a[el.dataset.key];
-            });
+    const restoreLKPD = () => {
+        if (db.lkpdAnswers) {
+            const a = db.lkpdAnswers;
+            $$('.num-input, .math-input').forEach(el => { if (a[el.dataset.key] !== undefined) el.value = a[el.dataset.key]; });
             if (a.nama2) $('#input-nama2').value = a.nama2;
-            if (a.refPaham) {
-                const r = document.querySelector('input[name="refleksi-paham"][value="' + a.refPaham + '"]');
-                if (r) r.checked = true;
-            }
+            if (a.refPaham) { const r = document.querySelector('input[name="refleksi-paham"][value="'+a.refPaham+'"]'); if (r) r.checked = true; }
             if (a.refUmum) $('#refleksi-umum').value = a.refUmum;
         }
+    };
+    if (!db.lkpdSubmitted) restoreLKPD();
 
-        /* ============ 4. TIMER WAKTU PENGERJAAN (waktu aktif) ============ */
-        const timerEl = $('#timer-display'), timerHint = $('#timer-hint');
-        const pauseTimer = () => { if (db.resumeEpoch) { db.accMs += Date.now() - db.resumeEpoch; db.resumeEpoch = null; } };
-        const resumeTimer = () => { if (db.started && !db.submitted && !db.resumeEpoch) db.resumeEpoch = Date.now(); };
-        const currentMs = () => db.submitted ? (db.finalMs || 0) : (db.accMs + (db.resumeEpoch ? Date.now() - db.resumeEpoch : 0));
+    // Indikator progres
+    const countButir = () => {
+        const section = $('#section-' + kategori);
+        const mathInps = section.querySelectorAll('.math-input').length;
+        const trs = section.querySelectorAll('tr[data-label]').length;
+        // Kom1, Kom2 selalu ada + isi kategori + radio + textarea
+        return 2 + trs + 2; // 2=kom1,kom2; +2=radio & textarea umum
+    };
+    const totalButir = countButir();
 
-        setInterval(() => { timerEl.textContent = fmtMs(currentMs()); }, 500);
-        setInterval(() => { // checkpoint berkala agar aman dari crash
-            if (db.resumeEpoch) { pauseTimer(); resumeTimer(); save(); }
-        }, 5000);
-
-        document.addEventListener('visibilitychange', () => {
-            if (db.submitted) return;
-            if (document.hidden) { pauseTimer(); save(); } else { resumeTimer(); }
+    const getIsiCount = () => {
+        let count = 0;
+        // Kom1, Kom2
+        $$('.math-input[data-label]').forEach(i => { if ((i.value || '').trim()) count++; });
+        // Kategori aktif
+        const sec = $('#section-' + kategori);
+        sec.querySelectorAll('tr[data-label]').forEach(tr => {
+            const mi = tr.querySelector('.math-input');
+            if (mi && mi.value.trim()) { count++; return; }
+            const nums = tr.querySelectorAll('.num-input');
+            if (nums.length && Array.from(nums).every(n => n.value.trim())) count++;
         });
-        window.addEventListener('pagehide', () => { pauseTimer(); db.answers = collectAnswers(); save(); });
+        // Radio
+        if (document.querySelector('input[name="refleksi-paham"]:checked')) count++;
+        // Textarea
+        if ($('#refleksi-umum').value.trim()) count++;
+        return count;
+    };
 
-        if (db.started && !db.submitted) { resumeTimer(); timerHint.textContent = '(melanjutkan waktu sebelumnya)'; }
+    const updateProgress = () => {
+        const isi = getIsiCount();
+        $('#progress-text').textContent = isi + '/' + totalButir;
+        $('#progress-bar').style.width = Math.round((isi / totalButir) * 100) + '%';
+    };
+    updateProgress();
 
-        /* ============ 5. TOOLBAR SIMBOL MATEMATIKA ============ */
-        const insertAtCursor = (input, val) => {
-            const start = input.selectionStart ?? input.value.length;
-            const end = input.selectionEnd ?? start;
-            input.value = input.value.substring(0, start) + val + input.value.substring(end);
-            input.selectionStart = input.selectionEnd = start + val.length;
-            input.focus();
-            input.dispatchEvent(new Event('input'));
-        };
+    const timerEl = $('#timer-display'), timerHint = $('#timer-hint');
+    const pauseLKPD = () => { if (db.lkpdResumeEpoch) { db.lkpdAccMs += Date.now() - db.lkpdResumeEpoch; db.lkpdResumeEpoch = null; } };
+    const resumeLKPD = () => { if (db.lkpdStarted && !db.lkpdSubmitted && !db.lkpdResumeEpoch) db.lkpdResumeEpoch = Date.now(); };
+    const currentMsLKPD = () => db.lkpdSubmitted ? (db.lkpdFinalMs||0) : (db.lkpdAccMs + (db.lkpdResumeEpoch ? Date.now() - db.lkpdResumeEpoch : 0));
 
-        if (ENABLE_MATH_KEYBOARD && !db.submitted) {
-            document.querySelectorAll('.math-input').forEach(input => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'relative flex-1 min-w-[200px]';
-                input.parentNode.insertBefore(wrapper, input);
-                wrapper.appendChild(input);
-                input.classList.remove('flex-1', 'min-w-[200px]');
+    setInterval(() => { if (!db.lkpdSubmitted) timerEl.textContent = fmtMs(currentMsLKPD()); }, 500);
+    setInterval(() => { if (db.lkpdResumeEpoch) { pauseLKPD(); resumeLKPD(); save(); } }, 5000);
 
-                const tb = document.createElement('div');
-                tb.className = 'math-toolbar hidden';
-                ['√', '^', '(', ')', '+', '-', '×', '÷'].forEach(sym => {
-                    const b = document.createElement('button');
-                    b.type = 'button'; b.className = 'kbd-btn'; b.textContent = sym;
-                    b.addEventListener('pointerdown', e => e.preventDefault());
-                    b.addEventListener('click', e => { e.preventDefault(); insertAtCursor(input, sym); });
-                    tb.appendChild(b);
-                });
-                const close = document.createElement('button');
-                close.type = 'button'; close.className = 'tb-hide'; close.textContent = '✕';
-                close.addEventListener('click', () => { tb.classList.add('hidden'); input.blur(); });
-                tb.appendChild(close);
-                wrapper.appendChild(tb);
-
-                input.addEventListener('focus', () => {
-                    tb.classList.remove('hidden');
-                    setTimeout(() => input.scrollIntoView({ block: 'center', behavior: 'smooth' }), 250);
-                });
-                input.addEventListener('blur', () => setTimeout(() => tb.classList.add('hidden'), 120));
-            });
-        }
-
-        /* ============ 6. VALIDASI INPUT + TRIGGER TIMER + AUTOSAVE ============ */
-        const main = $('#lkpd-main');
-        main.addEventListener('input', e => {
-            const t = e.target;
-            if (t.classList.contains('num-input')) {
-                let v = t.value.replace(/[^0-9]/g, '');
-                if (v.length > 3) v = v.slice(0, 3);
-                t.value = v;
-            }
-            if (t.classList.contains('math-input')) {
-                let v = t.value.replace(/\s+/g, '').replace(/[^0-9,√^+\-×÷\(\)]/g, '');
-                if (v.length > 50) v = v.slice(0, 50);
-                t.value = v;
-            }
-            if (!db.started && !db.submitted) { // trigger timer: jawaban pertama
-                db.started = true; db.accMs = 0; db.resumeEpoch = Date.now();
-                timerHint.textContent = '(berjalan)'; save();
-            }
-        });
-
-        let saveT;
-        const autosave = () => { clearTimeout(saveT); saveT = setTimeout(() => { if (!db.submitted) { db.answers = collectAnswers(); save(); } }, 300); };
-        main.addEventListener('input', autosave);
-        main.addEventListener('change', autosave);
-
-        /* ============ 7. RAKIT JAWABAN DELIMITED (pipe) ============ */
-        const valOr = v => { v = (v || '').trim(); return v === '' ? '-' : v.replace(/\|/g, '/'); };
-        const buildJawaban = () => {
-            const parts = [];
-            document.querySelectorAll('.math-input[data-label]').forEach(inp => parts.push(inp.dataset.label + ': ' + valOr(inp.value)));
-            sections[kategori].querySelectorAll('tr[data-label]').forEach(tr => {
-                const mi = tr.querySelector('.math-input');
-                if (mi) parts.push(tr.dataset.label + ': ' + valOr(mi.value));
-                else parts.push(tr.dataset.label + ': ' + Array.from(tr.querySelectorAll('.num-input')).map(n => valOr(n.value)).join(','));
-            });
-            const r = document.querySelector('input[name="refleksi-paham"]:checked');
-            parts.push('RefleksiPaham: ' + valOr(r ? r.value : ''));
-            parts.push('RefleksiUmum: ' + valOr($('#refleksi-umum').value).replace(/\s+/g, ' '));
-            return parts.join(' | ');
-        };
-
-        /* ============ 8. MODE TERKUNCI (sekali pakai) ============ */
-        const lockUI = () => {
-            main.querySelectorAll('input, textarea, select').forEach(el => el.disabled = true);
-            $('#btn-kirim').classList.add('hidden');
-            $('#submitted-banner').classList.remove('hidden');
-            $('#submitted-at').textContent = db.submittedAt || '-';
-            timerHint.textContent = '(waktu final)';
-            timerEl.textContent = fmtMs(db.finalMs || 0);
-        };
-        if (db.submitted) lockUI();
-
-        /* ============ 9. KIRIM KE GOOGLE SHEET ============ */
-        $('#btn-kirim').addEventListener('click', async () => {
-            if (db.submitted) return;
-            if (GS_URL.indexOf('PASTE') === 0) { alert('URL Apps Script belum diisi. Hubungi guru/admin.'); return; }
-            if (!confirm('Kirim LKPD sekarang? Setelah terkirim jawaban tidak dapat diubah.')) return;
-
-            pauseTimer(); save();
-            const waktuPengerjaan = fmtMs(db.accMs);
-            const payload = {
-                kode: 'MTK-001',
-                nama1: nama1,
-                kelas: kelas,
-                kategori: kategori,
-                nama2: $('#input-nama2').value.trim() || '-',
-                jawaban: buildJawaban(),
-                waktuPengerjaan: waktuPengerjaan
-            };
-
-            try {
-                const res = await fetch(GS_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
-                });
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                db.finalMs = db.accMs;
-                db.submitted = true;
-                db.submittedAt = new Date().toLocaleString('id-ID');
-                db.answers = collectAnswers();
-                save();
-                lockUI();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                alert('✔ LKPD berhasil dikirim!');
-            } catch (err) {
-                resumeTimer(); save();
-                alert('Gagal mengirim (periksa koneksi internet). Jawaban tersimpan lokal — silakan coba lagi.');
-            }
-        });
+    document.addEventListener('visibilitychange', () => {
+        if (db.lkpdSubmitted) return;
+        if (document.hidden) { pauseLKPD(); db.lkpdAnswers = collectLKPD(); save(); }
+        else resumeLKPD();
     });
-    </script>
+    window.addEventListener('pagehide', () => { pauseLKPD(); db.lkpdAnswers = collectLKPD(); save(); });
+
+    if (db.lkpdStarted && !db.lkpdSubmitted) { resumeLKPD(); timerHint.textContent = '(melanjutkan)'; }
+
+    // Validasi + trigger + autosave
+    let saveT;
+    document.getElementById('fase-lkpd').addEventListener('input', e => {
+        const t = e.target;
+        if (t.classList.contains('num-input')) {
+            let v = t.value.replace(/[^0-9]/g, ''); if (v.length > 3) v = v.slice(0,3); t.value = v;
+        }
+        if (t.classList.contains('math-input')) {
+            let v = t.value.replace(/\s+/g,'').replace(/[^0-9,√^+\-×÷\(\)]/g,'');
+            if (v.length > 50) v = v.slice(0,50); t.value = v;
+        }
+        if (!db.lkpdStarted && !db.lkpdSubmitted) {
+            db.lkpdStarted = true; db.lkpdAccMs = 0; db.lkpdResumeEpoch = Date.now();
+            timerHint.textContent = '(berjalan)'; save();
+        }
+        clearTimeout(saveT);
+        saveT = setTimeout(() => { if (!db.lkpdSubmitted) { db.lkpdAnswers = collectLKPD(); save(); updateProgress(); } }, 300);
+    });
+    document.getElementById('fase-lkpd').addEventListener('change', () => {
+        if (!db.lkpdSubmitted) { db.lkpdAnswers = collectLKPD(); save(); updateProgress(); }
+    });
+
+    /* =====================================================
+       5. LKPD: TOMBOL KIRIM
+    ===================================================== */
+    const valOr = v => { v = (v||'').trim(); return v === '' ? '-' : v.replace(/\|/g, '/'); };
+    const buildJawabanLKPD = () => {
+        const parts = [];
+        $$('.math-input[data-label]').forEach(i => parts.push(i.dataset.label + ': ' + valOr(i.value)));
+        $('#section-' + kategori).querySelectorAll('tr[data-label]').forEach(tr => {
+            const mi = tr.querySelector('.math-input');
+            if (mi) parts.push(tr.dataset.label + ': ' + valOr(mi.value));
+            else parts.push(tr.dataset.label + ': ' + Array.from(tr.querySelectorAll('.num-input')).map(n => valOr(n.value)).join(','));
+        });
+        const r = document.querySelector('input[name="refleksi-paham"]:checked');
+        parts.push('RefleksiPaham: ' + valOr(r ? r.value : ''));
+        parts.push('RefleksiUmum: ' + valOr($('#refleksi-umum').value).replace(/\s+/g,' '));
+        return parts.join(' | ');
+    };
+
+    const lockLKPD = () => {
+        $$('#fase-lkpd input, #fase-lkpd textarea, #fase-lkpd select').forEach(e => e.disabled = true);
+        $('#btn-kirim-lkpd').classList.add('hidden');
+        $('#lkpd-submitted-banner').classList.remove('hidden');
+        $('#lkpd-submitted-at').textContent = db.lkpdSubmittedAt || '-';
+        timerHint.textContent = '(waktu final)';
+        timerEl.textContent = fmtMs(db.lkpdFinalMs || 0);
+    };
+
+    if (db.lkpdSubmitted) lockLKPD();
+
+    $('#btn-kirim-lkpd').addEventListener('click', async () => {
+        if (db.lkpdSubmitted) return;
+        if (GS_URL.indexOf('PASTE') === 0) { alert('URL Apps Script belum diisi. Hubungi guru.'); return; }
+
+        const isi = getIsiCount();
+        const butuh = SYARAT_KIRIM === 'FULL' ? totalButir : Math.ceil(totalButir * MIN_PCT);
+        if (isi < butuh) {
+            alert('Belum cukup terisi. Anda mengisi ' + isi + '/' + butuh + ' butir. Mohon lengkapi dulu.');
+            return;
+        }
+        if (!confirm('Kirim LKPD sekarang? Jawaban LKPD akan terkunci setelah kirim.')) return;
+
+        pauseLKPD(); save();
+        const payload = {
+            tipe: 'LKPD',
+            kode: 'MTK-001',
+            nama1: nama1,
+            kelas: kelas,
+            kategori: kategori,
+            nama2: $('#input-nama2').value.trim() || '-',
+            jawaban: buildJawabanLKPD(),
+            waktuPengerjaan: fmtMs(db.lkpdAccMs)
+        };
+        try {
+            await fetch(GS_URL, { method: 'POST', headers: {'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(payload) });
+            db.lkpdFinalMs = db.lkpdAccMs;
+            db.lkpdSubmitted = true;
+            db.lkpdSubmittedAt = new Date().toLocaleString('id-ID');
+            save();
+            lockLKPD();
+            // Buka fase kuis
+            $('#fase-kuis').classList.remove('hidden');
+            $('#fase-kuis').scrollIntoView({behavior:'smooth'});
+            renderKuisHome();
+        } catch(err) {
+            resumeLKPD(); save();
+            alert('Gagal mengirim. Periksa koneksi. Jawaban tersimpan lokal.');
+        }
+    });
+
+    /* =====================================================
+       6. KUIS (adaptasi dari Kuis(2).html dengan penyelarasan)
+    ===================================================== */
+    let kuis = {
+        step: 'home',
+        questions: [],
+        currentIndex: 0,
+        userAnswers: {},
+        score: 0,
+        totalSeconds: 0,
+        remainingSeconds: 0,
+        startedEpoch: null,
+        totalMs: 0,
+        intervalId: null,
+        showGrid: false
+    };
+
+    // Pulihkan state kuis dari localStorage
+    if (db.kuisState) Object.assign(kuis, db.kuisState);
+
+    const saveKuis = () => { db.kuisState = { ...kuis, intervalId: null }; save(); };
+
+    const shuffle = a => { const arr = [...a]; for (let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];} return arr; };
+
+    const parseCSV = text => {
+        const lines = text.split('\n').filter(l => l.trim() !== '');
+        if (lines.length < 2) return [];
+        const parseLine = line => {
+            const r=[]; let c='',q=false;
+            for (let i=0;i<line.length;i++){
+                const ch=line[i];
+                if (ch==='"') q=!q;
+                else if (ch===',' && !q){ r.push(c.trim().replace(/^"|"$/g,'')); c=''; }
+                else c+=ch;
+            }
+            r.push(c.trim().replace(/^"|"$/g,''));
+            return r;
+        };
+        const headers = parseLine(lines[0]);
+        const res = [];
+        for (let i=1;i<lines.length;i++){
+            const v = parseLine(lines[i]);
+            const o = {}; headers.forEach((h,idx)=>o[h.trim()]=v[idx]||''); res.push(o);
+        }
+        return res;
+    };
+
+    const mapQuestions = raw => raw.map((row,idx) => {
+        const soal = row.Soal || row.soal || '';
+        const jawabanBenar = (row.Jawaban || row.jawaban || '').trim().toUpperCase();
+        let rawKat = (row.Kategori || row.kategori || 'C').trim().toUpperCase();
+        let cleanKat = rawKat;
+        if (['A','B','C'].includes(rawKat.charAt(0))) cleanKat = rawKat.charAt(0);
+
+        // NoUrut asli — fallback ke index+1 jika kosong (dengan tanda [?])
+        const rawNo = row.NoUrut || row.noUrut || row.no || '';
+        let noUrut = parseInt(rawNo, 10);
+        let noUrutMissing = isNaN(noUrut);
+        if (noUrutMissing) noUrut = idx + 1;
+
+        const options = [
+            { text: row.OpsiA || row.opsiA || '', key: 'A', isCorrect: false },
+            { text: row.OpsiB || row.opsiB || '', key: 'B', isCorrect: false },
+            { text: row.OpsiC || row.opsiC || '', key: 'C', isCorrect: false },
+            { text: row.OpsiD || row.opsiD || '', key: 'D', isCorrect: false }
+        ];
+        options.forEach(opt => { if (opt.key === jawabanBenar) opt.isCorrect = true; });
+
+        return {
+            noUrut, noUrutMissing,
+            mapel: row.Mapel || row.mapel || 'Umum',
+            materi: row.Materi || row.materi || '-',
+            soal, options, kategori: cleanKat, jawabanBenar
+        };
+    }).filter(q => q.soal && q.options.some(o => o.text !== ''));
+
+    // ==== RENDER KUIS ====
+    const renderKuis = () => {
+        const app = $('#kuis-content');
+        if (!app) return;
+        app.innerHTML = '';
+        if (kuis.step === 'home') renderKuisHome();
+        else if (kuis.step === 'loading') renderKuisLoading();
+        else if (kuis.step === 'quiz') renderKuisQuiz();
+        else if (kuis.step === 'result') renderKuisResult();
+        else if (kuis.step === 'success') renderKuisSuccess();
+    };
+
+    function renderKuisHome() {
+        if (db.kuisSubmitted) { renderKuisSuccess(); return; }
+        const app = $('#kuis-content');
+        const kategoriLabel = { A:'A - Sulit', B:'B - Sedang', C:'C - Mudah' };
+        app.innerHTML = `
+            <div class="text-center fade-in flex flex-col justify-center">
+                <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4"><span class="text-3xl">📚</span></div>
+                <h1 class="text-2xl font-bold text-gray-800 mb-1">Kuis Interaktif</h1>
+                <p class="text-gray-500 text-sm mb-6">Lanjutan LKPD — selamat mengerjakan!</p>
+                <div class="space-y-4 text-left">
+                    <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Nama Lengkap</label>
+                        <input type="text" value="${nama1}" disabled class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 font-medium"></div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Kelas</label>
+                            <input type="text" value="${kelas}" disabled class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 font-medium text-center"></div>
+                        <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Kategori</label>
+                            <input type="text" value="${kategoriLabel[kategori] || kategori}" disabled class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 font-medium text-center"></div>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mt-4">
+                        <p class="text-sm text-blue-800 leading-relaxed">
+                            <span class="font-bold">ℹ️ Aturan:</span><br>
+                            • Waktu: Jumlah Soal × ${MENIT_PER_SOAL} menit<br>
+                            • Wajib mengerjakan <b>semua</b> soal sebelum tombol "Selesai" aktif.<br>
+                            • Tombol "Selesai" aktif setelah minimal ${Math.round(MIN_WAKTU_RATIO*100)}% waktu berlalu.<br>
+                            • Soal akan diacak; di hasil akhir soal diurutkan kembali sesuai nomor asli.
+                        </p>
+                    </div>
+                    <button id="btn-start-kuis" class="w-full bg-indigo-600 text-white font-bold py-3.5 px-6 rounded-xl hover:bg-indigo-700 shadow-lg flex items-center justify-center gap-2">
+                        🚀 Mulai Kuis
+                    </button>
+                </div>
+            </div>`;
+        $('#btn-start-kuis').addEventListener('click', handleStartKuis);
+    }
+
+    function renderKuisLoading() {
+        $('#kuis-content').innerHTML = `
+            <div class="flex flex-col items-center justify-center min-h-[400px] fade-in">
+                <div class="animate-spin rounded-full h-12 w-12 border-4 border-indigo-100 border-t-indigo-600 mb-4"></div>
+                <p class="text-gray-600 font-medium">Memuat bank soal...</p>
+            </div>`;
+    }
+
+    function renderKuisQuiz() {
+        const q = kuis.questions[kuis.currentIndex];
+        const total = kuis.questions.length;
+        const progress = ((kuis.currentIndex+1)/total)*100;
+        const curAns = kuis.userAnswers[kuis.currentIndex];
+        const elapsed = kuis.totalSeconds - kuis.remainingSeconds;
+        const canSubmit = elapsed >= kuis.totalSeconds * MIN_WAKTU_RATIO;
+        const isWarning = kuis.remainingSeconds < 60;
+
+        let html = `
+            <div class="fade-in flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <button id="btn-toggle-grid" class="flex items-center gap-1 text-sm font-semibold text-indigo-600 bg-indigo-50 px-3 py-2 rounded-lg hover:bg-indigo-100">📋 Nomor</button>
+                    <div id="timer-display" class="text-xl font-bold font-mono px-3 py-1 rounded-lg ${isWarning ? 'timer-warning' : 'text-indigo-600 bg-indigo-50'}">⏱️ ${fmtSec(kuis.remainingSeconds)}</div>
+                </div>
+                ${kuis.showGrid ? `
+                <div class="bg-gray-50 rounded-xl p-3 mb-4 border border-gray-200">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-gray-500 uppercase">Peta Soal</span>
+                        <button id="btn-close-grid" class="text-gray-400 hover:text-gray-600">✕</button>
+                    </div>
+                    <div class="grid grid-cols-5 gap-2">
+                        ${kuis.questions.map((_,idx) => {
+                            const answered = kuis.userAnswers[idx] !== undefined;
+                            const cur = idx === kuis.currentIndex;
+                            let cls = "h-9 rounded-lg text-sm font-bold transition ";
+                            if (cur) cls += "bg-indigo-600 text-white ring-2 ring-indigo-200";
+                            else if (answered) cls += "bg-green-100 text-green-700 border border-green-200";
+                            else cls += "bg-white text-gray-500 border border-gray-200";
+                            return `<button class="jump-btn ${cls}" data-idx="${idx}">${idx+1}</button>`;
+                        }).join('')}
+                    </div>
+                </div>` : ''}
+                <div class="w-full bg-gray-100 rounded-full h-1.5 mb-4">
+                    <div class="bg-indigo-600 h-1.5 rounded-full" style="width:${progress}%"></div>
+                </div>
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">${q.materi}</span>
+                    <span class="text-xs text-gray-400">Soal ${kuis.currentIndex+1} / ${total}</span>
+                </div>
+                <h2 class="text-lg font-semibold text-gray-800 mb-5 leading-relaxed">${q.soal}</h2>
+                <div class="space-y-3 mb-6">
+                    ${q.shuffledOptions.map(opt => {
+                        const sel = curAns === opt.key;
+                        return `<button class="opt-btn option-btn w-full text-left p-3.5 rounded-xl border-2 flex items-start gap-3 ${sel?'border-indigo-600 bg-indigo-50':'border-gray-100 hover:border-indigo-300 hover:bg-gray-50'}" data-key="${opt.key}">
+                            <span class="flex-shrink-0 w-8 h-8 rounded-full ${sel?'bg-indigo-600 text-white':'bg-gray-200 text-gray-600'} text-center leading-8 font-bold text-sm">${opt.key}</span>
+                            <span class="pt-1 text-sm font-medium text-gray-700">${opt.text}</span>
+                        </button>`;
+                    }).join('')}
+                </div>
+                <div class="grid grid-cols-2 gap-3 mt-auto">
+                    <button id="btn-prev" class="py-3 px-4 rounded-xl font-semibold border-2 border-gray-200 text-gray-600 hover:bg-gray-50 ${kuis.currentIndex===0?'opacity-50 cursor-not-allowed':''}" ${kuis.currentIndex===0?'disabled':''}>← Kembali</button>
+                    ${kuis.currentIndex === total-1 ?
+                        `<button id="btn-finish" ${!canSubmit?'disabled':''} class="py-3 px-4 rounded-xl font-bold text-white shadow-md ${canSubmit?'bg-green-600 hover:bg-green-700':'bg-gray-300 cursor-not-allowed'}">🏁 Selesai & Kirim</button>` :
+                        `<button id="btn-next" class="py-3 px-4 rounded-xl font-semibold bg-indigo-600 text-white hover:bg-indigo-700 shadow-md">Lanjut →</button>`
+                    }
+                </div>
+            </div>`;
+        $('#kuis-content').innerHTML = html;
+
+        // Bind events
+        $('#btn-toggle-grid').addEventListener('click', () => { kuis.showGrid = true; renderKuisQuiz(); });
+        if ($('#btn-close-grid')) $('#btn-close-grid').addEventListener('click', () => { kuis.showGrid = false; renderKuisQuiz(); });
+        $$('.jump-btn').forEach(b => b.addEventListener('click', e => {
+            kuis.currentIndex = parseInt(e.currentTarget.dataset.idx,10); kuis.showGrid = false; saveKuis(); renderKuisQuiz();
+        }));
+        $$('.opt-btn').forEach(b => b.addEventListener('click', e => {
+            const key = e.currentTarget.dataset.key;
+            kuis.userAnswers[kuis.currentIndex] = key; saveKuis();
+            setTimeout(() => { if (kuis.currentIndex < kuis.questions.length-1) { kuis.currentIndex++; saveKuis(); renderKuisQuiz(); } else renderKuisQuiz(); }, 250);
+        }));
+        if ($('#btn-prev')) $('#btn-prev').addEventListener('click', () => { if (kuis.currentIndex>0){kuis.currentIndex--; saveKuis(); renderKuisQuiz();} });
+        if ($('#btn-next')) $('#btn-next').addEventListener('click', () => { if (kuis.currentIndex<kuis.questions.length-1){kuis.currentIndex++; saveKuis(); renderKuisQuiz();} });
+        if ($('#btn-finish')) $('#btn-finish').addEventListener('click', finishKuis);
+
+        // Update tombol submit status jika di soal terakhir
+        updateFinishBtnState();
+    }
+
+    function updateFinishBtnState() {
+        const btn = $('#btn-finish'); if (!btn) return;
+        const elapsed = kuis.totalSeconds - kuis.remainingSeconds;
+        const answeredCount = Object.keys(kuis.userAnswers).length;
+        const allAnswered = answeredCount === kuis.questions.length;
+        const canSubmit = elapsed >= kuis.totalSeconds * MIN_WAKTU_RATIO && allAnswered;
+
+        if (!canSubmit) {
+            btn.disabled = true;
+            btn.className = "py-3 px-4 rounded-xl font-bold text-white shadow-md bg-gray-300 cursor-not-allowed";
+            if (!allAnswered) {
+                btn.textContent = `Jawab ${answeredCount}/${kuis.questions.length} soal`;
+            } else {
+                const waitMin = Math.ceil((kuis.totalSeconds * MIN_WAKTU_RATIO - elapsed) / 60);
+                btn.textContent = `⏱️ Tunggu ${waitMin} menit lagi`;
+            }
+        } else {
+            btn.disabled = false;
+            btn.className = "py-3 px-4 rounded-xl font-bold text-white shadow-md bg-green-600 hover:bg-green-700";
+            btn.textContent = '🏁 Selesai & Kirim';
+        }
+    }
+
+    function finishKuis(isAuto = false) {
+        if (!isAuto) {
+            const elapsed = kuis.totalSeconds - kuis.remainingSeconds;
+            const answeredCount = Object.keys(kuis.userAnswers).length;
+            if (answeredCount < kuis.questions.length) {
+                alert('Wajib menjawab semua soal. (' + answeredCount + '/' + kuis.questions.length + ')');
+                return;
+            }
+            if (elapsed < kuis.totalSeconds * MIN_WAKTU_RATIO) {
+                const waitMin = Math.ceil((kuis.totalSeconds * MIN_WAKTU_RATIO - elapsed) / 60);
+                alert('Tunggu minimal ' + waitMin + ' menit lagi.');
+                return;
+            }
+            if (!confirm('Yakin ingin menyelesaikan? Anda tidak bisa mengubah jawaban lagi.')) return;
+        }
+        if (kuis.intervalId) { clearInterval(kuis.intervalId); kuis.intervalId = null; }
+        // Catat waktu terpakai
+        const elapsedSec = kuis.totalSeconds - kuis.remainingSeconds;
+        kuis.totalMs = elapsedSec * 1000;
+        // Urutkan soal berdasarkan NoUrut asli untuk tampilan hasil
+        // Kita akan simpan pasangan (soal, jawaban) lalu sort
+        const pairs = kuis.questions.map((q, i) => ({ q, idx: i, ans: kuis.userAnswers[i] }));
+        pairs.sort((a,b) => a.q.noUrut - b.q.noUrut);
+        kuis.sortedPairs = pairs;
+        // Hitung skor
+        let benar = 0;
+        pairs.forEach(p => {
+            const correct = p.q.options.find(o => o.isCorrect);
+            if (correct && p.ans === correct.key) benar++;
+        });
+        kuis.score = Math.round((benar / pairs.length) * 100);
+        kuis.step = 'result';
+        saveKuis();
+        renderKuis();
+    }
+
+    function renderKuisResult() {
+        let detail = '';
+        kuis.sortedPairs.forEach(p => {
+            const correct = p.q.options.find(o => o.isCorrect);
+            const correctKey = correct ? correct.key : '?';
+            const prefix = p.q.noUrutMissing ? '[?]' : '';
+            const label = prefix + 'No.' + p.q.noUrut;
+            if (p.ans === correctKey) {
+                detail += `<li class="flex items-center text-green-700 text-sm py-1.5 bg-green-50 px-3 rounded-lg mb-1"><span class="mr-2">✅</span><span><b>${label}:</b> Benar (Jawab: ${p.ans})</span></li>`;
+            } else {
+                const ans = p.ans || 'Kosong';
+                detail += `<li class="flex items-start text-red-700 text-sm py-1.5 bg-red-50 px-3 rounded-lg mb-1"><span class="mr-2">❌</span><span><b>${label}:</b> Salah (Jawab: ${ans}, Kunci: ${correctKey})</span></li>`;
+            }
+        });
+        $('#kuis-content').innerHTML = `
+            <div class="text-center fade-in flex flex-col justify-center">
+                <div class="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4"><span class="text-4xl">🏆</span></div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-1">Kuis Selesai!</h2>
+                <p class="text-gray-500 text-sm mb-6">Soal diurutkan kembali sesuai nomor asli bank soal.</p>
+                <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-6 mb-6 text-white shadow-lg">
+                    <div class="text-5xl font-bold mb-1">${kuis.score}</div>
+                    <div class="text-indigo-100 text-sm font-medium">Skor Akhir</div>
+                    <div class="text-xs text-indigo-200 mt-3 pt-3 border-t border-indigo-400/30">Benar ${kuis.sortedPairs.filter(p=>p.ans===p.q.options.find(o=>o.isCorrect)?.key).length} dari ${kuis.sortedPairs.length} soal</div>
+                </div>
+                <div class="text-left bg-gray-50 rounded-xl p-4 mb-6 max-h-60 overflow-y-auto border border-gray-200 no-scrollbar">
+                    <h3 class="font-semibold mb-3 text-sm text-gray-700">Detail Jawaban:</h3>
+                    <ul>${detail}</ul>
+                </div>
+                <button id="btn-kirim-kuis" class="w-full bg-green-600 text-white font-bold py-3.5 px-6 rounded-xl hover:bg-green-700 shadow-lg flex items-center justify-center gap-2">📤 Kirim Nilai ke Guru</button>
+                <p class="text-xs text-gray-400 mt-3">*Data akan dikirim dan cache lokal dihapus.</p>
+            </div>`;
+        $('#btn-kirim-kuis').addEventListener('click', sendKuisToGAS);
+    }
+
+    function renderKuisSuccess() {
+        $('#kuis-content').innerHTML = `
+            <div class="text-center fade-in flex flex-col justify-center min-h-[400px]">
+                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"><span class="text-4xl">✅</span></div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Berhasil Dikirim!</h2>
+                <p class="text-gray-600 mb-8 text-sm">Nilai kamu telah tersimpan aman di database guru.</p>
+            </div>`;
+        // Banner final
+        $('#kuis-submitted-banner').classList.remove('hidden');
+        $('#lkpd-submitted-banner').classList.remove('hidden');
+    }
+
+    async function sendKuisToGAS() {
+        const btn = $('#btn-kirim-kuis');
+        btn.disabled = true; btn.textContent = '⏳ Mengirim...';
+        // Format detail dengan urutan NoUrut asli
+        const detailStr = kuis.sortedPairs.map(p => {
+            const correct = p.q.options.find(o => o.isCorrect);
+            const correctKey = correct ? correct.key : '?';
+            const status = p.ans === correctKey ? '✅' : '❌';
+            const prefix = p.q.noUrutMissing ? '[?]' : '';
+            const ans = p.ans || 'Kosong';
+            return `${prefix}No.${p.q.noUrut}: ${status} (Jawab: ${ans}, Kunci: ${correctKey})`;
+        }).join(' | ');
+
+        const payload = {
+            tipe: 'KUIS',
+            kode: 'MTK-001',
+            nama1: nama1, kelas: kelas, kategori: kategori,
+            skor: kuis.score,
+            jawaban: detailStr,
+            waktuPengerjaan: fmtSec(Math.floor(kuis.totalMs / 1000))
+        };
+        try {
+            await fetch(GS_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(payload) });
+            db.kuisSubmitted = true;
+            db.kuisSubmittedAt = new Date().toLocaleString('id-ID');
+            save();
+            renderKuisSuccess();
+        } catch(err) {
+            alert('Gagal mengirim. Periksa koneksi. Anda bisa coba lagi.');
+            btn.disabled = false; btn.textContent = '📤 Kirim Nilai ke Guru';
+        }
+    }
+
+    function handleStartKuis() {
+        kuis.step = 'loading'; renderKuis();
+        fetch(CSV_URL)
+            .then(r => r.text())
+            .then(text => {
+                const raw = parseCSV(text);
+                let filtered = mapQuestions(raw).filter(q => q.kategori === kategori);
+                if (!filtered.length) {
+                    alert('Tidak ada soal untuk Kategori ' + kategori + '. Hubungi guru.');
+                    kuis.step = 'home'; renderKuis(); return;
+                }
+                // Acak urutan soal & opsi
+                filtered = shuffle(filtered);
+                kuis.questions = filtered.map(q => ({ ...q, shuffledOptions: shuffle([...q.options]) }));
+                kuis.totalSeconds = kuis.questions.length * MENIT_PER_SOAL * 60;
+                kuis.remainingSeconds = kuis.totalSeconds;
+                kuis.currentIndex = 0;
+                kuis.userAnswers = {};
+                kuis.score = 0;
+                kuis.startedEpoch = Date.now();
+                kuis.step = 'quiz';
+                kuis.showGrid = false;
+                startKuisTimer();
+                saveKuis();
+                renderKuis();
+            })
+            .catch(() => { alert('Gagal memuat soal. Periksa koneksi.'); kuis.step = 'home'; renderKuis(); });
+    }
+
+    function startKuisTimer() {
+        if (kuis.intervalId) clearInterval(kuis.intervalId);
+        kuis.intervalId = setInterval(() => {
+            kuis.remainingSeconds--;
+            if (kuis.remainingSeconds <= 0) {
+                clearInterval(kuis.intervalId); kuis.intervalId = null;
+                if (kuis.step === 'quiz') finishKuis(true);
+            }
+            if (kuis.step === 'quiz') {
+                const t = $('#timer-display');
+                if (t) {
+                    const isW = kuis.remainingSeconds < 60;
+                    t.className = 'text-xl font-bold font-mono px-3 py-1 rounded-lg ' + (isW ? 'timer-warning' : 'text-indigo-600 bg-indigo-50');
+                    t.textContent = '⏱️ ' + fmtSec(kuis.remainingSeconds);
+                }
+                updateFinishBtnState();
+            }
+            saveKuis();
+        }, 1000);
+    }
+
+    // Restore kuis yang terputus
+    if (kuis.step === 'quiz' && kuis.totalSeconds > 0 && kuis.remainingSeconds > 0) {
+        startKuisTimer();
+        renderKuis();
+    } else if (kuis.step === 'result') {
+        renderKuis();
+    } else if (db.kuisSubmitted) {
+        renderKuisSuccess();
+        $('#fase-kuis').classList.remove('hidden');
+    } else if (db.lkpdSubmitted) {
+        // LKPD sudah terkirim, kuis belum dimulai
+        $('#fase-kuis').classList.remove('hidden');
+        renderKuisHome();
+    }
+
+    // Cleanup
+    window.addEventListener('beforeunload', () => {
+        if (kuis.intervalId) clearInterval(kuis.intervalId);
+        pauseLKPD(); db.lkpdAnswers = collectLKPD(); save();
+    });
+});
+</script>
 </body>
 </html>
