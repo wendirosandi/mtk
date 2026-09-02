@@ -191,18 +191,19 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(e){ return null; }
     }
 
-    const token = new URLSearchParams(window.location.search).get('d');
-    let nama1='', kelas='', kategori='';
+     const token = new URLSearchParams(window.location.search).get('d');
+    let kode='MTK-001', nama1='', kelas='', kategori='', gen=1;
     const errors = [];
     if (!token) errors.push('Token link tidak ditemukan. Gunakan link lengkap dari guru.');
     else {
         const plain = decryptToken(token);
-        if (!plain) errors.push('Token link rusak / tidak valid (hasil dekripsi gagal).');
+        if (!plain) errors.push('Token link rusak / tidak valid.');
         else {
             const p = plain.split('|');
-            if (p.length !== 3) errors.push('Isi token tidak lengkap.');
+            if (p.length !== 5) errors.push('Format token versi lama. Minta link baru ke guru.');
             else {
-                nama1 = p[0].trim(); kelas = p[1].trim(); kategori = p[2].trim().toUpperCase();
+                kode=p[0].trim()||'MTK-001'; nama1=p[1].trim(); kelas=p[2].trim();
+                kategori=p[3].trim().toUpperCase(); gen=parseInt(p[4],10)||1;
                 if (!nama1) errors.push('Nama dalam token kosong.');
                 if (!kelas) errors.push('Kelas dalam token kosong.');
                 if (!['A','B','C'].includes(kategori)) errors.push('Kategori dalam token tidak valid.');
