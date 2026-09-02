@@ -236,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const w=document.createElement('div'); w.className='relative flex-1 min-w-[200px]';
             input.parentNode.insertBefore(w,input); w.appendChild(input); input.classList.remove('flex-1','min-w-[200px]');
             const tb=document.createElement('div'); tb.className='math-toolbar hidden';
-            ['√','^','(',')','+','-','×','÷'].forEach(sym => { const b=document.createElement('button'); b.type='button'; b.className='kbd-btn'; b.textContent=sym; b.addEventListener('pointerdown',e=>e.preventDefault()); b.addEventListener('click',e=>{e.preventDefault();insertAtCursor(input,sym);}); tb.appendChild(b); });
+            ['√','^','(',')','+','-','×','÷','='].forEach(sym => { const b=document.createElement('button'); b.type='button'; b.className='kbd-btn'; b.textContent=sym; b.addEventListener('pointerdown',e=>e.preventDefault()); b.addEventListener('click',e=>{e.preventDefault();insertAtCursor(input,sym);}); tb.appendChild(b); });
             const c=document.createElement('button'); c.type='button'; c.className='tb-hide'; c.textContent='✕';
             c.addEventListener('click',()=>{tb.classList.add('hidden');input.blur();}); tb.appendChild(c); w.appendChild(tb);
             input.addEventListener('focus',()=>{tb.classList.remove('hidden');setTimeout(()=>input.scrollIntoView({block:'center',behavior:'smooth'}),250);});
