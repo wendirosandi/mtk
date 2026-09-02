@@ -218,14 +218,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    $('#input-nama1').value = nama1;
+    $('#input-nama1').value = nama1; $('#input-kode').value = kode;
     $('#input-kelas').value = kelas;
     $('#kategori-select').value = kategori;
     ['section-A','section-B','section-C'].forEach(id => $('#'+id).classList.add('hidden'));
     $('#section-'+kategori).classList.remove('hidden');
 
     /* ============ 2. LOCAL STORAGE UNIK ============ */
-    const storeKey = 'LKPD_KUIS_MTK001_'+slug(nama1)+'_'+slug(kelas)+'_'+kategori;
+    const storeKey = 'LKPD_'+slug(kode)+'_'+slug(nama1)+'_'+slug(kelas)+'_'+kategori+'_g'+gen;
     let db = { lkpdStarted:false, lkpdAccMs:0, lkpdResumeEpoch:null, lkpdSubmitted:false, lkpdSubmittedAt:null, lkpdFinalMs:0, lkpdAnswers:{}, kuisSubmitted:false, kuisSubmittedAt:null, kuisState:null };
     try { const r=localStorage.getItem(storeKey); if(r) db=Object.assign(db, JSON.parse(r)); } catch(e){}
     const save = () => { try { localStorage.setItem(storeKey, JSON.stringify(db)); } catch(e){} };
@@ -308,14 +308,31 @@ document.addEventListener('DOMContentLoaded', () => {
         parts.push('RefleksiUmum: '+valOr($('#refleksi-umum').value).replace(/\s+/g,' '));
         return parts.join(' | ');
     };
+        function collapseLKPD(){
+        const sections=$$('#fase-lkpd section'); sections.forEach(s=>s.classList.add('hidden'));
+        const prog=$('#btn-kirim-lkpd')?$('#btn-kirim-lkpd').closest('.bg-white'):null; if(prog) prog.classList.add('hidden');
+        if(!$('#lkpd-summary-card')){
+            const card=document.createElement('div'); card.id='lkpd-summary-card';
+            card.className='bg-green-50 border border-green-300 rounded-xl p-3 text-sm cursor-pointer';
+            card.innerHTML='<span class="font-semibold text-green-800"><i class="fas fa-lock mr-2"></i>LKPD terkunci & terkirim — ketuk untuk membuka/melipat ringkasan (mode baca).</span>';
+            card.addEventListener('click',()=>{ const showNow=card.dataset.open!=='1'; card.dataset.open=showNow?'1':'0'; sections.forEach(s=>s.classList.toggle('hidden',!showNow)); });
+            const cont=$('#fase-lkpd .space-y-6'); cont.insertBefore(card, cont.children[1]||null);
+        }
+    }
+    function showKuisCTA(){
+        if(db.kuisSubmitted) return;
+        if(!$('#cta-kuis')){ const b=document.createElement('button'); b.id='cta-kuis'; b.className='fixed bottom-5 right-5 z-50 bg-indigo-600 text-white font-bold px-5 py-3 rounded-full shadow-xl'; b.innerHTML='🎯 Lanjutkan Kuis'; b.addEventListener('click',()=>$('#fase-kuis').scrollIntoView({behavior:'smooth'})); document.body.appendChild(b); }
+        setTimeout(()=>$('#fase-kuis').scrollIntoView({behavior:'smooth'}),400);
+    }
     const lockLKPD = () => {
         $$('#fase-lkpd input,#fase-lkpd textarea,#fase-lkpd select').forEach(e=>e.disabled=true);
         $('#btn-kirim-lkpd').classList.add('hidden');
         $('#lkpd-submitted-banner').classList.remove('hidden');
         $('#lkpd-submitted-at').textContent=db.lkpdSubmittedAt||'-';
         timerHint.textContent='(waktu final)'; timerEl.textContent=fmtMs(db.lkpdFinalMs||0);
+        collapseLKPD(); showKuisCTA();
     };
-    if (db.lkpdSubmitted) lockLKPD();
+        if (db.lkpdSubmitted){ lockLKPD(); if(!db.kuisSubmitted){ $('#fase-kuis').classList.remove('hidden'); showKuisCTA(); } }
 
     $('#btn-kirim-lkpd').addEventListener('click', async () => {
         if (db.lkpdSubmitted) return;
@@ -488,9 +505,9 @@ document.addEventListener('DOMContentLoaded', () => {
             saveKuis();
         },1000);
     }
-    if (kuis.step==='quiz' && kuis.totalSeconds>0 && kuis.remainingSeconds>0){ startKuisTimer(); renderKuis(); }
-    else if (kuis.step==='result') renderKuis();
-    else if (db.kuisSubmitted){ $('#fase-kuis').classList.remove('hidden'); renderKuisSuccess(); }
+       if (kuis.step==='quiz' && kuis.totalSeconds>0 && kuis.remainingSeconds>0){ $('#fase-kuis').classList.remove('hidden'); startKuisTimer(); renderKuis(); }
+    else if (kuis.step==='result'){ $('#fase-kuis').classList.remove('hidden'); renderKuis(); }
+    else if (db.kuisSubmitted){ $('#fase-kuis').classList.remove('hidden'); renderKuisSuccess(); const c=$('#cta-kuis'); if(c) c.remove();  }
     else if (db.lkpdSubmitted){ $('#fase-kuis').classList.remove('hidden'); renderKuisHome(); }
 
     window.addEventListener('beforeunload',()=>{ if(kuis.intervalId) clearInterval(kuis.intervalId); pauseLKPD(); db.lkpdAnswers=collectLKPD(); save(); });
