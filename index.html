@@ -29,8 +29,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
 .timer-warning{background:#ef4444;color:#fff;animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.8}}
 .no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
-
-    /* ===== LOADER OVERLAY (transparan + blur) ===== */
+/* ===== LOADER OVERLAY (transparan + blur) ===== */
 #loader-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
 #loader-overlay.hidden{display:none!important}
 .loader-card{background:rgba(255,255,255,.92);border:1px solid #e5e7eb;border-radius:16px;padding:22px 28px;display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.15);max-width:82%;text-align:center}
@@ -38,11 +37,10 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
 @keyframes spin{to{transform:rotate(360deg)}}
 #loader-text{font-weight:700;color:#1f2937;font-size:.95rem}
 .loader-sub{font-size:.72rem;color:#6b7280}
-    
 </style>
 </head>
 <body>
-<body>
+
 <div id="loader-overlay" role="status" aria-live="polite">
   <div class="loader-card">
     <div class="spinner"></div>
@@ -50,7 +48,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
     <div class="loader-sub" id="loader-sub">mohon tunggu, jangan tutup halaman</div>
   </div>
 </div>
-    
+
 <div id="error-panel" class="hidden max-w-2xl mx-auto mt-10 bg-white border-2 border-red-300 rounded-xl p-6 shadow">
     <div class="flex items-center gap-3 mb-3 text-red-600"><i class="fas fa-exclamation-triangle text-2xl"></i><h2 class="text-lg font-bold">Link Tidak Valid</h2></div>
     <p class="text-sm text-gray-700 mb-3">Maaf, LKPD tidak dapat ditampilkan. Silakan <strong>tanyakan dan cek kembali link yang diberikan oleh guru</strong>.</p>
@@ -160,7 +158,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
         <textarea id="refleksi-umum" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" rows="4" placeholder="Tuliskan refleksimu..."></textarea>
     </section>
 
-    <div class="bg-white rounded-xl border p-4 shadow-sm">
+    <div class="bg-white rounded-xl border p-4 shadow-sm" id="kirim-card">
         <div class="flex items-center justify-between mb-2 text-sm"><span class="font-semibold text-gray-700">Progres LKPD:</span><span id="progress-text" class="text-blue-700 font-mono">0/0</span></div>
         <div class="w-full bg-gray-200 rounded-full h-2 mb-4"><div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all" style="width:0%"></div></div>
         <button id="btn-kirim-lkpd" class="w-full bg-green-600 hover:bg-green-700 active:scale-95 text-white font-bold px-6 py-3 rounded-xl shadow text-base transition"><i class="fas fa-paper-plane mr-2"></i>Kirim LKPD</button>
@@ -178,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ================= KONFIGURASI ================= */
     const GS_URL  = 'https://script.google.com/macros/s/AKfycbw55mTigv_PQFlsw9ia-lxCspgueQwXRH7ouWKnYKXw15BKn9ytmu0l3mFwO1n3a6fS/exec';
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5u_MP8qFVe53hTJUvKBun__A0RAM9rDh4GyrSaUrfc5qwAV0Y_OHA_7mxIKjZ8AOpSSUcTy172j_f/pub?gid=1343827068&single=true&output=csv';
-    const SECRET  = 'MTK001#Rahasia!2026@Guru';   // WAJIB SAMA PERSIS dengan SECRET di Code.gs
+    const SECRET  = 'MTK001#Rahasia!2026@Guru';   // WAJIB sama dengan Code.gs
     const SYARAT_KIRIM = 'FULL';
     const MIN_PCT = 0.90;
     const MENIT_PER_SOAL = 2;
@@ -187,37 +185,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const $ = s => document.querySelector(s);
     const $$ = s => document.querySelectorAll(s);
-    let loaderT=null;
-    function showLoader(m){ const o=$('#loader-overlay'); if(m) $('#loader-text').textContent=m; o.classList.remove('hidden');
-      clearTimeout(loaderT); $('#loader-sub').textContent='mohon tunggu, jangan tutup halaman';
-      loaderT=setTimeout(()=>{ $('#loader-sub').textContent='Koneksi lambat... periksa internet Anda.'; },12000); }
-    function setLoaderMsg(m){ $('#loader-text').textContent=m; }
-    function hideLoader(){ $('#loader-overlay').classList.add('hidden'); clearTimeout(loaderT); }
-    
     const pad = n => String(n).padStart(2,'0');
     const slug = t => String(t||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
     const fmtMs = ms => { const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),d=s%60; return h>0?(pad(h)+'.'+pad(m)+'.'+pad(d)):(pad(m)+'.'+pad(d)); };
     const fmtSec = sec => { sec=Math.max(0,Math.floor(sec)); return pad(Math.floor(sec/60))+':'+pad(sec%60); };
 
-    /* ============ HELPER: render LaTeX dinamis (kuis) ============ */
-    const typesetMath = () => {
-        const el = $('#kuis-content');
-        if (el && window.MathJax && MathJax.typesetPromise) {
-            MathJax.typesetPromise([el]).catch(()=>{});
-        }
-    };
+    /* ============ LOADER ============ */
+    let loaderT=null;
+    function showLoader(m){ const o=$('#loader-overlay'); if(m) $('#loader-text').textContent=m; o.classList.remove('hidden');
+      clearTimeout(loaderT); $('#loader-sub').textContent='mohon tunggu, jangan tutup halaman';
+      loaderT=setTimeout(()=>{ $('#loader-sub').textContent='Koneksi lambat... periksa internet Anda.'; },12000); }
+    function hideLoader(){ $('#loader-overlay').classList.add('hidden'); clearTimeout(loaderT); }
 
-    /* ============ 1. DEKRIPSI TOKEN LINK (?d=...) ============ */
+    /* ============ MATHJAX DINAMIS (KUIS) ============ */
+    const typesetMath = () => { const el=$('#kuis-content'); if(el && window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([el]).catch(()=>{}); };
+
+    /* ============ 1. DEKRIPSI TOKEN (6 bagian) ============ */
     const b64urlToB64 = t => { let s=t.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='='; return s; };
-    function decryptToken(t){
-        try {
-            const plain = CryptoJS.AES.decrypt(b64urlToB64(t), SECRET).toString(CryptoJS.enc.Utf8);
-            return plain || null;
-        } catch(e){ return null; }
-    }
+    function decryptToken(t){ try { return CryptoJS.AES.decrypt(b64urlToB64(t), SECRET).toString(CryptoJS.enc.Utf8) || null; } catch(e){ return null; } }
 
-     const token = new URLSearchParams(window.location.search).get('d');
-     let kode='MTK-001', username='', nama1='', kelas='', kategori='', gen=1;
+    const token = new URLSearchParams(window.location.search).get('d');
+    let kode='MTK-001', username='', nama1='', kelas='', kategori='', gen=1;
     const errors = [];
     if (!token) errors.push('Token link tidak ditemukan. Gunakan link lengkap dari guru.');
     else {
@@ -225,14 +213,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!plain) errors.push('Token link rusak / tidak valid.');
         else {
             const p = plain.split('|');
-           if (p.length !== 6) errors.push('Format token tidak sesuai (versi lama). Minta link baru ke guru.');
+            if (p.length !== 6) errors.push('Format token tidak sesuai (versi lama). Minta link baru ke guru.');
             else {
                 kode=p[0].trim()||'MTK-001'; username=p[1].trim(); nama1=p[2].trim(); kelas=p[3].trim();
                 kategori=p[4].trim().toUpperCase(); gen=parseInt(p[5],10)||1;
+                if (!username) errors.push('Username dalam token kosong.');
+                if (!nama1) errors.push('Nama dalam token kosong.');
+                if (!kelas) errors.push('Kelas dalam token kosong.');
+                if (!['A','B','C'].includes(kategori)) errors.push('Kategori dalam token tidak valid.');
             }
         }
     }
-
     if (errors.length) {
         $('#main-container').classList.add('hidden');
         $('#error-panel').classList.remove('hidden');
@@ -241,19 +232,20 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    $('#input-nama1').value = nama1; $('#input-kode').value = kode;
+    $('#input-kode').value = kode;
+    $('#input-nama1').value = nama1;
     $('#input-kelas').value = kelas;
     $('#kategori-select').value = kategori;
     ['section-A','section-B','section-C'].forEach(id => $('#'+id).classList.add('hidden'));
     $('#section-'+kategori).classList.remove('hidden');
 
-    /* ============ 2. LOCAL STORAGE UNIK ============ */
-     const storeKey = 'LKPD_'+slug(kode)+'_'+slug(username)+'_g'+gen;
+    /* ============ 2. LOCAL STORAGE UNIK (username + gen) ============ */
+    const storeKey = 'LKPD_'+slug(kode)+'_'+slug(username)+'_g'+gen;
     let db = { lkpdStarted:false, lkpdAccMs:0, lkpdResumeEpoch:null, lkpdSubmitted:false, lkpdSubmittedAt:null, lkpdFinalMs:0, lkpdAnswers:{}, kuisSubmitted:false, kuisSubmittedAt:null, kuisState:null };
     try { const r=localStorage.getItem(storeKey); if(r) db=Object.assign(db, JSON.parse(r)); } catch(e){}
     const save = () => { try { localStorage.setItem(storeKey, JSON.stringify(db)); } catch(e){} };
 
-    /* ============ 3. TOOLBAR SIMBOL ============ */
+    /* ============ 3. TOOLBAR SIMBOL (termasuk =) ============ */
     const insertAtCursor = (input,val) => { const s=input.selectionStart??input.value.length,e=input.selectionEnd??s; input.value=input.value.substring(0,s)+val+input.value.substring(e); input.selectionStart=input.selectionEnd=s+val.length; input.focus(); input.dispatchEvent(new Event('input')); };
     if (ENABLE_MATH_KEYBOARD && !db.lkpdSubmitted) {
         $$('.math-input').forEach(input => {
@@ -268,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /* ============ 4. LKPD: TIMER + VALIDASI + AUTOSAVE ============ */
+    /* ============ 4. LKPD: AUTOSAVE + PROGRES + TIMER ============ */
     $$('.num-input,.math-input').forEach((el,i)=>el.dataset.key='q'+i);
     const collectLKPD = () => { const o={}; $$('.num-input,.math-input').forEach(el=>o[el.dataset.key]=el.value); o.nama2=$('#input-nama2').value; const r=document.querySelector('input[name="refleksi-paham"]:checked'); o.refPaham=r?r.value:''; o.refUmum=$('#refleksi-umum').value; return o; };
     if (!db.lkpdSubmitted && db.lkpdAnswers) {
@@ -316,7 +308,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     $('#fase-lkpd').addEventListener('change',()=>{ if(!db.lkpdSubmitted){ db.lkpdAnswers=collectLKPD(); save(); updateProgress(); } });
 
-    /* ============ 5. KIRIM LKPD ============ */
+    /* ============ 5. COLLAPSE LKPD + CTA KUIS ============ */
+    function collapseLKPD(){
+        const sections=$$('#fase-lkpd section'); sections.forEach(s=>s.classList.add('hidden'));
+        const prog=$('#kirim-card'); if(prog) prog.classList.add('hidden');
+        if(!$('#lkpd-summary-card')){
+            const card=document.createElement('div'); card.id='lkpd-summary-card';
+            card.className='bg-green-50 border border-green-300 rounded-xl p-3 text-sm cursor-pointer';
+            card.innerHTML='<span class="font-semibold text-green-800"><i class="fas fa-lock mr-2"></i>LKPD terkunci & terkirim — ketuk untuk membuka/melipat ringkasan (mode baca).</span>';
+            card.addEventListener('click',()=>{ const showNow=card.dataset.open!=='1'; card.dataset.open=showNow?'1':'0'; sections.forEach(s=>s.classList.toggle('hidden',!showNow)); });
+            const cont=$('#fase-lkpd .space-y-6'); cont.insertBefore(card, cont.children[1]||null);
+        }
+    }
+    function showKuisCTA(){
+        if(db.kuisSubmitted) return;
+        if(!$('#cta-kuis')){ const b=document.createElement('button'); b.id='cta-kuis'; b.className='fixed bottom-5 right-5 z-50 bg-indigo-600 text-white font-bold px-5 py-3 rounded-full shadow-xl'; b.innerHTML='🎯 Lanjutkan Kuis'; b.addEventListener('click',()=>$('#fase-kuis').scrollIntoView({behavior:'smooth'})); document.body.appendChild(b); }
+        setTimeout(()=>$('#fase-kuis').scrollIntoView({behavior:'smooth'}),400);
+    }
+
+    /* ============ 6. KIRIM LKPD ============ */
     const valOr = v => { v=(v||'').trim(); return v===''?'-':v.replace(/\|/g,'/'); };
     const buildJawabanLKPD = () => {
         const parts=[];
@@ -331,22 +341,6 @@ document.addEventListener('DOMContentLoaded', () => {
         parts.push('RefleksiUmum: '+valOr($('#refleksi-umum').value).replace(/\s+/g,' '));
         return parts.join(' | ');
     };
-        function collapseLKPD(){
-        const sections=$$('#fase-lkpd section'); sections.forEach(s=>s.classList.add('hidden'));
-        const prog=$('#btn-kirim-lkpd')?$('#btn-kirim-lkpd').closest('.bg-white'):null; if(prog) prog.classList.add('hidden');
-        if(!$('#lkpd-summary-card')){
-            const card=document.createElement('div'); card.id='lkpd-summary-card';
-            card.className='bg-green-50 border border-green-300 rounded-xl p-3 text-sm cursor-pointer';
-            card.innerHTML='<span class="font-semibold text-green-800"><i class="fas fa-lock mr-2"></i>LKPD terkunci & terkirim — ketuk untuk membuka/melipat ringkasan (mode baca).</span>';
-            card.addEventListener('click',()=>{ const showNow=card.dataset.open!=='1'; card.dataset.open=showNow?'1':'0'; sections.forEach(s=>s.classList.toggle('hidden',!showNow)); });
-            const cont=$('#fase-lkpd .space-y-6'); cont.insertBefore(card, cont.children[1]||null);
-        }
-    }
-    function showKuisCTA(){
-        if(db.kuisSubmitted) return;
-        if(!$('#cta-kuis')){ const b=document.createElement('button'); b.id='cta-kuis'; b.className='fixed bottom-5 right-5 z-50 bg-indigo-600 text-white font-bold px-5 py-3 rounded-full shadow-xl'; b.innerHTML='🎯 Lanjutkan Kuis'; b.addEventListener('click',()=>$('#fase-kuis').scrollIntoView({behavior:'smooth'})); document.body.appendChild(b); }
-        setTimeout(()=>$('#fase-kuis').scrollIntoView({behavior:'smooth'}),400);
-    }
     const lockLKPD = () => {
         $$('#fase-lkpd input,#fase-lkpd textarea,#fase-lkpd select').forEach(e=>e.disabled=true);
         $('#btn-kirim-lkpd').classList.add('hidden');
@@ -355,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
         timerHint.textContent='(waktu final)'; timerEl.textContent=fmtMs(db.lkpdFinalMs||0);
         collapseLKPD(); showKuisCTA();
     };
-        if (db.lkpdSubmitted){ lockLKPD(); if(!db.kuisSubmitted){ $('#fase-kuis').classList.remove('hidden'); showKuisCTA(); } }
+    if (db.lkpdSubmitted) lockLKPD();
 
     $('#btn-kirim-lkpd').addEventListener('click', async () => {
         if (db.lkpdSubmitted) return;
@@ -373,10 +367,11 @@ document.addEventListener('DOMContentLoaded', () => {
             $('#fase-kuis').classList.remove('hidden');
             $('#fase-kuis').scrollIntoView({behavior:'smooth'});
             renderKuisHome();
-     } catch(err){ resumeLKPD(); save(); alert('Gagal mengirim. Jawaban tersimpan lokal.'); } finally { hideLoader(); }
+        } catch(err){ resumeLKPD(); save(); alert('Gagal mengirim. Jawaban tersimpan lokal.'); }
+        finally { hideLoader(); }
     });
 
-    /* ============ 6. KUIS ============ */
+    /* ============ 7. KUIS ============ */
     let kuis={ step:'home', questions:[], currentIndex:0, userAnswers:{}, score:0, totalSeconds:0, remainingSeconds:0, totalMs:0, intervalId:null, showGrid:false, sortedPairs:[] };
     if (db.kuisState) Object.assign(kuis, db.kuisState);
     const saveKuis=()=>{ db.kuisState={...kuis, intervalId:null}; save(); };
@@ -420,7 +415,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const q=kuis.questions[kuis.currentIndex], total=kuis.questions.length;
         const progress=((kuis.currentIndex+1)/total)*100;
         const curAns=kuis.userAnswers[kuis.currentIndex];
-        const elapsed=kuis.totalSeconds-kuis.remainingSeconds;
         const isW=kuis.remainingSeconds<60;
         $('#kuis-content').innerHTML=`<div class="fade-in flex flex-col">
             <div class="flex justify-between items-center mb-4">
@@ -496,34 +490,33 @@ document.addEventListener('DOMContentLoaded', () => {
         $('#kuis-content').innerHTML=`<div class="text-center fade-in flex flex-col justify-center min-h-[400px]"><div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"><span class="text-4xl">✅</span></div><h2 class="text-2xl font-bold text-gray-800 mb-2">Berhasil Dikirim!</h2><p class="text-gray-600 mb-8 text-sm">Nilai kamu tersimpan aman di database guru.</p></div>`;
         $('#kuis-submitted-banner').classList.remove('hidden');
         $('#lkpd-submitted-banner').classList.remove('hidden');
+        const c=$('#cta-kuis'); if(c) c.remove();
     }
     async function sendKuisToGAS(){
-                const btn=$('#btn-kirim-kuis'); btn.disabled=true; btn.textContent='⏳ Mengirim...';
+        const btn=$('#btn-kirim-kuis'); btn.disabled=true; btn.textContent='⏳ Mengirim...';
         showLoader('📤 Mengirim nilai kuis...');
-        
         const detailStr=kuis.sortedPairs.map(p=>{ const c=p.q.options.find(o=>o.isCorrect); const ck=c?c.key:'?'; const st=p.ans===ck?'✅':'❌'; return (p.q.noUrutMissing?'[?]':'')+`No.${p.q.noUrut}: ${st} (Jawab: ${p.ans||'Kosong'}, Kunci: ${ck})`; }).join(' | ');
-                const payload={ tipe:'KUIS', kode: kode, nama1, kelas, kategori, username, skor:kuis.score, jawaban:detailStr, waktuPengerjaan: fmtSec(Math.floor(kuis.totalMs/1000)), percobaan: gen };
+        const payload={ tipe:'KUIS', kode: kode, nama1, kelas, kategori, username, skor:kuis.score, jawaban:detailStr, waktuPengerjaan: fmtSec(Math.floor(kuis.totalMs/1000)), percobaan: gen };
         try {
             await fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
             db.kuisSubmitted=true; db.kuisSubmittedAt=new Date().toLocaleString('id-ID'); save();
             renderKuisSuccess();
-                } catch(err){ alert('Gagal mengirim. Coba lagi.'); btn.disabled=false; btn.textContent='📤 Kirim Nilai ke Guru'; } finally { hideLoader(); }
+        } catch(err){ alert('Gagal mengirim. Coba lagi.'); btn.disabled=false; btn.textContent='📤 Kirim Nilai ke Guru'; }
+        finally { hideLoader(); }
     }
     function handleStartKuis(){
-        function handleStartKuis(){
         showLoader('🎲 Memuat & mengacak bank soal...');
         kuis.step='loading'; renderKuis();
         fetch(CSV_URL).then(r=>r.text()).then(text=>{
             let f=mapQuestions(parseCSV(text)).filter(q=>q.kategori===kategori);
-                       if(!f.length){ alert('Tidak ada soal untuk Kategori '+kategori+'.'); kuis.step='home'; renderKuis(); hideLoader(); return; }
+            if(!f.length){ alert('Tidak ada soal untuk Kategori '+kategori+'.'); kuis.step='home'; renderKuis(); hideLoader(); return; }
             f=shuffle(f);
             kuis.questions=f.map(q=>({...q, shuffledOptions: shuffle([...q.options])}));
             kuis.totalSeconds=kuis.questions.length*MENIT_PER_SOAL*60;
             kuis.remainingSeconds=kuis.totalSeconds;
             kuis.currentIndex=0; kuis.userAnswers={}; kuis.score=0; kuis.step='quiz'; kuis.showGrid=false;
-                        startKuisTimer(); saveKuis(); renderKuis(); hideLoader();
+            startKuisTimer(); saveKuis(); renderKuis(); hideLoader();
         }).catch(()=>{ alert('Gagal memuat soal.'); kuis.step='home'; renderKuis(); hideLoader(); });
-        }).catch(()=>{ alert('Gagal memuat soal.'); kuis.step='home'; renderKuis(); });
     }
     function startKuisTimer(){
         if(kuis.intervalId) clearInterval(kuis.intervalId);
@@ -534,15 +527,17 @@ document.addEventListener('DOMContentLoaded', () => {
             saveKuis();
         },1000);
     }
-       if (kuis.step==='quiz' && kuis.totalSeconds>0 && kuis.remainingSeconds>0){ $('#fase-kuis').classList.remove('hidden'); startKuisTimer(); renderKuis(); }
-    else if (kuis.step==='result'){ $('#fase-kuis').classList.remove('hidden'); renderKuis(); }
-    else if (db.kuisSubmitted){ $('#fase-kuis').classList.remove('hidden'); renderKuisSuccess(); const c=$('#cta-kuis'); if(c) c.remove();  }
-    else if (db.lkpdSubmitted){ $('#fase-kuis').classList.remove('hidden'); renderKuisHome(); }
 
-        window.addEventListener('beforeunload',(e)=>{ 
-        if(kuis.intervalId) clearInterval(kuis.intervalId); pauseLKPD(); db.lkpdAnswers=collectLKPD(); save();
-        if(!db.lkpdSubmitted && db.lkpdStarted) { e.preventDefault(); e.returnValue=''; } hideLoader();
-        });
+    /* ============ 8. RESTORE STATE (fix: semua cabang unhide kuis) ============ */
+    if (db.lkpdSubmitted){ lockLKPD(); if(!db.kuisSubmitted){ $('#fase-kuis').classList.remove('hidden'); showKuisCTA(); } }
+    if (kuis.step==='quiz' && kuis.totalSeconds>0 && kuis.remainingSeconds>0){ $('#fase-kuis').classList.remove('hidden'); startKuisTimer(); renderKuis(); }
+    else if (kuis.step==='result'){ $('#fase-kuis').classList.remove('hidden'); renderKuis(); }
+    else if (db.kuisSubmitted){ $('#fase-kuis').classList.remove('hidden'); renderKuisSuccess(); }
+
+    window.addEventListener('beforeunload',(e)=>{ if(kuis.intervalId) clearInterval(kuis.intervalId); pauseLKPD(); db.lkpdAnswers=collectLKPD(); save();
+        if(!db.lkpdSubmitted && db.lkpdStarted){ e.preventDefault(); e.returnValue=''; }
+    });
+    hideLoader();
 });
 </script>
 </body>
