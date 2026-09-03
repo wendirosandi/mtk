@@ -29,10 +29,28 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
 .timer-warning{background:#ef4444;color:#fff;animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.8}}
 .no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+
+    /* ===== LOADER OVERLAY (transparan + blur) ===== */
+#loader-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+#loader-overlay.hidden{display:none!important}
+.loader-card{background:rgba(255,255,255,.92);border:1px solid #e5e7eb;border-radius:16px;padding:22px 28px;display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.15);max-width:82%;text-align:center}
+.spinner{width:46px;height:46px;border-radius:50%;border:5px solid #e0e7ff;border-top-color:#4f46e5;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loader-text{font-weight:700;color:#1f2937;font-size:.95rem}
+.loader-sub{font-size:.72rem;color:#6b7280}
+    
 </style>
 </head>
 <body>
-
+<body>
+<div id="loader-overlay" role="status" aria-live="polite">
+  <div class="loader-card">
+    <div class="spinner"></div>
+    <div id="loader-text">🔐 Memverifikasi link siswa...</div>
+    <div class="loader-sub" id="loader-sub">mohon tunggu, jangan tutup halaman</div>
+  </div>
+</div>
+    
 <div id="error-panel" class="hidden max-w-2xl mx-auto mt-10 bg-white border-2 border-red-300 rounded-xl p-6 shadow">
     <div class="flex items-center gap-3 mb-3 text-red-600"><i class="fas fa-exclamation-triangle text-2xl"></i><h2 class="text-lg font-bold">Link Tidak Valid</h2></div>
     <p class="text-sm text-gray-700 mb-3">Maaf, LKPD tidak dapat ditampilkan. Silakan <strong>tanyakan dan cek kembali link yang diberikan oleh guru</strong>.</p>
@@ -169,6 +187,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const $ = s => document.querySelector(s);
     const $$ = s => document.querySelectorAll(s);
+    let loaderT=null;
+    function showLoader(m){ const o=$('#loader-overlay'); if(m) $('#loader-text').textContent=m; o.classList.remove('hidden');
+      clearTimeout(loaderT); $('#loader-sub').textContent='mohon tunggu, jangan tutup halaman';
+      loaderT=setTimeout(()=>{ $('#loader-sub').textContent='Koneksi lambat... periksa internet Anda.'; },12000); }
+    function setLoaderMsg(m){ $('#loader-text').textContent=m; }
+    function hideLoader(){ $('#loader-overlay').classList.add('hidden'); clearTimeout(loaderT); }
+    
     const pad = n => String(n).padStart(2,'0');
     const slug = t => String(t||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
     const fmtMs = ms => { const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),d=s%60; return h>0?(pad(h)+'.'+pad(m)+'.'+pad(d)):(pad(m)+'.'+pad(d)); };
@@ -212,6 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
         $('#main-container').classList.add('hidden');
         $('#error-panel').classList.remove('hidden');
         errors.forEach(e => { const li=document.createElement('li'); li.textContent=e; $('#error-list').appendChild(li); });
+        hideLoader();
         return;
     }
 
@@ -337,6 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const butuh = SYARAT_KIRIM==='FULL'? totalButir : Math.ceil(totalButir*MIN_PCT);
         if (isi<butuh){ alert('Belum cukup terisi: '+isi+'/'+butuh+' butir. Lengkapi dulu.'); return; }
         if (!confirm('Kirim LKPD sekarang? Jawaban LKPD akan terkunci.')) return;
+        showLoader('📤 Mengirim LKPD ke guru...');
         pauseLKPD(); save();
         const payload={ tipe:'LKPD', kode: kode, nama1, kelas, kategori, username, nama2: $('#input-nama2').value.trim()||'-', jawaban: buildJawabanLKPD(), waktuPengerjaan: fmtMs(db.lkpdAccMs), percobaan: gen };
         try {
@@ -346,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
             $('#fase-kuis').classList.remove('hidden');
             $('#fase-kuis').scrollIntoView({behavior:'smooth'});
             renderKuisHome();
-        } catch(err){ resumeLKPD(); save(); alert('Gagal mengirim. Jawaban tersimpan lokal.'); }
+     } catch(err){ resumeLKPD(); save(); alert('Gagal mengirim. Jawaban tersimpan lokal.'); } finally { hideLoader(); }
     });
 
     /* ============ 6. KUIS ============ */
@@ -471,26 +498,31 @@ document.addEventListener('DOMContentLoaded', () => {
         $('#lkpd-submitted-banner').classList.remove('hidden');
     }
     async function sendKuisToGAS(){
-        const btn=$('#btn-kirim-kuis'); btn.disabled=true; btn.textContent='⏳ Mengirim...';
+                const btn=$('#btn-kirim-kuis'); btn.disabled=true; btn.textContent='⏳ Mengirim...';
+        showLoader('📤 Mengirim nilai kuis...');
+        
         const detailStr=kuis.sortedPairs.map(p=>{ const c=p.q.options.find(o=>o.isCorrect); const ck=c?c.key:'?'; const st=p.ans===ck?'✅':'❌'; return (p.q.noUrutMissing?'[?]':'')+`No.${p.q.noUrut}: ${st} (Jawab: ${p.ans||'Kosong'}, Kunci: ${ck})`; }).join(' | ');
                 const payload={ tipe:'KUIS', kode: kode, nama1, kelas, kategori, username, skor:kuis.score, jawaban:detailStr, waktuPengerjaan: fmtSec(Math.floor(kuis.totalMs/1000)), percobaan: gen };
         try {
             await fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
             db.kuisSubmitted=true; db.kuisSubmittedAt=new Date().toLocaleString('id-ID'); save();
             renderKuisSuccess();
-        } catch(err){ alert('Gagal mengirim. Coba lagi.'); btn.disabled=false; btn.textContent='📤 Kirim Nilai ke Guru'; }
+                } catch(err){ alert('Gagal mengirim. Coba lagi.'); btn.disabled=false; btn.textContent='📤 Kirim Nilai ke Guru'; } finally { hideLoader(); }
     }
     function handleStartKuis(){
+        function handleStartKuis(){
+        showLoader('🎲 Memuat & mengacak bank soal...');
         kuis.step='loading'; renderKuis();
         fetch(CSV_URL).then(r=>r.text()).then(text=>{
             let f=mapQuestions(parseCSV(text)).filter(q=>q.kategori===kategori);
-            if(!f.length){ alert('Tidak ada soal untuk Kategori '+kategori+'.'); kuis.step='home'; renderKuis(); return; }
+                       if(!f.length){ alert('Tidak ada soal untuk Kategori '+kategori+'.'); kuis.step='home'; renderKuis(); hideLoader(); return; }
             f=shuffle(f);
             kuis.questions=f.map(q=>({...q, shuffledOptions: shuffle([...q.options])}));
             kuis.totalSeconds=kuis.questions.length*MENIT_PER_SOAL*60;
             kuis.remainingSeconds=kuis.totalSeconds;
             kuis.currentIndex=0; kuis.userAnswers={}; kuis.score=0; kuis.step='quiz'; kuis.showGrid=false;
-            startKuisTimer(); saveKuis(); renderKuis();
+                        startKuisTimer(); saveKuis(); renderKuis(); hideLoader();
+        }).catch(()=>{ alert('Gagal memuat soal.'); kuis.step='home'; renderKuis(); hideLoader(); });
         }).catch(()=>{ alert('Gagal memuat soal.'); kuis.step='home'; renderKuis(); });
     }
     function startKuisTimer(){
@@ -509,7 +541,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         window.addEventListener('beforeunload',(e)=>{ 
         if(kuis.intervalId) clearInterval(kuis.intervalId); pauseLKPD(); db.lkpdAnswers=collectLKPD(); save();
-        if(!db.lkpdSubmitted && db.lkpdStarted) { e.preventDefault(); e.returnValue=''; }
+        if(!db.lkpdSubmitted && db.lkpdStarted) { e.preventDefault(); e.returnValue=''; } hideLoader();
         });
 });
 </script>
