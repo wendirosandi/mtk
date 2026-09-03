@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
      const token = new URLSearchParams(window.location.search).get('d');
-    let kode='MTK-001', nama1='', kelas='', kategori='', gen=1;
+     let kode='MTK-001', username='', nama1='', kelas='', kategori='', gen=1;
     const errors = [];
     if (!token) errors.push('Token link tidak ditemukan. Gunakan link lengkap dari guru.');
     else {
@@ -200,13 +200,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!plain) errors.push('Token link rusak / tidak valid.');
         else {
             const p = plain.split('|');
-            if (p.length !== 5) errors.push('Format token versi lama. Minta link baru ke guru.');
+           if (p.length !== 6) errors.push('Format token tidak sesuai (versi lama). Minta link baru ke guru.');
             else {
-                kode=p[0].trim()||'MTK-001'; nama1=p[1].trim(); kelas=p[2].trim();
-                kategori=p[3].trim().toUpperCase(); gen=parseInt(p[4],10)||1;
-                if (!nama1) errors.push('Nama dalam token kosong.');
-                if (!kelas) errors.push('Kelas dalam token kosong.');
-                if (!['A','B','C'].includes(kategori)) errors.push('Kategori dalam token tidak valid.');
+                kode=p[0].trim()||'MTK-001'; username=p[1].trim(); nama1=p[2].trim(); kelas=p[3].trim();
+                kategori=p[4].trim().toUpperCase(); gen=parseInt(p[5],10)||1;
             }
         }
     }
@@ -225,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
     $('#section-'+kategori).classList.remove('hidden');
 
     /* ============ 2. LOCAL STORAGE UNIK ============ */
-    const storeKey = 'LKPD_'+slug(kode)+'_'+slug(nama1)+'_'+slug(kelas)+'_'+kategori+'_g'+gen;
+     const storeKey = 'LKPD_'+slug(kode)+'_'+slug(username)+'_g'+gen;
     let db = { lkpdStarted:false, lkpdAccMs:0, lkpdResumeEpoch:null, lkpdSubmitted:false, lkpdSubmittedAt:null, lkpdFinalMs:0, lkpdAnswers:{}, kuisSubmitted:false, kuisSubmittedAt:null, kuisState:null };
     try { const r=localStorage.getItem(storeKey); if(r) db=Object.assign(db, JSON.parse(r)); } catch(e){}
     const save = () => { try { localStorage.setItem(storeKey, JSON.stringify(db)); } catch(e){} };
@@ -341,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isi<butuh){ alert('Belum cukup terisi: '+isi+'/'+butuh+' butir. Lengkapi dulu.'); return; }
         if (!confirm('Kirim LKPD sekarang? Jawaban LKPD akan terkunci.')) return;
         pauseLKPD(); save();
-        const payload={ tipe:'LKPD', kode:'MTK-001', nama1, kelas, kategori, nama2: $('#input-nama2').value.trim()||'-', jawaban: buildJawabanLKPD(), waktuPengerjaan: fmtMs(db.lkpdAccMs) };
+        const payload={ tipe:'LKPD', kode: kode, nama1, kelas, kategori, username, nama2: $('#input-nama2').value.trim()||'-', jawaban: buildJawabanLKPD(), waktuPengerjaan: fmtMs(db.lkpdAccMs), percobaan: gen };
         try {
             await fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
             db.lkpdFinalMs=db.lkpdAccMs; db.lkpdSubmitted=true; db.lkpdSubmittedAt=new Date().toLocaleString('id-ID'); save();
@@ -476,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function sendKuisToGAS(){
         const btn=$('#btn-kirim-kuis'); btn.disabled=true; btn.textContent='⏳ Mengirim...';
         const detailStr=kuis.sortedPairs.map(p=>{ const c=p.q.options.find(o=>o.isCorrect); const ck=c?c.key:'?'; const st=p.ans===ck?'✅':'❌'; return (p.q.noUrutMissing?'[?]':'')+`No.${p.q.noUrut}: ${st} (Jawab: ${p.ans||'Kosong'}, Kunci: ${ck})`; }).join(' | ');
-        const payload={ tipe:'KUIS', kode:'MTK-001', nama1, kelas, kategori, skor:kuis.score, jawaban:detailStr, waktuPengerjaan: fmtSec(Math.floor(kuis.totalMs/1000)) };
+                const payload={ tipe:'KUIS', kode: kode, nama1, kelas, kategori, username, skor:kuis.score, jawaban:detailStr, waktuPengerjaan: fmtSec(Math.floor(kuis.totalMs/1000)), percobaan: gen };
         try {
             await fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
             db.kuisSubmitted=true; db.kuisSubmittedAt=new Date().toLocaleString('id-ID'); save();
@@ -510,7 +507,10 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (db.kuisSubmitted){ $('#fase-kuis').classList.remove('hidden'); renderKuisSuccess(); const c=$('#cta-kuis'); if(c) c.remove();  }
     else if (db.lkpdSubmitted){ $('#fase-kuis').classList.remove('hidden'); renderKuisHome(); }
 
-    window.addEventListener('beforeunload',()=>{ if(kuis.intervalId) clearInterval(kuis.intervalId); pauseLKPD(); db.lkpdAnswers=collectLKPD(); save(); });
+        window.addEventListener('beforeunload',(e)=>{ 
+        if(kuis.intervalId) clearInterval(kuis.intervalId); pauseLKPD(); db.lkpdAnswers=collectLKPD(); save();
+        if(!db.lkpdSubmitted && db.lkpdStarted) { e.preventDefault(); e.returnValue=''; }
+        });
 });
 </script>
 </body>
