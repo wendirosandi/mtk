@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tools MTK - Modern</title>
+
+<!-- Memuat CDN KaTeX untuk merender matematika di Section 6 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  
+  :root {
+    /* === THEME: DEFAULT (GLASSMORPHISM) === */
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --secondary: #ec4899;
+    --accent: #f59e0b;
+    --bg-body: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --card-bg: rgba(255, 255, 255, 0.9);
+    --panel-bg: rgba(248, 250, 255, 0.9);
+    --text-primary: #1e1b4b;
+    --text-secondary: #6b7280;
+    --text-header: #ffffff;
+    --table-border: rgba(99,102,241,0.15);
+    --table-th-bg: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    --table-td-bg1: rgba(255,255,255,0.8);
+    --table-td-bg2: rgba(248,250,255,0.6);
+    --shadow-soft: 0 8px 32px rgba(0,0,0,0.1);
+    --shadow-hover: 0 12px 40px rgba(0,0,0,0.15);
+  }
+
+  [data-theme="light"] {
+    /* === THEME: LIGHT MODE === */
+    --bg-body: #f8fafc;
+    --card-bg: #ffffff;
+    --panel-bg: #f1f5f9;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-header: #0f172a;
+    --table-border: #cbd5e1;
+    --table-th-bg: #3b82f6;
+    --table-td-bg1: #ffffff;
+    --table-td-bg2: #f8fafc;
+    --shadow-soft: 0 4px 15px rgba(0,0,0,0.05);
+    --shadow-hover: 0 8px 25px rgba(0,0,0,0.1);
+  }
+
+  [data-theme="dark"] {
+    /* === THEME: DARK MODE === */
+    --bg-body: #0f172a;
+    --card-bg: #1e293b;
+    --panel-bg: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-header: #f8fafc;
+    --table-border: #475569;
+    --table-th-bg: #1e293b;
+    --table-td-bg1: #1e293b;
+    --table-td-bg2: #0f172a;
+    --shadow-soft: 0 4px 15px rgba(0,0,0,0.4);
+    --shadow-hover: 0 8px 25px rgba(0,0,0,0.6);
+  }
+
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-body);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    padding: 10px;
+    min-height: 100vh;
+    touch-action: manipulation;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  .header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0 20px;
+    padding: 0 10px;
+  }
+
+  h1 {
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    color: var(--text-header);
+    font-weight: 800;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    letter-spacing: -0.5px;
+  }
+
+  /* Selector Tema */
+  .theme-select {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: none;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-weight: 600;
+    box-shadow: var(--shadow-soft);
+    cursor: pointer;
+    outline: none;
+  }
+
+  /* ===== SECTION LABEL ===== */
+  .section-label {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    color: var(--text-primary);
+    padding: 14px 18px;
+    border-radius: 16px 16px 0 0;
+    cursor: pointer;
+    font-size: 1.05rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: transform 0.2s, background 0.3s;
+  }
+  .section-label:active { transform: scale(0.98); }
+  .section-label.active { border-bottom: 2px solid var(--primary); }
+  .section-label .arrow-icon { font-size: 1.2rem; transition: transform 0.3s; color: var(--primary); }
+  .section-label.active .arrow-icon { transform: rotate(180deg); }
+
+  .section-content {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border-radius: 0 0 16px 16px;
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s;
+    max-height: 4000px;
+    opacity: 1;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .section-content.hidden { max-height: 0; opacity: 0; margin-bottom: 0; overflow: hidden; }
+
+  /* ===== SETTING PANEL ===== */
+  .setting-toggle {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border: none;
+    color: #fff;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+  }
+  .setting-panel { background: var(--panel-bg); padding: 15px; display: none; }
+  .setting-panel.show { display: block; }
+  .setting-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+  .setting-row label { font-size: 0.9rem; font-weight: 600; min-width: 120px; }
+  .setting-row input[type="range"] { flex: 1; min-width: 140px; accent-color: var(--primary); }
+  .setting-value { background: var(--primary); color: #fff; padding: 4px 12px; border-radius: 20px; font-weight: 700; min-width: 36px; text-align: center; }
+  .setting-info { font-size: 0.8rem; color: var(--text-secondary); margin-top: 6px; font-style: italic; }
+
+  .select-modern {
+    padding: 8px 14px;
+    border: 2px solid var(--table-border);
+    border-radius: 10px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-weight: 600;
+    outline: none;
+  }
+
+  /* ===== TABLE NAVIGATION GRID ===== */
+  .table-nav-grid { display: grid; grid-template-columns: 1fr 48px; grid-template-rows: 1fr 48px; gap: 6px; padding: 10px; justify-content: center; }
+  .table-scroll-wrapper {
+    grid-column: 1; grid-row: 1; overflow: auto;
+    border: 2px solid var(--primary); border-radius: 12px;
+    background: var(--card-bg);
+    /* Lebar/Tinggi Default viewport akan dikontrol via JS */
+    max-width: 100%; height: 450px;
+    transition: max-width 0.3s ease, height 0.3s ease;
+  }
+  .nav-btn-long { background: var(--table-th-bg); color: #fff; border: none; font-size: 1.4rem; font-weight: 700; cursor: pointer; border-radius: 8px;}
+  .nav-right-split { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; gap: 4px; }
+  .nav-left-split { grid-column: 1; grid-row: 2; display: flex; gap: 4px; }
+
+  /* ===== MULTIPLICATION TABLE ===== */
+  .mult-table { border-collapse: collapse; width: max-content; }
+  .mult-table th, .mult-table td {
+    border: 1px solid var(--table-border); padding: 12px 16px;
+    text-align: center; font-size: 0.95rem; min-width: 60px;
+    cursor: pointer;
+  }
+  .mult-table th {
+    background: var(--table-th-bg); color: #fff; font-weight: 700;
+    position: sticky; top: 0; z-index: 2;
+  }
+  .mult-table th:first-child { position: sticky; left: 0; z-index: 3; }
+  .mult-table td:first-child {
+    position: sticky; left: 0; background: var(--panel-bg); font-weight: 700; z-index: 1;
+  }
+  .mult-table tr:nth-child(even) td { background: var(--table-td-bg2); }
+  .mult-table tr:nth-child(odd) td { background: var(--table-td-bg1); }
+
+  /* ===== HIGHLIGHTS ===== */
+  .hl-primer { background: #f59e0b !important; color: #000 !important; font-weight: 800 !important; z-index: 5 !important; position: relative; transform: scale(1.05); }
+  .hl-sekunder { background: #ea580c !important; color: #fff !important; z-index: 4 !important; position: relative; }
+  .hl-tersier { background: #60a5fa !important; color: #000 !important; opacity: 0.8; z-index: 3 !important; position: relative; }
+
+  /* ===== GRID CARDS ===== */
+  .grid-container { padding: 15px; max-height: 500px; overflow-y: auto; }
+  .grid-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  .card-item { background: var(--card-bg); border: 2px solid var(--table-border); border-radius: 12px; padding: 12px 8px; text-align: center; }
+  .card-item .card-top { font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; }
+  .card-item .card-eq { font-size: 0.75rem; color: var(--text-secondary); margin: 4px 0; }
+  .card-item .card-result { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
+
+  /* ===== MATH PRACTICE & KATEX ===== */
+  .math-practice-container { display: flex; gap: 15px; padding: 15px; }
+  .math-input-wrapper { flex: 1; display: flex; flex-direction: column; gap: 10px; position: relative; }
+  
+  .math-toolbar {
+    display: flex; flex-wrap: wrap; gap: 6px; padding: 10px;
+    background: var(--panel-bg); border-radius: 12px;
+    box-shadow: var(--shadow-soft);
+    transition: opacity 0.2s;
+  }
+  .kbd-btn {
+    background: var(--card-bg); border: 1px solid var(--table-border); padding: 10px 14px;
+    border-radius: 8px; font-size: 1.1rem; font-weight: 700; color: var(--text-primary); cursor: pointer; flex: 1; min-width: 45px;
+  }
+  .tb-hide { background: #ef4444; color: #fff; margin-left: auto; border: none; padding: 10px 14px; border-radius: 8px; cursor: pointer; }
+
+  .math-textarea {
+    width: 100%; min-height: 200px; padding: 15px; border: 2px solid var(--table-border);
+    border-radius: 12px; font-family: 'Courier New', monospace; font-size: 1rem; line-height: 1.6;
+    background: var(--card-bg); color: var(--text-primary); resize: vertical; outline: none;
+  }
+  .math-textarea:focus { border-color: var(--primary); }
+
+  .validation-status {
+    display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+    background: var(--panel-bg); border-radius: 8px; font-size: 0.9rem;
+    border-left: 4px solid var(--text-secondary);
+  }
+  .validation-status.valid { border-left-color: #10b981; }
+  .validation-status.invalid { border-left-color: #ef4444; }
+
+  .math-preview-wrapper {
+    flex: 1; background: var(--card-bg); border-radius: 12px;
+    border: 2px solid var(--table-border); display: flex; flex-direction: column;
+  }
+  .preview-header { padding: 12px 15px; background: var(--table-th-bg); color: #fff; font-weight: 700; display: flex; justify-content: space-between;}
+  .math-preview { padding: 20px; overflow-y: auto; font-size: 1.2rem; line-height: 2; }
+  
+  .math-line { margin-bottom: 15px; padding: 5px; font-size: 18px; display: flex; align-items: center; }
+
+  @media (max-width: 768px) {
+    .math-practice-container { flex-direction: column; }
+    .math-preview-wrapper { order: -1; min-height: 150px;}
+    .grid-cards { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .grid-cards { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header-container">
+  <h1>Tools MTK</h1>
+  <select class="theme-select" id="themeSelector" onchange="changeTheme()">
+    <option value="default">✨ Default</option>
+    <option value="light">☀️ Light</option>
+    <option value="dark">🌙 Dark</option>
+  </select>
+</div>
+
+<!-- SECTION 1 -->
+<div class="section-label active" onclick="toggleSection(1)">
+  <span>1. Tabel Perkalian (Viewport)</span>
+  <div style="display:flex;align-items:center;">
+    <button class="setting-toggle" onclick="event.stopPropagation();toggleSetting(1)">⚙️</button>
+    <span class="arrow-icon" style="margin-left:8px;">▼</span>
+  </div>
+</div>
+<div class="section-content" id="section1">
+  <div class="setting-panel" id="setting1">
+    <div class="setting-row">
+      <label>Area Kolom:</label>
+      <input type="range" id="sliderKolom" min="3" max="20" value="8" oninput="updateSettingDisplay('kolom')">
+      <span class="setting-value" id="valKolom">8</span>
+    </div>
+    <div class="setting-row">
+      <label>Area Baris:</label>
+      <input type="range" id="sliderBaris" min="3" max="20" value="8" oninput="updateSettingDisplay('baris')">
+      <span class="setting-value" id="valBaris">8</span>
+    </div>
+    <div class="setting-info">💡 Tabel utama tetap 45x45. Slider ini mengatur ukuran jendela pantau (Viewport). Gunakan tombol panah untuk scroll.</div>
+  </div>
+  <div class="table-nav-grid">
+    <div class="table-scroll-wrapper" id="multScroll">
+      <table class="mult-table" id="multTable">
+        <!-- Generate via JS 45x45 -->
+      </table>
+    </div>
+    <div class="nav-right-split">
+      <button class="nav-btn-long" onclick="scrollTable('up')">▲</button>
+      <button class="nav-btn-long" onclick="scrollTable('down')">▼</button>
+    </div>
+    <div class="nav-left-split">
+      <button class="nav-btn-long" onclick="scrollTable('left')">◀</button>
+      <button class="nav-btn-long" onclick="scrollTable('right')">▶</button>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2, 3, 4 (Tetap dipertahankan layout gridnya) -->
+<div class="section-label" onclick="toggleSection(2)">
+  <span>2. Daftar Perpangkatan</span>
+  <div style="display:flex;align-items:center;">
+    <button class="setting-toggle" onclick="event.stopPropagation();toggleSetting(2)">⚙️</button>
+    <span class="arrow-icon" style="margin-left:8px;">▼</span>
+  </div>
+</div>
+<div class="section-content hidden" id="section2">
+  <div class="setting-panel" id="setting2">
+    <div class="setting-row">
+      <label>Jumlah Kolom:</label>
+      <input type="range" id="sliderPangkat" min="3" max="8" value="5" oninput="updateSettingDisplay('pangkat');buildPowerTable()">
+      <span class="setting-value" id="valPangkat">5</span>
+    </div>
+    <div class="setting-row">
+      <label>Tipe Pangkat:</label>
+      <select class="select-modern" id="pangkatType" onchange="buildPowerTable()">
+        <option value="2" selected>Pangkat 2 (Kuadrat)</option>
+        <option value="3">Pangkat 3 (Kubik)</option>
+      </select>
+    </div>
+  </div>
+  <div class="grid-container"><div class="grid-cards" id="powerGrid"></div></div>
+</div>
+
+<div class="section-label" onclick="toggleSection(3)">
+  <span>3. Tabel Akar Kuadrat</span>
+  <span class="arrow-icon">▼</span>
+</div>
+<div class="section-content hidden" id="section3">
+  <div class="grid-container"><div class="grid-cards" id="rootGrid"></div></div>
+</div>
+
+<!-- SECTION 6: LATIHAN MATEMATIKA (TERINTEGRASI KATEX) -->
+<div class="section-label" onclick="toggleSection(6)">
+  <span>6. Latihan Format Matematika (Pro)</span>
+  <div style="display:flex;align-items:center;">
+    <span class="arrow-icon">▼</span>
+  </div>
+</div>
+<div class="section-content hidden" id="section6">
+  <div class="math-practice-container" id="mathPracticeContainer">
+    
+    <div class="math-input-wrapper">
+      <div class="math-toolbar hidden" id="mathToolbar">
+        <button type="button" class="kbd-btn" onclick="insertSymbol('√')">√</button>
+        <button type="button" class="kbd-btn" onclick="insertSymbol('^')">^</button>
+        <button type="button" class="kbd-btn" onclick="insertSymbol('(')">(</button>
+        <button type="button" class="kbd-btn" onclick="insertSymbol(')')">)</button>
+        <button type="button" class="kbd-btn" onclick="insertSymbol('+')">+</button>
+        <button type="button" class="kbd-btn" onclick="insertSymbol('-')">−</button>
+        <button type="button" class="kbd-btn" onclick="insertSymbol('×')">×</button>
+        <button type="button" class="kbd-btn" onclick="insertSymbol('÷')">÷</button>
+        <button type="button" class="kbd-btn" onclick="insertSymbol('=')">=</button>
+        <button type="button" class="kbd-btn" onclick="insertSymbol('/')">/</button>
+        <button type="button" class="tb-hide" onclick="hideToolbar()">✕ Tutup</button>
+      </div>
+      <textarea 
+        id="mathInput" 
+        class="math-textarea" 
+        placeholder="Ketik rumus di sini...&#10;Contoh:&#10;((2+3)^2)/5&#10;=25/5&#10;=5"
+        oninput="validateAndPreview()"
+        onfocus="showToolbar()"
+        onblur="setTimeout(hideToolbar, 200)"
+      ></textarea>
+      <div class="validation-status" id="validationStatus">
+        <span class="status-icon">⌨️</span>
+        <span class="status-text" style="color:var(--text-primary)">Mulai mengetik untuk melihat preview KaTeX</span>
+      </div>
+    </div>
+    
+    <div class="math-preview-wrapper" id="mathPreviewWrapper">
+      <div class="preview-header">
+        <span>📋 Visualisasi (KaTeX)</span>
+        <button class="setting-toggle" style="width: auto; padding: 5px 10px; border-radius: 6px; font-size:14px; margin-left:0; box-shadow:none;" onclick="clearMath()">Hapus Teks</button>
+      </div>
+      <div class="math-preview" id="mathPreview">
+        <div style="color:var(--text-secondary); text-align:center; padding: 40px;">Hasil render matematika akan muncul di sini...</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ==================== TEMA SYSTEM ====================
+function changeTheme() {
+  const mode = document.getElementById('themeSelector').value;
+  if(mode === 'default') {
+    document.body.removeAttribute('data-theme');
+  } else {
+    document.body.setAttribute('data-theme', mode);
+  }
+}
+
+// ==================== GLOBAL UI ====================
+function toggleSection(num) {
+  const content = document.getElementById('section' + num);
+  const label = content.previousElementSibling;
+  const isHidden = content.classList.contains('hidden');
+  if (isHidden) {
+    content.classList.remove('hidden');
+    label.classList.add('active');
+  } else {
+    content.classList.add('hidden');
+    label.classList.remove('active');
+  }
+}
+function toggleSetting(num) { document.getElementById('setting' + num).classList.toggle('show'); }
+
+// ==================== SECTION 1: PERKALIAN VIEWPORT ====================
+const MAX_DATA = 45; // Fixed 45x45
+let activeHighlight = null;
+
+function initMultTable() {
+  const table = document.getElementById('multTable');
+  table.innerHTML = '';
+  
+  let headerRow = '<tr><th>×</th>';
+  for (let c = 2; c <= MAX_DATA + 1; c++) headerRow += `<th>${c}</th>`;
+  headerRow += '</tr>';
+  table.innerHTML += headerRow;
+  
+  for (let r = 2; r <= MAX_DATA + 1; r++) {
+    let row = `<tr><th>${r}</th>`;
+    for (let c = 2; c <= MAX_DATA + 1; c++) {
+      row += `<td data-row="${r}" data-col="${c}">${r * c}</td>`;
+    }
+    row += '</tr>';
+    table.innerHTML += row;
+  }
+  
+  table.querySelectorAll('td').forEach(cell => {
+    cell.addEventListener('click', () => handleCellTap(cell));
+  });
+  
+  updateViewport(); // Set ukuran default pertama kali
+}
+
+function updateSettingDisplay(type) {
+  if (type === 'kolom' || type === 'baris') {
+    document.getElementById('valKolom').textContent = document.getElementById('sliderKolom').value;
+    document.getElementById('valBaris').textContent = document.getElementById('sliderBaris').value;
+    updateViewport(); // Tidak mencetak ulang tabel, HANYA mengubah ukuran bungkus
+  } else if (type === 'pangkat') {
+    document.getElementById('valPangkat').textContent = document.getElementById('sliderPangkat').value;
+  }
+}
+
+function updateViewport() {
+  const valKolom = parseInt(document.getElementById('sliderKolom').value);
+  const valBaris = parseInt(document.getElementById('sliderBaris').value);
+  const scrollArea = document.getElementById('multScroll');
+  
+  // Asumsi lebar 1 sel sekitar 65px (termasuk padding) dan tinggi 45px
+  scrollArea.style.maxWidth = ((valKolom + 1) * 65) + 'px';
+  scrollArea.style.height = ((valBaris + 1) * 45) + 'px';
+}
+
+function scrollTable(direction) {
+  const el = document.getElementById('multScroll');
+  const step = 80;
+  switch(direction) {
+    case 'up': el.scrollTop -= step; break;
+    case 'down': el.scrollTop += step; break;
+    case 'left': el.scrollLeft -= step; break;
+    case 'right': el.scrollLeft += step; break;
+  }
+}
+
+function handleCellTap(cell) {
+  document.querySelectorAll('.hl-primer, .hl-sekunder, .hl-tersier').forEach(el => {
+    el.classList.remove('hl-primer', 'hl-sekunder', 'hl-tersier');
+  });
+  const row = cell.getAttribute('data-row');
+  const col = cell.getAttribute('data-col');
+  
+  cell.classList.add('hl-primer');
+  
+  document.querySelectorAll(`#multTable th`).forEach(th => {
+    if (th.textContent === row || th.textContent === col) th.classList.add('hl-sekunder');
+  });
+  document.querySelectorAll(`td[data-row="${row}"], td[data-col="${col}"]`).forEach(td => {
+    if (td !== cell) td.classList.add('hl-tersier');
+  });
+}
+
+// ==================== SECTION 2 & 3: KARTU ====================
+function buildPowerTable() {
+  const nCols = parseInt(document.getElementById('sliderPangkat').value);
+  const pangkat = parseInt(document.getElementById('pangkatType').value);
+  const grid = document.getElementById('powerGrid');
+  grid.style.gridTemplateColumns = `repeat(${nCols}, 1fr)`;
+  grid.innerHTML = '';
+  
+  for (let i = 2; i <= MAX_DATA; i++) {
+    const result = pangkat === 2 ? i * i : i * i * i;
+    grid.innerHTML += `<div class="card-item"><div class="card-top">${i}<sup>${pangkat}</sup></div><div class="card-eq">=</div><div class="card-result">${result}</div></div>`;
+  }
+}
+
+function buildRootTable() {
+  const grid = document.getElementById('rootGrid');
+  grid.innerHTML = '';
+  for (let i = 1; i <= MAX_DATA; i++) {
+    grid.innerHTML += `<div class="card-item"><div class="card-top">√${i*i}</div><div class="card-eq">=</div><div class="card-result">${i}</div></div>`;
+  }
+}
+
+// ==================== SECTION 6: KATEX MATH PARSER ====================
+function showToolbar() { document.getElementById('mathToolbar').style.display = 'flex'; }
+function hideToolbar() { document.getElementById('mathToolbar').style.display = 'none'; }
+
+function insertSymbol(sym) {
+  const input = document.getElementById('mathInput');
+  const s = input.selectionStart, e = input.selectionEnd;
+  input.value = input.value.substring(0, s) + sym + input.value.substring(e);
+  input.selectionStart = input.selectionEnd = s + sym.length;
+  input.focus();
+  validateAndPreview();
+}
+
+function clearMath() {
+  document.getElementById('mathInput').value = '';
+  validateAndPreview();
+}
+
+// Algoritma Parser Pecahan Cerdas (Depth-First)
+function convertToLatex(text) {
+  let lines = text.split('\n');
+  return lines.map(line => {
+    if (!line.trim()) return "";
+    let result = line;
+    
+    // Substitusi Dasar
+    result = result.replace(/√([0-9a-zA-Z]+)/g, '\\sqrt{$1}');
+    result = result.replace(/×/g, ' \\times ');
+    result = result.replace(/÷/g, ' \\div ');
+    result = result.replace(/−/g, ' - '); // Normalkan minus
+    
+    let i = 0, limit = 0; 
+    while (i < result.length && limit < 100) {
+      limit++;
+      if (result[i] === '/') {
+        // Cari pembilang ke Kiri
+        let numEnd = i - 1;
+        while (numEnd >= 0 && result[numEnd] === ' ') numEnd--; 
+        let numStart = numEnd, stripNumParen = false;
+        
+        if (numStart >= 0 && result[numStart] === ')') {
+          let depth = 0;
+          while (numStart >= 0) {
+            if (result[numStart] === ')') depth++;
+            else if (result[numStart] === '(') depth--;
+            if (depth === 0) break; 
+            numStart--;
+          }
+          if (depth === 0) stripNumParen = true;
+          else numStart = 0; 
+        } else {
+          while (numStart >= 0 && /[0-9a-zA-Z^.,\\{}]/.test(result[numStart])) numStart--;
+          numStart++;
+        }
+
+        // Cari penyebut ke Kanan
+        let denStart = i + 1;
+        while (denStart < result.length && result[denStart] === ' ') denStart++; 
+        let denEnd = denStart, stripDenParen = false;
+        
+        if (denEnd < result.length && result[denEnd] === '(') {
+          let depth = 0;
+          while (denEnd < result.length) {
+            if (result[denEnd] === '(') depth++;
+            else if (result[denEnd] === ')') depth--;
+            if (depth === 0) break; 
+            denEnd++;
+          }
+          if (depth === 0) stripDenParen = true;
+          else denEnd = result.length - 1; 
+        } else {
+          while (denEnd < result.length && /[0-9a-zA-Z^.,\\{}]/.test(result[denEnd])) denEnd++;
+          denEnd--;
+        }
+
+        // Susun \frac{}{}
+        if (numStart >= 0 && denEnd < result.length && numStart <= numEnd && denStart <= denEnd) {
+          let numerator = result.substring(numStart, numEnd + 1);
+          let denominator = result.substring(denStart, denEnd + 1);
+          if (stripNumParen) numerator = numerator.substring(1, numerator.length - 1);
+          if (stripDenParen) denominator = denominator.substring(1, denominator.length - 1);
+          
+          let latex = `\\frac{${numerator}}{${denominator}}`;
+          result = result.substring(0, numStart) + latex + result.substring(denEnd + 1);
+          i = numStart + latex.length;
+        } else { i++; }
+      } else { i++; }
+    }
+    return result;
+  });
+}
+
+function validateAndPreview() {
+  const input = document.getElementById('mathInput');
+  const preview = document.getElementById('mathPreview');
+  const status = document.getElementById('validationStatus');
+  
+  // Filter Regex: Tolak Huruf
+  let originalValue = input.value;
+  let sanitizedValue = originalValue.replace(/[^0-9,.\/ \n√^+\-×÷\(\)=]/g, '');
+  if (originalValue !== sanitizedValue) {
+      let cursor = input.selectionStart;
+      input.value = sanitizedValue;
+      input.selectionStart = input.selectionEnd = cursor - 1; 
+  }
+
+  if (!sanitizedValue.trim()) {
+    preview.innerHTML = '<div style="color:var(--text-secondary); text-align:center; padding: 40px;">Hasil render matematika akan muncul di sini...</div>';
+    status.className = 'validation-status';
+    status.innerHTML = '<span class="status-icon">⌨️</span><span class="status-text" style="color:var(--text-primary)">Mulai mengetik untuk melihat preview KaTeX</span>';
+    return;
+  }
+
+  const lines = convertToLatex(sanitizedValue);
+  preview.innerHTML = "";
+  let isError = false;
+
+  lines.forEach(line => {
+    if (line === "") return;
+    const lineDiv = document.createElement('div');
+    lineDiv.className = "math-line";
+    
+    try {
+      katex.render(line, lineDiv, { throwOnError: false, displayMode: false });
+    } catch (err) {
+      lineDiv.innerText = "Format eror";
+      isError = true;
+    }
+    preview.appendChild(lineDiv);
+  });
+
+  if(isError) {
+    status.className = 'validation-status invalid';
+    status.innerHTML = '<span class="status-icon">⚠️</span><span class="status-text">Periksa format matematika</span>';
+  } else {
+    status.className = 'validation-status valid';
+    status.innerHTML = '<span class="status-icon">✅</span><span class="status-text">Format matematika valid</span>';
+  }
+}
+
+// Inisialisasi awal
+initMultTable();
+buildPowerTable();
+buildRootTable();
+hideToolbar();
+</script>
+
+</body>
+</html>
