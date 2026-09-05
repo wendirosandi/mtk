@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LKPD 1.3 Merasionalkan Penyebut Bentuk Akar</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+<style>
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;margin:0;padding:20px}
+.hidden{display:none!important}
+.math-plain{font-size:1.05rem;font-weight:500;color:#1f2937;line-height:2.6}
+.num-input{width:52px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:6px;text-align:center;display:inline-block;margin:0 3px;font-size:1rem;background:#f8fafc}
+.num-input::-webkit-outer-spin-button,.num-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.num-input{-moz-appearance:textfield;appearance:textfield}
+.math-area{width:100%;min-height:150px;font-family:monospace;font-size:15px;padding:10px;border:2px solid #e0e0e0;border-radius:8px;box-sizing:border-box;resize:vertical;background:#fff}
+.math-area:focus{border-color:#6366f1;outline:none}
+.math-preview{border-left:4px solid #6366f1;background:#fff;border-radius:0 8px 8px 0;padding:10px;min-height:150px}
+.math-line{margin-bottom:10px;font-size:17px}
+.math-toolbar{position:absolute;bottom:calc(100% + 6px);left:0;right:0;background:#2c3e50;border-radius:10px;padding:6px;display:flex;flex-wrap:wrap;gap:5px;justify-content:center;align-items:center;z-index:70;box-shadow:0 6px 18px rgba(0,0,0,.28)}
+.math-toolbar .kbd-btn{flex:1 1 30px;max-width:52px;background:#f39c12;color:#fff;border:none;padding:9px 0;font-size:1.05rem;font-weight:700;border-radius:7px;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.math-toolbar .kbd-btn:active{transform:scale(.93)}
+.math-toolbar .kbd-btn.red{background:#ef4444}
+.math-toolbar .tb-hide{flex:0 0 auto;background:#e74c3c;color:#fff;border:none;padding:8px 10px;border-radius:7px;font-weight:700;cursor:pointer}
+.fade-in{animation:fadeIn .3s ease-out}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.option-btn:active{transform:scale(.98)}
+.timer-warning{background:#ef4444;color:#fff;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.8}}
+.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+#loader-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+#loader-overlay.hidden{display:none!important}
+.loader-card{background:rgba(255,255,255,.92);border:1px solid #e5e7eb;border-radius:16px;padding:22px 28px;display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.15);max-width:82%;text-align:center}
+.spinner{width:46px;height:46px;border-radius:50%;border:5px solid #e0e7ff;border-top-color:#4f46e5;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loader-text{font-weight:700;color:#1f2937;font-size:.95rem}
+.loader-sub{font-size:.72rem;color:#6b7280}
+</style>
+</head>
+<body>
+
+<div id="loader-overlay" role="status" aria-live="polite">
+  <div class="loader-card">
+    <div class="spinner"></div>
+    <div id="loader-text">🔐 Memverifikasi link siswa...</div>
+    <div class="loader-sub" id="loader-sub">mohon tunggu, jangan tutup halaman</div>
+  </div>
+</div>
+
+<div id="error-panel" class="hidden max-w-2xl mx-auto mt-10 bg-white border-2 border-red-300 rounded-xl p-6 shadow">
+    <div class="flex items-center gap-3 mb-3 text-red-600"><i class="fas fa-exclamation-triangle text-2xl"></i><h2 class="text-lg font-bold">Link Tidak Valid</h2></div>
+    <p class="text-sm text-gray-700 mb-3">Maaf, LKPD tidak dapat ditampilkan. Silakan <strong>tanyakan dan cek kembali link yang diberikan oleh guru</strong>.</p>
+    <ul id="error-list" class="list-disc list-inside text-sm text-red-600 space-y-1 mb-4"></ul>
+</div>
+
+<div id="main-container">
+<div id="fase-lkpd">
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <div class="bg-white rounded-xl border p-4 text-gray-700 space-y-3 shadow-sm">
+        <h1 class="text-xl font-bold text-gray-800 text-center">LKPD 1.3 MERASIONALKAN PENYEBUT BENTUK AKAR</h1>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+            <div><span class="font-semibold block mb-1">Kode LKPD:</span><input type="text" id="input-kode" value="MTK-002" disabled class="px-3 py-2 bg-gray-100 border border-gray-300 rounded text-gray-600 w-full cursor-not-allowed"></div>
+            <div><span class="font-semibold block mb-1">Nama Siswa 1:</span><input type="text" id="input-nama1" maxlength="50" disabled class="px-3 py-2 bg-gray-100 border border-gray-300 rounded text-gray-600 w-full cursor-not-allowed"></div>
+            <div><span class="font-semibold block mb-1">Kelas:</span><input type="text" id="input-kelas" maxlength="20" disabled class="px-3 py-2 bg-gray-100 border border-gray-300 rounded text-gray-600 w-full cursor-not-allowed"></div>
+            <div><span class="font-semibold block mb-1">Nama Siswa 2:</span><input type="text" id="input-nama2" maxlength="50" autocomplete="off" class="px-3 py-2 border border-gray-300 rounded w-full" placeholder="Isi nama lengkap..."></div>
+        </div>
+        <div class="flex items-center gap-2 pt-3 border-t text-sm text-gray-700">
+            <i class="fas fa-stopwatch text-blue-600"></i><span class="font-semibold">Waktu:</span>
+            <span id="timer-display" class="font-mono text-base font-bold text-blue-700">00.00</span>
+            <span id="timer-hint" class="text-xs text-gray-500">(berjalan saat jawaban pertama diketik)</span>
+        </div>
+        <div class="text-sm"><label class="font-semibold block mb-1">Kategori Soal:</label>
+            <select id="kategori-select" class="w-full md:w-64 p-2 border border-gray-300 rounded-lg bg-gray-100" disabled>
+                <option value="A">Kategori A (Sulit)</option><option value="B">Kategori B (Sedang)</option><option value="C">Kategori C (Mudah)</option>
+            </select></div>
+    </div>
+
+    <div id="lkpd-submitted-banner" class="hidden bg-green-100 border border-green-300 text-green-800 rounded-xl p-4 text-sm font-medium"><i class="fas fa-check-circle mr-2"></i> LKPD sudah terkirim pada <span id="lkpd-submitted-at"></span>.</div>
+
+    <section class="bg-white rounded-xl border p-4 shadow-sm">
+        <h2 class="font-semibold text-gray-800 mb-2 text-lg">Petunjuk</h2>
+        <ol class="list-decimal list-inside space-y-1 text-sm text-gray-700">
+            <li>Bacalah ringkasan materi dan contoh sebelum mengerjakan.</li>
+            <li>Kerjakan soal sesuai kategorimu. Soal pertama diisi angka pada kotak; soal kedua ditulis langkah demi langkah (satu baris satu langkah) dengan preview otomatis.</li>
+            <li>Tekan <strong>Kirim LKPD</strong> setelah semua terisi.</li>
+        </ol>
+    </section>
+
+    <section class="bg-white rounded-xl border p-4 shadow-sm">
+        <h2 class="font-semibold text-gray-800 mb-2 text-lg">Ringkasan Materi</h2>
+        <p class="text-sm text-gray-700">Bilangan bentuk akar ada yang irasional, contoh $\sqrt{2}, \sqrt{3}, \sqrt{5}$. Pecahan berpenyebut irasional seperti $\frac{1}{\sqrt{3}}$, $\frac{2}{3\sqrt{5}}$, $\frac{6}{5+\sqrt{3}}$, $\frac{4}{\sqrt{7}+\sqrt{5}}$ perlu <strong>dirasionalkan penyebutnya</strong> dengan mengalikan <em>akar sekawan</em>:</p>
+        <div class="text-sm text-gray-700 space-y-2 bg-blue-50 p-3 rounded-lg mt-2">
+            <p>1. Pasangan sekawan $\sqrt{a}$ adalah $\sqrt{a}$, karena $\sqrt{a}\times\sqrt{a}=a$</p>
+            <p>2. Pasangan sekawan $(a+\sqrt{b})$ adalah $(a-\sqrt{b})$, karena $(a+\sqrt{b})(a-\sqrt{b})=a^2-b$</p>
+            <p>3. Pasangan sekawan $(\sqrt{a}+\sqrt{b})$ adalah $(\sqrt{a}-\sqrt{b})$, karena $(\sqrt{a}+\sqrt{b})(\sqrt{a}-\sqrt{b})=a-b$</p>
+        </div>
+    </section>
+
+    <section class="bg-white rounded-xl border p-4 shadow-sm">
+        <h2 class="font-semibold text-gray-800 mb-2 text-lg">Contoh 1 — Penyebut berbentuk $\sqrt{a}$</h2>
+        <p class="text-sm text-gray-700">$\frac{1}{\sqrt{3}}=\frac{1}{\sqrt{3}}\times\frac{\sqrt{3}}{\sqrt{3}}=\frac{\sqrt{3}}{3}$</p>
+        <p class="text-xs text-gray-500 mt-1">Alternatif 1: $\frac{1}{\sqrt{3}}=\frac{\sqrt{3}}{\sqrt{9}}=\frac{\sqrt{3}}{3}$</p>
+        <h2 class="font-semibold text-gray-800 mb-2 text-lg mt-4">Contoh 2 — Penyebut berbentuk $(a+\sqrt{b})$</h2>
+        <p class="text-sm text-gray-700">$\frac{6}{5+\sqrt{3}}=\frac{6}{5+\sqrt{3}}\times\frac{5-\sqrt{3}}{5-\sqrt{3}}=\frac{6(5-\sqrt{3})}{25-3}=\frac{30-6\sqrt{3}}{22}=\frac{15-3\sqrt{3}}{11}$</p>
+        <h2 class="font-semibold text-gray-800 mb-2 text-lg mt-4">Contoh 3 — Penyebut berbentuk $(\sqrt{a}+\sqrt{b})$</h2>
+        <p class="text-sm text-gray-700">$\frac{4}{\sqrt{7}+\sqrt{5}}=\frac{4}{\sqrt{7}+\sqrt{5}}\times\frac{\sqrt{7}-\sqrt{5}}{\sqrt{7}-\sqrt{5}}=\frac{4(\sqrt{7}-\sqrt{5})}{7-5}=\frac{4\sqrt{7}-4\sqrt{5}}{2}=2\sqrt{7}-2\sqrt{5}$</p>
+    </section>
+
+    <!-- ================= KATEGORI A ================= -->
+    <section class="bg-white rounded-xl border p-4 shadow-sm" id="section-A">
+        <h3 class="font-semibold text-blue-700 text-lg mb-4"><i class="fas fa-star text-blue-500 mr-2"></i> Kategori A</h3>
+
+        <p class="text-sm font-bold text-gray-800 mb-2">Soal-A1. Rasionalkan: $\frac{2\sqrt{6}}{5\sqrt{3}-\sqrt{5}}$ (isi kotak angka)</p>
+        <div class="soal-blok bg-gray-50 border rounded-xl p-3 mb-4" data-soal="Soal-A1" data-tipe="angka">
+            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] / ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] − √[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]) × ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] + √[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]) / ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] + √[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>])</span></div>
+            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>= [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] × ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] + √[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]) / (([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>])² − (√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>])²)</span></div>
+            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>= ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] + [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]) / ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] − [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>])</span></div>
+            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>= ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] + [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]) / [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]</span></div>
+        </div>
+
+        <p class="text-sm font-bold text-gray-800 mb-2">Soal-A2. Rasionalkan: $\frac{6\sqrt{7}}{3\sqrt{5}-4\sqrt{2}}$ (tuliskan langkah, satu baris satu langkah)</p>
+        <div class="soal-blok bg-gray-50 border rounded-xl p-3 mb-4" data-soal="Soal-A2" data-tipe="multiline">
+            <div class="grid md:grid-cols-2 gap-3">
+                <div class="relative">
+                    <textarea class="math-area" placeholder="6√7/(3√5-4√2)&#10;= 6√7/(3√5-4√2) × (3√5+4√2)/(3√5+4√2)&#10;= (6√7×(3√5+4√2))/((3√5)^2-(4√2)^2)&#10;= (...√...+...√...)/(...-...)"></textarea>
+                </div>
+                <div class="math-preview"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= KATEGORI B ================= -->
+    <section class="bg-white rounded-xl border p-4 shadow-sm hidden" id="section-B">
+        <h3 class="font-semibold text-purple-700 text-lg mb-4"><i class="fas fa-star-half-alt text-purple-500 mr-2"></i> Kategori B</h3>
+
+        <p class="text-sm font-bold text-gray-800 mb-2">Soal-B1. Rasionalkan: $\frac{5}{8-2\sqrt{3}}$ (isi kotak angka)</p>
+        <div class="soal-blok bg-gray-50 border rounded-xl p-3 mb-4" data-soal="Soal-B1" data-tipe="angka">
+            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] / ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] − [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]) × ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] + [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]) / ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] + [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>])</span></div>
+            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>= ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] + [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]) / ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] − [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>])</span></div>
+            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>= ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] + [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]) / [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]</span></div>
+        </div>
+
+        <p class="text-sm font-bold text-gray-800 mb-2">Soal-B2. Rasionalkan: $\frac{\sqrt{3}}{5-2\sqrt{3}}$ (tuliskan langkah)</p>
+        <div class="soal-blok bg-gray-50 border rounded-xl p-3 mb-4" data-soal="Soal-B2" data-tipe="multiline">
+            <div class="grid md:grid-cols-2 gap-3">
+                <div class="relative">
+                    <textarea class="math-area" placeholder="√3/(5-2√3)&#10;= √3/(5-2√3) × (5+2√3)/(5+2√3)&#10;= (√3×(5+2√3))/(5^2-(2√3)^2)&#10;= (...√...+...)/(...-...)"></textarea>
+                </div>
+                <div class="math-preview"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= KATEGORI C ================= -->
+    <section class="bg-white rounded-xl border p-4 shadow-sm hidden" id="section-C">
+        <h3 class="font-semibold text-orange-700 text-lg mb-4"><i class="fas fa-check-circle text-orange-500 mr-2"></i> Kategori C</h3>
+
+        <p class="text-sm font-bold text-gray-800 mb-2">Soal-C1. Rasionalkan: $\frac{\sqrt{35}}{\sqrt{7}}$ (isi kotak angka)</p>
+        <div class="soal-blok bg-gray-50 border rounded-xl p-3 mb-4" data-soal="Soal-C1" data-tipe="angka">
+            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] / √[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] × √[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] / √[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]</span></div>
+            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>= √[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] / [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]</span></div>
+            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>= [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] / [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]</span></div>
+            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>= √[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]</span></div>
+        </div>
+
+        <p class="text-sm font-bold text-gray-800 mb-2">Soal-C2. Rasionalkan: $\frac{\sqrt{8}}{2\sqrt{20}}$ (tuliskan langkah)</p>
+        <div class="soal-blok bg-gray-50 border rounded-xl p-3 mb-4" data-soal="Soal-C2" data-tipe="multiline">
+            <div class="grid md:grid-cols-2 gap-3">
+                <div class="relative">
+                    <textarea class="math-area" placeholder="√8/(2√20)&#10;= √8/(2√20) × √20/√20&#10;= √160/(2×20)&#10;= ...√.../..."></textarea>
+                </div>
+                <div class="math-preview"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-white rounded-xl border p-4 shadow-sm">
+        <h2 class="font-semibold text-gray-800 mb-3 text-lg">Refleksi</h2>
+        <p class="text-sm text-gray-700 mb-3 font-medium">Apakah kamu sudah paham cara merasionalkan penyebut bentuk akar?</p>
+        <div class="flex flex-col gap-2 mb-6" role="radiogroup">
+            <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="radio" name="refleksi-paham" value="Sangat Paham" class="h-4 w-4 text-blue-600"> Sangat Paham</label>
+            <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="radio" name="refleksi-paham" value="Sudah paham" class="h-4 w-4 text-blue-600"> Sudah paham</label>
+            <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="radio" name="refleksi-paham" value="Masih perlu latihan" class="h-4 w-4 text-blue-600"> Masih perlu latihan</label>
+        </div>
+        <h3 class="font-semibold text-gray-800 mb-2">Refleksi Umum</h3>
+        <textarea id="refleksi-umum" class="w-full p-3 border border-gray-300 rounded-lg" rows="3" placeholder="Tuliskan refleksimu..."></textarea>
+    </section>
+
+    <div class="bg-white rounded-xl border p-4 shadow-sm" id="kirim-card">
+        <div class="flex items-center justify-between mb-2 text-sm"><span class="font-semibold text-gray-700">Progres LKPD:</span><span id="progress-text" class="text-blue-700 font-mono">0/0</span></div>
+        <div class="w-full bg-gray-200 rounded-full h-2 mb-4"><div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all" style="width:0%"></div></div>
+        <button id="btn-kirim-lkpd" class="w-full bg-green-600 hover:bg-green-700 active:scale-95 text-white font-bold px-6 py-3 rounded-xl shadow text-base transition"><i class="fas fa-paper-plane mr-2"></i>Kirim LKPD</button>
+        <p class="text-xs text-gray-500 mt-2 text-center">*Semua butir wajib terisi sebelum kirim.</p>
+    </div>
+</div>
+</div>
+
+<div id="fase-kuis" class="hidden max-w-md mx-auto bg-white rounded-2xl shadow-xl p-5 relative min-h-[400px] mt-6"><div id="kuis-content"></div></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    /* ================= KONFIGURASI ================= */
+    const KODE='MTK-002';
+    const GS_URL='https://script.google.com/macros/s/AKfycbw55mTigv_PQFlsw9ia-lxCspgueQwXRH7ouWKnYKXw15BKn9ytmu0l3mFwO1n3a6fS/exec';
+    const CSV_URL=''; // isi URL publish CSV bank soal MTK-002 bila kuis siap
+    const SECRET='MTK001#Rahasia!2026@Guru';
+    const SYARAT_KIRIM='FULL';
+    const MENIT_PER_SOAL=2, MIN_WAKTU_RATIO=0.5;
+
+    const $=s=>document.querySelector(s);
+    const $$=s=>document.querySelectorAll(s);
+    const pad=n=>String(n).padStart(2,'0');
+    const slug=t=>String(t||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+    const fmtMs=ms=>{const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),d=s%60;return h>0?(pad(h)+'.'+pad(m)+'.'+pad(d)):(pad(m)+'.'+pad(d));};
+    const fmtSec=sec=>{sec=Math.max(0,Math.floor(sec));return pad(Math.floor(sec/60))+':'+pad(sec%60);};
+
+    let loaderT=null;
+    function showLoader(m){const o=$('#loader-overlay');if(m)$('#loader-text').textContent=m;o.classList.remove('hidden');clearTimeout(loaderT);$('#loader-sub').textContent='mohon tunggu, jangan tutup halaman';loaderT=setTimeout(()=>{$('#loader-sub').textContent='Koneksi lambat... periksa internet Anda.';},12000);}
+    function hideLoader(){$('#loader-overlay').classList.add('hidden');clearTimeout(loaderT);}
+    const typesetMath=()=>{ const el=$('#kuis-content'); if(el&&window.renderMathInElement) renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',displayMode:true},{left:'$',right:'$',displayMode:false}],throwOnError:false}); };
+
+    /* ============ PARSER MULTILINE (KaTeX) ============ */
+    function convertToLatex(text){
+        return text.split('\n').map(line=>{
+            if(!line.trim()) return "";
+            let r=line;
+            r=r.replace(/√([0-9a-zA-Z]+)/g,'\\sqrt{$1}');
+            r=r.replace(/×/g,' \\times '); r=r.replace(/÷/g,' \\div ');
+            let i=0,limit=0;
+            while(i<r.length&&limit<100){ limit++;
+                if(r[i]==='/'){
+                    let numEnd=i-1; while(numEnd>=0&&r[numEnd]===' ')numEnd--;
+                    let numStart=numEnd, stripN=false;
+                    if(numStart>=0&&r[numStart]===')'){ let d=0; while(numStart>=0){ if(r[numStart]===')')d++; else if(r[numStart]==='(')d--; if(d===0)break; numStart--; } if(d===0)stripN=true; else numStart=0; }
+                    else { while(numStart>=0&&/[0-9a-zA-Z^.,\\{}]/.test(r[numStart]))numStart--; numStart++; }
+                    let denStart=i+1; while(denStart<r.length&&r[denStart]===' ')denStart++;
+                    let denEnd=denStart, stripD=false;
+                    if(denEnd<r.length&&r[denEnd]==='('){ let d=0; while(denEnd<r.length){ if(r[denEnd]==='(')d++; else if(r[denEnd]===')')d--; if(d===0)break; denEnd++; } if(d===0)stripD=true; else denEnd=r.length-1; }
+                    else { while(denEnd<r.length&&/[0-9a-zA-Z^.,\\{}]/.test(r[denEnd]))denEnd++; denEnd--; }
+                    if(numStart>=0&&denEnd<r.length&&numStart<=numEnd&&denStart<=denEnd){
+                        let num=r.substring(numStart,numEnd+1), den=r.substring(denStart,denEnd+1);
+                        if(stripN)num=num.substring(1,num.length-1);
+                        if(stripD)den=den.substring(1,den.length-1);
+                        const lx='\\frac{'+num+'}{'+den+'}';
+                        r=r.substring(0,numStart)+lx+r.substring(denEnd+1);
+                        i=numStart+lx.length;
+                    } else i++;
+                } else i++;
+            }
+            return r;
+        });
+    }
+    function renderPreview(ta){
+        const prev=ta.closest('.soal-blok').querySelector('.math-preview');
+        prev.innerHTML='';
+        convertToLatex(ta.value).forEach(line=>{
+            if(!line.trim())return;
+            const d=document.createElement('div'); d.className='math-line';
+            try{ katex.render(line,d,{throwOnError:false,displayMode:false}); }catch(e){ d.innerText='Format eror'; }
+            prev.appendChild(d);
+        });
+    }
+
+    /* ============ 1. TOKEN ============ */
+    const b64urlToB64=t=>{let s=t.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return s;};
+    function decryptToken(t){try{return CryptoJS.AES.decrypt(b64urlToB64(t),SECRET).toString(CryptoJS.enc.Utf8)||null;}catch(e){return null;}}
+    const token=new URLSearchParams(window.location.search).get('d');
+    let kode='MTK-002',username='',nama1='',kelas='',kategori='',gen=1;
+    const errors=[];
+    if(!token)errors.push('Token link tidak ditemukan. Gunakan link lengkap dari guru.');
+    else{
+        const plain=decryptToken(token);
+        if(!plain)errors.push('Token link rusak / tidak valid.');
+        else{
+            const p=plain.split('|');
+            if(p.length!==6)errors.push('Format token tidak sesuai. Minta link baru ke guru.');
+            else{
+                kode=p[0].trim();username=p[1].trim();nama1=p[2].trim();kelas=p[3].trim();
+                kategori=p[4].trim().toUpperCase();gen=parseInt(p[5],10)||1;
+                if(kode!==KODE)errors.push('Link ini bukan untuk halaman '+KODE+'.');
+                if(!username)errors.push('Username dalam token kosong.');
+                if(!nama1)errors.push('Nama dalam token kosong.');
+                if(!kelas)errors.push('Kelas dalam token kosong.');
+                if(!['A','B','C'].includes(kategori))errors.push('Kategori dalam token tidak valid.');
+            }
+        }
+    }
+    if(errors.length){
+        $('#main-container').classList.add('hidden');
+        $('#error-panel').classList.remove('hidden');
+        errors.forEach(e=>{const li=document.createElement('li');li.textContent=e;$('#error-list').appendChild(li);});
+        hideLoader(); return;
+    }
+    $('#input-kode').value=kode; $('#input-nama1').value=nama1; $('#input-kelas').value=kelas;
+    $('#kategori-select').value=kategori;
+    ['section-A','section-B','section-C'].forEach(id=>$('#'+id).classList.add('hidden'));
+    $('#section-'+kategori).classList.remove('hidden');
+
+    /* ============ 2. STORAGE ============ */
+    const storeKey='LKPD_'+slug(kode)+'_'+slug(username)+'_g'+gen;
+    let db={lkpdStarted:false,lkpdAccMs:0,lkpdResumeEpoch:null,lkpdSubmitted:false,lkpdSubmittedAt:null,lkpdFinalMs:0,lkpdAnswers:{},kuisSubmitted:false,kuisState:null};
+    try{const r=localStorage.getItem(storeKey);if(r)db=Object.assign(db,JSON.parse(r));}catch(e){}
+    const save=()=>{try{localStorage.setItem(storeKey,JSON.stringify(db));}catch(e){}};
+
+    /* ============ 3. TOOLBAR MULTILINE ============ */
+    const insertAtCursor=(input,val)=>{const s=input.selectionStart??input.value.length,e=input.selectionEnd??s;input.value=input.value.substring(0,s)+val+input.value.substring(e);input.selectionStart=input.selectionEnd=s+val.length;input.focus();input.dispatchEvent(new Event('input'));};
+    if(!db.lkpdSubmitted){
+        $$('.math-area').forEach(ta=>{
+            const w=ta.parentElement; w.classList.add('relative');
+            const tb=document.createElement('div'); tb.className='math-toolbar hidden';
+            ['√','^','(',')','+','-','×','÷','=','/','⌫'].forEach(sym=>{
+                const b=document.createElement('button'); b.type='button'; b.className='kbd-btn'+(sym==='⌫'?' red':''); b.textContent=sym==='⌫'?'✕':sym;
+                b.addEventListener('pointerdown',e=>e.preventDefault());
+                b.addEventListener('click',e=>{e.preventDefault();
+                    if(sym==='⌫'){const s=ta.selectionStart,e2=ta.selectionEnd;
+                        if(s===e2&&s>0){ta.value=ta.value.substring(0,s-1)+ta.value.substring(e2);ta.selectionStart=ta.selectionEnd=s-1;}
+                        else if(s!==e2){ta.value=ta.value.substring(0,s)+ta.value.substring(e2);ta.selectionStart=ta.selectionEnd=s;}
+                        ta.dispatchEvent(new Event('input'));
+                    } else insertAtCursor(ta,sym);
+                });
+                tb.appendChild(b);
+            });
+            const c=document.createElement('button');c.type='button';c.className='tb-hide';c.textContent='✕';
+            c.addEventListener('click',()=>{tb.classList.add('hidden');ta.blur();});
+            tb.appendChild(c); w.appendChild(tb);
+            ta.addEventListener('focus',()=>{tb.classList.remove('hidden');setTimeout(()=>ta.scrollIntoView({block:'center',behavior:'smooth'}),250);});
+            ta.addEventListener('blur',()=>setTimeout(()=>tb.classList.add('hidden'),150));
+        });
+    }
+
+    /* ============ 4. AUTOSAVE/PROGRES/TIMER ============ */
+    $$('input.num-input,.math-area').forEach((el,i)=>el.dataset.key='q'+i);
+    const collectLKPD=()=>{const o={};$$('.num-input,.math-area').forEach(el=>o[el.dataset.key]=el.value);o.nama2=$('#input-nama2').value;const r=document.querySelector('input[name="refleksi-paham"]:checked');o.refPaham=r?r.value:'';o.refUmum=$('#refleksi-umum').value;return o;};
+    if(!db.lkpdSubmitted&&db.lkpdAnswers){
+        const a=db.lkpdAnswers;
+        $$('.num-input,.math-area').forEach(el=>{if(a[el.dataset.key]!==undefined)el.value=a[el.dataset.key];});
+        if(a.nama2)$('#input-nama2').value=a.nama2;
+        if(a.refPaham){const r=document.querySelector('input[name="refleksi-paham"][value="'+a.refPaham+'"]');if(r)r.checked=true;}
+        if(a.refUmum)$('#refleksi-umum').value=a.refUmum;
+        $$('.math-area').forEach(ta=>renderPreview(ta));
+    }
+    const totalButir=$('#section-'+kategori).querySelectorAll('.soal-blok').length+2;
+    const getIsiCount=()=>{
+        let c=0;
+        $('#section-'+kategori).querySelectorAll('.soal-blok').forEach(b=>{
+            if(b.dataset.tipe==='angka'){ if(Array.from(b.querySelectorAll('.num-input')).every(n=>n.value.trim()))c++; }
+            else if(b.querySelector('.math-area').value.trim())c++;
+        });
+        if(document.querySelector('input[name="refleksi-paham"]:checked'))c++;
+        if($('#refleksi-umum').value.trim())c++;
+        return c;
+    };
+    const updateProgress=()=>{const i=getIsiCount();$('#progress-text').textContent=i+'/'+totalButir;$('#progress-bar').style.width=Math.round(i/totalButir*100)+'%';};
+    updateProgress();
+
+    const timerEl=$('#timer-display'),timerHint=$('#timer-hint');
+    const pauseLKPD=()=>{if(db.lkpdResumeEpoch){db.lkpdAccMs+=Date.now()-db.lkpdResumeEpoch;db.lkpdResumeEpoch=null;}};
+    const resumeLKPD=()=>{if(db.lkpdStarted&&!db.lkpdSubmitted&&!db.lkpdResumeEpoch)db.lkpdResumeEpoch=Date.now();};
+    const currentMsLKPD=()=>db.lkpdSubmitted?(db.lkpdFinalMs||0):(db.lkpdAccMs+(db.lkpdResumeEpoch?Date.now()-db.lkpdResumeEpoch:0));
+    setInterval(()=>{if(!db.lkpdSubmitted)timerEl.textContent=fmtMs(currentMsLKPD());},500);
+    setInterval(()=>{if(db.lkpdResumeEpoch){pauseLKPD();resumeLKPD();save();}},5000);
+    document.addEventListener('visibilitychange',()=>{if(db.lkpdSubmitted)return;if(document.hidden){pauseLKPD();db.lkpdAnswers=collectLKPD();save();}else resumeLKPD();});
+    window.addEventListener('pagehide',()=>{pauseLKPD();db.lkpdAnswers=collectLKPD();save();});
+    if(db.lkpdStarted&&!db.lkpdSubmitted){resumeLKPD();timerHint.textContent='(melanjutkan)';}
+
+    let saveT;
+    $('#fase-lkpd').addEventListener('input',e=>{
+        const t=e.target;
+        if(t.classList.contains('num-input')){let v=t.value.replace(/[^0-9]/g,'');if(v.length>3)v=v.slice(0,3);t.value=v;}
+        if(t.classList.contains('math-area')){let v=t.value.replace(/[^0-9,.\/ \n√^+\-×÷\(\)=]/g,'');if(v.length>2000)v=v.slice(0,2000);if(v!==t.value)t.value=v;renderPreview(t);}
+        if(!db.lkpdStarted&&!db.lkpdSubmitted){db.lkpdStarted=true;db.lkpdAccMs=0;db.lkpdResumeEpoch=Date.now();timerHint.textContent='(berjalan)';save();}
+        clearTimeout(saveT);
+        saveT=setTimeout(()=>{if(!db.lkpdSubmitted){db.lkpdAnswers=collectLKPD();save();updateProgress();}},300);
+    });
+    $('#fase-lkpd').addEventListener('change',()=>{if(!db.lkpdSubmitted){db.lkpdAnswers=collectLKPD();save();updateProgress();}});
+
+    /* ============ 5. KIRIM ============ */
+    const valOr=v=>{v=(v||'').trim();return v===''?'-':v.replace(/\|/g,'/');};
+    const buildJawabanLKPD=()=>{
+        const parts=[];
+        $('#section-'+kategori).querySelectorAll('.soal-blok').forEach(b=>{
+            const label=b.dataset.soal;
+            if(b.dataset.tipe==='angka') parts.push(label+': '+Array.from(b.querySelectorAll('.num-input')).map(n=>valOr(n.value)).join(','));
+            else { const lines=(b.querySelector('.math-area').value||'').split('\n').map(l=>l.trim()).filter(l=>l).join(','); parts.push(label+': '+valOr(lines)); }
+        });
+        const r=document.querySelector('input[name="refleksi-paham"]:checked');
+        parts.push('RefleksiPaham: '+valOr(r?r.value:''));
+        parts.push('RefleksiUmum: '+valOr($('#refleksi-umum').value).replace(/\s+/g,' '));
+        return parts.join(' | ');
+    };
+    const lockLKPD=()=>{
+        $$('#fase-lkpd input,#fase-lkpd textarea,#fase-lkpd select').forEach(e=>e.disabled=true);
+        $('#btn-kirim-lkpd').classList.add('hidden');
+        $('#lkpd-submitted-banner').classList.remove('hidden');
+        $('#lkpd-submitted-at').textContent=db.lkpdSubmittedAt||'-';
+        timerHint.textContent='(waktu final)';timerEl.textContent=fmtMs(db.lkpdFinalMs||0);
+    };
+    if(db.lkpdSubmitted)lockLKPD();
+
+    $('#btn-kirim-lkpd').addEventListener('click',async()=>{
+        if(db.lkpdSubmitted)return;
+        const isi=getIsiCount();
+        if(isi<totalButir){alert('Belum cukup terisi: '+isi+'/'+totalButir+' butir. Lengkapi dulu.');return;}
+        if(!confirm('Kirim LKPD sekarang? Jawaban LKPD akan terkunci.'))return;
+        showLoader('📤 Mengirim LKPD ke guru...');
+        pauseLKPD();save();
+        const payload={tipe:'LKPD',kode:kode,nama1,kelas,kategori,username,nama2:$('#input-nama2').value.trim()||'-',jawaban:buildJawabanLKPD(),waktuPengerjaan:fmtMs(db.lkpdAccMs),percobaan:gen};
+        try{
+            await fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+            db.lkpdFinalMs=db.lkpdAccMs;db.lkpdSubmitted=true;db.lkpdSubmittedAt=new Date().toLocaleString('id-ID');save();
+            lockLKPD();
+            $('#fase-kuis').classList.remove('hidden');
+            $('#fase-kuis').scrollIntoView({behavior:'smooth'});
+            renderKuisHome();
+        }catch(err){resumeLKPD();save();alert('Gagal mengirim. Jawaban tersimpan lokal.');}
+        finally{hideLoader();}
+    });
+
+    /* ============ 6. KUIS (opsional: isi CSV_URL bila bank soal siap) ============ */
+    let kuis={step:'home',questions:[],currentIndex:0,userAnswers:{},score:0,totalSeconds:0,remainingSeconds:0,totalMs:0,intervalId:null,showGrid:false,sortedPairs:[]};
+    if(db.kuisState)Object.assign(kuis,db.kuisState);
+    const saveKuis=()=>{db.kuisState={...kuis,intervalId:null};save();};
+    const shuffle=a=>{const arr=[...a];for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;};
+    const parseCSV=text=>{const lines=text.split('\n').filter(l=>l.trim()!=='');if(lines.length<2)return[];const pl=line=>{const r=[];let c='',q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"')q=!q;else if(ch===','&&!q){r.push(c.trim().replace(/^"|"$/g,''));c='';}else c+=ch;}r.push(c.trim().replace(/^"|"$/g,''));return r;};const h=pl(lines[0]);const res=[];for(let i=1;i<lines.length;i++){const v=pl(lines[i]);const o={};h.forEach((x,idx)=>o[x.trim()]=v[idx]||'');res.push(o);}return res;};
+    const mapQuestions=raw=>raw.map((row,idx)=>{
+        const soal=row.Soal||row.soal||'';
+        const jb=(row.Jawaban||row.jawaban||'').trim().toUpperCase();
+        let rk=(row.Kategori||row.kategori||'C').trim().toUpperCase(); let ck=rk; if(['A','B','C'].includes(rk.charAt(0)))ck=rk.charAt(0);
+        const rawNo=row.NoUrut||row.no||''; let noUrut=parseInt(rawNo,10); const noUrutMissing=isNaN(noUrut); if(noUrutMissing)noUrut=idx+1;
+        const options=[{text:row.OpsiA||'',key:'A',isCorrect:false},{text:row.OpsiB||'',key:'B',isCorrect:false},{text:row.OpsiC||'',key:'C',isCorrect:false},{text:row.OpsiD||'',key:'D',isCorrect:false}];
+        options.forEach(o=>{if(o.key===jb)o.isCorrect=true;});
+        return {noUrut,noUrutMissing,materi:row.Materi||'-',soal,options,kategori:ck};
+    }).filter(q=>q.soal&&q.options.some(o=>o.text!==''));
+    const renderKuis=()=>{const app=$('#kuis-content');if(!app)return;app.innerHTML='';if(kuis.step==='home')renderKuisHome();else if(kuis.step==='loading')renderKuisLoading();else if(kuis.step==='quiz')renderKuisQuiz();else if(kuis.step==='result')renderKuisResult();else if(kuis.step==='success')renderKuisSuccess();};
+    function renderKuisHome(){
+        const app=$('#kuis-content');
+        if(!CSV_URL){ app.innerHTML=`<div class="text-center py-10"><div class="text-5xl mb-4">📘</div><h2 class="text-xl font-bold text-gray-800">LKPD Terkirim!</h2><p class="text-sm text-gray-500 mt-2">Kuis untuk materi ini belum tersedia.<br>Terima kasih sudah mengerjakan.</p></div>`; return; }
+        if(db.kuisSubmitted){renderKuisSuccess();return;}
+        app.innerHTML=`<div class="text-center fade-in"><h2 class="text-xl font-bold text-gray-800 mb-2">Kuis Interaktif</h2><p class="text-sm text-gray-500 mb-6">Lanjutan LKPD — ${nama1}</p><button id="btn-start-kuis" class="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl">🚀 Mulai Kuis</button></div>`;
+        $('#btn-start-kuis').addEventListener('click',handleStartKuis);
+    }
+    function renderKuisLoading(){$('#kuis-content').innerHTML=`<div class="flex flex-col items-center justify-center min-h-[300px]"><div class="animate-spin rounded-full h-12 w-12 border-4 border-indigo-100 border-t-indigo-600 mb-4"></div><p class="text-gray-600 font-medium">Memuat bank soal...</p></div>`;}
+    function renderKuisQuiz(){
+        const q=kuis.questions[kuis.currentIndex],total=kuis.questions.length;
+        const curAns=kuis.userAnswers[kuis.currentIndex];
+        const isW=kuis.remainingSeconds<60;
+        $('#kuis-content').innerHTML=`<div class="fade-in flex flex-col">
+            <div class="flex justify-between items-center mb-4"><span class="text-xs text-gray-400">Soal ${kuis.currentIndex+1}/${total}</span><div id="timer-display" class="text-xl font-bold font-mono px-3 py-1 rounded-lg ${isW?'timer-warning':'text-indigo-600 bg-indigo-50'}">⏱️ ${fmtSec(kuis.remainingSeconds)}</div></div>
+            <h2 class="text-lg font-semibold text-gray-800 mb-5">${q.soal}</h2>
+            <div class="space-y-3 mb-6">${q.shuffledOptions.map(opt=>{const sel=curAns===opt.key;return `<button class="opt-btn option-btn w-full text-left p-3.5 rounded-xl border-2 flex items-start gap-3 ${sel?'border-indigo-600 bg-indigo-50':'border-gray-100'}" data-key="${opt.key}"><span class="flex-shrink-0 w-8 h-8 rounded-full ${sel?'bg-indigo-600 text-white':'bg-gray-200 text-gray-600'} text-center leading-8 font-bold text-sm">${opt.key}</span><span class="pt-1 text-sm font-medium text-gray-700">${opt.text}</span></button>`;}).join('')}</div>
+            <div class="grid grid-cols-2 gap-3 mt-auto"><button id="btn-prev" class="py-3 px-4 rounded-xl font-semibold border-2 border-gray-200 ${kuis.currentIndex===0?'opacity-50':''}" ${kuis.currentIndex===0?'disabled':''}>← Kembali</button>${kuis.currentIndex===total-1?`<button id="btn-finish" class="py-3 px-4 rounded-xl font-bold text-white shadow-md">🏁 Selesai</button>`:`<button id="btn-next" class="py-3 px-4 rounded-xl font-semibold bg-indigo-600 text-white">Lanjut →</button>`}</div></div>`;
+        $$('.opt-btn').forEach(b=>b.addEventListener('click',e=>{kuis.userAnswers[kuis.currentIndex]=e.currentTarget.dataset.key;saveKuis();setTimeout(()=>{if(kuis.currentIndex<kuis.questions.length-1){kuis.currentIndex++;saveKuis();renderKuisQuiz();}else renderKuisQuiz();},250);}));
+        if($('#btn-prev'))$('#btn-prev').onclick=()=>{if(kuis.currentIndex>0){kuis.currentIndex--;saveKuis();renderKuisQuiz();}};
+        if($('#btn-next'))$('#btn-next').onclick=()=>{if(kuis.currentIndex<total-1){kuis.currentIndex++;saveKuis();renderKuisQuiz();}};
+        if($('#btn-finish'))$('#btn-finish').onclick=()=>finishKuis(false);
+        updateFinishBtnState(); typesetMath();
+    }
+    function updateFinishBtnState(){
+        const btn=$('#btn-finish');if(!btn)return;
+        const elapsed=kuis.totalSeconds-kuis.remainingSeconds;
+        const answered=Object.keys(kuis.userAnswers).length;
+        const all=answered===kuis.questions.length;
+        const can=elapsed>=kuis.totalSeconds*MIN_WAKTU_RATIO&&all;
+        if(!can){btn.disabled=true;btn.className="py-3 px-4 rounded-xl font-bold text-white shadow-md bg-gray-300 cursor-not-allowed";btn.textContent=!all?`Jawab ${answered}/${kuis.questions.length} soal`:`⏱️ Tunggu ${Math.ceil((kuis.totalSeconds*MIN_WAKTU_RATIO-elapsed)/60)} menit lagi`;}
+        else{btn.disabled=false;btn.className="py-3 px-4 rounded-xl font-bold text-white shadow-md bg-green-600";btn.textContent='🏁 Selesai & Kirim';}
+    }
+    function finishKuis(isAuto){
+        if(!isAuto){
+            const elapsed=kuis.totalSeconds-kuis.remainingSeconds;
+            const answered=Object.keys(kuis.userAnswers).length;
+            if(answered<kuis.questions.length){alert('Wajib menjawab semua soal.');return;}
+            if(elapsed<kuis.totalSeconds*MIN_WAKTU_RATIO){alert('Tunggu minimal '+Math.ceil((kuis.totalSeconds*MIN_WAKTU_RATIO-elapsed)/60)+' menit lagi.');return;}
+            if(!confirm('Yakin menyelesaikan?'))return;
+        }
+        if(kuis.intervalId){clearInterval(kuis.intervalId);kuis.intervalId=null;}
+        kuis.totalMs=(kuis.totalSeconds-kuis.remainingSeconds)*1000;
+        const pairs=kuis.questions.map((q,i)=>({q,idx:i,ans:kuis.userAnswers[i]}));
+        pairs.sort((a,b)=>a.q.noUrut-b.q.noUrut);
+        kuis.sortedPairs=pairs;
+        let benar=0;pairs.forEach(p=>{const c=p.q.options.find(o=>o.isCorrect);if(c&&p.ans===c.key)benar++;});
+        kuis.score=Math.round((benar/pairs.length)*100);
+        kuis.step='result';saveKuis();renderKuis();
+    }
+    function renderKuisResult(){
+        let detail='';
+        kuis.sortedPairs.forEach(p=>{const c=p.q.options.find(o=>o.isCorrect);const ck=c?c.key:'?';const lb=(p.q.noUrutMissing?'[?]':'')+'No.'+p.q.noUrut;
+            if(p.ans===ck)detail+=`<li class="text-green-700 text-sm py-1">✅ <b>${lb}:</b> Benar (${p.ans})</li>`;
+            else detail+=`<li class="text-red-700 text-sm py-1">❌ <b>${lb}:</b> Salah (Jawab: ${p.ans||'Kosong'}, Kunci: ${ck})</li>`;});
+        $('#kuis-content').innerHTML=`<div class="text-center fade-in"><div class="text-5xl mb-3">🏆</div><h2 class="text-xl font-bold text-gray-800">Skor: ${kuis.score}</h2><div class="text-left bg-gray-50 rounded-xl p-4 my-4 max-h-52 overflow-y-auto"><ul>${detail}</ul></div><button id="btn-kirim-kuis" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl">📤 Kirim Nilai</button></div>`;
+        $('#btn-kirim-kuis').addEventListener('click',sendKuisToGAS); typesetMath();
+    }
+    function renderKuisSuccess(){$('#kuis-content').innerHTML=`<div class="text-center py-10"><div class="text-5xl mb-4">✅</div><h2 class="text-xl font-bold text-gray-800">Berhasil Dikirim!</h2></div>`;}
+    async function sendKuisToGAS(){
+        const btn=$('#btn-kirim-kuis');btn.disabled=true;btn.textContent='⏳ Mengirim...';
+        showLoader('📤 Mengirim nilai kuis...');
+        const detailStr=kuis.sortedPairs.map(p=>{const c=p.q.options.find(o=>o.isCorrect);const ck=c?c.key:'?';const st=p.ans===ck?'✅':'❌';return (p.q.noUrutMissing?'[?]':'')+`No.${p.q.noUrut}: ${st} (Jawab: ${p.ans||'Kosong'}, Kunci: ${ck})`;}).join(' | ');
+        const payload={tipe:'KUIS',kode:kode,nama1,kelas,kategori,username,skor:kuis.score,jawaban:detailStr,waktuPengerjaan:fmtSec(Math.floor(kuis.totalMs/1000)),percobaan:gen};
+        try{
+            await fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+            db.kuisSubmitted=true;save();renderKuisSuccess();
+        }catch(err){alert('Gagal mengirim. Coba lagi.');btn.disabled=false;btn.textContent='📤 Kirim Nilai';}
+        finally{hideLoader();}
+    }
+    function handleStartKuis(){
+        showLoader('🎲 Memuat & mengacak bank soal...');
+        kuis.step='loading';renderKuis();
+        fetch(CSV_URL).then(r=>r.text()).then(text=>{
+            let f=mapQuestions(parseCSV(text)).filter(q=>q.kategori===kategori);
+            if(!f.length){alert('Tidak ada soal untuk Kategori '+kategori+'.');kuis.step='home';renderKuis();hideLoader();return;}
+            f=shuffle(f);
+            kuis.questions=f.map(q=>({...q,shuffledOptions:shuffle([...q.options])}));
+            kuis.totalSeconds=kuis.questions.length*MENIT_PER_SOAL*60;
+            kuis.remainingSeconds=kuis.totalSeconds;
+            kuis.currentIndex=0;kuis.userAnswers={};kuis.score=0;kuis.step='quiz';
+            startKuisTimer();saveKuis();renderKuis();hideLoader();
+        }).catch(()=>{alert('Gagal memuat soal.');kuis.step='home';renderKuis();hideLoader();});
+    }
+    function startKuisTimer(){
+        if(kuis.intervalId)clearInterval(kuis.intervalId);
+        kuis.intervalId=setInterval(()=>{
+            kuis.remainingSeconds--;
+            if(kuis.remainingSeconds<=0){clearInterval(kuis.intervalId);kuis.intervalId=null;if(kuis.step==='quiz')finishKuis(true);}
+            if(kuis.step==='quiz'){const t=$('#timer-display');if(t){t.className='text-xl font-bold font-mono px-3 py-1 rounded-lg '+(kuis.remainingSeconds<60?'timer-warning':'text-indigo-600 bg-indigo-50');t.textContent='⏱️ '+fmtSec(kuis.remainingSeconds);}updateFinishBtnState();}
+            saveKuis();
+        },1000);
+    }
+    if(db.lkpdSubmitted){$('#fase-kuis').classList.remove('hidden');renderKuisHome();}
+    if(kuis.step==='quiz'&&kuis.totalSeconds>0&&kuis.remainingSeconds>0){$('#fase-kuis').classList.remove('hidden');startKuisTimer();renderKuis();}
+    else if(kuis.step==='result'){$('#fase-kuis').classList.remove('hidden');renderKuis();}
+    else if(db.kuisSubmitted){$('#fase-kuis').classList.remove('hidden');renderKuisSuccess();}
+
+    /* ============ 7. RENDER MATERI (KaTeX) ============ */
+    renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',displayMode:true},{left:'$',right:'$',displayMode:false}],throwOnError:false});
+    $$('.math-area').forEach(ta=>renderPreview(ta));
+
+    window.addEventListener('beforeunload',(e)=>{if(kuis.intervalId)clearInterval(kuis.intervalId);pauseLKPD();db.lkpdAnswers=collectLKPD();save();
+        if(!db.lkpdSubmitted&&db.lkpdStarted){e.preventDefault();e.returnValue='';}});
+    hideLoader();
+});
+</script>
+</body>
+</html>
