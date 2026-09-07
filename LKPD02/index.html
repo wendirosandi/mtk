@@ -82,6 +82,12 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
 #game-root .btn-check:hover{background-color:#15803d}
 #game-root .btn-skip{flex:1;background-color:#64748b;border-radius:20px}
 #game-root #g-message{font-weight:600;font-size:13px;min-height:20px;text-align:center}
+
+  #game-root .answer-item{touch-action:none;cursor:grab}
+#game-root .answer-item.dragging{opacity:.35}
+#game-root .drag-ghost{position:fixed;z-index:9999;pointer-events:none;opacity:.9;transform:translate(-50%,-50%) scale(1.05);box-shadow:0 8px 20px rgba(0,0,0,.25);margin:0}
+#game-root .drop-zone.drag-over{border:2px solid #2563eb;background:#dbeafe}
+  
 </style>
 </head>
 <body>
@@ -401,9 +407,11 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
             <div class="timer" id="g-timer-display">00:00</div>
         </div>
         <div class="equation-area" id="g-equation-area"></div>
-        <div class="control-panel">
-            <div id="g-message">Pilih jawaban dari kotak di bawah.</div>
+               <div class="control-panel">
+            <div id="g-fill-info" class="text-xs text-gray-500 font-semibold"></div>
+            <div id="g-message">Seret jawaban ke kotak, atau ketuk jawaban lalu ketuk kotak.</div>
             <div class="btn-group" id="g-btn-group-play">
+                <button class="btn" id="g-btn-undo" style="flex:0 0 48px;background:#94a3b8;border-radius:20px" title="Batalkan aksi terakhir">↩️</button>
                 <button class="btn btn-skip" id="g-btn-skip-play">Lewati</button>
                 <button class="btn btn-check" id="g-btn-check-play">CEK JAWABAN</button>
             </div>
@@ -780,16 +788,20 @@ document.addEventListener('DOMContentLoaded', () => {
         $('#g-timer-display').innerText=m+':'+s;
     }
     function updateButtonStates(){
-        const bc=$('#g-btn-check-play'),bs=$('#g-btn-skip-play');
-        if(!bc||!bs)return;
-        let tc=GAME_CONFIG.MIN_CHECK_SEC-G.timeSpentCurrent;
-        if(tc>0){bc.disabled=true;bc.innerText=`CEK JAWABAN (${tc}s)`;}else{bc.disabled=false;bc.innerText='CEK JAWABAN';}
-        let ts=GAME_CONFIG.MIN_SKIP_SEC-G.timeSpentCurrent;
-        if(ts>0){bs.disabled=true;bs.innerText=`Lewati (${ts}s)`;}else{bs.disabled=false;bs.innerText='Lewati';}
+      const bc=$('#g-btn-check-play'), bs=$('#g-btn-skip-play');
+      if(!bc||!bs)return;
+      const st=fillStats();
+      const fi=$('#g-fill-info'); if(fi) fi.innerText=`Terisi ${st.terisi}/${st.total} kotak`;
+      const tc=GAME_CONFIG.MIN_CHECK_SEC-G.timeSpentCurrent;
+      if(tc>0){ bc.disabled=true; bc.innerText=`CEK JAWABAN (${tc}s)`; }
+      else if(st.terisi<st.total){ bc.disabled=true; bc.innerText=`ISI SEMUA KOTAK (${st.terisi}/${st.total})`; }
+      else { bc.disabled=false; bc.innerText='CEK JAWABAN'; }
+      const ts=GAME_CONFIG.MIN_SKIP_SEC-G.timeSpentCurrent;
+      if(ts>0){ bs.disabled=true; bs.innerText=`Lewati (${ts}s)`; } else { bs.disabled=false; bs.innerText='Lewati'; }
     }
 
     function loadQuestion(){
-        G.retryCount=GAME_CONFIG.MAX_RETRIES; G.timeSpentCurrent=0; G.selectedItem=null; G.currentAnswers=[]; G.dictKeys={};
+        G.retryCount=GAME_CONFIG.MAX_RETRIES; G.timeSpentCurrent=0; G.selectedItem=null; G.currentAnswers=[]; G.dictKeys={}; undoStack=[];
         $('#g-btn-group-play').style.display='flex'; $('#g-btn-group-next').style.display='none';
         updateButtonStates();
         $('#g-message').innerText=`Soal ${G.currentQuestion} dari ${GAME_CONFIG.TOTAL_QUESTIONS}. Pilih jawaban dari bawah.`;
@@ -800,33 +812,105 @@ document.addEventListener('DOMContentLoaded', () => {
         else if(diff==='B') eq.innerHTML=generateCategoryB();
         else eq.innerHTML=generateCategoryA();
         eq.querySelectorAll('.katex-static').forEach(el=>{try{katex.render(el.dataset.tex,el);}catch(e){}});
-        eq.querySelectorAll('.drop-zone').forEach(z=>z.addEventListener('click',()=>handleZoneClick(z)));
+        eq.querySelectorAll('.drop-zone').forEach(z=>{
+          z.addEventListener('click',()=>handleZoneTap(z));
+          z.addEventListener('dblclick',()=>{ if(z.children.length>0 && !z.classList.contains('locked')) doReturn(z); });
+        });
         const bank=$('#g-answer-bank'); bank.innerHTML='';
         G.currentAnswers.sort(()=>Math.random()-0.5);
         G.currentAnswers.forEach(ans=>{
             const item=document.createElement('div'); item.className='answer-item'; item.dataset.value=ans.key;
             try{katex.render(ans.latex,item);}catch(e){}
-            item.addEventListener('click',()=>handleItemClick(item));
+              bindItemPointer(item);
             bank.appendChild(item);
         });
         saveGameState();
     }
-    function handleItemClick(itemEl){
-        if(G.selectedItem===itemEl){itemEl.classList.remove('selected');G.selectedItem=null;return;}
-        if(G.selectedItem)G.selectedItem.classList.remove('selected');
-        itemEl.classList.add('selected');G.selectedItem=itemEl;
-    }
-    function handleZoneClick(zone){
-        if(zone.classList.contains('locked'))return;
-        if(G.selectedItem){
-            if(zone.children.length>0) $('#g-answer-bank').appendChild(zone.children[0]);
-            zone.appendChild(G.selectedItem); G.selectedItem.classList.remove('selected'); G.selectedItem=null;
-            zone.style.borderColor='#94a3b8';
-        } else if(zone.children.length>0){
-            $('#g-answer-bank').appendChild(zone.children[0]); zone.style.borderColor='#94a3b8';
-        }
-    }
 
+      /* ============ INTERACTION ENGINE v2: drag & drop + tap + undo ============ */
+    let dragState=null, ghostEl=null, undoStack=[];
+    const vibrate=ms=>{ if(navigator.vibrate) navigator.vibrate(ms); };
+    const bank=()=>$('#g-answer-bank');
+    const gMsg=(t,c)=>{ const m=$('#g-message'); if(m){ m.innerText=t; if(c) m.style.color=c; } };
+    function fillStats(){ const z=$$('#g-equation-area .drop-zone'); let t=0; z.forEach(x=>{if(x.children.length>0)t++;}); return {terisi:t,total:z.length}; }
+    function refreshBoard(){ updateButtonStates(); }
+    function pushUndo(rev){ undoStack.push(rev); if(undoStack.length>30) undoStack.shift(); }
+    function clearSel(){ if(G.selectedItem){ G.selectedItem.classList.remove('selected'); G.selectedItem=null; } }
+    function makeGhost(item,ev){ destroyGhost(); ghostEl=item.cloneNode(true); ghostEl.className='answer-item drag-ghost'; ghostEl.style.width=item.offsetWidth+'px'; document.body.appendChild(ghostEl); moveGhost(ev); }
+    function moveGhost(ev){ if(ghostEl){ ghostEl.style.left=ev.clientX+'px'; ghostEl.style.top=ev.clientY+'px'; } }
+    function destroyGhost(){ if(ghostEl){ ghostEl.remove(); ghostEl=null; } }
+    function hoverZone(ev){ clearHover(); const el=document.elementFromPoint(ev.clientX,ev.clientY); const z=el?el.closest('#g-equation-area .drop-zone'):null; if(z&&!z.classList.contains('locked')) z.classList.add('drag-over'); }
+    function clearHover(){ $$('#g-equation-area .drop-zone.drag-over').forEach(z=>z.classList.remove('drag-over')); }
+
+    function doReturn(zone){
+      const item=zone.children[0]; if(!item) return;
+      bank().appendChild(item);
+      pushUndo(()=>{ zone.appendChild(item); });
+      vibrate(8); clearSel(); refreshBoard();
+    }
+    function doPlace(item, fromZone, zone){
+      const occupant=zone.children[0]||null;
+      if(occupant===item) return;
+      const itemHome=fromZone||bank();
+      if(occupant){
+        if(fromZone){ fromZone.appendChild(occupant); pushUndo(()=>{ zone.appendChild(occupant); fromZone.appendChild(item); }); }
+        else { bank().appendChild(occupant); pushUndo(()=>{ bank().appendChild(item); zone.appendChild(occupant); }); }
+        gMsg('Item ditukar.','var(--warning)');
+      } else {
+        pushUndo(()=>{ itemHome.appendChild(item); });
+      }
+      zone.appendChild(item);
+      vibrate(10); clearSel(); refreshBoard();
+    }
+    function handleItemTap(item, fromZone){
+      if(fromZone){ doReturn(fromZone); }           /* ketuk item terpasang = kembalikan (anti-repot) */
+      else if(G.selectedItem===item){ clearSel(); }
+      else { clearSel(); G.selectedItem=item; item.classList.add('selected'); }
+    }
+    function handleZoneTap(zone){
+      if(zone.classList.contains('locked')) return;
+      if(G.selectedItem){ doPlace(G.selectedItem, null, zone); }
+    }
+    function bindItemPointer(item){
+      item.addEventListener('pointerdown', e=>{
+        if(item.parentElement && item.parentElement.classList && item.parentElement.classList.contains('locked')) return;
+        const fromZone=item.closest('.drop-zone');
+        dragState={item,fromZone,sx:e.clientX,sy:e.clientY,moved:false,pid:e.pointerId};
+        try{ item.setPointerCapture(e.pointerId); }catch(err){}
+        const move=ev=>{
+          if(!dragState) return;
+          const dx=ev.clientX-dragState.sx, dy=ev.clientY-dragState.sy;
+          if(!dragState.moved && Math.hypot(dx,dy)>6){ dragState.moved=true; makeGhost(item,ev); item.classList.add('dragging'); }
+          if(dragState.moved){ moveGhost(ev); hoverZone(ev); ev.preventDefault(); }
+        };
+        const cleanup=()=>{ item.removeEventListener('pointermove',move); item.removeEventListener('pointerup',up); item.removeEventListener('pointercancel',cancel); };
+        const up=ev=>{
+          cleanup();
+          if(!dragState) return;
+          const st=dragState; dragState=null;
+          item.classList.remove('dragging');
+          try{ item.releasePointerCapture(st.pid); }catch(err){}
+          if(!st.moved){ handleItemTap(st.item, st.fromZone); return; }
+          destroyGhost(); clearHover();
+          const el=document.elementFromPoint(ev.clientX,ev.clientY);
+          const zone=el?el.closest('#g-equation-area .drop-zone'):null;
+          const isBank=el?!!el.closest('#g-answer-bank'):false;
+          if(zone && !zone.classList.contains('locked')) doPlace(st.item, st.fromZone, zone);
+          else if(isBank && st.fromZone) doReturn(st.fromZone);
+          /* lepas di area kosong = batal, item tetap di tempat */
+        };
+        const cancel=()=>{ cleanup(); if(dragState){ dragState=null; item.classList.remove('dragging'); destroyGhost(); clearHover(); } };
+        item.addEventListener('pointermove',move);
+        item.addEventListener('pointerup',up);
+        item.addEventListener('pointercancel',cancel);
+        e.preventDefault();
+      });
+    }
+    $('#g-btn-undo').addEventListener('click',()=>{
+      if(!undoStack.length){ gMsg('Tidak ada aksi untuk dibatalkan.'); return; }
+      const rev=undoStack.pop(); rev(); vibrate(8); clearSel(); refreshBoard();
+    });
+    
     function checkAnswer(){
         const zones=$('#g-equation-area').querySelectorAll('.drop-zone');
         let total=zones.length,terisi=0,benar=0,hasWrong=false;
