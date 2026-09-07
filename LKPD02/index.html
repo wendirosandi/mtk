@@ -554,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const w=ta.parentElement; w.classList.add('relative');
             const tb=document.createElement('div'); tb.className='math-toolbar hidden';
             ['√','^','(',')','+','-','×','÷','=','/','⌫'].forEach(sym=>{
-                const b=document.createElement('button'); b.type='button'; b.className='kbd-btn'+(sym==='⌫'?' red':''); b.textContent=sym==='⌫'?'✕':sym;
+                const b=document.createElement('button'); b.type='button'; b.className='kbd-btn'+(sym==='⌫'?' red':''); b.textContent=sym==='⌫'?'←':sym;
                 b.addEventListener('pointerdown',e=>e.preventDefault());
                 b.addEventListener('click',e=>{e.preventDefault();
                     if(sym==='⌫'){const s=ta.selectionStart,e2=ta.selectionEnd;
