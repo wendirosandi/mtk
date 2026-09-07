@@ -612,7 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
     $('#fase-lkpd').addEventListener('input',e=>{
         const t=e.target;
         if(t.classList.contains('num-input')){let v=t.value.replace(/[^0-9]/g,'');if(v.length>3)v=v.slice(0,3);t.value=v;}
-        if(t.classList.contains('math-area')){let v=t.value.replace(/[^0-9,.\/ \n√^+\-×÷\(\)=]/g,'');if(v.length>2000)v=v.slice(0,2000);if(v!==t.value)t.value=v;renderPreview(t);}
+        if(t.classList.contains('math-area')){let v=t.value.replace(/[^0-9,.\/\n√^+\-×÷\(\)=]/g,'');if(v.length>2000)v=v.slice(0,2000);if(v!==t.value)t.value=v;renderPreview(t);}
         if(!db.lkpdStarted&&!db.lkpdSubmitted){db.lkpdStarted=true;db.lkpdAccMs=0;db.lkpdResumeEpoch=Date.now();timerHint.textContent='(berjalan)';save();}
         clearTimeout(saveT);
         saveT=setTimeout(()=>{if(!db.lkpdSubmitted){db.lkpdAnswers=collectLKPD();save();updateProgress();}},300);
