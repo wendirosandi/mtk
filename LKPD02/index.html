@@ -82,6 +82,10 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
 #game-root .btn-check:hover{background-color:#15803d}
 #game-root .btn-skip{flex:1;background-color:#64748b;border-radius:20px}
 #game-root #g-message{font-weight:600;font-size:13px;min-height:20px;text-align:center}
+
+  #fase-lkpd, #game-root, #fase-kuis { -webkit-user-select:none; user-select:none; }
+#fase-lkpd input, #fase-lkpd textarea { -webkit-user-select:text; user-select:text; }
+  
 </style>
 </head>
 <body>
@@ -449,7 +453,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
 document.addEventListener('DOMContentLoaded', () => {
 
     const KODE='MTK-002';
-    const GS_URL='https://script.google.com/macros/s/AKfycbw55mTigv_PQFlsw9ia-lxCspgueQwXRH7ouWKnYKXw15BKn9ytmu0l3mFwO1n3a6fS/exec';
+    const GS_URL='https://script.google.com/macros/s/AKfycbzKGB1fEUsbkgwkaYhsr1fYA6yEyGtRdALaTmC9-7IDo-ggkAMjv4C_wLjNC4p0Tnvi/exec';
     const SECRET='MTK001#Rahasia!2026@Guru';
     const SYARAT_KIRIM='FULL';
 
@@ -546,7 +550,42 @@ document.addEventListener('DOMContentLoaded', () => {
     let db={lkpdStarted:false,lkpdAccMs:0,lkpdResumeEpoch:null,lkpdSubmitted:false,lkpdSubmittedAt:null,lkpdFinalMs:0,lkpdAnswers:{},kuisSubmitted:false,kuisSubmittedAt:null,kuisScore:null,kuisDetail:'',gameState:null};
     try{const r=localStorage.getItem(storeKey);if(r)db=Object.assign(db,JSON.parse(r));}catch(e){}
     const save=()=>{try{localStorage.setItem(storeKey,JSON.stringify(db));}catch(e){}};
-
+        /* ================= ANTI-CHEAT STARTER PACK ================= */
+    const AC={fs:0,tab:0,copy:0,hiddenAt:0};
+    if(db.ac) Object.assign(AC, db.ac);
+    const acSave=()=>{ db.ac={fs:AC.fs,tab:AC.tab,copy:AC.copy}; save(); };
+    function acWarn(msg){
+      let w=document.getElementById('ac-warn');
+      if(!w){ w=document.createElement('div'); w.id='ac-warn';
+        w.style.cssText='position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:10000;background:#dc2626;color:#fff;padding:10px 18px;border-radius:999px;font-size:.8rem;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.3);transition:opacity .3s;opacity:0';
+        document.body.appendChild(w); }
+      w.textContent=msg; w.style.opacity='1';
+      clearTimeout(w._t); w._t=setTimeout(()=>{w.style.opacity='0';},2600);
+    }
+    function acBump(type,label){
+      AC[type]++; acSave();
+      acWarn('⚠️ Pelanggaran '+label+' terdeteksi ('+AC[type]+'×) — tercatat di rekap guru.');
+    }
+    // (1) Klik kanan, context menu, drag
+    document.addEventListener('contextmenu',e=>{e.preventDefault();acBump('copy','klik-kanan');});
+    document.addEventListener('dragstart',e=>{e.preventDefault();acBump('copy','drag');});
+    // (2) Copy / cut / paste
+    ['copy','cut','paste'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();acBump('copy','copy-paste');}));
+    // (3) Shortcut terlarang (Ctrl+C/V/X/A/U/S/P, F12, Ctrl+Shift+I/J/C)
+    document.addEventListener('keydown',e=>{
+      const k=(e.key||'').toLowerCase();
+      if(e.key==='F12'){e.preventDefault();acBump('copy','devtools');return;}
+      if((e.ctrlKey||e.metaKey)&&['c','v','x','u','s','p','a'].includes(k)){e.preventDefault();acBump('copy','shortcut');return;}
+      if((e.ctrlKey||e.metaKey)&&e.shiftKey&&['i','j','c'].includes(k)){e.preventDefault();acBump('copy','devtools');return;}
+    });
+    // (5) Deteksi pindah tab/app → pelanggaran Tab (timer TIDAK pause)
+    document.addEventListener('visibilitychange',()=>{
+      if(document.hidden){
+        if(db.lkpdStarted&&!db.lkpdSubmitted) acBump('tab','pindah tab/app');
+        AC.hiddenAt=Date.now(); acSave();
+      }
+    });
+  
     /* ============ 3. TOOLBAR MULTILINE ============ */
     const insertAtCursor=(input,val)=>{const s=input.selectionStart??input.value.length,e=input.selectionEnd??s;input.value=input.value.substring(0,s)+val+input.value.substring(e);input.selectionStart=input.selectionEnd=s+val.length;input.focus();input.dispatchEvent(new Event('input'));};
     if(!db.lkpdSubmitted){
@@ -604,7 +643,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentMsLKPD=()=>db.lkpdSubmitted?(db.lkpdFinalMs||0):(db.lkpdAccMs+(db.lkpdResumeEpoch?Date.now()-db.lkpdResumeEpoch:0));
     setInterval(()=>{if(!db.lkpdSubmitted)timerEl.textContent=fmtMs(currentMsLKPD());},500);
     setInterval(()=>{if(db.lkpdResumeEpoch){pauseLKPD();resumeLKPD();save();}},5000);
-    document.addEventListener('visibilitychange',()=>{if(db.lkpdSubmitted)return;if(document.hidden){pauseLKPD();db.lkpdAnswers=collectLKPD();save();}else resumeLKPD();});
+  
+        document.addEventListener('visibilitychange',()=>{ if(document.hidden){ db.lkpdAnswers=collectLKPD(); save(); } });
     window.addEventListener('pagehide',()=>{pauseLKPD();db.lkpdAnswers=collectLKPD();save();});
     if(db.lkpdStarted&&!db.lkpdSubmitted){resumeLKPD();timerHint.textContent='(melanjutkan)';}
 
@@ -649,7 +689,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!confirm('Kirim LKPD sekarang? Jawaban LKPD akan terkunci.'))return;
         showLoader('📤 Mengirim LKPD ke guru...');
         pauseLKPD();save();
-        const payload={tipe:'LKPD',kode:kode,nama1,kelas,kategori,username,nama2:$('#input-nama2').value.trim()||'-',jawaban:buildJawabanLKPD(),waktuPengerjaan:fmtMs(db.lkpdAccMs),percobaan:gen};
+        const payload={tipe:'LKPD',kode:kode,nama1,kelas,kategori,username,nama2:$('#input-nama2').value.trim()||'-',jawaban:buildJawabanLKPD(),waktuPengerjaan:fmtMs(db.lkpdAccMs),percobaan:gen}, pelanggaranFullscreen:AC.fs, pelanggaranTab:AC.tab, pelanggaranCopy:AC.copy;
         try{
             await fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
             db.lkpdFinalMs=db.lkpdAccMs;db.lkpdSubmitted=true;db.lkpdSubmittedAt=new Date().toLocaleString('id-ID');save();
@@ -902,6 +942,14 @@ document.addEventListener('DOMContentLoaded', () => {
         while(G.scores.length<GAME_CONFIG.TOTAL_QUESTIONS)G.scores.push(0);
         G.phase='result'; saveGameState(); showResultScreen();
     }
+      document.addEventListener('visibilitychange',()=>{
+      if(!document.hidden && AC.hiddenAt && G.timerInterval){
+        const lost=Math.floor((Date.now()-AC.hiddenAt)/1000);
+        G.timeLeft-=lost; AC.hiddenAt=0; updateTimerDisplay(); saveGameState();
+        if(G.timeLeft<=0){ pauseTimer(); handleTimeUp(); }
+      }
+    });
+  
     function showResultScreen(){
         pauseTimer();
         let sum=G.scores.reduce((a,b)=>a+b,0);
@@ -925,7 +973,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let sum=G.scores.reduce((a,b)=>a+b,0);
         const final=Math.round(sum*GAME_CONFIG.POINTS_PER_QUESTION);
         const detailStr=G.scores.map((s,i)=>`Q${i+1}:${Number(s.toFixed(2))}`).join(' | ');
-        const payload={tipe:'KUIS',kode:kode,nama1,kelas,kategori,username,skor:final,jawaban:detailStr,waktuPengerjaan:GAME_CONFIG.TIME_LIMIT-G.timeLeft,percobaan:gen};
+        const payload={tipe:'KUIS',kode:kode,nama1,kelas,kategori,username,skor:final,jawaban:detailStr,waktuPengerjaan:GAME_CONFIG.TIME_LIMIT-G.timeLeft,percobaan:gen, pelanggaranFullscreen:AC.fs, pelanggaranTab:AC.tab, pelanggaranCopy:AC.copy};
         try{
             await fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
             db.kuisSubmitted=true;db.kuisSubmittedAt=new Date().toLocaleString('id-ID');db.kuisScore=final;db.kuisDetail=detailStr;save();
