@@ -13,25 +13,31 @@
 <style>
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;margin:0;padding:20px}
 .hidden{display:none!important}
-.math-plain{font-size:1.05rem;font-weight:500;color:#1f2937;line-height:2.6}
-.num-input{width:52px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:6px;text-align:center;display:inline-block;margin:0 3px;font-size:1rem;background:#f8fafc}
+/* ============ PECAHAN BERTUMPUK ============ */
+.fraction{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 5px}
+.numerator{border-bottom:2px solid #334155;padding:5px 6px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.denominator{padding:5px 6px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.step-row{display:flex;align-items:center;margin-bottom:22px;font-size:17px;flex-wrap:wrap;gap-y:8px}
+.step-op{margin:0 8px;font-weight:700;color:#1e293b;font-size:18px}
+.num-input{width:48px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:6px;text-align:center;font-size:1rem;background:#f8fafc}
 .num-input::-webkit-outer-spin-button,.num-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .num-input{-moz-appearance:textfield;appearance:textfield}
-.math-area{width:100%;min-height:150px;font-family:monospace;font-size:15px;padding:10px;border:2px solid #e0e0e0;border-radius:8px;box-sizing:border-box;resize:vertical;background:#fff}
+/* ============ MULTILINE ============ */
+.math-area{width:100%;min-height:160px;font-family:monospace;font-size:15px;padding:10px;border:2px solid #e0e0e0;border-radius:8px;box-sizing:border-box;resize:vertical;background:#fff}
 .math-area:focus{border-color:#6366f1;outline:none}
-.math-preview{border-left:4px solid #6366f1;background:#fff;border-radius:0 8px 8px 0;padding:10px;min-height:150px}
+.math-preview{border-left:4px solid #6366f1;background:#fff;border-radius:0 8px 8px 0;padding:10px;min-height:160px}
 .math-line{margin-bottom:10px;font-size:17px}
 .math-toolbar{position:absolute;bottom:calc(100% + 6px);left:0;right:0;background:#2c3e50;border-radius:10px;padding:6px;display:flex;flex-wrap:wrap;gap:5px;justify-content:center;align-items:center;z-index:70;box-shadow:0 6px 18px rgba(0,0,0,.28)}
-.math-toolbar .kbd-btn{flex:1 1 30px;max-width:52px;background:#f39c12;color:#fff;border:none;padding:9px 0;font-size:1.05rem;font-weight:700;border-radius:7px;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.math-toolbar .kbd-btn{flex:1 1 30px;max-width:48px;background:#f39c12;color:#fff;border:none;padding:9px 0;font-size:1rem;font-weight:700;border-radius:7px;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
 .math-toolbar .kbd-btn:active{transform:scale(.93)}
 .math-toolbar .kbd-btn.red{background:#ef4444}
 .math-toolbar .tb-hide{flex:0 0 auto;background:#e74c3c;color:#fff;border:none;padding:8px 10px;border-radius:7px;font-weight:700;cursor:pointer}
 .fade-in{animation:fadeIn .3s ease-out}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.option-btn:active{transform:scale(.98)}
 .timer-warning{background:#ef4444;color:#fff;animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.8}}
 .no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+/* ============ LOADER ============ */
 #loader-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
 #loader-overlay.hidden{display:none!important}
 .loader-card{background:rgba(255,255,255,.92);border:1px solid #e5e7eb;border-radius:16px;padding:22px 28px;display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.15);max-width:82%;text-align:center}
@@ -39,22 +45,58 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
 @keyframes spin{to{transform:rotate(360deg)}}
 #loader-text{font-weight:700;color:#1f2937;font-size:.95rem}
 .loader-sub{font-size:.72rem;color:#6b7280}
+/* ============ GAME (scoped ke #game-root) ============ */
+#game-root{--primary:#2563eb;--primary-hover:#1d4ed8;--success:#16a34a;--danger:#dc2626;--warning:#f59e0b;--bg-color:#f1f5f9;--card-bg:#ffffff;--text-main:#1e293b}
+#game-root .g-screen{display:none;width:100%;height:100%;flex-direction:column}
+#game-root .g-screen.active{display:flex}
+#game-root .g-center{flex:1;display:flex;align-items:center;justify-content:center;padding:20px}
+#game-root .g-card{background:var(--card-bg);padding:30px;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,.05);width:100%;max-width:400px;text-align:center}
+#game-root .g-card h1{margin-top:0;color:var(--primary);font-size:22px}
+#game-root .g-card .form-group{margin-bottom:15px;text-align:left}
+#game-root .g-card .form-group label{display:block;font-weight:600;margin-bottom:5px;font-size:14px}
+#game-root .g-card .form-input{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:6px;font-size:15px;box-sizing:border-box;background:#f8fafc}
+#game-root .g-card .btn{background-color:var(--primary);color:white;border:none;padding:12px 20px;font-size:15px;border-radius:8px;font-weight:bold;cursor:pointer;width:100%;transition:background .2s}
+#game-root .g-card .btn:hover{background-color:var(--primary-hover)}
+#game-root .g-card .btn:disabled{background-color:#cbd5e1!important;cursor:not-allowed!important;color:#64748b!important}
+#game-root .g-header{background:var(--card-bg);padding:12px 18px;box-shadow:0 2px 5px rgba(0,0,0,.05);display:flex;justify-content:space-between;align-items:center;z-index:10;border-radius:12px 12px 0 0}
+#game-root .progress-dots{display:flex;gap:7px;flex-wrap:wrap}
+#game-root .dot{width:12px;height:12px;border-radius:50%;background-color:#cbd5e1}
+#game-root .dot.active{background-color:var(--primary)}
+#game-root .dot.done{background-color:var(--success)}
+#game-root .dot.failed{background-color:var(--warning)}
+#game-root .timer{font-weight:bold;font-size:18px;color:var(--danger)}
+#game-root .equation-area{flex:1;overflow-y:auto;overflow-x:auto;padding:18px;background:white;min-height:260px}
+#game-root .operator{margin:0 8px;font-weight:bold}
+#game-root .drop-zone{min-width:50px;min-height:38px;border:2px dashed #94a3b8;border-radius:6px;background-color:#f8fafc;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:2px 5px;box-sizing:border-box}
+#game-root .drop-zone.locked{border:2px solid var(--success);background-color:#dcfce7;cursor:default}
+#game-root .answer-bank{background-color:#f8fafc;padding:14px;border-top:3px solid #e2e8f0;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:100px;max-height:35vh;overflow-y:auto;border-radius:0 0 12px 12px}
+#game-root .answer-item{background-color:white;border:2px solid var(--primary);color:var(--text-main);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:15px;user-select:none;box-shadow:0 2px 4px rgba(0,0,0,.05);transition:.2s}
+#game-root .answer-item.selected{background-color:var(--primary);color:white;transform:scale(1.05)}
+#game-root .drop-zone .answer-item{border:none;box-shadow:none;background:transparent;padding:0;margin:0}
+#game-root .drop-zone .answer-item.selected{color:var(--primary)}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}50%{transform:translateX(5px);}75%{transform:translateX(-5px);}}
+#game-root .shake-animation{animation:shake .4s ease-in-out;border-color:var(--danger)!important;background-color:#fee2e2!important}
+#game-root .control-panel{background:white;padding:10px 15px 18px;display:flex;flex-direction:column;align-items:center;gap:10px}
+#game-root .btn-group{display:flex;gap:10px;width:100%;max-width:400px}
+#game-root .btn-check{flex:2;background-color:var(--success);border-radius:20px}
+#game-root .btn-check:hover{background-color:#15803d}
+#game-root .btn-skip{flex:1;background-color:#64748b;border-radius:20px}
+#game-root #g-message{font-weight:600;font-size:13px;min-height:20px;text-align:center}
 </style>
 </head>
 <body>
 
 <div id="loader-overlay" role="status" aria-live="polite">
-  <div class="loader-card">
-    <div class="spinner"></div>
+  <div class="loader-card"><div class="spinner"></div>
     <div id="loader-text">🔐 Memverifikasi link siswa...</div>
     <div class="loader-sub" id="loader-sub">mohon tunggu, jangan tutup halaman</div>
   </div>
 </div>
 
 <div id="error-panel" class="hidden max-w-2xl mx-auto mt-10 bg-white border-2 border-red-300 rounded-xl p-6 shadow">
-    <div class="flex items-center gap-3 mb-3 text-red-600"><i class="fas fa-exclamation-triangle text-2xl"></i><h2 class="text-lg font-bold">Link Tidak Valid</h2></div>
-    <p class="text-sm text-gray-700 mb-3">Maaf, LKPD tidak dapat ditampilkan. Silakan <strong>tanyakan dan cek kembali link yang diberikan oleh guru</strong>.</p>
-    <ul id="error-list" class="list-disc list-inside text-sm text-red-600 space-y-1 mb-4"></ul>
+  <div class="flex items-center gap-3 mb-3 text-red-600"><i class="fas fa-exclamation-triangle text-2xl"></i><h2 class="text-lg font-bold">Link Tidak Valid</h2></div>
+  <p class="text-sm text-gray-700 mb-3">Maaf, LKPD tidak dapat ditampilkan. Silakan <strong>tanyakan dan cek kembali link yang diberikan oleh guru</strong>.</p>
+  <ul id="error-list" class="list-disc list-inside text-sm text-red-600 space-y-1 mb-4"></ul>
 </div>
 
 <div id="main-container">
@@ -80,7 +122,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
             </select></div>
     </div>
 
-    <div id="lkpd-submitted-banner" class="hidden bg-green-100 border border-green-300 text-green-800 rounded-xl p-4 text-sm font-medium"><i class="fas fa-check-circle mr-2"></i> LKPD sudah terkirim pada <span id="lkpd-submitted-at"></span>.</div>
+    <div id="lkpd-submitted-banner" class="hidden bg-green-100 border border-green-300 text-green-800 rounded-xl p-4 text-sm font-medium"><i class="fas fa-check-circle mr-2"></i> LKPD sudah terkirim pada <span id="lkpd-submitted-at"></span>. Silakan lanjut ke Kuis Interaktif di bawah.</div>
 
     <section class="bg-white rounded-xl border p-4 shadow-sm">
         <h2 class="font-semibold text-gray-800 mb-2 text-lg">Petunjuk</h2>
@@ -88,6 +130,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
             <li>Bacalah ringkasan materi dan contoh sebelum mengerjakan.</li>
             <li>Kerjakan soal sesuai kategorimu. Soal pertama diisi angka pada kotak; soal kedua ditulis langkah demi langkah (satu baris satu langkah) dengan preview otomatis.</li>
             <li>Tekan <strong>Kirim LKPD</strong> setelah semua terisi.</li>
+            <li>Setelah LKPD terkirim, lanjutkan ke <strong>Kuis Interaktif</strong> di bawah halaman ini.</li>
         </ol>
     </section>
 
@@ -113,21 +156,75 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
 
     <!-- ================= KATEGORI A ================= -->
     <section class="bg-white rounded-xl border p-4 shadow-sm" id="section-A">
-        <h3 class="font-semibold text-blue-700 text-lg mb-4"><i class="fas fa-star text-blue-500 mr-2"></i> Kategori A</h3>
+        <h3 class="font-semibold text-blue-700 text-lg mb-4"><i class="fas fa-star text-blue-500 mr-2"></i> Kategori A (Sulit)</h3>
 
-        <p class="text-sm font-bold text-gray-800 mb-2">Soal-A1. Rasionalkan: $\frac{2\sqrt{6}}{5\sqrt{3}-\sqrt{5}}$ (isi kotak angka)</p>
-        <div class="soal-blok bg-gray-50 border rounded-xl p-3 mb-4" data-soal="Soal-A1" data-tipe="angka">
-            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] / ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] − √[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]) × ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] + √[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]) / ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] + √[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>])</span></div>
-            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>= [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] × ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] + √[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]) / (([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>])² − (√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>])²)</span></div>
-            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>= ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] + [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]) / ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] − [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>])</span></div>
-            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>= ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] + [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]) / [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]</span></div>
+        <p class="text-sm font-bold text-gray-800 mb-2">Soal-A1. Rasionalkan bentuk akar berikut (isi kotak angka):</p>
+        <div class="soal-blok bg-gray-50 border rounded-xl p-4 mb-4" data-soal="Soal-A1" data-tipe="angka">
+            <div class="step-row">
+                <span class="step-op">Soal:</span>
+                <div class="fraction">
+                    <div class="numerator"><span>2√6</span></div>
+                    <div class="denominator"><span>5√3 − √5</span></div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="step-op">=</span>
+                <div class="fraction">
+                    <div class="numerator">
+                        <input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
+                    </div>
+                    <div class="denominator">
+                        <input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span> − √</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
+                    </div>
+                </div>
+                <span class="step-op">×</span>
+                <div class="fraction">
+                    <div class="numerator">
+                        <input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span> + √</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
+                    </div>
+                    <div class="denominator">
+                        <input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span> + √</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
+                    </div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="step-op">=</span>
+                <div class="fraction">
+                    <div class="numerator">
+                        <input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span> × (</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span> + √</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>)</span>
+                    </div>
+                    <div class="denominator">
+                        <span>(</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>)² − (√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>)²</span>
+                    </div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="step-op">=</span>
+                <div class="fraction">
+                    <div class="numerator">
+                        <input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span> + </span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
+                    </div>
+                    <div class="denominator">
+                        <input type="number" inputmode="numeric" class="num-input" maxlength="3"><span> − </span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
+                    </div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="step-op">=</span>
+                <div class="fraction">
+                    <div class="numerator">
+                        <input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span> + </span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
+                    </div>
+                    <div class="denominator"><input type="number" inputmode="numeric" class="num-input" maxlength="3"></div>
+                </div>
+            </div>
         </div>
 
         <p class="text-sm font-bold text-gray-800 mb-2">Soal-A2. Rasionalkan: $\frac{6\sqrt{7}}{3\sqrt{5}-4\sqrt{2}}$ (tuliskan langkah, satu baris satu langkah)</p>
         <div class="soal-blok bg-gray-50 border rounded-xl p-3 mb-4" data-soal="Soal-A2" data-tipe="multiline">
             <div class="grid md:grid-cols-2 gap-3">
                 <div class="relative">
-                    <textarea class="math-area" placeholder="6√7/(3√5-4√2)&#10;= 6√7/(3√5-4√2) × (3√5+4√2)/(3√5+4√2)&#10;= (6√7×(3√5+4√2))/((3√5)^2-(4√2)^2)&#10;= (...√...+...√...)/(...-...)"></textarea>
+                    <textarea class="math-area" placeholder="...√.../(...√...-...√...)&#10;= ...√.../(...√...-...√...) × (...√...+...√...)/(...√...+...√...)&#10;= (...√...×(...√...+...√...))/((...√...)^2-(...√...)^2)&#10;= (...√...+...√...)/(...-...)&#10;= (...√...+...√...)/..."></textarea>
                 </div>
                 <div class="math-preview"></div>
             </div>
@@ -136,20 +233,62 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
 
     <!-- ================= KATEGORI B ================= -->
     <section class="bg-white rounded-xl border p-4 shadow-sm hidden" id="section-B">
-        <h3 class="font-semibold text-purple-700 text-lg mb-4"><i class="fas fa-star-half-alt text-purple-500 mr-2"></i> Kategori B</h3>
+        <h3 class="font-semibold text-purple-700 text-lg mb-4"><i class="fas fa-star-half-alt text-purple-500 mr-2"></i> Kategori B (Sedang)</h3>
 
-        <p class="text-sm font-bold text-gray-800 mb-2">Soal-B1. Rasionalkan: $\frac{5}{8-2\sqrt{3}}$ (isi kotak angka)</p>
-        <div class="soal-blok bg-gray-50 border rounded-xl p-3 mb-4" data-soal="Soal-B1" data-tipe="angka">
-            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] / ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] − [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]) × ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] + [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]) / ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] + [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>])</span></div>
-            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>= ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] + [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]) / ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] − [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>])</span></div>
-            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>= ([</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] + [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]) / [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]</span></div>
+        <p class="text-sm font-bold text-gray-800 mb-2">Soal-B1. Rasionalkan bentuk akar berikut (isi kotak angka):</p>
+        <div class="soal-blok bg-gray-50 border rounded-xl p-4 mb-4" data-soal="Soal-B1" data-tipe="angka">
+            <div class="step-row">
+                <span class="step-op">Soal:</span>
+                <div class="fraction">
+                    <div class="numerator"><span>5</span></div>
+                    <div class="denominator"><span>8 − 2√3</span></div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="step-op">=</span>
+                <div class="fraction">
+                    <div class="numerator"><input type="number" inputmode="numeric" class="num-input" maxlength="3"></div>
+                    <div class="denominator">
+                        <input type="number" inputmode="numeric" class="num-input" maxlength="3"><span> − </span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
+                    </div>
+                </div>
+                <span class="step-op">×</span>
+                <div class="fraction">
+                    <div class="numerator">
+                        <input type="number" inputmode="numeric" class="num-input" maxlength="3"><span> + </span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
+                    </div>
+                    <div class="denominator">
+                        <input type="number" inputmode="numeric" class="num-input" maxlength="3"><span> + </span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
+                    </div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="step-op">=</span>
+                <div class="fraction">
+                    <div class="numerator">
+                        <input type="number" inputmode="numeric" class="num-input" maxlength="3"><span> + </span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
+                    </div>
+                    <div class="denominator">
+                        <input type="number" inputmode="numeric" class="num-input" maxlength="3"><span> − </span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
+                    </div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="step-op">=</span>
+                <div class="fraction">
+                    <div class="numerator">
+                        <input type="number" inputmode="numeric" class="num-input" maxlength="3"><span> + </span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
+                    </div>
+                    <div class="denominator"><input type="number" inputmode="numeric" class="num-input" maxlength="3"></div>
+                </div>
+            </div>
         </div>
 
         <p class="text-sm font-bold text-gray-800 mb-2">Soal-B2. Rasionalkan: $\frac{\sqrt{3}}{5-2\sqrt{3}}$ (tuliskan langkah)</p>
         <div class="soal-blok bg-gray-50 border rounded-xl p-3 mb-4" data-soal="Soal-B2" data-tipe="multiline">
             <div class="grid md:grid-cols-2 gap-3">
                 <div class="relative">
-                    <textarea class="math-area" placeholder="√3/(5-2√3)&#10;= √3/(5-2√3) × (5+2√3)/(5+2√3)&#10;= (√3×(5+2√3))/(5^2-(2√3)^2)&#10;= (...√...+...)/(...-...)"></textarea>
+                    <textarea class="math-area" placeholder=".../(...-...√...)&#10;= .../(...-...√...) × (...+...√...)/(...+...√...)&#10;= (...×(...+...√...))/(...^2-(...√...)^2)&#10;= (...+...√...)/(...-...)&#10;= (...+...√...)/..."></textarea>
                 </div>
                 <div class="math-preview"></div>
             </div>
@@ -158,21 +297,54 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
 
     <!-- ================= KATEGORI C ================= -->
     <section class="bg-white rounded-xl border p-4 shadow-sm hidden" id="section-C">
-        <h3 class="font-semibold text-orange-700 text-lg mb-4"><i class="fas fa-check-circle text-orange-500 mr-2"></i> Kategori C</h3>
+        <h3 class="font-semibold text-orange-700 text-lg mb-4"><i class="fas fa-check-circle text-orange-500 mr-2"></i> Kategori C (Mudah)</h3>
 
-        <p class="text-sm font-bold text-gray-800 mb-2">Soal-C1. Rasionalkan: $\frac{\sqrt{35}}{\sqrt{7}}$ (isi kotak angka)</p>
-        <div class="soal-blok bg-gray-50 border rounded-xl p-3 mb-4" data-soal="Soal-C1" data-tipe="angka">
-            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] / √[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] × √[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] / √[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]</span></div>
-            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>= √[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] / [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]</span></div>
-            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>= [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]√[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>] / [</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]</span></div>
-            <div class="math-plain flex items-center flex-wrap gap-y-2"><span>= √[</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>]</span></div>
+        <p class="text-sm font-bold text-gray-800 mb-2">Soal-C1. Rasionalkan bentuk akar berikut (isi kotak angka):</p>
+        <div class="soal-blok bg-gray-50 border rounded-xl p-4 mb-4" data-soal="Soal-C1" data-tipe="angka">
+            <div class="step-row">
+                <span class="step-op">Soal:</span>
+                <div class="fraction">
+                    <div class="numerator"><span>√35</span></div>
+                    <div class="denominator"><span>√7</span></div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="step-op">=</span>
+                <div class="fraction">
+                    <div class="numerator"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"></div>
+                    <div class="denominator"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"></div>
+                </div>
+                <span class="step-op">×</span>
+                <div class="fraction">
+                    <div class="numerator"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"></div>
+                    <div class="denominator"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"></div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="step-op">=</span>
+                <div class="fraction">
+                    <div class="numerator"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"></div>
+                    <div class="denominator"><input type="number" inputmode="numeric" class="num-input" maxlength="3"></div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="step-op">=</span>
+                <div class="fraction">
+                    <div class="numerator"><input type="number" inputmode="numeric" class="num-input" maxlength="3"><span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3"></div>
+                    <div class="denominator"><input type="number" inputmode="numeric" class="num-input" maxlength="3"></div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="step-op">=</span>
+                <span>√</span><input type="number" inputmode="numeric" class="num-input" maxlength="3">
+            </div>
         </div>
 
         <p class="text-sm font-bold text-gray-800 mb-2">Soal-C2. Rasionalkan: $\frac{\sqrt{8}}{2\sqrt{20}}$ (tuliskan langkah)</p>
         <div class="soal-blok bg-gray-50 border rounded-xl p-3 mb-4" data-soal="Soal-C2" data-tipe="multiline">
             <div class="grid md:grid-cols-2 gap-3">
                 <div class="relative">
-                    <textarea class="math-area" placeholder="√8/(2√20)&#10;= √8/(2√20) × √20/√20&#10;= √160/(2×20)&#10;= ...√.../..."></textarea>
+                    <textarea class="math-area" placeholder="√.../(...√...)&#10;= √.../(...√...) × √.../√...&#10;= √.../(...×...)&#10;= (...√...)/...&#10;= (1/...)√..."></textarea>
                 </div>
                 <div class="math-preview"></div>
             </div>
@@ -200,33 +372,99 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
 </div>
 </div>
 
-<div id="fase-kuis" class="hidden max-w-md mx-auto bg-white rounded-2xl shadow-xl p-5 relative min-h-[400px] mt-6"><div id="kuis-content"></div></div>
+<!-- ============ FASE KUIS (Game Interaktif) ============ -->
+<div id="fase-kuis" class="hidden max-w-4xl mx-auto mt-6">
+<div id="game-root" class="bg-white rounded-2xl shadow-xl overflow-hidden relative" style="min-height:600px">
+
+    <div id="g-lobby-screen" class="g-screen active">
+        <div class="g-center">
+            <div class="g-card">
+                <h1>🎯 Kuis Interaktif</h1>
+                <p class="text-sm text-gray-600 mb-4">Rasionalisasi Bentuk Akar</p>
+                <div class="form-group"><label>Nama Lengkap</label><input type="text" id="g-nama" class="form-input" readonly></div>
+                <div class="form-group"><label>Kelas</label><input type="text" id="g-kelas" class="form-input" readonly></div>
+                <div class="form-group"><label>Level (Sesuai Kategori LKPD)</label><input type="text" id="g-level" class="form-input" readonly></div>
+                <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 text-xs text-blue-800 mb-3 text-left">
+                    <strong>Aturan:</strong> 10 soal campuran • Waktu total 20 menit • Tombol Cek aktif setelah 1 menit per soal • Tombol Lewati aktif setelah 2 menit per soal.
+                </div>
+                <button class="btn" id="g-start-btn">🚀 Mulai Kuis</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="g-game-screen" class="g-screen">
+        <div class="g-header">
+            <div>
+                <div id="g-student-info" style="font-size:12px;font-weight:bold;color:#64748b"></div>
+                <div class="progress-dots" id="g-progress-dots"></div>
+            </div>
+            <div class="timer" id="g-timer-display">00:00</div>
+        </div>
+        <div class="equation-area" id="g-equation-area"></div>
+        <div class="control-panel">
+            <div id="g-message">Pilih jawaban dari kotak di bawah.</div>
+            <div class="btn-group" id="g-btn-group-play">
+                <button class="btn btn-skip" id="g-btn-skip-play">Lewati</button>
+                <button class="btn btn-check" id="g-btn-check-play">CEK JAWABAN</button>
+            </div>
+            <div class="btn-group" id="g-btn-group-next" style="display:none">
+                <button class="btn btn-check" style="background-color:var(--primary)" id="g-btn-next">LANJUT KE SOAL BERIKUTNYA</button>
+            </div>
+        </div>
+        <div class="answer-bank" id="g-answer-bank"></div>
+    </div>
+
+    <div id="g-result-screen" class="g-screen">
+        <div class="g-center">
+            <div class="g-card">
+                <h1>🏆 Kuis Selesai!</h1>
+                <h2 id="g-res-name" style="margin-bottom:5px"></h2>
+                <p id="g-res-class" style="color:#64748b;margin-top:0"></p>
+                <div style="font-size:56px;font-weight:bold;color:var(--primary);margin:16px 0"><span id="g-final-score">0</span></div>
+                <p id="g-res-stats" style="margin-bottom:20px"></p>
+                <div id="g-detail-list" class="text-left text-xs bg-gray-50 border rounded-lg p-3 max-h-40 overflow-y-auto mb-4"></div>
+                <button class="btn" id="g-btn-kirim" style="background-color:#16a34a">📤 Kirim Nilai ke Guru</button>
+                <p class="text-[11px] text-gray-500 mt-2">Setelah terkirim, kuis akan terkunci.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="g-success-screen" class="g-screen">
+        <div class="g-center">
+            <div class="g-card">
+                <div class="text-5xl mb-3">✅</div>
+                <h1>Berhasil Dikirim!</h1>
+                <p class="text-sm text-gray-600 mt-2 mb-4">Nilai kuis kamu tersimpan di database guru.</p>
+                <div style="font-size:48px;font-weight:bold;color:#16a34a;margin:16px 0"><span id="g-saved-score">0</span></div>
+                <p class="text-xs text-gray-500">Terima kasih telah mengerjakan.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
-    /* ================= KONFIGURASI ================= */
     const KODE='MTK-002';
     const GS_URL='https://script.google.com/macros/s/AKfycbw55mTigv_PQFlsw9ia-lxCspgueQwXRH7ouWKnYKXw15BKn9ytmu0l3mFwO1n3a6fS/exec';
-    const CSV_URL=''; // isi URL publish CSV bank soal MTK-002 bila kuis siap
     const SECRET='MTK001#Rahasia!2026@Guru';
     const SYARAT_KIRIM='FULL';
-    const MENIT_PER_SOAL=2, MIN_WAKTU_RATIO=0.5;
 
     const $=s=>document.querySelector(s);
     const $$=s=>document.querySelectorAll(s);
     const pad=n=>String(n).padStart(2,'0');
     const slug=t=>String(t||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
     const fmtMs=ms=>{const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),d=s%60;return h>0?(pad(h)+'.'+pad(m)+'.'+pad(d)):(pad(m)+'.'+pad(d));};
-    const fmtSec=sec=>{sec=Math.max(0,Math.floor(sec));return pad(Math.floor(sec/60))+':'+pad(sec%60);};
 
+    /* ============ LOADER ============ */
     let loaderT=null;
     function showLoader(m){const o=$('#loader-overlay');if(m)$('#loader-text').textContent=m;o.classList.remove('hidden');clearTimeout(loaderT);$('#loader-sub').textContent='mohon tunggu, jangan tutup halaman';loaderT=setTimeout(()=>{$('#loader-sub').textContent='Koneksi lambat... periksa internet Anda.';},12000);}
     function hideLoader(){$('#loader-overlay').classList.add('hidden');clearTimeout(loaderT);}
-    const typesetMath=()=>{ const el=$('#kuis-content'); if(el&&window.renderMathInElement) renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',displayMode:true},{left:'$',right:'$',displayMode:false}],throwOnError:false}); };
 
-    /* ============ PARSER MULTILINE (KaTeX) ============ */
+    /* ============ PARSER MULTILINE ============ */
     function convertToLatex(text){
         return text.split('\n').map(line=>{
             if(!line.trim()) return "";
@@ -268,11 +506,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /* ============ 1. TOKEN ============ */
+    /* ============ 1. TOKEN DECRYPT ============ */
     const b64urlToB64=t=>{let s=t.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return s;};
     function decryptToken(t){try{return CryptoJS.AES.decrypt(b64urlToB64(t),SECRET).toString(CryptoJS.enc.Utf8)||null;}catch(e){return null;}}
     const token=new URLSearchParams(window.location.search).get('d');
-    let kode='MTK-002',username='',nama1='',kelas='',kategori='',gen=1;
+    let kode=KODE,username='',nama1='',kelas='',kategori='',gen=1;
     const errors=[];
     if(!token)errors.push('Token link tidak ditemukan. Gunakan link lengkap dari guru.');
     else{
@@ -303,9 +541,9 @@ document.addEventListener('DOMContentLoaded', () => {
     ['section-A','section-B','section-C'].forEach(id=>$('#'+id).classList.add('hidden'));
     $('#section-'+kategori).classList.remove('hidden');
 
-    /* ============ 2. STORAGE ============ */
+    /* ============ 2. LOCAL STORAGE ============ */
     const storeKey='LKPD_'+slug(kode)+'_'+slug(username)+'_g'+gen;
-    let db={lkpdStarted:false,lkpdAccMs:0,lkpdResumeEpoch:null,lkpdSubmitted:false,lkpdSubmittedAt:null,lkpdFinalMs:0,lkpdAnswers:{},kuisSubmitted:false,kuisState:null};
+    let db={lkpdStarted:false,lkpdAccMs:0,lkpdResumeEpoch:null,lkpdSubmitted:false,lkpdSubmittedAt:null,lkpdFinalMs:0,lkpdAnswers:{},kuisSubmitted:false,kuisSubmittedAt:null,kuisScore:null,kuisDetail:'',gameState:null};
     try{const r=localStorage.getItem(storeKey);if(r)db=Object.assign(db,JSON.parse(r));}catch(e){}
     const save=()=>{try{localStorage.setItem(storeKey,JSON.stringify(db));}catch(e){}};
 
@@ -335,7 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /* ============ 4. AUTOSAVE/PROGRES/TIMER ============ */
+    /* ============ 4. AUTOSAVE/PROGRES/TIMER LKPD ============ */
     $$('input.num-input,.math-area').forEach((el,i)=>el.dataset.key='q'+i);
     const collectLKPD=()=>{const o={};$$('.num-input,.math-area').forEach(el=>o[el.dataset.key]=el.value);o.nama2=$('#input-nama2').value;const r=document.querySelector('input[name="refleksi-paham"]:checked');o.refPaham=r?r.value:'';o.refUmum=$('#refleksi-umum').value;return o;};
     if(!db.lkpdSubmitted&&db.lkpdAnswers){
@@ -381,7 +619,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     $('#fase-lkpd').addEventListener('change',()=>{if(!db.lkpdSubmitted){db.lkpdAnswers=collectLKPD();save();updateProgress();}});
 
-    /* ============ 5. KIRIM ============ */
+    /* ============ 5. KIRIM LKPD ============ */
     const valOr=v=>{v=(v||'').trim();return v===''?'-':v.replace(/\|/g,'/');};
     const buildJawabanLKPD=()=>{
         const parts=[];
@@ -418,130 +656,300 @@ document.addEventListener('DOMContentLoaded', () => {
             lockLKPD();
             $('#fase-kuis').classList.remove('hidden');
             $('#fase-kuis').scrollIntoView({behavior:'smooth'});
-            renderKuisHome();
+            initGame();
         }catch(err){resumeLKPD();save();alert('Gagal mengirim. Jawaban tersimpan lokal.');}
         finally{hideLoader();}
     });
 
-    /* ============ 6. KUIS (opsional: isi CSV_URL bila bank soal siap) ============ */
-    let kuis={step:'home',questions:[],currentIndex:0,userAnswers:{},score:0,totalSeconds:0,remainingSeconds:0,totalMs:0,intervalId:null,showGrid:false,sortedPairs:[]};
-    if(db.kuisState)Object.assign(kuis,db.kuisState);
-    const saveKuis=()=>{db.kuisState={...kuis,intervalId:null};save();};
-    const shuffle=a=>{const arr=[...a];for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;};
-    const parseCSV=text=>{const lines=text.split('\n').filter(l=>l.trim()!=='');if(lines.length<2)return[];const pl=line=>{const r=[];let c='',q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"')q=!q;else if(ch===','&&!q){r.push(c.trim().replace(/^"|"$/g,''));c='';}else c+=ch;}r.push(c.trim().replace(/^"|"$/g,''));return r;};const h=pl(lines[0]);const res=[];for(let i=1;i<lines.length;i++){const v=pl(lines[i]);const o={};h.forEach((x,idx)=>o[x.trim()]=v[idx]||'');res.push(o);}return res;};
-    const mapQuestions=raw=>raw.map((row,idx)=>{
-        const soal=row.Soal||row.soal||'';
-        const jb=(row.Jawaban||row.jawaban||'').trim().toUpperCase();
-        let rk=(row.Kategori||row.kategori||'C').trim().toUpperCase(); let ck=rk; if(['A','B','C'].includes(rk.charAt(0)))ck=rk.charAt(0);
-        const rawNo=row.NoUrut||row.no||''; let noUrut=parseInt(rawNo,10); const noUrutMissing=isNaN(noUrut); if(noUrutMissing)noUrut=idx+1;
-        const options=[{text:row.OpsiA||'',key:'A',isCorrect:false},{text:row.OpsiB||'',key:'B',isCorrect:false},{text:row.OpsiC||'',key:'C',isCorrect:false},{text:row.OpsiD||'',key:'D',isCorrect:false}];
-        options.forEach(o=>{if(o.key===jb)o.isCorrect=true;});
-        return {noUrut,noUrutMissing,materi:row.Materi||'-',soal,options,kategori:ck};
-    }).filter(q=>q.soal&&q.options.some(o=>o.text!==''));
-    const renderKuis=()=>{const app=$('#kuis-content');if(!app)return;app.innerHTML='';if(kuis.step==='home')renderKuisHome();else if(kuis.step==='loading')renderKuisLoading();else if(kuis.step==='quiz')renderKuisQuiz();else if(kuis.step==='result')renderKuisResult();else if(kuis.step==='success')renderKuisSuccess();};
-    function renderKuisHome(){
-        const app=$('#kuis-content');
-        if(!CSV_URL){ app.innerHTML=`<div class="text-center py-10"><div class="text-5xl mb-4">📘</div><h2 class="text-xl font-bold text-gray-800">LKPD Terkirim!</h2><p class="text-sm text-gray-500 mt-2">Kuis untuk materi ini belum tersedia.<br>Terima kasih sudah mengerjakan.</p></div>`; return; }
-        if(db.kuisSubmitted){renderKuisSuccess();return;}
-        app.innerHTML=`<div class="text-center fade-in"><h2 class="text-xl font-bold text-gray-800 mb-2">Kuis Interaktif</h2><p class="text-sm text-gray-500 mb-6">Lanjutan LKPD — ${nama1}</p><button id="btn-start-kuis" class="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl">🚀 Mulai Kuis</button></div>`;
-        $('#btn-start-kuis').addEventListener('click',handleStartKuis);
+    /* ============ 6. GAME ENGINE (kuis interaktif) ============ */
+    const GAME_CONFIG={TOTAL_QUESTIONS:10,TIME_LIMIT:1200,MIN_CHECK_SEC:60,MIN_SKIP_SEC:120,MAX_RETRIES:1,AUTO_SHOW_ANSWER:true,POINTS_PER_QUESTION:10};
+    const QUESTION_PATTERNS={
+        'A':['C','B','A','C','B','A','B','A','A','A'],
+        'B':['C','B','B','C','B','A','C','B','B','A'],
+        'C':['C','B','C','B','C','B','A','C','B','A']
+    };
+    let G={currentQuestion:1,timeLeft:GAME_CONFIG.TIME_LIMIT,timerInterval:null,timeSpentCurrent:0,retryCount:GAME_CONFIG.MAX_RETRIES,scores:[],currentPattern:[],selectedItem:null,currentAnswers:[],dictKeys:{},phase:'lobby'};
+    const gStateKey=storeKey+'_game';
+    function saveGameState(){ try{ localStorage.setItem(gStateKey,JSON.stringify({currentQuestion:G.currentQuestion,timeLeft:G.timeLeft,scores:G.scores,phase:G.phase})); }catch(e){} }
+    function loadGameState(){ try{ const s=localStorage.getItem(gStateKey); if(s){ const o=JSON.parse(s); G.currentQuestion=o.currentQuestion||1; G.timeLeft=o.timeLeft||GAME_CONFIG.TIME_LIMIT; G.scores=o.scores||[]; G.phase=o.phase||'lobby'; } }catch(e){} }
+
+    const getPrimes=()=>[2,3,5,7,11];
+    const getRandom=arr=>arr[Math.floor(Math.random()*arr.length)];
+    const randInt=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
+    function getZone(latexStr){
+        if(!G.dictKeys[latexStr]) G.dictKeys[latexStr]="key_"+Math.random().toString(36).substr(2,8);
+        G.currentAnswers.push({key:G.dictKeys[latexStr],latex:latexStr});
+        const safeLatex=btoa(unescape(encodeURIComponent(latexStr)));
+        return `<div class="drop-zone" data-expected="${G.dictKeys[latexStr]}" data-latex="${safeLatex}"></div>`;
     }
-    function renderKuisLoading(){$('#kuis-content').innerHTML=`<div class="flex flex-col items-center justify-center min-h-[300px]"><div class="animate-spin rounded-full h-12 w-12 border-4 border-indigo-100 border-t-indigo-600 mb-4"></div><p class="text-gray-600 font-medium">Memuat bank soal...</p></div>`;}
-    function renderKuisQuiz(){
-        const q=kuis.questions[kuis.currentIndex],total=kuis.questions.length;
-        const curAns=kuis.userAnswers[kuis.currentIndex];
-        const isW=kuis.remainingSeconds<60;
-        $('#kuis-content').innerHTML=`<div class="fade-in flex flex-col">
-            <div class="flex justify-between items-center mb-4"><span class="text-xs text-gray-400">Soal ${kuis.currentIndex+1}/${total}</span><div id="timer-display" class="text-xl font-bold font-mono px-3 py-1 rounded-lg ${isW?'timer-warning':'text-indigo-600 bg-indigo-50'}">⏱️ ${fmtSec(kuis.remainingSeconds)}</div></div>
-            <h2 class="text-lg font-semibold text-gray-800 mb-5">${q.soal}</h2>
-            <div class="space-y-3 mb-6">${q.shuffledOptions.map(opt=>{const sel=curAns===opt.key;return `<button class="opt-btn option-btn w-full text-left p-3.5 rounded-xl border-2 flex items-start gap-3 ${sel?'border-indigo-600 bg-indigo-50':'border-gray-100'}" data-key="${opt.key}"><span class="flex-shrink-0 w-8 h-8 rounded-full ${sel?'bg-indigo-600 text-white':'bg-gray-200 text-gray-600'} text-center leading-8 font-bold text-sm">${opt.key}</span><span class="pt-1 text-sm font-medium text-gray-700">${opt.text}</span></button>`;}).join('')}</div>
-            <div class="grid grid-cols-2 gap-3 mt-auto"><button id="btn-prev" class="py-3 px-4 rounded-xl font-semibold border-2 border-gray-200 ${kuis.currentIndex===0?'opacity-50':''}" ${kuis.currentIndex===0?'disabled':''}>← Kembali</button>${kuis.currentIndex===total-1?`<button id="btn-finish" class="py-3 px-4 rounded-xl font-bold text-white shadow-md">🏁 Selesai</button>`:`<button id="btn-next" class="py-3 px-4 rounded-xl font-semibold bg-indigo-600 text-white">Lanjut →</button>`}</div></div>`;
-        $$('.opt-btn').forEach(b=>b.addEventListener('click',e=>{kuis.userAnswers[kuis.currentIndex]=e.currentTarget.dataset.key;saveKuis();setTimeout(()=>{if(kuis.currentIndex<kuis.questions.length-1){kuis.currentIndex++;saveKuis();renderKuisQuiz();}else renderKuisQuiz();},250);}));
-        if($('#btn-prev'))$('#btn-prev').onclick=()=>{if(kuis.currentIndex>0){kuis.currentIndex--;saveKuis();renderKuisQuiz();}};
-        if($('#btn-next'))$('#btn-next').onclick=()=>{if(kuis.currentIndex<total-1){kuis.currentIndex++;saveKuis();renderKuisQuiz();}};
-        if($('#btn-finish'))$('#btn-finish').onclick=()=>finishKuis(false);
-        updateFinishBtnState(); typesetMath();
+
+    function generateCategoryC(){
+        const a=getRandom(getPrimes()),c=randInt(2,9);
+        return `<div class="step-row"><span class="operator">Soal:</span><div class="fraction"><div class="numerator katex-static" data-tex="${c}"></div><div class="denominator katex-static" data-tex="\\sqrt{${a}}"></div></div></div>
+<div class="step-row"><span class="operator">=</span><div class="fraction"><div class="numerator">${getZone(c.toString())}</div><div class="denominator">${getZone(`\\sqrt{${a}}`)}</div></div><span class="operator">&times;</span><div class="fraction"><div class="numerator">${getZone(`\\sqrt{${a}}`)}</div><div class="denominator">${getZone(`\\sqrt{${a}}`)}</div></div></div>
+<div class="step-row"><span class="operator">=</span><div class="fraction"><div class="numerator">${getZone(`${c}\\sqrt{${a}}`)}</div><div class="denominator">${getZone(`(\\sqrt{${a}})^2`)}</div></div></div>
+<div class="step-row"><span class="operator">=</span><div class="fraction"><div class="numerator">${getZone(`${c}\\sqrt{${a}}`)}</div><div class="denominator">${getZone(a.toString())}</div></div></div>`;
     }
-    function updateFinishBtnState(){
-        const btn=$('#btn-finish');if(!btn)return;
-        const elapsed=kuis.totalSeconds-kuis.remainingSeconds;
-        const answered=Object.keys(kuis.userAnswers).length;
-        const all=answered===kuis.questions.length;
-        const can=elapsed>=kuis.totalSeconds*MIN_WAKTU_RATIO&&all;
-        if(!can){btn.disabled=true;btn.className="py-3 px-4 rounded-xl font-bold text-white shadow-md bg-gray-300 cursor-not-allowed";btn.textContent=!all?`Jawab ${answered}/${kuis.questions.length} soal`:`⏱️ Tunggu ${Math.ceil((kuis.totalSeconds*MIN_WAKTU_RATIO-elapsed)/60)} menit lagi`;}
-        else{btn.disabled=false;btn.className="py-3 px-4 rounded-xl font-bold text-white shadow-md bg-green-600";btn.textContent='🏁 Selesai & Kirim';}
+    function generateCategoryB(){
+        const a=randInt(2,5),b=getRandom(getPrimes()),c=randInt(2,9);
+        const sign=Math.random()>0.5?'+':'-', oppSign=sign==='+'?'-':'+';
+        const soalBawah=`${a} ${sign} \\sqrt{${b}}`, sekawan=`${a} ${oppSign} \\sqrt{${b}}`;
+        return `<div class="step-row"><span class="operator">Soal:</span><div class="fraction"><div class="numerator katex-static" data-tex="${c}"></div><div class="denominator katex-static" data-tex="${soalBawah}"></div></div></div>
+<div class="step-row"><span class="operator">=</span><div class="fraction"><div class="numerator">${getZone(c.toString())}</div><div class="denominator">${getZone(soalBawah)}</div></div><span class="operator">&times;</span><div class="fraction"><div class="numerator">${getZone(sekawan)}</div><div class="denominator">${getZone(sekawan)}</div></div></div>
+<div class="step-row"><span class="operator">=</span><div class="fraction"><div class="numerator">${getZone(`${c}(${sekawan})`)}</div><div class="denominator">${getZone(`${a}^2`)} <span class="operator">-</span> ${getZone(`(\\sqrt{${b}})^2`)}</div></div></div>
+<div class="step-row"><span class="operator">=</span><div class="fraction"><div class="numerator">${getZone(`${c}(${sekawan})`)}</div><div class="denominator">${getZone(`${a*a - b}`)}</div></div></div>
+<div class="step-row"><span class="operator">=</span><div class="fraction"><div class="numerator">${getZone(`${c}(${sekawan})`)}</div><div class="denominator">${getZone((a*a-b).toString())}</div></div></div>`;
     }
-    function finishKuis(isAuto){
-        if(!isAuto){
-            const elapsed=kuis.totalSeconds-kuis.remainingSeconds;
-            const answered=Object.keys(kuis.userAnswers).length;
-            if(answered<kuis.questions.length){alert('Wajib menjawab semua soal.');return;}
-            if(elapsed<kuis.totalSeconds*MIN_WAKTU_RATIO){alert('Tunggu minimal '+Math.ceil((kuis.totalSeconds*MIN_WAKTU_RATIO-elapsed)/60)+' menit lagi.');return;}
-            if(!confirm('Yakin menyelesaikan?'))return;
+    function generateCategoryA(){
+        let a=getRandom(getPrimes()),b=getRandom(getPrimes());
+        while(a===b) b=getRandom(getPrimes());
+        const c=randInt(2,9),sign=Math.random()>0.5?'+':'-',oppSign=sign==='+'?'-':'+';
+        const soalBawah=`\\sqrt{${a}} ${sign} \\sqrt{${b}}`, sekawan=`\\sqrt{${a}} ${oppSign} \\sqrt{${b}}`;
+        return `<div class="step-row"><span class="operator">Soal:</span><div class="fraction"><div class="numerator katex-static" data-tex="${c}"></div><div class="denominator katex-static" data-tex="${soalBawah}"></div></div></div>
+<div class="step-row"><span class="operator">=</span><div class="fraction"><div class="numerator">${getZone(c.toString())}</div><div class="denominator">${getZone(soalBawah)}</div></div><span class="operator">&times;</span><div class="fraction"><div class="numerator">${getZone(sekawan)}</div><div class="denominator">${getZone(sekawan)}</div></div></div>
+<div class="step-row"><span class="operator">=</span><div class="fraction"><div class="numerator">${getZone(`${c}(${sekawan})`)}</div><div class="denominator">${getZone(`(\\sqrt{${a}})^2`)} <span class="operator">-</span> ${getZone(`(\\sqrt{${b}})^2`)}</div></div></div>
+<div class="step-row"><span class="operator">=</span><div class="fraction"><div class="numerator">${getZone(`${c}(${sekawan})`)}</div><div class="denominator">${getZone(`${a} - ${b}`)}</div></div></div>
+<div class="step-row"><span class="operator">=</span><div class="fraction"><div class="numerator">${getZone(`${c}(${sekawan})`)}</div><div class="denominator">${getZone((a-b).toString())}</div></div></div>`;
+    }
+
+    function showGScreen(id){
+        ['#g-lobby-screen','#g-game-screen','#g-result-screen','#g-success-screen'].forEach(s=>{const el=$(s);if(el)el.classList.remove('active');});
+        $('#'+id).classList.add('active');
+    }
+
+    function initGame(){
+        $('#fase-kuis').classList.remove('hidden');
+        $('#g-nama').value=nama1; $('#g-kelas').value=kelas;
+        const lv={'A':'Tinggi (Dominan Sulit)','B':'Sedang (Dominan Sedang)','C':'Rendah (Dominan Mudah)'}[kategori];
+        $('#g-level').value=lv;
+
+        if(db.kuisSubmitted){
+            $('#g-saved-score').textContent=db.kuisScore;
+            showGScreen('g-success-screen');
+            return;
         }
-        if(kuis.intervalId){clearInterval(kuis.intervalId);kuis.intervalId=null;}
-        kuis.totalMs=(kuis.totalSeconds-kuis.remainingSeconds)*1000;
-        const pairs=kuis.questions.map((q,i)=>({q,idx:i,ans:kuis.userAnswers[i]}));
-        pairs.sort((a,b)=>a.q.noUrut-b.q.noUrut);
-        kuis.sortedPairs=pairs;
-        let benar=0;pairs.forEach(p=>{const c=p.q.options.find(o=>o.isCorrect);if(c&&p.ans===c.key)benar++;});
-        kuis.score=Math.round((benar/pairs.length)*100);
-        kuis.step='result';saveKuis();renderKuis();
+        G.currentPattern=QUESTION_PATTERNS[kategori]||QUESTION_PATTERNS['C'];
+        loadGameState();
+        if(G.phase==='game' && G.currentQuestion<=GAME_CONFIG.TOTAL_QUESTIONS){
+            showGScreen('g-game-screen');
+            renderProgressDots();
+            $('#g-student-info').innerText=`${nama1} - ${kelas}`;
+            updateTimerDisplay();
+            startTimer();
+            loadQuestion();
+        } else if(G.phase==='result'){
+            showResultScreen();
+        } else {
+            showGScreen('g-lobby-screen');
+        }
     }
-    function renderKuisResult(){
-        let detail='';
-        kuis.sortedPairs.forEach(p=>{const c=p.q.options.find(o=>o.isCorrect);const ck=c?c.key:'?';const lb=(p.q.noUrutMissing?'[?]':'')+'No.'+p.q.noUrut;
-            if(p.ans===ck)detail+=`<li class="text-green-700 text-sm py-1">✅ <b>${lb}:</b> Benar (${p.ans})</li>`;
-            else detail+=`<li class="text-red-700 text-sm py-1">❌ <b>${lb}:</b> Salah (Jawab: ${p.ans||'Kosong'}, Kunci: ${ck})</li>`;});
-        $('#kuis-content').innerHTML=`<div class="text-center fade-in"><div class="text-5xl mb-3">🏆</div><h2 class="text-xl font-bold text-gray-800">Skor: ${kuis.score}</h2><div class="text-left bg-gray-50 rounded-xl p-4 my-4 max-h-52 overflow-y-auto"><ul>${detail}</ul></div><button id="btn-kirim-kuis" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl">📤 Kirim Nilai</button></div>`;
-        $('#btn-kirim-kuis').addEventListener('click',sendKuisToGAS); typesetMath();
+
+    $('#g-start-btn').addEventListener('click',()=>{
+        G.currentQuestion=1; G.timeLeft=GAME_CONFIG.TIME_LIMIT; G.scores=[]; G.phase='game';
+        saveGameState();
+        $('#g-student-info').innerText=`${nama1} - ${kelas}`;
+        renderProgressDots();
+        showGScreen('g-game-screen');
+        updateTimerDisplay();
+        startTimer();
+        loadQuestion();
+    });
+
+    function renderProgressDots(){
+        const c=$('#g-progress-dots'); c.innerHTML='';
+        for(let i=0;i<GAME_CONFIG.TOTAL_QUESTIONS;i++){
+            let cls='dot';
+            if(i<G.scores.length) cls+=' '+(G.scores[i]===1?'done':'failed');
+            else if(i===G.currentQuestion-1) cls+=' active';
+            const d=document.createElement('div'); d.className=cls; c.appendChild(d);
+        }
     }
-    function renderKuisSuccess(){$('#kuis-content').innerHTML=`<div class="text-center py-10"><div class="text-5xl mb-4">✅</div><h2 class="text-xl font-bold text-gray-800">Berhasil Dikirim!</h2></div>`;}
-    async function sendKuisToGAS(){
-        const btn=$('#btn-kirim-kuis');btn.disabled=true;btn.textContent='⏳ Mengirim...';
+
+    function startTimer(){
+        if(!G.timerInterval){
+            G.timerInterval=setInterval(()=>{
+                G.timeLeft--; G.timeSpentCurrent++;
+                updateTimerDisplay(); updateButtonStates(); saveGameState();
+                if(G.timeLeft<=0){ pauseTimer(); handleTimeUp(); }
+            },1000);
+        }
+    }
+    function pauseTimer(){ if(G.timerInterval){clearInterval(G.timerInterval);G.timerInterval=null;} }
+    function updateTimerDisplay(){
+        const m=pad(Math.floor(Math.max(0,G.timeLeft)/60)),s=pad(Math.max(0,G.timeLeft)%60);
+        $('#g-timer-display').innerText=m+':'+s;
+    }
+    function updateButtonStates(){
+        const bc=$('#g-btn-check-play'),bs=$('#g-btn-skip-play');
+        if(!bc||!bs)return;
+        let tc=GAME_CONFIG.MIN_CHECK_SEC-G.timeSpentCurrent;
+        if(tc>0){bc.disabled=true;bc.innerText=`CEK JAWABAN (${tc}s)`;}else{bc.disabled=false;bc.innerText='CEK JAWABAN';}
+        let ts=GAME_CONFIG.MIN_SKIP_SEC-G.timeSpentCurrent;
+        if(ts>0){bs.disabled=true;bs.innerText=`Lewati (${ts}s)`;}else{bs.disabled=false;bs.innerText='Lewati';}
+    }
+
+    function loadQuestion(){
+        G.retryCount=GAME_CONFIG.MAX_RETRIES; G.timeSpentCurrent=0; G.selectedItem=null; G.currentAnswers=[]; G.dictKeys={};
+        $('#g-btn-group-play').style.display='flex'; $('#g-btn-group-next').style.display='none';
+        updateButtonStates();
+        $('#g-message').innerText=`Soal ${G.currentQuestion} dari ${GAME_CONFIG.TOTAL_QUESTIONS}. Pilih jawaban dari bawah.`;
+        $('#g-message').style.color='var(--text-main)';
+        const eq=$('#g-equation-area');
+        const diff=G.currentPattern[G.currentQuestion-1]||'C';
+        if(diff==='C') eq.innerHTML=generateCategoryC();
+        else if(diff==='B') eq.innerHTML=generateCategoryB();
+        else eq.innerHTML=generateCategoryA();
+        eq.querySelectorAll('.katex-static').forEach(el=>{try{katex.render(el.dataset.tex,el);}catch(e){}});
+        eq.querySelectorAll('.drop-zone').forEach(z=>z.addEventListener('click',()=>handleZoneClick(z)));
+        const bank=$('#g-answer-bank'); bank.innerHTML='';
+        G.currentAnswers.sort(()=>Math.random()-0.5);
+        G.currentAnswers.forEach(ans=>{
+            const item=document.createElement('div'); item.className='answer-item'; item.dataset.value=ans.key;
+            try{katex.render(ans.latex,item);}catch(e){}
+            item.addEventListener('click',()=>handleItemClick(item));
+            bank.appendChild(item);
+        });
+        saveGameState();
+    }
+    function handleItemClick(itemEl){
+        if(G.selectedItem===itemEl){itemEl.classList.remove('selected');G.selectedItem=null;return;}
+        if(G.selectedItem)G.selectedItem.classList.remove('selected');
+        itemEl.classList.add('selected');G.selectedItem=itemEl;
+    }
+    function handleZoneClick(zone){
+        if(zone.classList.contains('locked'))return;
+        if(G.selectedItem){
+            if(zone.children.length>0) $('#g-answer-bank').appendChild(zone.children[0]);
+            zone.appendChild(G.selectedItem); G.selectedItem.classList.remove('selected'); G.selectedItem=null;
+            zone.style.borderColor='#94a3b8';
+        } else if(zone.children.length>0){
+            $('#g-answer-bank').appendChild(zone.children[0]); zone.style.borderColor='#94a3b8';
+        }
+    }
+
+    function checkAnswer(){
+        const zones=$('#g-equation-area').querySelectorAll('.drop-zone');
+        let total=zones.length,terisi=0,benar=0,hasWrong=false;
+        zones.forEach(zone=>{
+            const exp=zone.dataset.expected;
+            if(zone.children.length>0){ terisi++;
+                if(exp===zone.children[0].dataset.value){ benar++; zone.classList.add('locked'); }
+                else{ hasWrong=true; zone.classList.add('shake-animation');
+                    setTimeout(()=>{if(!zone.classList.contains('locked')&&zone.children.length>0){$('#g-answer-bank').appendChild(zone.children[0]);zone.classList.remove('shake-animation');}},500);}
+            }
+        });
+        const msg=$('#g-message');
+        if(terisi<total&&!hasWrong&&G.retryCount>0){msg.style.color='var(--warning)';msg.innerText='Ada kotak yang belum diisi!';return;}
+        if(benar===total){
+            G.scores.push(1); msg.style.color='var(--success)'; msg.innerText='Tepat Sekali!';
+            updateProgressUI('done'); pauseTimer(); saveGameState();
+            setTimeout(()=>{startTimer();nextQuestion();},1500);
+        } else {
+            if(G.retryCount>0){ G.retryCount--; msg.style.color='var(--danger)'; msg.innerText=`Jawaban salah dikembalikan. Kesempatan perbaikan: ${G.retryCount}`; }
+            else {
+                G.scores.push(benar/total); msg.style.color='var(--danger)';
+                if(GAME_CONFIG.AUTO_SHOW_ANSWER){msg.innerText='Kesempatan Habis. Berikut adalah jawaban yang benar.';forceShowAnswers();}
+                else msg.innerText='Kesempatan Habis. Jawaban Anda kurang tepat.';
+                updateProgressUI(benar>0?'done':'failed');
+                pauseTimer();
+                $('#g-btn-group-play').style.display='none'; $('#g-btn-group-next').style.display='flex';
+                saveGameState();
+            }
+        }
+    }
+    function forceShowAnswers(){
+        $('#g-equation-area').querySelectorAll('.drop-zone').forEach(zone=>{
+            if(!zone.classList.contains('locked')){
+                if(zone.children.length>0) $('#g-answer-bank').appendChild(zone.children[0]);
+                const safeLatex=zone.getAttribute('data-latex');
+                const correct=decodeURIComponent(escape(atob(safeLatex)));
+                const dummy=document.createElement('div'); dummy.className='answer-item';
+                dummy.style.backgroundColor='#dcfce7'; dummy.style.borderColor='#16a34a'; dummy.style.cursor='default';
+                try{katex.render(correct,dummy);}catch(e){}
+                zone.appendChild(dummy); zone.classList.add('locked');
+            }
+        });
+    }
+    function skipQuestion(){
+        if(!confirm('Yakin ingin melewati soal ini? Anda tidak mendapat nilai penuh.'))return;
+        const zones=$('#g-equation-area').querySelectorAll('.drop-zone'); let benar=0;
+        zones.forEach(z=>{if(z.classList.contains('locked'))benar++;});
+        G.scores.push(benar/zones.length);
+        const msg=$('#g-message');
+        if(GAME_CONFIG.AUTO_SHOW_ANSWER){forceShowAnswers();msg.innerText='Soal dilewati. Berikut adalah jawaban yang benar.';}
+        else msg.innerText='Soal dilewati.';
+        msg.style.color='var(--warning)';
+        updateProgressUI('failed');
+        pauseTimer();
+        $('#g-btn-group-play').style.display='none'; $('#g-btn-group-next').style.display='flex';
+        saveGameState();
+    }
+    function updateProgressUI(status){
+        const dots=$('#g-progress-dots').querySelectorAll('.dot');
+        if(!dots.length)return;
+        if(status==='done'){dots[G.currentQuestion-1].classList.remove('active');dots[G.currentQuestion-1].classList.add('done');}
+        else if(status==='failed'){dots[G.currentQuestion-1].classList.remove('active');dots[G.currentQuestion-1].classList.add('failed');}
+        if(G.currentQuestion<GAME_CONFIG.TOTAL_QUESTIONS)dots[G.currentQuestion].classList.add('active');
+    }
+
+    function nextQuestion(){
+        G.currentQuestion++;
+        if(G.currentQuestion>GAME_CONFIG.TOTAL_QUESTIONS){ G.phase='result'; saveGameState(); showResultScreen(); }
+        else loadQuestion();
+    }
+    function handleTimeUp(){
+        alert('Waktu Habis!');
+        while(G.scores.length<GAME_CONFIG.TOTAL_QUESTIONS)G.scores.push(0);
+        G.phase='result'; saveGameState(); showResultScreen();
+    }
+    function showResultScreen(){
+        pauseTimer();
+        let sum=G.scores.reduce((a,b)=>a+b,0);
+        const final=Math.round(sum*GAME_CONFIG.POINTS_PER_QUESTION);
+        $('#g-res-name').innerText=nama1;
+        $('#g-res-class').innerText=kelas+' • Kategori '+kategori;
+        $('#g-final-score').innerText=final;
+        $('#g-res-stats').innerText=`Sisa Waktu: ${$('#g-timer-display').innerText}`;
+        const detail=G.scores.map((s,i)=>`Q${i+1}: ${Number(s.toFixed(2))}`).join(' | ');
+        $('#g-detail-list').innerHTML='<strong>Detail per soal:</strong><br>'+detail;
+        showGScreen('g-result-screen');
+    }
+
+    $('#g-btn-check-play').addEventListener('click',checkAnswer);
+    $('#g-btn-skip-play').addEventListener('click',skipQuestion);
+    $('#g-btn-next').addEventListener('click',()=>{startTimer();nextQuestion();});
+
+    $('#g-btn-kirim').addEventListener('click',async()=>{
+        const btn=$('#g-btn-kirim');btn.disabled=true;btn.textContent='⏳ Mengirim...';
         showLoader('📤 Mengirim nilai kuis...');
-        const detailStr=kuis.sortedPairs.map(p=>{const c=p.q.options.find(o=>o.isCorrect);const ck=c?c.key:'?';const st=p.ans===ck?'✅':'❌';return (p.q.noUrutMissing?'[?]':'')+`No.${p.q.noUrut}: ${st} (Jawab: ${p.ans||'Kosong'}, Kunci: ${ck})`;}).join(' | ');
-        const payload={tipe:'KUIS',kode:kode,nama1,kelas,kategori,username,skor:kuis.score,jawaban:detailStr,waktuPengerjaan:fmtSec(Math.floor(kuis.totalMs/1000)),percobaan:gen};
+        let sum=G.scores.reduce((a,b)=>a+b,0);
+        const final=Math.round(sum*GAME_CONFIG.POINTS_PER_QUESTION);
+        const detailStr=G.scores.map((s,i)=>`Q${i+1}:${Number(s.toFixed(2))}`).join(' | ');
+        const payload={tipe:'KUIS',kode:kode,nama1,kelas,kategori,username,skor:final,jawaban:detailStr,waktuPengerjaan:GAME_CONFIG.TIME_LIMIT-G.timeLeft,percobaan:gen};
         try{
             await fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-            db.kuisSubmitted=true;save();renderKuisSuccess();
-        }catch(err){alert('Gagal mengirim. Coba lagi.');btn.disabled=false;btn.textContent='📤 Kirim Nilai';}
+            db.kuisSubmitted=true;db.kuisSubmittedAt=new Date().toLocaleString('id-ID');db.kuisScore=final;db.kuisDetail=detailStr;save();
+            try{localStorage.removeItem(gStateKey);}catch(e){}
+            $('#g-saved-score').textContent=final;
+            showGScreen('g-success-screen');
+        }catch(err){alert('Gagal mengirim. Coba lagi.');btn.disabled=false;btn.textContent='📤 Kirim Nilai ke Guru';}
         finally{hideLoader();}
-    }
-    function handleStartKuis(){
-        showLoader('🎲 Memuat & mengacak bank soal...');
-        kuis.step='loading';renderKuis();
-        fetch(CSV_URL).then(r=>r.text()).then(text=>{
-            let f=mapQuestions(parseCSV(text)).filter(q=>q.kategori===kategori);
-            if(!f.length){alert('Tidak ada soal untuk Kategori '+kategori+'.');kuis.step='home';renderKuis();hideLoader();return;}
-            f=shuffle(f);
-            kuis.questions=f.map(q=>({...q,shuffledOptions:shuffle([...q.options])}));
-            kuis.totalSeconds=kuis.questions.length*MENIT_PER_SOAL*60;
-            kuis.remainingSeconds=kuis.totalSeconds;
-            kuis.currentIndex=0;kuis.userAnswers={};kuis.score=0;kuis.step='quiz';
-            startKuisTimer();saveKuis();renderKuis();hideLoader();
-        }).catch(()=>{alert('Gagal memuat soal.');kuis.step='home';renderKuis();hideLoader();});
-    }
-    function startKuisTimer(){
-        if(kuis.intervalId)clearInterval(kuis.intervalId);
-        kuis.intervalId=setInterval(()=>{
-            kuis.remainingSeconds--;
-            if(kuis.remainingSeconds<=0){clearInterval(kuis.intervalId);kuis.intervalId=null;if(kuis.step==='quiz')finishKuis(true);}
-            if(kuis.step==='quiz'){const t=$('#timer-display');if(t){t.className='text-xl font-bold font-mono px-3 py-1 rounded-lg '+(kuis.remainingSeconds<60?'timer-warning':'text-indigo-600 bg-indigo-50');t.textContent='⏱️ '+fmtSec(kuis.remainingSeconds);}updateFinishBtnState();}
-            saveKuis();
-        },1000);
-    }
-    if(db.lkpdSubmitted){$('#fase-kuis').classList.remove('hidden');renderKuisHome();}
-    if(kuis.step==='quiz'&&kuis.totalSeconds>0&&kuis.remainingSeconds>0){$('#fase-kuis').classList.remove('hidden');startKuisTimer();renderKuis();}
-    else if(kuis.step==='result'){$('#fase-kuis').classList.remove('hidden');renderKuis();}
-    else if(db.kuisSubmitted){$('#fase-kuis').classList.remove('hidden');renderKuisSuccess();}
+    });
 
-    /* ============ 7. RENDER MATERI (KaTeX) ============ */
+    /* ============ 7. RESTORE & INIT ============ */
     renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',displayMode:true},{left:'$',right:'$',displayMode:false}],throwOnError:false});
     $$('.math-area').forEach(ta=>renderPreview(ta));
 
-    window.addEventListener('beforeunload',(e)=>{if(kuis.intervalId)clearInterval(kuis.intervalId);pauseLKPD();db.lkpdAnswers=collectLKPD();save();
-        if(!db.lkpdSubmitted&&db.lkpdStarted){e.preventDefault();e.returnValue='';}});
+    if(db.lkpdSubmitted){
+        $('#fase-kuis').classList.remove('hidden');
+        initGame();
+    }
+
+    window.addEventListener('beforeunload',(e)=>{
+        if(G.timerInterval){pauseTimer();saveGameState();}
+        pauseLKPD();db.lkpdAnswers=collectLKPD();save();
+        if(!db.lkpdSubmitted&&db.lkpdStarted){e.preventDefault();e.returnValue='';}
+    });
     hideLoader();
 });
 </script>
