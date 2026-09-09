@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Tools MTK - SMPN 2 Karawang Barat</title>
+
+<!-- KaTeX CSS & JS untuk Rendering Matematika Sempurna -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   
@@ -13,7 +18,7 @@
     --secondary: #ec4899;
     --accent: #f59e0b;
     --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --card-bg: rgba(255, 255, 255, 0.9);
+    --card-bg: rgba(255, 255, 255, 0.95);
     --text-primary: #1e1b4b;
     --text-secondary: #6b7280;
     --shadow-soft: 0 8px 32px rgba(0,0,0,0.1);
@@ -42,7 +47,7 @@
 
   /* ===== INFO GURU ===== */
   .teacher-info {
-    background: rgba(255,255,255,0.95);
+    background: var(--card-bg);
     backdrop-filter: blur(10px);
     padding: 12px 18px;
     border-radius: 12px;
@@ -56,11 +61,14 @@
     color: var(--text-primary);
     margin: 4px 0;
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   /* ===== FORM IDENTITAS ===== */
   .identity-form {
-    background: rgba(255,255,255,0.95);
+    background: var(--card-bg);
     backdrop-filter: blur(10px);
     padding: 15px;
     border-radius: 12px;
@@ -68,6 +76,16 @@
     max-width: 600px;
     box-shadow: var(--shadow-soft);
     border: 1px solid rgba(255,255,255,0.5);
+    transition: border-color 0.3s;
+  }
+  .identity-form.invalid {
+    border: 2px solid #ef4444;
+    animation: shake 0.4s ease-in-out;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
   }
   .identity-row {
     display: flex;
@@ -83,16 +101,17 @@
   }
   .identity-row input {
     flex: 1;
-    padding: 8px 12px;
+    padding: 10px 12px;
     border: 2px solid rgba(99,102,241,0.3);
     border-radius: 8px;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     outline: none;
     min-width: 120px;
+    transition: border-color 0.2s;
   }
-  .identity-row input:focus {
-    border-color: var(--primary);
-  }
+  .identity-row input:focus { border-color: var(--primary); }
+  .identity-row input.input-error { border-color: #ef4444; background: #fef2f2; }
+  
   .timer-display {
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
     color: #fff;
@@ -104,11 +123,27 @@
     align-items: center;
     gap: 6px;
     box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+    margin-top: 5px;
+    justify-content: center;
   }
+
+  .identity-warning {
+    background: #fef2f2;
+    color: #b91c1c;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 10px;
+    display: none;
+    border: 1px solid #fecaca;
+  }
+  .identity-warning.show { display: block; }
 
   /* ===== SECTION LABEL ===== */
   .section-label {
-    background: rgba(255,255,255,0.95);
+    background: var(--card-bg);
     backdrop-filter: blur(10px);
     color: var(--text-primary);
     padding: 14px 18px;
@@ -123,6 +158,7 @@
     box-shadow: var(--shadow-soft);
     border: 1px solid rgba(255,255,255,0.5);
     transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 15px;
   }
   .section-label:active { transform: scale(0.98); }
   .section-label.active {
@@ -143,16 +179,18 @@
     box-shadow: var(--shadow-soft);
     overflow: hidden;
     transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s;
-    max-height: 3500px;
+    max-height: 4000px;
     opacity: 1;
     margin-bottom: 15px;
     border: 1px solid rgba(255,255,255,0.3);
+    border-top: none;
   }
   .section-content.hidden {
     max-height: 0;
     opacity: 0;
     margin-bottom: 0;
     overflow: hidden;
+    border: none;
   }
 
   /* ===== SETTING PANEL ===== */
@@ -160,17 +198,17 @@
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
     border: none;
     color: #fff;
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    font-size: 1.1rem;
+    font-size: 1rem;
     cursor: pointer;
-    margin-left: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 2px 8px rgba(99,102,241,0.3);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s;
+    flex-shrink: 0;
   }
   .setting-toggle:active { transform: scale(0.92); }
   .setting-panel {
@@ -209,7 +247,6 @@
     font-weight: 700;
     min-width: 36px;
     text-align: center;
-    box-shadow: 0 2px 6px rgba(99,102,241,0.3);
   }
   .setting-info {
     font-size: 0.8rem;
@@ -217,6 +254,32 @@
     margin-top: 6px;
     font-style: italic;
   }
+
+  /* Tombol Refresh Full Width di Setting Panel */
+  .refresh-btn-full {
+    width: 100%;
+    padding: 10px 14px;
+    margin-top: 8px;
+    background: linear-gradient(135deg, var(--accent), #d97706);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(245,158,11,0.3);
+    transition: transform 0.2s;
+  }
+  .refresh-btn-full:active { transform: scale(0.97); }
+  .refresh-btn-full.spinning .refresh-icon {
+    display: inline-block;
+    animation: spin 0.6s ease-in-out;
+  }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
   .select-modern {
     padding: 8px 14px;
@@ -228,11 +291,9 @@
     color: var(--text-primary);
     cursor: pointer;
     outline: none;
-    transition: border-color 0.2s;
   }
-  .select-modern:focus { border-color: var(--primary); }
 
-  /* ===== TABLE NAVIGATION GRID ===== */
+  /* ===== TABLE NAVIGATION ===== */
   .table-nav-grid {
     display: grid;
     grid-template-columns: 1fr 48px;
@@ -242,627 +303,225 @@
     max-height: 450px;
   }
   .table-scroll-wrapper {
-    grid-column: 1;
-    grid-row: 1;
+    grid-column: 1; grid-row: 1;
     overflow: auto;
     border: 2px solid rgba(99,102,241,0.2);
     border-radius: 12px;
     -webkit-overflow-scrolling: touch;
     background: rgba(255,255,255,0.7);
-    box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
   }
   .table-scroll-wrapper::-webkit-scrollbar { width: 8px; height: 8px; }
-  .table-scroll-wrapper::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 4px; }
   .table-scroll-wrapper::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
 
   .nav-btn-long {
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    color: #fff;
-    border: none;
-    font-size: 1.4rem;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    touch-action: manipulation;
+    color: #fff; border: none;
+    font-size: 1.4rem; font-weight: 700;
+    cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
+    border-radius: 10px;
     box-shadow: 0 2px 8px rgba(99,102,241,0.3);
   }
-  .nav-btn-long:active { 
-    transform: scale(0.95); 
-    box-shadow: 0 1px 4px rgba(99,102,241,0.4);
-  }
-  .nav-right-split {
-    grid-column: 2;
-    grid-row: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  .nav-right-split button { flex: 1; border-radius: 10px; }
-  .nav-left-split {
-    grid-column: 1;
-    grid-row: 2;
-    display: flex;
-    gap: 4px;
-  }
-  .nav-left-split button { flex: 1; border-radius: 10px; }
-  .nav-corner {
-    grid-column: 2;
-    grid-row: 2;
-    background: rgba(0,0,0,0.05);
-    border-radius: 0 0 10px 0;
-  }
+  .nav-btn-long:active { transform: scale(0.95); }
+  .nav-right-split { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; gap: 4px; }
+  .nav-left-split { grid-column: 1; grid-row: 2; display: flex; gap: 4px; }
+  .nav-corner { grid-column: 2; grid-row: 2; background: rgba(0,0,0,0.05); border-radius: 0 0 10px 0; }
 
-  /* ===== MULTIPLICATION TABLE ===== */
-  .mult-table {
-    border-collapse: collapse;
-    min-width: 100%;
-  }
+  .mult-table { border-collapse: collapse; min-width: 100%; }
   .mult-table th, .mult-table td {
     border: 1px solid rgba(99,102,241,0.15);
-    padding: 12px 16px;
-    text-align: center;
-    font-size: 0.95rem;
-    min-width: 48px;
-    touch-action: manipulation;
-    transition: all 0.2s;
+    padding: 12px 16px; text-align: center;
+    font-size: 0.95rem; min-width: 48px;
   }
   .mult-table th {
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    color: #fff;
-    font-weight: 700;
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    color: #fff; font-weight: 700;
+    position: sticky; top: 0; z-index: 2;
   }
   .mult-table th:first-child {
-    position: sticky;
-    left: 0;
-    z-index: 3;
+    position: sticky; left: 0; z-index: 3;
     background: linear-gradient(135deg, #4f46e5, #3730a3);
   }
   .mult-table td:first-child {
-    position: sticky;
-    left: 0;
+    position: sticky; left: 0;
     background: rgba(248,250,255,0.95);
-    font-weight: 700;
-    z-index: 1;
-    border-right: 2px solid rgba(99,102,241,0.3);
+    font-weight: 700; z-index: 1;
   }
   .mult-table tr:nth-child(even) td { background: rgba(248,250,255,0.6); }
   .mult-table tr:nth-child(odd) td { background: rgba(255,255,255,0.8); }
 
-  /* ===== HIGHLIGHT LEVELS ===== */
   .hl-primer {
     background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
-    color: #000 !important;
-    font-weight: 800 !important;
-    box-shadow: 0 0 0 3px #f59e0b, 0 4px 12px rgba(245,158,11,0.4);
-    z-index: 5 !important;
-    position: relative;
-    transform: scale(1.05);
+    color: #000 !important; font-weight: 800 !important;
+    box-shadow: 0 0 0 3px #f59e0b; z-index: 5 !important;
+    position: relative; transform: scale(1.05);
   }
   .hl-sekunder {
     background: linear-gradient(135deg, #f97316, #ea580c) !important;
-    color: #fff !important;
-    font-weight: 700 !important;
-    z-index: 4 !important;
-    position: relative;
-    box-shadow: 0 2px 8px rgba(249,115,22,0.4);
+    color: #fff !important; font-weight: 700 !important;
+    z-index: 4 !important; position: relative;
   }
   .hl-tersier {
     background: linear-gradient(135deg, #93c5fd, #60a5fa) !important;
-    opacity: 0.6;
-    z-index: 3 !important;
-    position: relative;
+    opacity: 0.6; z-index: 3 !important; position: relative;
   }
 
   /* ===== GRID CARDS ===== */
-  .grid-container {
-    padding: 15px;
-    max-height: 500px;
-    overflow-y: auto;
-  }
-  .grid-cards {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
-  }
+  .grid-container { padding: 15px; max-height: 500px; overflow-y: auto; }
+  .grid-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
   .card-item {
     background: rgba(255,255,255,0.9);
     border: 2px solid rgba(99,102,241,0.2);
-    border-radius: 12px;
-    padding: 12px 8px;
-    text-align: center;
-    transition: all 0.2s;
-    cursor: default;
+    border-radius: 12px; padding: 12px 8px;
+    text-align: center; transition: all 0.2s;
     box-shadow: 0 2px 6px rgba(0,0,0,0.05);
   }
-  .card-item:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-hover);
-    border-color: var(--primary);
-  }
-  .card-item .card-top {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    font-weight: 600;
-    margin-bottom: 4px;
-  }
-  .card-item .card-eq {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    margin: 4px 0;
-  }
-  .card-item .card-result {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--primary);
-  }
+  .card-item:hover { transform: translateY(-3px); border-color: var(--primary); }
+  .card-item .card-top { font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 4px; }
+  .card-item .card-eq { font-size: 0.75rem; color: var(--text-secondary); margin: 4px 0; }
+  .card-item .card-result { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
 
-  /* ===== MATH PRACTICE STYLES ===== */
-  .math-practice-container {
-    display: flex;
-    gap: 15px;
-    padding: 15px;
-    min-height: 400px;
+  /* ===== MATH PRACTICE (KaTeX) ===== */
+  .math-practice-container { display: flex; gap: 15px; padding: 15px; min-height: 400px; }
+  .math-input-wrapper { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+  
+  .template-buttons {
+    display: flex; gap: 8px; flex-wrap: wrap;
   }
-
-  .math-input-wrapper {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  .template-btn {
+    background: rgba(99,102,241,0.1); color: var(--primary);
+    border: 1px solid rgba(99,102,241,0.3);
+    padding: 6px 12px; border-radius: 20px;
+    font-size: 0.85rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 4px;
   }
+  .template-btn:hover { background: var(--primary); color: #fff; }
 
-  .math-toolbar {
-    display: flex;
-    flex-wrap: wrap;
+  /* Keyboard di atas textarea */
+  .keyboard {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
     gap: 6px;
+    background-color: #334155;
     padding: 10px;
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
     border-radius: 12px;
     box-shadow: var(--shadow-soft);
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    order: -1; /* Pindah ke atas textarea */
   }
-
+  .keyboard.hidden { display: none; }
   .kbd-btn {
-    background: rgba(255,255,255,0.95);
-    border: none;
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    flex: 1;
-    min-width: 45px;
+    background-color: var(--accent);
+    color: white; border: none; border-radius: 8px;
+    padding: 12px 0; font-size: 1.1rem; font-weight: bold;
+    cursor: pointer; box-shadow: 0 3px 0 #d97706;
+    transition: transform 0.1s, box-shadow 0.1s;
   }
-
-  .kbd-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  }
-
-  .kbd-btn:active {
-    transform: translateY(0);
-  }
-
-  .tb-hide {
-    background: #ef4444;
-    color: #fff;
-    margin-left: auto;
-  }
+  .kbd-btn:active { transform: translateY(3px); box-shadow: 0 0 0 #d97706; }
+  .kbd-btn.red { background-color: #ef4444; box-shadow: 0 3px 0 #b91c1c; }
+  .kbd-btn.red:active { box-shadow: 0 0 0 #b91c1c; }
 
   .math-textarea {
-    width: 100%;
-    min-height: 200px;
-    padding: 15px;
-    border: 2px solid rgba(99,102,241,0.3);
-    border-radius: 12px;
-    font-family: 'Courier New', monospace;
-    font-size: 1rem;
-    line-height: 1.6;
-    resize: vertical;
-    background: rgba(255,255,255,0.9);
-    outline: none;
-    transition: border-color 0.2s;
+    width: 100%; min-height: 150px;
+    padding: 15px; border: 2px solid rgba(99,102,241,0.3);
+    border-radius: 12px; font-family: 'Courier New', monospace;
+    font-size: 1rem; line-height: 1.6; resize: vertical;
+    background: rgba(255,255,255,0.9); outline: none;
   }
-
-  .math-textarea:focus {
-    border-color: var(--primary);
-  }
-
-  .validation-status {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 14px;
-    background: rgba(248,250,255,0.9);
-    border-radius: 8px;
-    font-size: 0.9rem;
-    border-left: 4px solid var(--text-secondary);
-  }
-
-  .validation-status.valid {
-    border-left-color: #10b981;
-    background: rgba(16,185,129,0.1);
-  }
-
-  .validation-status.invalid {
-    border-left-color: #ef4444;
-    background: rgba(239,68,68,0.1);
-  }
-
-  .status-icon {
-    font-size: 1.2rem;
-  }
-
-  .status-text {
-    color: var(--text-primary);
-    font-weight: 600;
-  }
+  .math-textarea:focus { border-color: var(--primary); }
 
   .math-preview-wrapper {
-    flex: 1;
-    min-width: 0;
-    background: var(--card-bg);
-    border-radius: 12px;
-    box-shadow: var(--shadow-soft);
-    border: 2px solid rgba(99,102,241,0.2);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    flex: 1; min-width: 0;
+    background: var(--card-bg); border-radius: 12px;
+    box-shadow: var(--shadow-soft); border: 2px solid rgba(99,102,241,0.2);
+    display: flex; flex-direction: column; overflow: hidden;
   }
-
   .preview-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: flex; justify-content: space-between; align-items: center;
     padding: 12px 15px;
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    color: #fff;
-    font-weight: 700;
+    color: #fff; font-weight: 700;
   }
-
   .clear-btn {
-    background: rgba(255,255,255,0.2);
-    border: none;
-    color: #fff;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: background 0.2s;
+    background: rgba(255,255,255,0.2); border: none; color: #fff;
+    padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;
   }
-
-  .clear-btn:hover {
-    background: rgba(255,255,255,0.3);
-  }
-
   .math-preview {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-    max-height: 500px;
+    flex: 1; padding: 20px; overflow-y: auto; max-height: 500px;
     font-size: 1.1rem;
-    line-height: 2.5;
   }
-
-  .empty-preview {
-    color: var(--text-secondary);
-    text-align: center;
-    font-style: italic;
-    padding: 40px 20px;
-  }
-
-  /* Math Rendering */
-  .math-line {
-    margin: 15px 0;
-    padding: 12px;
-    background: rgba(248,250,255,0.6);
-    border-radius: 8px;
-    border-left: 3px solid var(--primary);
-    font-size: 1.2rem;
-  }
-
-  .math-equals {
-    color: var(--secondary);
-    font-weight: 700;
-    margin: 0 10px;
-    display: inline-block;
-  }
-
-  .fraction {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    vertical-align: middle;
-    margin: 0 8px;
-    font-size: 0.95em;
-    line-height: 1.2;
-  }
-
-  .fraction .numerator {
-    border-bottom: 2px solid currentColor;
-    padding: 2px 6px;
-    display: block;
-    text-align: center;
-    min-width: 30px;
-  }
-
-  .fraction .denominator {
-    padding: 2px 6px;
-    display: block;
-    text-align: center;
-  }
-
-  .sqrt {
-    display: inline-flex;
-    align-items: center;
-    vertical-align: middle;
-    margin: 0 2px;
-  }
-
-  .sqrt::before {
-    content: '√';
-    font-size: 1.3em;
-    margin-right: 2px;
-    line-height: 1;
-  }
-
-  .sqrt .radicand {
-    display: inline;
-    padding-left: 2px;
-  }
-
-  .superscript {
-    font-size: 0.65em;
-    vertical-align: super;
-    line-height: 0;
-    margin-left: 1px;
-  }
-
-  .parentheses {
-    color: var(--text-secondary);
-    margin: 0 2px;
-  }
-
-  .math-operator {
-    color: var(--secondary);
-    font-weight: 700;
-    margin: 0 4px;
-  }
-
-  .math-number {
-    font-weight: 700;
-    color: var(--primary);
-  }
+  .math-line { margin-bottom: 15px; padding: 5px; font-size: 1.2rem; display: flex; align-items: center; }
+  .empty-preview { color: var(--text-secondary); text-align: center; font-style: italic; padding: 40px 20px; }
 
   /* ===== ACTIVITY LOG ===== */
   .activity-log {
-    background: rgba(255,255,255,0.95);
-    backdrop-filter: blur(10px);
-    padding: 15px;
-    border-radius: 12px;
-    margin: 15px auto;
-    max-width: 600px;
-    box-shadow: var(--shadow-soft);
-    border: 1px solid rgba(255,255,255,0.5);
+    background: var(--card-bg); padding: 15px; border-radius: 12px;
+    margin: 15px auto; max-width: 600px; box-shadow: var(--shadow-soft);
   }
   .activity-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid var(--primary);
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid var(--primary);
   }
-  .activity-header h3 {
-    font-size: 1.1rem;
-    color: var(--text-primary);
-  }
+  .activity-header h3 { font-size: 1.1rem; color: var(--text-primary); }
   .reset-btn {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: #fff;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: transform 0.2s;
+    background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff;
+    border: none; padding: 8px 16px; border-radius: 8px;
+    font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;
   }
-  .reset-btn:active { transform: scale(0.95); }
-  .activity-list {
-    max-height: 300px;
-    overflow-y: auto;
-  }
+  .activity-list { max-height: 300px; overflow-y: auto; }
   .activity-item {
-    padding: 10px;
-    margin: 6px 0;
-    background: rgba(248,250,255,0.8);
-    border-radius: 8px;
-    border-left: 4px solid var(--primary);
-    font-size: 0.9rem;
+    padding: 10px; margin: 6px 0; background: rgba(248,250,255,0.8);
+    border-radius: 8px; border-left: 4px solid var(--primary); font-size: 0.9rem;
   }
-  .activity-item .activity-time {
-    color: var(--text-secondary);
-    font-size: 0.8rem;
-    margin-bottom: 4px;
-  }
-  .activity-item .activity-section {
-    font-weight: 700;
-    color: var(--text-primary);
-  }
-  .activity-item .activity-duration {
-    color: var(--primary);
-    font-weight: 600;
-  }
-  .empty-activity {
-    text-align: center;
-    color: var(--text-secondary);
-    font-style: italic;
-    padding: 20px;
-  }
+  .activity-time { color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 4px; }
+  .activity-section { font-weight: 700; color: var(--text-primary); }
+  .activity-duration { color: var(--primary); font-weight: 600; }
+  .empty-activity { text-align: center; color: var(--text-secondary); font-style: italic; padding: 20px; }
 
-  /* ===== UPDATE LATER SECTION ===== */
+  /* ===== UPDATE LATER ===== */
   .update-later {
     background: linear-gradient(135deg, rgba(248,250,255,0.9), rgba(243,244,246,0.9));
-    padding: 30px 20px;
-    text-align: center;
-    border-radius: 0 0 16px 16px;
+    padding: 30px 20px; text-align: center; border-radius: 0 0 16px 16px;
   }
-  .update-later .construction-icon {
-    font-size: 3rem;
-    margin-bottom: 15px;
-  }
-  .update-later h3 {
-    color: var(--primary);
-    margin-bottom: 15px;
-    font-size: 1.3rem;
-  }
-  .update-later ul {
-    list-style: none;
-    text-align: left;
-    max-width: 300px;
-    margin: 0 auto;
-  }
-  .update-later li {
-    padding: 8px 0;
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-  }
-  .update-later li::before {
-    content: '• ';
-    color: var(--primary);
-    font-weight: 700;
-  }
+  .update-later .construction-icon { font-size: 3rem; margin-bottom: 15px; }
+  .update-later h3 { color: var(--primary); margin-bottom: 15px; }
+  .update-later ul { list-style: none; text-align: left; max-width: 300px; margin: 0 auto; }
+  .update-later li { padding: 8px 0; color: var(--text-secondary); font-size: 0.95rem; }
+  .update-later li::before { content: '• '; color: var(--primary); font-weight: 700; }
 
-  /* ===== REFRESH BUTTON ===== */
-  .refresh-btn {
-    background: linear-gradient(135deg, var(--accent), #d97706);
-    color: #fff;
-    border: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    font-size: 1.1rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(245,158,11,0.3);
-    transition: transform 0.3s;
-  }
-  .refresh-btn:active { transform: scale(0.92); }
-  .refresh-btn.spinning {
-    animation: spin 0.6s ease-in-out;
-  }
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  /* ===== CONFIRM MODAL ===== */
+  /* ===== MODAL ===== */
   .confirm-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); display: none;
+    align-items: center; justify-content: center; z-index: 1000;
   }
-  .confirm-modal.show {
-    display: flex;
-  }
+  .confirm-modal.show { display: flex; }
   .confirm-box {
-    background: #fff;
-    padding: 25px;
-    border-radius: 16px;
-    max-width: 320px;
-    text-align: center;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    background: #fff; padding: 25px; border-radius: 16px;
+    max-width: 320px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
   }
-  .confirm-box h4 {
-    margin-bottom: 15px;
-    color: var(--text-primary);
-  }
-  .confirm-box p {
-    margin-bottom: 20px;
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-  }
-  .confirm-buttons {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-  }
+  .confirm-box h4 { margin-bottom: 15px; color: var(--text-primary); }
+  .confirm-box p { margin-bottom: 20px; color: var(--text-secondary); font-size: 0.95rem; }
+  .confirm-buttons { display: flex; gap: 10px; justify-content: center; }
   .confirm-buttons button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: transform 0.2s;
+    padding: 10px 20px; border: none; border-radius: 8px;
+    font-weight: 700; cursor: pointer;
   }
-  .confirm-buttons button:active { transform: scale(0.95); }
-  .btn-cancel {
-    background: #e5e7eb;
-    color: var(--text-primary);
-  }
-  .btn-confirm {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: #fff;
-  }
+  .btn-cancel { background: #e5e7eb; color: var(--text-primary); }
+  .btn-confirm { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
 
   /* ===== RESPONSIVE ===== */
   @media (max-width: 768px) {
-    .math-practice-container {
-      flex-direction: column;
-    }
-    
-    .math-preview-wrapper {
-      order: -1;
-      max-height: 300px;
-    }
-    
-    .math-textarea {
-      min-height: 150px;
-    }
+    .math-practice-container { flex-direction: column; }
+    .math-preview-wrapper { order: -1; max-height: 300px; }
   }
-
   @media (max-width: 640px) {
     .grid-cards { grid-template-columns: repeat(3, 1fr); }
     .mult-table th, .mult-table td { padding: 10px 12px; font-size: 0.85rem; min-width: 42px; }
     .table-nav-grid { max-height: 380px; }
   }
-  
   @media (max-width: 480px) {
-    .kbd-btn {
-      padding: 8px 10px;
-      font-size: 1rem;
-    }
-    
-    .math-preview {
-      font-size: 1rem;
-      padding: 15px;
-    }
-    
+    .kbd-btn { padding: 10px 0; font-size: 1rem; }
     .grid-cards { grid-template-columns: repeat(2, 1fr); }
   }
 </style>
@@ -879,20 +538,23 @@
 </div>
 
 <!-- FORM IDENTITAS -->
-<div class="identity-form">
+<div class="identity-form" id="identityForm">
   <div class="identity-row">
     <label for="studentName">👤 Nama:</label>
     <input type="text" id="studentName" placeholder="Masukkan nama" oninput="checkIdentity()">
   </div>
   <div class="identity-row">
-    <label for="studentClass"> Kelas:</label>
+    <label for="studentClass">🏫 Kelas:</label>
     <input type="text" id="studentClass" placeholder="Masukkan kelas" oninput="checkIdentity()">
   </div>
   <div class="identity-row" style="justify-content: center;">
     <div class="timer-display" id="timerDisplay">
-      <span>⏱️</span>
+      <span>️</span>
       <span id="timerText">00:00</span>
     </div>
+  </div>
+  <div class="identity-warning" id="identityWarning">
+    ⚠️ Harap isi Nama dan Kelas terlebih dahulu untuk mengakses fitur!
   </div>
 </div>
 
@@ -916,7 +578,7 @@
       <input type="range" id="sliderBaris" min="5" max="45" value="8" oninput="updateSettingDisplay('baris')">
       <span class="setting-value" id="valBaris">8</span>
     </div>
-    <div class="setting-info">💡 Data tetap 45×45. Slider atur viewport yang terlihat.</div>
+    <div class="setting-info"> Data tetap 45×45. Geser slider untuk menyesuaikan viewport.</div>
   </div>
   <div class="table-nav-grid">
     <div class="table-scroll-wrapper" id="multScroll">
@@ -932,7 +594,6 @@
     </div>
     <div class="nav-corner"></div>
   </div>
-  <div class="hint-text">👆 Tap cell untuk highlight • Tap cell lain untuk ganti</div>
 </div>
 
 <!-- SECTION 2: PERPANGKATAN -->
@@ -988,8 +649,7 @@
 <div class="section-label" onclick="toggleSection(4)">
   <span>4. Bentuk Akar Sederhana</span>
   <div style="display:flex;align-items:center;">
-    <button class="refresh-btn" id="refreshAkarBtn" onclick="refreshBentukAkar()" title="Acak Ulang">🔄</button>
-    <button class="setting-toggle" onclick="event.stopPropagation();toggleSetting(4)" style="margin-left:8px;">⚙️</button>
+    <button class="setting-toggle" onclick="event.stopPropagation();toggleSetting(4)">⚙️</button>
     <span class="arrow-icon" style="margin-left:8px;">▼</span>
   </div>
 </div>
@@ -1000,16 +660,20 @@
       <input type="range" id="sliderBentukAkar" min="10" max="20" value="10" oninput="updateSettingDisplay('bentukAkar');buildBentukAkarTable()">
       <span class="setting-value" id="valBentukAkar">10</span>
     </div>
-    <div class="setting-info">📚 Bentuk akar populer untuk SMP. Klik 🔄 untuk acak ulang.</div>
+    <button class="refresh-btn-full" id="refreshAkarBtn" onclick="refreshBentukAkar()">
+      <span class="refresh-icon">🔄</span>
+      <span>Acak Ulang Daftar Bentuk Akar</span>
+    </button>
+    <div class="setting-info">📚 Bentuk akar populer untuk SMP. Klik tombol di atas untuk mengacak ulang.</div>
   </div>
   <div class="grid-container">
     <div class="grid-cards" id="bentukAkarGrid"></div>
   </div>
 </div>
 
-<!-- SECTION 5: LATIHAN BENTUK MATEMATIKA -->
+<!-- SECTION 5: LATIHAN FORMAT MATEMATIKA -->
 <div class="section-label" onclick="toggleSection(5)">
-  <span>5. Latihan Bentuk Matematika</span>
+  <span>5. Latihan Format Matematika</span>
   <div style="display:flex;align-items:center;">
     <button class="setting-toggle" onclick="event.stopPropagation();toggleSetting(5)">⚙️</button>
     <span class="arrow-icon">▼</span>
@@ -1018,47 +682,32 @@
 <div class="section-content hidden" id="section5">
   <div class="setting-panel" id="setting5">
     <div class="setting-row">
-      <label>Mode Preview:</label>
+      <label>Mode Tampilan:</label>
       <select class="select-modern" id="previewMode" onchange="updatePreviewMode()">
         <option value="side" selected>Samping (Desktop)</option>
         <option value="bottom">Bawah (Mobile)</option>
       </select>
     </div>
-    <div class="setting-info">✏️ Ketik langkah matematika, preview muncul otomatis</div>
   </div>
   
   <div class="math-practice-container" id="mathPracticeContainer">
     <div class="math-input-wrapper">
-      <div class="math-toolbar" id="mathToolbar">
-        <button type="button" class="kbd-btn" onclick="insertSymbol('√')">√</button>
-        <button type="button" class="kbd-btn" onclick="insertSymbol('^')">^</button>
-        <button type="button" class="kbd-btn" onclick="insertSymbol('(')">(</button>
-        <button type="button" class="kbd-btn" onclick="insertSymbol(')')">)</button>
-        <button type="button" class="kbd-btn" onclick="insertSymbol('+')">+</button>
-        <button type="button" class="kbd-btn" onclick="insertSymbol('-')">−</button>
-        <button type="button" class="kbd-btn" onclick="insertSymbol('×')">×</button>
-        <button type="button" class="kbd-btn" onclick="insertSymbol('÷')">÷</button>
-        <button type="button" class="kbd-btn" onclick="insertSymbol('=')">=</button>
-        <button type="button" class="kbd-btn" onclick="insertSymbol('/')">/</button>
-        <button type="button" class="tb-hide" onclick="hideToolbar()">✕</button>
+      <div class="template-buttons">
+        <button class="template-btn" onclick="loadTemplate('rasionalisasi')">📝 Rasionalisasi</button>
+        <button class="template-btn" onclick="loadTemplate('kompleks')">📝 Akar Kompleks</button>
+        <button class="template-btn" onclick="loadTemplate('pecahan')">📝 Pecahan Akar</button>
+        <button class="template-btn" onclick="loadTemplate('pythagoras')">📐 Pythagoras</button>
       </div>
-      <textarea 
-        id="mathInput" 
-        class="math-textarea" 
-        inputmode="numeric"
-        placeholder="Ketik langkah matematika di sini...&#10;Contoh:&#10;2√6/(5√3-√5) = 2√6/(5√3-√5) × (5√3+√5)/(5√3+√5)&#10;= (2√6×(5√3+√5))/((5√3)^2-(√5)^2)&#10;= (10√18+2√30)/(75-5)"
-        oninput="validateAndPreview()"
-        onfocus="showToolbar()"
-      ></textarea>
-      <div class="validation-status" id="validationStatus">
-        <span class="status-icon">⌨️</span>
-        <span class="status-text">Mulai mengetik untuk melihat preview</span>
-      </div>
+      
+      <!-- Keyboard dipindah ke atas textarea -->
+      <div id="mathKeyboard" class="keyboard hidden"></div>
+      
+      <textarea id="mathInput" class="math-textarea" inputmode="text" placeholder="Ketik di sini...&#10;Contoh:&#10;(2√6)/(5√3-√5)&#10;= (2√6×(5√3+√5))/((5√3)^2-(√5)^2)"></textarea>
     </div>
     
     <div class="math-preview-wrapper" id="mathPreviewWrapper">
       <div class="preview-header">
-        <span> Preview</span>
+        <span>📋 Preview KaTeX</span>
         <button class="clear-btn" onclick="clearMath()">Clear</button>
       </div>
       <div class="math-preview" id="mathPreview">
@@ -1075,17 +724,15 @@
 </div>
 <div class="section-content hidden" id="section6">
   <div class="update-later">
-    <div class="construction-icon"></div>
+    <div class="construction-icon">🚧</div>
     <h3>Fitur Ini Segera Hadir!</h3>
     <p style="color: var(--text-secondary); margin-bottom: 15px;">Kami sedang mengembangkan:</p>
     <ul>
       <li>Database soal lengkap</li>
-      <li>Step-by-step solver</li>
-      <li>Export PDF</li>
-      <li>Progress tracking</li>
-      <li>Dark mode</li>
+      <li>Step-by-step solver otomatis</li>
+      <li>Export hasil latihan ke PDF</li>
+      <li>Progress tracking siswa</li>
     </ul>
-    <p style="color: var(--primary); margin-top: 15px; font-weight: 700;">Stay tuned! </p>
   </div>
 </div>
 
@@ -1094,8 +741,7 @@
   <div class="activity-header">
     <h3>📋 Riwayat Aktivitas</h3>
     <button class="reset-btn" onclick="showResetConfirm()">
-      <span>🗑️</span>
-      <span>Reset</span>
+      <span>️</span><span>Reset</span>
     </button>
   </div>
   <div class="activity-list" id="activityList">
@@ -1117,64 +763,85 @@
 
 <script>
 // ============================================================
-//  KONFIGURASI PUSAT
+//  KONFIGURASI & DATA
 // ============================================================
 const CONFIG = {
-  perkalian: { maxKolomJS: 45, maxBarisJS: 45, minViewport: 5, maxViewport: 45, defaultViewportKolom: 8, defaultViewportBaris: 8 },
-  perpangkatan: { maxJS: 45, minViewport: 5, maxViewport: 10, defaultViewport: 5, defaultPangkat: 2 },
-  akarSempurna: { maxJS: 45, minViewport: 5, maxViewport: 10, defaultViewport: 5 },
-  bentukAkar: { maxJS: 45, minViewport: 10, maxViewport: 20, defaultViewport: 10 }
+  perkalian: { max: 45, minViewport: 5, maxViewport: 45, default: 8 },
+  perpangkatan: { max: 45, default: 5 },
+  akarSempurna: { max: 45, default: 5 },
+  bentukAkar: { min: 10, max: 20, default: 10 }
 };
 
 const BENTUK_AKAR_POPULER = [
   { n: 8, a: 2, b: 2, weight: 10 }, { n: 12, a: 2, b: 3, weight: 10 },
   { n: 18, a: 3, b: 2, weight: 9 }, { n: 20, a: 2, b: 5, weight: 9 },
   { n: 24, a: 2, b: 6, weight: 8 }, { n: 27, a: 3, b: 3, weight: 8 },
-  { n: 28, a: 2, b: 7, weight: 7 }, { n: 32, a: 4, b: 2, weight: 8 },
-  { n: 40, a: 2, b: 10, weight: 7 }, { n: 44, a: 2, b: 11, weight: 6 },
-  { n: 45, a: 3, b: 5, weight: 7 }, { n: 48, a: 4, b: 3, weight: 7 },
-  { n: 50, a: 5, b: 2, weight: 7 }, { n: 52, a: 2, b: 13, weight: 5 },
-  { n: 54, a: 3, b: 6, weight: 6 }, { n: 60, a: 2, b: 15, weight: 5 },
-  { n: 63, a: 3, b: 7, weight: 5 }, { n: 68, a: 2, b: 17, weight: 4 },
+  { n: 32, a: 4, b: 2, weight: 8 }, { n: 45, a: 3, b: 5, weight: 7 },
+  { n: 48, a: 4, b: 3, weight: 7 }, { n: 50, a: 5, b: 2, weight: 7 },
   { n: 72, a: 6, b: 2, weight: 6 }, { n: 75, a: 5, b: 3, weight: 6 },
-  { n: 76, a: 2, b: 19, weight: 4 }, { n: 80, a: 4, b: 5, weight: 5 },
-  { n: 90, a: 3, b: 10, weight: 5 }, { n: 96, a: 4, b: 6, weight: 4 },
-  { n: 98, a: 7, b: 2, weight: 6 }, { n: 99, a: 3, b: 11, weight: 4 },
-  { n: 108, a: 6, b: 3, weight: 5 }, { n: 112, a: 4, b: 7, weight: 4 },
-  { n: 117, a: 3, b: 13, weight: 3 }, { n: 125, a: 5, b: 5, weight: 5 },
-  { n: 128, a: 8, b: 2, weight: 5 }, { n: 147, a: 7, b: 3, weight: 4 },
-  { n: 150, a: 5, b: 6, weight: 4 }, { n: 162, a: 9, b: 2, weight: 4 },
-  { n: 175, a: 5, b: 7, weight: 3 }, { n: 180, a: 6, b: 5, weight: 3 },
-  { n: 200, a: 10, b: 2, weight: 5 }, { n: 242, a: 11, b: 2, weight: 3 },
-  { n: 243, a: 9, b: 3, weight: 3 }, { n: 245, a: 7, b: 5, weight: 3 },
-  { n: 252, a: 6, b: 7, weight: 3 }, { n: 288, a: 12, b: 2, weight: 3 },
-  { n: 300, a: 10, b: 3, weight: 3 }, { n: 338, a: 13, b: 2, weight: 2 },
-  { n: 392, a: 14, b: 2, weight: 2 }
+  { n: 98, a: 7, b: 2, weight: 6 }, { n: 128, a: 8, b: 2, weight: 5 },
+  { n: 200, a: 10, b: 2, weight: 5 }, { n: 288, a: 12, b: 2, weight: 3 }
 ];
 
-let activeHighlight = null;
-let currentSection = 1;
-let sectionStartTime = null;
+// TEMPLATE YANG SUDAH DIPERBAIKI + TAMBAHAN PYTHAGORAS
+const TEMPLATES = {
+  rasionalisasi: `(2√6)/(5√3-√5)
+= (2√6)/(5√3-√5) × (5√3+√5)/(5√3+√5)
+= (2√6×(5√3+√5))/((5√3)^2-(√5)^2)
+= (10√18+2√30)/(75-5)
+= (30√2+2√30)/70
+= (15√2+√30)/35`,
+
+  kompleks: `(3√12+2√27)/(√3)
+= (3×2√3+2×3√3)/(√3)
+= (6√3+6√3)/(√3)
+= (12√3)/(√3)
+= 12`,
+
+  pecahan: `√16/25-(2/3)√9/4
+= 4/5 + (2/3) × 3/2
+= 4/5 + 1
+= 9/5`,
+
+  pythagoras: `a^2 + b^2 = c^2
+= 6^2 + 8^2 = c^2
+= 36 + 64 = c^2
+= 100 = c^2
+= c = 10`
+};
+
+let identityValid = false;
 let timerInterval = null;
 let timerSeconds = 0;
-let identityValid = false;
+let currentSection = 1;
+let sectionStartTime = null;
 
 // ============================================================
-//  IDENTITY & TIMER
+//  IDENTITAS & TIMER
 // ============================================================
 function checkIdentity() {
   const name = document.getElementById('studentName').value.trim();
   const kelas = document.getElementById('studentClass').value.trim();
-  
+  const form = document.getElementById('identityForm');
+  const nameInput = document.getElementById('studentName');
+  const classInput = document.getElementById('studentClass');
+  const warning = document.getElementById('identityWarning');
+
   if (name && kelas) {
-    if (!identityValid) {
-      identityValid = true;
-      startTimer();
-    }
+    identityValid = true;
+    form.classList.remove('invalid');
+    nameInput.classList.remove('input-error');
+    classInput.classList.remove('input-error');
+    warning.classList.remove('show');
+    if (!timerInterval) startTimer();
   } else {
     identityValid = false;
     stopTimer();
     resetTimer();
+    if (name === '' && kelas === '') {
+      form.classList.remove('invalid');
+      warning.classList.remove('show');
+    }
   }
 }
 
@@ -1183,42 +850,56 @@ function startTimer() {
   timerSeconds = 0;
   timerInterval = setInterval(() => {
     timerSeconds++;
-    updateTimerDisplay();
+    const mins = Math.floor(timerSeconds / 60);
+    const secs = timerSeconds % 60;
+    document.getElementById('timerText').textContent = 
+      `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }, 1000);
 }
 
 function stopTimer() {
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
 }
 
 function resetTimer() {
   timerSeconds = 0;
-  updateTimerDisplay();
+  document.getElementById('timerText').textContent = '00:00';
 }
 
-function updateTimerDisplay() {
-  const mins = Math.floor(timerSeconds / 60);
-  const secs = timerSeconds % 60;
-  document.getElementById('timerText').textContent = 
-    `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+function showIdentityWarning() {
+  const form = document.getElementById('identityForm');
+  const nameInput = document.getElementById('studentName');
+  const classInput = document.getElementById('studentClass');
+  const warning = document.getElementById('identityWarning');
+  
+  form.classList.add('invalid');
+  if (!nameInput.value.trim()) nameInput.classList.add('input-error');
+  if (!classInput.value.trim()) classInput.classList.add('input-error');
+  warning.classList.add('show');
+  
+  form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => {
+    if (!nameInput.value.trim()) nameInput.focus();
+    else classInput.focus();
+  }, 500);
 }
 
 // ============================================================
 //  ACTIVITY TRACKING
 // ============================================================
 function trackSectionOpen(sectionNum) {
-  if (!identityValid) return;
+  if (!identityValid) {
+    showIdentityWarning();
+    return false;
+  }
   
-  // Tutup section sebelumnya
   if (sectionStartTime !== null && currentSection !== sectionNum) {
     recordActivity(currentSection);
   }
   
   currentSection = sectionNum;
   sectionStartTime = Date.now();
+  return true;
 }
 
 function recordActivity(sectionNum) {
@@ -1227,39 +908,28 @@ function recordActivity(sectionNum) {
   const duration = Math.floor((Date.now() - sectionStartTime) / 1000);
   sectionStartTime = null;
   
-  // Aturan: minimal 30 detik, maksimal 120 detik
   if (duration < 30) return;
   
   const clampedDuration = Math.min(duration, 120);
   const sectionNames = {
-    1: 'Tabel Perkalian',
-    2: 'Daftar Perpangkatan',
-    3: 'Tabel Akar Kuadrat Sempurna',
-    4: 'Bentuk Akar Sederhana',
-    5: 'Latihan Bentuk Matematika'
+    1: 'Tabel Perkalian', 2: 'Daftar Perpangkatan',
+    3: 'Tabel Akar Kuadrat Sempurna', 4: 'Bentuk Akar Sederhana',
+    5: 'Latihan Format Matematika'
   };
   
   const activity = {
+    name: document.getElementById('studentName').value.trim(),
+    class: document.getElementById('studentClass').value.trim(),
     section: sectionNames[sectionNum] || `Section ${sectionNum}`,
-    startTime: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+    time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
     duration: clampedDuration,
-    displayDuration: formatDuration(clampedDuration)
+    displayDuration: `${Math.floor(clampedDuration/60)}:${(clampedDuration%60).toString().padStart(2,'0')}`
   };
   
-  saveActivity(activity);
-  renderActivityList();
-}
-
-function formatDuration(seconds) {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
-}
-
-function saveActivity(activity) {
   let activities = JSON.parse(localStorage.getItem('mtk_activities') || '[]');
   activities.push(activity);
   localStorage.setItem('mtk_activities', JSON.stringify(activities));
+  renderActivityList();
 }
 
 function renderActivityList() {
@@ -1273,21 +943,15 @@ function renderActivityList() {
   
   list.innerHTML = activities.map(act => `
     <div class="activity-item">
-      <div class="activity-time">🕐 ${act.startTime}</div>
+      <div class="activity-time">🕐 ${act.time} | 👤 ${act.name} (${act.class})</div>
       <div class="activity-section">📌 ${act.section}</div>
       <div class="activity-duration">⏱️ ${act.displayDuration}</div>
     </div>
   `).join('');
 }
 
-function showResetConfirm() {
-  document.getElementById('confirmModal').classList.add('show');
-}
-
-function hideResetConfirm() {
-  document.getElementById('confirmModal').classList.remove('show');
-}
-
+function showResetConfirm() { document.getElementById('confirmModal').classList.add('show'); }
+function hideResetConfirm() { document.getElementById('confirmModal').classList.remove('show'); }
 function resetActivity() {
   localStorage.removeItem('mtk_activities');
   renderActivityList();
@@ -1295,22 +959,18 @@ function resetActivity() {
 }
 
 // ============================================================
-//  ACCORDION TOGGLE
+//  SECTION TOGGLE
 // ============================================================
 function toggleSection(num) {
+  if (!trackSectionOpen(num)) return;
+  
   const content = document.getElementById('section' + num);
   const label = content.previousElementSibling;
   const isHidden = content.classList.contains('hidden');
   
-  // Record activity untuk section sebelumnya
-  if (sectionStartTime !== null && currentSection !== num) {
-    recordActivity(currentSection);
-  }
-  
   if (isHidden) {
     content.classList.remove('hidden');
     label.classList.add('active');
-    trackSectionOpen(num);
   } else {
     content.classList.add('hidden');
     label.classList.remove('active');
@@ -1322,173 +982,102 @@ function toggleSection(num) {
 }
 
 function toggleSetting(num) {
-  const panel = document.getElementById('setting' + num);
-  panel.classList.toggle('show');
+  document.getElementById('setting' + num).classList.toggle('show');
 }
 
-// ============================================================
-//  SETTING DISPLAY UPDATE
-// ============================================================
 function updateSettingDisplay(type) {
-  if (type === 'kolom') {
-    const val = document.getElementById('sliderKolom').value;
-    document.getElementById('valKolom').textContent = val;
-    buildMultTable();
-  } else if (type === 'baris') {
-    const val = document.getElementById('sliderBaris').value;
-    document.getElementById('valBaris').textContent = val;
-    buildMultTable();
-  } else if (type === 'pangkat') {
-    const val = document.getElementById('sliderPangkat').value;
-    document.getElementById('valPangkat').textContent = val;
-  } else if (type === 'akar') {
-    const val = document.getElementById('sliderAkar').value;
-    document.getElementById('valAkar').textContent = val;
-  } else if (type === 'bentukAkar') {
-    const val = document.getElementById('sliderBentukAkar').value;
-    document.getElementById('valBentukAkar').textContent = val;
-  }
+  const map = {
+    'kolom': ['sliderKolom', 'valKolom', buildMultTable],
+    'baris': ['sliderBaris', 'valBaris', buildMultTable],
+    'pangkat': ['sliderPangkat', 'valPangkat', buildPowerTable],
+    'akar': ['sliderAkar', 'valAkar', buildRootTable],
+    'bentukAkar': ['sliderBentukAkar', 'valBentukAkar', buildBentukAkarTable]
+  };
+  const [sliderId, valId, func] = map[type];
+  document.getElementById(valId).textContent = document.getElementById(sliderId).value;
+  if (func) func();
 }
 
 // ============================================================
-//  SCROLL NAVIGATION
+//  TABLE & GRID BUILDERS
 // ============================================================
-function scrollTable(direction) {
+function scrollTable(dir) {
   const el = document.getElementById('multScroll');
   const step = 65;
-  switch(direction) {
-    case 'up': el.scrollTop -= step; break;
-    case 'down': el.scrollTop += step; break;
-    case 'left': el.scrollLeft -= step; break;
-    case 'right': el.scrollLeft += step; break;
-  }
+  if (dir === 'up') el.scrollTop -= step;
+  else if (dir === 'down') el.scrollTop += step;
+  else if (dir === 'left') el.scrollLeft -= step;
+  else if (dir === 'right') el.scrollLeft += step;
 }
 
-// ============================================================
-//  BUILD MULTIPLICATION TABLE
-// ============================================================
 function buildMultTable() {
   const table = document.getElementById('multTable');
   const nKolom = parseInt(document.getElementById('sliderKolom').value);
   const nBaris = parseInt(document.getElementById('sliderBaris').value);
   
-  table.innerHTML = '';
-  
-  let headerRow = '<tr><th>×</th>';
-  for (let c = 2; c <= nKolom + 1; c++) headerRow += `<th>${c}</th>`;
-  headerRow += '</tr>';
-  table.innerHTML += headerRow;
+  let html = '<tr><th>×</th>';
+  for (let c = 2; c <= nKolom + 1; c++) html += `<th>${c}</th>`;
+  html += '</tr>';
   
   for (let r = 2; r <= nBaris + 1; r++) {
-    let row = `<tr><th>${r}</th>`;
+    html += `<tr><th>${r}</th>`;
     for (let c = 2; c <= nKolom + 1; c++) {
-      row += `<td data-row="${r}" data-col="${c}" data-val="${r*c}">${r * c}</td>`;
+      html += `<td data-row="${r}" data-col="${c}" onclick="handleCellTap(this)">${r * c}</td>`;
     }
-    row += '</tr>';
-    table.innerHTML += row;
+    html += '</tr>';
   }
-  
-  table.querySelectorAll('td').forEach(cell => {
-    cell.addEventListener('click', () => handleCellTap(cell));
-  });
+  table.innerHTML = html;
 }
 
-// ============================================================
-//  SMART HIGHLIGHT
-// ============================================================
 function handleCellTap(cell) {
-  clearHighlight();
+  document.querySelectorAll('.hl-primer, .hl-sekunder, .hl-tersier').forEach(el => {
+    el.classList.remove('hl-primer', 'hl-sekunder', 'hl-tersier');
+  });
   
   const row = parseInt(cell.getAttribute('data-row'));
   const col = parseInt(cell.getAttribute('data-col'));
   
   cell.classList.add('hl-primer');
-  
-  const ths = document.querySelectorAll('#multTable th');
-  ths.forEach(th => {
+  document.querySelectorAll('#multTable th').forEach(th => {
     const t = parseInt(th.textContent);
     if (t === row || t === col) th.classList.add('hl-sekunder');
   });
-  
-  document.querySelectorAll(`td[data-row="${row}"]`).forEach(td => {
-    if (td !== cell) td.classList.add('hl-tersier');
-  });
-  document.querySelectorAll(`td[data-col="${col}"]`).forEach(td => {
-    if (td !== cell) td.classList.add('hl-tersier');
-  });
+  document.querySelectorAll(`td[data-row="${row}"]`).forEach(td => { if (td !== cell) td.classList.add('hl-tersier'); });
+  document.querySelectorAll(`td[data-col="${col}"]`).forEach(td => { if (td !== cell) td.classList.add('hl-tersier'); });
 }
 
-function clearHighlight() {
-  document.querySelectorAll('.hl-primer, .hl-sekunder, .hl-tersier').forEach(el => {
-    el.classList.remove('hl-primer', 'hl-sekunder', 'hl-tersier');
-  });
-  activeHighlight = null;
-}
-
-// ============================================================
-//  BUILD POWER TABLE
-// ============================================================
 function buildPowerTable() {
   const nCols = parseInt(document.getElementById('sliderPangkat').value);
   const pangkat = parseInt(document.getElementById('pangkatType').value);
-  const maxData = CONFIG.perpangkatan.maxJS;
-  
   const grid = document.getElementById('powerGrid');
   grid.style.gridTemplateColumns = `repeat(${nCols}, 1fr)`;
   grid.innerHTML = '';
   
-  for (let i = 2; i <= maxData; i++) {
+  for (let i = 2; i <= CONFIG.perpangkatan.max; i++) {
     const result = pangkat === 2 ? i * i : i * i * i;
-    const card = document.createElement('div');
-    card.className = 'card-item';
-    card.innerHTML = `
-      <div class="card-top">${i}<sup>${pangkat}</sup></div>
-      <div class="card-eq">=</div>
-      <div class="card-result">${result}</div>
-    `;
-    grid.appendChild(card);
+    grid.innerHTML += `<div class="card-item"><div class="card-top">${i}<sup>${pangkat}</sup></div><div class="card-eq">=</div><div class="card-result">${result}</div></div>`;
   }
 }
 
-// ============================================================
-//  BUILD ROOT TABLE
-// ============================================================
 function buildRootTable() {
   const nCols = parseInt(document.getElementById('sliderAkar').value);
-  const maxData = CONFIG.akarSempurna.maxJS;
-  
   const grid = document.getElementById('rootGrid');
   grid.style.gridTemplateColumns = `repeat(${nCols}, 1fr)`;
   grid.innerHTML = '';
   
-  for (let i = 1; i <= maxData; i++) {
-    const sq = i * i;
-    const card = document.createElement('div');
-    card.className = 'card-item';
-    card.innerHTML = `
-      <div class="card-top">√${sq}</div>
-      <div class="card-eq">=</div>
-      <div class="card-result">${i}</div>
-    `;
-    grid.appendChild(card);
+  for (let i = 1; i <= CONFIG.akarSempurna.max; i++) {
+    grid.innerHTML += `<div class="card-item"><div class="card-top">√${i * i}</div><div class="card-eq">=</div><div class="card-result">${i}</div></div>`;
   }
 }
 
-// ============================================================
-//  BUILD BENTUK AKAR TABLE (RANDOM)
-// ============================================================
 function getRandomBentukAkar(count) {
   const weighted = [];
   BENTUK_AKAR_POPULER.forEach(item => {
-    for (let i = 0; i < item.weight; i++) {
-      weighted.push(item);
-    }
+    for (let i = 0; i < item.weight; i++) weighted.push(item);
   });
-  
   const selected = [];
   for (let i = 0; i < count; i++) {
-    const randomIndex = Math.floor(Math.random() * weighted.length);
-    selected.push(weighted[randomIndex]);
+    selected.push(weighted[Math.floor(Math.random() * weighted.length)]);
   }
   return selected;
 }
@@ -1496,255 +1085,236 @@ function getRandomBentukAkar(count) {
 function buildBentukAkarTable() {
   const nItems = parseInt(document.getElementById('sliderBentukAkar').value);
   const selected = getRandomBentukAkar(nItems);
-  
   const grid = document.getElementById('bentukAkarGrid');
-  const nCols = Math.min(5, Math.ceil(nItems / 4));
-  grid.style.gridTemplateColumns = `repeat(${nCols}, 1fr)`;
+  grid.style.gridTemplateColumns = `repeat(${Math.min(5, Math.ceil(nItems/4))}, 1fr)`;
   grid.innerHTML = '';
   
   selected.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'card-item';
-    card.innerHTML = `
-      <div class="card-top">√${item.n}</div>
-      <div class="card-eq">=</div>
-      <div class="card-result">${item.a}√${item.b}</div>
-    `;
-    grid.appendChild(card);
+    grid.innerHTML += `<div class="card-item"><div class="card-top">√${item.n}</div><div class="card-eq">=</div><div class="card-result">${item.a}√${item.b}</div></div>`;
   });
 }
 
 function refreshBentukAkar() {
   const btn = document.getElementById('refreshAkarBtn');
   btn.classList.add('spinning');
-  setTimeout(() => {
-    buildBentukAkarTable();
-    btn.classList.remove('spinning');
+  setTimeout(() => { 
+    buildBentukAkarTable(); 
+    btn.classList.remove('spinning'); 
   }, 600);
 }
 
 // ============================================================
-//  MATH PRACTICE FUNCTIONS
+//  MATH PRACTICE (KaTeX & Keyboard)
 // ============================================================
-let mathToolbarVisible = false;
+const mathInput = document.getElementById('mathInput');
+const mathPreview = document.getElementById('mathPreview');
+const mathKeyboard = document.getElementById('mathKeyboard');
 
-function showToolbar() {
-  document.getElementById('mathToolbar').classList.remove('hidden');
-  mathToolbarVisible = true;
-}
-
-function hideToolbar() {
-  document.getElementById('mathToolbar').classList.add('hidden');
-  mathToolbarVisible = false;
-  document.getElementById('mathInput').blur();
-}
-
-function insertSymbol(symbol) {
-  const input = document.getElementById('mathInput');
-  const start = input.selectionStart;
-  const end = input.selectionEnd;
-  const value = input.value;
-  
-  input.value = value.substring(0, start) + symbol + value.substring(end);
-  input.selectionStart = input.selectionEnd = start + symbol.length;
-  input.focus();
-  validateAndPreview();
+function loadTemplate(type) {
+  if (!identityValid) { showIdentityWarning(); return; }
+  mathInput.value = TEMPLATES[type];
+  mathInput.focus();
+  mathKeyboard.classList.remove('hidden');
+  updatePreview();
+  mathInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 function clearMath() {
-  document.getElementById('mathInput').value = '';
-  document.getElementById('mathPreview').innerHTML = '<div class="empty-preview">Preview akan muncul di sini</div>';
-  updateValidationStatus('empty', 'Mulai mengetik untuk melihat preview');
+  mathInput.value = '';
+  mathPreview.innerHTML = '<div class="empty-preview">Preview akan muncul di sini</div>';
+  mathInput.focus();
 }
 
-function updateValidationStatus(type, message) {
-  const status = document.getElementById('validationStatus');
-  const icon = status.querySelector('.status-icon');
-  const text = status.querySelector('.status-text');
-  
-  status.className = 'validation-status';
-  
-  if (type === 'valid') {
-    status.classList.add('valid');
-    icon.textContent = '✅';
-  } else if (type === 'invalid') {
-    status.classList.add('invalid');
-    icon.textContent = '⚠️';
-  } else {
-    icon.textContent = '⌨️';
-  }
-  
-  text.textContent = message;
-}
+const insertAtCursor = (input, val) => { 
+  const s = input.selectionStart ?? input.value.length;
+  const e = input.selectionEnd ?? s; 
+  input.value = input.value.substring(0, s) + val + input.value.substring(e); 
+  input.selectionStart = input.selectionEnd = s + val.length; 
+  input.focus(); 
+  input.dispatchEvent(new Event('input')); 
+};
 
-function validateAndPreview() {
-  const input = document.getElementById('mathInput').value.trim();
+// Build Keyboard
+['√', '^', '(', ')', '+', '-', '×', '÷', '=', '⌫'].forEach(sym => { 
+  const btn = document.createElement('button'); 
+  btn.type = 'button'; 
+  btn.className = 'kbd-btn' + (sym === '⌫' ? ' red' : ''); 
+  btn.textContent = sym === '⌫' ? '✕' : sym;
   
-  if (!input) {
-    document.getElementById('mathPreview').innerHTML = '<div class="empty-preview">Preview akan muncul di sini</div>';
-    updateValidationStatus('empty', 'Mulai mengetik untuk melihat preview');
-    return;
-  }
-  
-  const result = parseMathExpression(input);
-  
-  if (result.valid) {
-    document.getElementById('mathPreview').innerHTML = result.html;
-    updateValidationStatus('valid', 'Format matematika valid ✓');
-  } else {
-    document.getElementById('mathPreview').innerHTML = `<div class="empty-preview" style="color:#ef4444">⚠️ ${result.error}</div>`;
-    updateValidationStatus('invalid', 'Periksa format matematika');
-  }
-}
+  btn.addEventListener('pointerdown', e => e.preventDefault()); 
+  btn.addEventListener('click', e => {
+    e.preventDefault();
+    if (sym === '⌫') {
+      const s = mathInput.selectionStart;
+      const e = mathInput.selectionEnd;
+      if (s === e && s > 0) {
+        mathInput.value = mathInput.value.substring(0, s - 1) + mathInput.value.substring(e);
+        mathInput.selectionStart = mathInput.selectionEnd = s - 1;
+      } else if (s !== e) {
+        mathInput.value = mathInput.value.substring(0, s) + mathInput.value.substring(e);
+        mathInput.selectionStart = mathInput.selectionEnd = s;
+      }
+      mathInput.dispatchEvent(new Event('input'));
+    } else {
+      insertAtCursor(mathInput, sym);
+    }
+  }); 
+  mathKeyboard.appendChild(btn); 
+});
 
-function parseMathExpression(text) {
-  try {
-    const lines = text.split('\n').filter(line => line.trim());
-    let html = '';
+mathInput.addEventListener('focus', () => mathKeyboard.classList.remove('hidden'));
+mathInput.addEventListener('blur', () => setTimeout(() => mathKeyboard.classList.add('hidden'), 150));
+
+// Input Sanitizer - IZINKAN x, y, z, a, b, c untuk Pythagoras
+mathInput.addEventListener('input', () => {
+  let originalValue = mathInput.value;
+  // Regex baru: izinkan huruf x, y, z, a, b, c (case insensitive)
+  let sanitizedValue = originalValue.replace(/[^0-9,.\/ \n√^+\-×÷\(\)=xyzabc]/gi, '');
+  
+  if (originalValue !== sanitizedValue) {
+    let cursor = mathInput.selectionStart;
+    mathInput.value = sanitizedValue;
+    mathInput.selectionStart = mathInput.selectionEnd = Math.max(0, cursor - 1);
+  }
+  updatePreview();
+});
+
+// KaTeX Parser Logic
+function convertToLatex(text) {
+  let lines = text.split('\n');
+  return lines.map(line => {
+    if (!line.trim()) return "";
+    let result = line;
     
-    lines.forEach((line, index) => {
-      const renderedLine = renderMathLine(line.trim());
-      if (index === 0) {
-        html += `<div class="math-line">${renderedLine}</div>`;
-      } else {
-        if (line.trim().startsWith('=')) {
-          html += `<div class="math-line"><span class="math-equals">=</span> ${renderedLine.replace(/^=\s*/, '')}</div>`;
-        } else {
-          html += `<div class="math-line">${renderedLine}</div>`;
+    // Konversi akar dengan kurung: √(...)
+    result = result.replace(/√\(([^)]+)\)/g, '\\sqrt{$1}');
+    // Konversi akar tanpa kurung: √angka
+    result = result.replace(/√([0-9]+)/g, '\\sqrt{$1}');
+    // Konversi operator
+    result = result.replace(/×/g, ' \\times ');
+    result = result.replace(/÷/g, ' \\div ');
+    // Konversi pangkat: ^2 → ^{2}
+    result = result.replace(/\^(\d+)/g, '^{$1}');
+    // Konversi huruf variabel menjadi italic math
+    result = result.replace(/([xyzabc])/gi, '{$1}');
+
+    // Parsing pecahan dengan handling parentheses bersarang
+    let i = 0;
+    let limit = 0; 
+    while (i < result.length && limit < 100) {
+      limit++;
+      if (result[i] === '/') {
+        // Cari pembilang (kiri dari /)
+        let numEnd = i - 1;
+        while (numEnd >= 0 && result[numEnd] === ' ') numEnd--; 
+        
+        let numStart = numEnd;
+        let stripNumParen = false;
+        
+        if (numStart >= 0 && result[numStart] === '}') {
+          // Skip closing brace dari variable
+          numStart--;
         }
+        
+        if (numStart >= 0 && result[numStart] === ')') {
+          let depth = 0;
+          while (numStart >= 0) {
+            if (result[numStart] === ')') depth++;
+            else if (result[numStart] === '(') depth--;
+            if (depth === 0) break; 
+            numStart--;
+          }
+          if (depth === 0) stripNumParen = true;
+          else numStart = 0; 
+        } else {
+          while (numStart >= 0 && /[0-9^.,\\{}\s]/.test(result[numStart])) {
+            numStart--;
+          }
+          numStart++;
+        }
+
+        // Cari penyebut (kanan dari /)
+        let denStart = i + 1;
+        while (denStart < result.length && result[denStart] === ' ') denStart++; 
+        
+        let denEnd = denStart;
+        let stripDenParen = false;
+        
+        if (denEnd < result.length && result[denEnd] === '(') {
+          let depth = 0;
+          while (denEnd < result.length) {
+            if (result[denEnd] === '(') depth++;
+            else if (result[denEnd] === ')') depth--;
+            if (depth === 0) break; 
+            denEnd++;
+          }
+          if (depth === 0) stripDenParen = true;
+          else denEnd = result.length - 1; 
+        } else {
+          while (denEnd < result.length && /[0-9^.,\\{}\s]/.test(result[denEnd])) {
+            denEnd++;
+          }
+          denEnd--;
+        }
+
+        if (numStart >= 0 && denEnd < result.length && numStart <= numEnd && denStart <= denEnd) {
+          let numerator = result.substring(numStart, numEnd + 1);
+          let denominator = result.substring(denStart, denEnd + 1);
+
+          if (stripNumParen) numerator = numerator.substring(1, numerator.length - 1);
+          if (stripDenParen) denominator = denominator.substring(1, denominator.length - 1);
+
+          let latex = `\\frac{${numerator}}{${denominator}}`;
+          result = result.substring(0, numStart) + latex + result.substring(denEnd + 1);
+          i = numStart + latex.length;
+        } else {
+          i++;
+        }
+      } else {
+        i++;
       }
-    });
-    
-    return { valid: true, html: html };
-  } catch (error) {
-    return { valid: false, error: error.message };
-  }
+    }
+    return result;
+  });
 }
 
-function renderMathLine(line) {
-  let tokens = [];
-  let i = 0;
-  
-  while (i < line.length) {
-    if (line[i] === '/' && i > 0 && i < line.length - 1) {
-      let numStart = i - 1;
-      while (numStart >= 0 && line[numStart] !== '(' && line[numStart] !== ')' && line[numStart] !== '/' && line[numStart] !== '+' && line[numStart] !== '-' && line[numStart] !== '×' && line[numStart] !== '÷') {
-        numStart--;
-      }
-      numStart++;
-      
-      let denEnd = i + 1;
-      while (denEnd < line.length && line[denEnd] !== '(' && line[denEnd] !== ')' && line[denEnd] !== '/' && line[denEnd] !== '+' && line[denEnd] !== '-' && line[denEnd] !== '×' && line[denEnd] !== '÷') {
-        denEnd++;
-      }
-      
-      let numerator = line.substring(numStart, i);
-      let denominator = line.substring(i + 1, denEnd);
-      
-      tokens.push(`<span class="fraction"><span class="numerator">${renderTokens(numerator)}</span><span class="denominator">${renderTokens(denominator)}</span></span>`);
-      i = denEnd;
-    }
-    else if (line[i] === '√' && i + 1 < line.length && line[i + 1] === '(') {
-      let closeIdx = line.indexOf(')', i + 2);
-      if (closeIdx !== -1) {
-        let content = line.substring(i + 2, closeIdx);
-        tokens.push(`<span class="sqrt"><span class="radicand">${renderTokens(content)}</span></span>`);
-        i = closeIdx + 1;
-      } else {
-        tokens.push('√');
-        i++;
-      }
-    }
-    else if (line[i] === '√') {
-      let numEnd = i + 1;
-      while (numEnd < line.length && /\d/.test(line[numEnd])) {
-        numEnd++;
-      }
-      let num = line.substring(i + 1, numEnd);
-      if (num) {
-        tokens.push(`<span class="sqrt"><span class="radicand">${num}</span></span>`);
-        i = numEnd;
-      } else {
-        tokens.push('√');
-        i++;
-      }
-    }
-    else if (line[i] === '^') {
-      let numEnd = i + 1;
-      while (numEnd < line.length && /\d/.test(line[numEnd])) {
-        numEnd++;
-      }
-      let num = line.substring(i + 1, numEnd);
-      if (num) {
-        tokens.push(`<span class="superscript">${num}</span>`);
-        i = numEnd;
-      } else {
-        tokens.push('^');
-        i++;
-      }
-    }
-    else if (line[i] === '(') {
-      tokens.push('<span class="parentheses">(</span>');
-      i++;
-    }
-    else if (line[i] === ')') {
-      tokens.push('<span class="parentheses">)</span>');
-      i++;
-    }
-    else if (line[i] === '×' || line[i] === '÷') {
-      tokens.push(`<span class="math-operator">${line[i]}</span>`);
-      i++;
-    }
-    else if (line[i] === '+' || line[i] === '-' || line[i] === '−') {
-      tokens.push(`<span class="math-operator">${line[i]}</span>`);
-      i++;
-    }
-    else if (/\d/.test(line[i])) {
-      let numEnd = i;
-      while (numEnd < line.length && /\d/.test(line[numEnd])) {
-        numEnd++;
-      }
-      tokens.push(`<span class="math-number">${line.substring(i, numEnd)}</span>`);
-      i = numEnd;
-    }
-    else {
-      tokens.push(line[i]);
-      i++;
-    }
-  }
-  
-  return tokens.join('');
-}
+function updatePreview() {
+  const lines = convertToLatex(mathInput.value);
+  mathPreview.innerHTML = "";
 
-function renderTokens(text) {
-  return text.replace(/(\d+)/g, '<span class="math-number">$1</span>')
-             .replace(/√(\d+)/g, '<span class="sqrt"><span class="radicand">$1</span></span>')
-             .replace(/\^(\d+)/g, '<span class="superscript">$1</span>');
+  let hasContent = false;
+  lines.forEach(line => {
+    if (!line.trim()) return;
+    hasContent = true;
+    const lineDiv = document.createElement('div');
+    lineDiv.className = "math-line";
+    try {
+      katex.render(line, lineDiv, { throwOnError: false, displayMode: false });
+    } catch (err) {
+      lineDiv.innerText = "Format error";
+    }
+    mathPreview.appendChild(lineDiv);
+  });
+  
+  if (!hasContent) {
+    mathPreview.innerHTML = '<div class="empty-preview">Preview akan muncul di sini</div>';
+  }
 }
 
 function updatePreviewMode() {
   const mode = document.getElementById('previewMode').value;
-  const container = document.getElementById('mathPracticeContainer');
-  
-  if (mode === 'bottom') {
-    container.style.flexDirection = 'column';
-  } else {
-    container.style.flexDirection = 'row';
-  }
+  document.getElementById('mathPracticeContainer').style.flexDirection = mode === 'bottom' ? 'column' : 'row';
 }
 
 // ============================================================
-//  INIT
+//  INITIALIZATION
 // ============================================================
 buildMultTable();
 buildPowerTable();
 buildRootTable();
 buildBentukAkarTable();
 renderActivityList();
-
-// Track initial section
 trackSectionOpen(1);
 </script>
-
 </body>
 </html>
