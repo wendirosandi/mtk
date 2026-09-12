@@ -73,6 +73,13 @@
             cursor: pointer; width: 100%; transition: background 0.2s;
         }
         .btn:hover { background-color: var(--primary-hover); }
+        .btn:disabled {
+            background-color: #cbd5e1 !important;
+            cursor: not-allowed !important;
+            color: #64748b !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
 
         /* Game UI */
         .game-header {
@@ -174,18 +181,30 @@
         .btn-check { flex: 2; background-color: var(--success); border-radius: 20px;}
         .btn-check:hover { background-color: #15803d; }
         .btn-skip { flex: 1; background-color: #64748b; border-radius: 20px;}
-        .btn:disabled {
-            background-color: #cbd5e1 !important;
-            cursor: not-allowed !important;
-            color: #64748b !important;
-            transform: none !important;
-            box-shadow: none !important;
-        }
+        
         #message { font-weight: 600; font-size: 14px; min-height: 20px; text-align: center; }
 
     </style>
 </head>
 <body>
+
+    <!-- 0. BLOCKED SCREEN (Muncul jika dibuka selain di aplikasi CBT) -->
+    <div id="block-screen" class="screen">
+        <div class="center-container">
+            <div class="card" style="border: 2px solid var(--danger);">
+                <div style="font-size: 50px; margin-bottom: 10px;">⚠️</div>
+                <h1 style="color: var(--danger);">Akses Ditolak!</h1>
+                <p style="font-weight: 600; margin-bottom: 10px;">Ujian ini diproteksi.</p>
+                <p style="font-size: 14px;">Anda hanya dapat mengakses dan mengerjakan ujian ini menggunakan Aplikasi CBT Exam Browser dari sekolah.</p>
+                
+                <!-- Alat Pelacak untuk Guru -->
+                <div style="margin-top: 25px; padding: 10px; background-color: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1; text-align: left;">
+                    <p style="font-size: 12px; color: #64748b; margin: 0 0 5px 0; font-weight: bold;">[Diagnostic Tool] Info Perangkat:</p>
+                    <code id="current-ua" style="font-size: 10px; color: #dc2626; word-break: break-all;">Mendeteksi perangkat...</code>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- 1. LOBBY SCREEN -->
     <div id="lobby-screen" class="screen active">
@@ -201,11 +220,11 @@
                     <input type="text" id="input-kelas" class="form-input" placeholder="Misal: 10 MIPA 1" required>
                 </div>
                 <div class="form-group">
-                    <label>Level Ujian</label>
+                    <label>Level Ujian (Kesulitan)</label>
                     <select id="input-kategori" class="form-input">
-                        <option value="C">Level C (Rendah) - Dominan Mudah</option>
-                        <option value="B">Level B (Sedang) - Dominan Sedang</option>
-                        <option value="A">Level A (Tinggi) - Dominan Sulit</option>
+                        <option value="C">Level C (Rendah)</option>
+                        <option value="B">Level B (Sedang)</option>
+                        <option value="A">Level A (Tinggi)</option>
                     </select>
                 </div>
                 <button class="btn" onclick="startGame()">Mulai Ujian</button>
@@ -219,26 +238,24 @@
             <div>
                 <div id="student-info" style="font-size: 12px; font-weight: bold; color: #64748b;"></div>
                 <div class="progress-dots" id="progress-dots">
-                    <!-- Titik progress akan di-generate otomatis via JS sesuai CONFIG -->
+                    <!-- Titik progress -->
                 </div>
             </div>
             <div class="timer" id="timer-display">00:00</div>
         </div>
 
         <div class="equation-area" id="equation-area">
-            <!-- Langkah-langkah soal digenerate di sini -->
+            <!-- Langkah-langkah soal -->
         </div>
 
         <div class="control-panel">
             <div id="message">Pilih jawaban dari kotak di bawah.</div>
             
-            <!-- Grup Tombol Saat Bermain -->
             <div class="btn-group" id="btn-group-play">
                 <button class="btn btn-skip" id="btn-skip-play" onclick="skipQuestion()">Lewati</button>
                 <button class="btn btn-check" id="btn-check-play" onclick="checkAnswer()">CEK JAWABAN</button>
             </div>
             
-            <!-- Grup Tombol Lanjut (Muncul saat auto-show atau skip) -->
             <div class="btn-group" id="btn-group-next" style="display: none;">
                 <button class="btn btn-check" style="background-color: var(--primary);" onclick="handleLanjut()">LANJUT KE SOAL BERIKUTNYA</button>
             </div>
@@ -260,44 +277,74 @@
                     <span id="final-score">0</span>
                 </div>
                 <p id="res-stats" style="margin-bottom: 25px;"></p>
-                <button class="btn" onclick="location.reload()">Main Lagi</button>
+                <button class="btn" onclick="location.reload()">Selesai</button>
             </div>
         </div>
     </div>
 
     <script>
+        // === PROTEKSI CBT BROWSER (DIJALANKAN PALING AWAL) ===
+        (function initCBTCheck() {
+            const ua = navigator.userAgent.toLowerCase();
+            
+            // DAFTAR KATA KUNCI (Tambahkan jika aplikasi CBT Anda memiliki kata kunci khusus)
+            // exambro, exam, cbt, woka, dll.
+            const allowedKeywords = ['cbt', 'exam', 'exambro']; 
+            
+            let isAllowed = false;
+            for (let keyword of allowedKeywords) {
+                if (ua.includes(keyword)) {
+                    isAllowed = true;
+                    break;
+                }
+            }
+
+            // Jalankan saat HTML sudah siap dirender
+            window.addEventListener('DOMContentLoaded', (event) => {
+                if (!isAllowed) {
+                    // Blokir akses jika dibuka di Chrome/Safari/Browser biasa
+                    document.getElementById('lobby-screen').classList.remove('active');
+                    document.getElementById('block-screen').classList.add('active');
+                    
+                    // Tampilkan User Agent asli untuk membantu debugging guru
+                    document.getElementById('current-ua').innerText = navigator.userAgent;
+                }
+            });
+        })();
+
+
         // === PENGATURAN DEFAULT (CONFIG) ===
         const CONFIG = {
-            TOTAL_QUESTIONS: 10,       // Diubah menjadi 10 soal sesuai pola (2,3,5)
-            TIME_LIMIT: 1200,          // Waktu global diubah ke 20 Menit (1200 detik)
-            MIN_CHECK_SEC: 60,         // Minimal waktu untuk bisa Cek Jawaban (detik)
-            MIN_SKIP_SEC: 120,         // Minimal waktu untuk bisa Skip Soal (detik)
-            MAX_RETRIES: 1,            // Jumlah kesempatan perbaikan
+            TOTAL_QUESTIONS: 10,       // Jumlah soal berdasarkan pola
+            TIME_LIMIT: 1200,          // Total waktu: 20 Menit (1200 detik)
+            MIN_CHECK_SEC: 60,         // Syarat minimal untuk cek jawaban (detik)
+            MIN_SKIP_SEC: 120,         // Syarat minimal untuk skip soal (detik)
+            MAX_RETRIES: 1,            // Kesempatan perbaikan per soal
             AUTO_SHOW_ANSWER: true,    // Tampilkan jawaban benar saat gagal/skip
-            POINTS_PER_QUESTION: 10    // Diubah menjadi 10 (10 soal x 10 = Max 100)
+            POINTS_PER_QUESTION: 10    // 10 Soal x 10 Poin = Max 100
         };
 
         // --- BLUEPRINT POLA SOAL BERDASARKAN LEVEL ---
         const QUESTION_PATTERNS = {
-            'A': ['C', 'B', 'A', 'C', 'B', 'A', 'B', 'A', 'A', 'A'], // Level Tinggi (Dominan Sulit/A)
-            'B': ['C', 'B', 'B', 'C', 'B', 'A', 'C', 'B', 'B', 'A'], // Level Sedang (Dominan Sedang/B)
-            'C': ['C', 'B', 'C', 'B', 'C', 'B', 'A', 'C', 'B', 'A']  // Level Rendah (Dominan Mudah/C)
+            'A': ['C', 'B', 'A', 'C', 'B', 'A', 'B', 'A', 'A', 'A'],
+            'B': ['C', 'B', 'B', 'C', 'B', 'A', 'C', 'B', 'B', 'A'],
+            'C': ['C', 'B', 'C', 'B', 'C', 'B', 'A', 'C', 'B', 'A']
         };
 
         // Game State Variables
         let currentQuestion = 1;
         let timeLeft = CONFIG.TIME_LIMIT;
         let timerInterval = null;
-        let timeSpentCurrent = 0; // Stopwatch khusus untuk soal yang sedang aktif
+        let timeSpentCurrent = 0; 
         let retryCount = CONFIG.MAX_RETRIES;
         let scores = []; 
-        let currentPattern = []; // Menyimpan pola soal yang akan dimainkan
+        let currentPattern = []; 
         
         let userName, userClass, userCategory;
         
         let selectedItem = null;
-        let currentAnswers = []; // Database jawaban untuk soal yang sedang aktif
-        let dictKeys = {}; // Untuk menangani item duplikat
+        let currentAnswers = []; 
+        let dictKeys = {}; 
 
         function startGame() {
             userName = document.getElementById('input-nama').value;
@@ -309,10 +356,8 @@
                 return;
             }
 
-            // Set Pola Soal Berdasarkan Level yang Dipilih
             currentPattern = QUESTION_PATTERNS[userCategory];
 
-            // Generate Progress Dots Dinamis sesuai CONFIG
             const progressContainer = document.getElementById('progress-dots');
             progressContainer.innerHTML = '';
             for(let i = 0; i < CONFIG.TOTAL_QUESTIONS; i++) {
@@ -325,20 +370,19 @@
             document.getElementById('lobby-screen').classList.remove('active');
             document.getElementById('game-screen').classList.add('active');
 
-            updateTimerDisplay(); // Segera tampilkan format waktu 00:00
+            updateTimerDisplay(); 
             startTimer();
             loadQuestion();
         }
 
         function startTimer() {
-            // Hanya buat interval jika tidak ada yang sedang berjalan
             if (!timerInterval) {
                 timerInterval = setInterval(() => {
                     timeLeft--;
-                    timeSpentCurrent++; // Tambah stopwatch per-soal
+                    timeSpentCurrent++; 
                     
                     updateTimerDisplay();
-                    updateButtonStates(); // Update status tombol (terkunci/aktif)
+                    updateButtonStates(); 
 
                     if (timeLeft <= 0) {
                         pauseTimer();
@@ -361,14 +405,12 @@
             document.getElementById('timer-display').innerText = `${m}:${s}`;
         }
 
-        // Fungsi baru untuk mengatur tombol Cek dan Skip
         function updateButtonStates() {
             const btnCheck = document.getElementById('btn-check-play');
             const btnSkip = document.getElementById('btn-skip-play');
 
             if (!btnCheck || !btnSkip) return;
 
-            // Logika Tombol Cek Jawaban (Minimal 1 Menit)
             let checkTimeLeft = CONFIG.MIN_CHECK_SEC - timeSpentCurrent;
             if (checkTimeLeft > 0) {
                 btnCheck.disabled = true;
@@ -378,7 +420,6 @@
                 btnCheck.innerText = `CEK JAWABAN`;
             }
 
-            // Logika Tombol Lewati (Minimal 2 Menit)
             let skipTimeLeft = CONFIG.MIN_SKIP_SEC - timeSpentCurrent;
             if (skipTimeLeft > 0) {
                 btnSkip.disabled = true;
@@ -408,26 +449,20 @@
         function getRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
         function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-        // Fungsi mendaftarkan string LaTeX untuk membuat "Kotak Jawaban" dan "Drop Zone" yang terhubung
         function getZone(latexStr) {
             if(!dictKeys[latexStr]) {
                 dictKeys[latexStr] = "key_" + Math.random().toString(36).substr(2, 8);
             }
-            // Tambahkan ke bank (termasuk jika duplikat agar muncul 2x di bawah)
             currentAnswers.push({ key: dictKeys[latexStr], latex: latexStr });
-            
-            // Encode LaTeX agar aman disimpan di atribut HTML
             let safeLatex = btoa(unescape(encodeURIComponent(latexStr)));
             return `<div class="drop-zone" data-expected="${dictKeys[latexStr]}" data-latex="${safeLatex}"></div>`;
         }
 
-        // --- GENERATOR LOGIC ---
         function generateCategoryC() {
-            // Tipe 1: c / \sqrt{a}
             let a = getRandom(getPrimes());
             let c = randInt(2, 9);
             
-            let html = `
+            return `
             <div class="step-row">
                 <span class="operator">Soal:</span>
                 <div class="fraction">
@@ -461,11 +496,9 @@
                     <div class="denominator">${getZone(a.toString())}</div>
                 </div>
             </div>`;
-            return html;
         }
 
         function generateCategoryB() {
-            // Tipe 2: c / (a \pm \sqrt{b})
             let a = randInt(2, 5);
             let b = getRandom(getPrimes());
             let c = randInt(2, 9);
@@ -475,7 +508,7 @@
             let soalBawah = `${a} ${sign} \\sqrt{${b}}`;
             let sekawan = `${a} ${oppSign} \\sqrt{${b}}`;
             
-            let html = `
+            return `
             <div class="step-row">
                 <span class="operator">Soal:</span>
                 <div class="fraction">
@@ -516,14 +549,12 @@
                     <div class="denominator">${getZone((a*a - b).toString())}</div>
                 </div>
             </div>`;
-            return html;
         }
 
         function generateCategoryA() {
-            // Tipe 3: c / (\sqrt{a} \pm \sqrt{b})
             let a = getRandom(getPrimes());
             let b = getRandom(getPrimes());
-            while(a === b) b = getRandom(getPrimes()); // Pastikan a tidak sama dengan b
+            while(a === b) b = getRandom(getPrimes()); 
             
             let c = randInt(2, 9);
             let sign = Math.random() > 0.5 ? '+' : '-';
@@ -532,7 +563,7 @@
             let soalBawah = `\\sqrt{${a}} ${sign} \\sqrt{${b}}`;
             let sekawan = `\\sqrt{${a}} ${oppSign} \\sqrt{${b}}`;
             
-            let html = `
+            return `
             <div class="step-row">
                 <span class="operator">Soal:</span>
                 <div class="fraction">
@@ -573,31 +604,26 @@
                     <div class="denominator">${getZone((a - b).toString())}</div>
                 </div>
             </div>`;
-            return html;
         }
 
         function loadQuestion() {
             retryCount = CONFIG.MAX_RETRIES;
-            timeSpentCurrent = 0; // Reset stopwatch soal aktif
+            timeSpentCurrent = 0; 
             selectedItem = null;
             currentAnswers = [];
             dictKeys = {};
             
-            // Kembalikan UI tombol ke kondisi normal (Bermain)
             document.getElementById('btn-group-play').style.display = 'flex';
             document.getElementById('btn-group-next').style.display = 'none';
             
-            updateButtonStates(); // Update langsung saat soal dimuat agar tombol langsung terkunci
+            updateButtonStates(); 
 
             document.getElementById('message').innerText = `Soal ${currentQuestion} dari ${CONFIG.TOTAL_QUESTIONS}. Pilih jawaban dari bawah.`;
             document.getElementById('message').style.color = "var(--text-main)";
 
             let eqArea = document.getElementById('equation-area');
-            
-            // Menentukan Tipe Soal (Mudah/Sedang/Sulit) dari Pola Blueprint
-            let currentDifficulty = currentPattern[currentQuestion - 1]; // Array index mulai dari 0
+            let currentDifficulty = currentPattern[currentQuestion - 1]; 
 
-            // Render HTML Soal berdasarkan kesulitan spesifik untuk nomor ini
             if(currentDifficulty === 'C') {
                 eqArea.innerHTML = generateCategoryC();
             } else if(currentDifficulty === 'B') {
@@ -606,21 +632,17 @@
                 eqArea.innerHTML = generateCategoryA();
             }
 
-            // Render Static KaTeX
             document.querySelectorAll('.katex-static').forEach(el => {
                 katex.render(el.dataset.tex, el);
             });
 
-            // Bind events untuk drop zone baru
             document.querySelectorAll('.drop-zone').forEach(zone => {
                 zone.addEventListener('click', () => handleZoneClick(zone));
             });
 
-            // Populasikan Answer Bank
             const bank = document.getElementById('answer-bank');
-            bank.innerHTML = ''; // bersihkan
+            bank.innerHTML = ''; 
             
-            // Acak jawaban
             currentAnswers.sort(() => Math.random() - 0.5);
 
             currentAnswers.forEach(ans => {
@@ -645,20 +667,18 @@
         }
 
         function handleZoneClick(zone) {
-            if(zone.classList.contains('locked')) return; // Abaikan jika sudah dikunci (benar)
+            if(zone.classList.contains('locked')) return; 
 
             if (selectedItem) {
-                // Kembalikan isi lama jika ada
                 if (zone.children.length > 0) {
                     document.getElementById('answer-bank').appendChild(zone.children[0]);
                 }
                 zone.appendChild(selectedItem);
                 selectedItem.classList.remove('selected');
                 selectedItem = null;
-                zone.style.borderColor = "#94a3b8"; // reset warna error
+                zone.style.borderColor = "#94a3b8"; 
             } 
             else if (zone.children.length > 0) {
-                // Kembalikan manual
                 document.getElementById('answer-bank').appendChild(zone.children[0]);
                 zone.style.borderColor = "#94a3b8";
             }
@@ -679,11 +699,10 @@
                     const child = zone.children[0];
                     if (expected === child.dataset.value) {
                         benar++;
-                        zone.classList.add('locked'); // Kunci jawaban
+                        zone.classList.add('locked'); 
                     } else {
                         hasWrong = true;
                         zone.classList.add('shake-animation');
-                        // Auto return after animation
                         setTimeout(() => {
                             if(!zone.classList.contains('locked') && zone.children.length > 0) {
                                 document.getElementById('answer-bank').appendChild(zone.children[0]);
@@ -703,25 +722,22 @@
             }
 
             if (benar === total) {
-                // PERFECT
-                scores.push(1); // 100% rasio
+                scores.push(1); 
                 msg.style.color = "var(--success)";
                 msg.innerText = "Tepat Sekali!";
                 updateProgressUI('done');
-                pauseTimer(); // Hentikan timer sejenak selama transisi otomatis
+                pauseTimer(); 
                 setTimeout(() => {
                     startTimer();
                     nextQuestion();
                 }, 1500);
             } else {
-                // SALAH ATAU KURANG
                 if (retryCount > 0) {
                     retryCount--;
                     msg.style.color = "var(--danger)";
                     msg.innerText = `Jawaban salah dikembalikan. Kesempatan perbaikan: ${retryCount}`;
                 } else {
-                    // KESEMPATAN HABIS
-                    scores.push(benar / total); // Hitung skor rasio (parsial)
+                    scores.push(benar / total); 
                     msg.style.color = "var(--danger)";
                     
                     if (CONFIG.AUTO_SHOW_ANSWER) {
@@ -733,7 +749,6 @@
                     
                     updateProgressUI(benar > 0 ? 'done' : 'failed');
                     
-                    // Pause Timer & Tampilkan Tombol Lanjut
                     pauseTimer();
                     document.getElementById('btn-group-play').style.display = 'none';
                     document.getElementById('btn-group-next').style.display = 'flex';
@@ -744,11 +759,9 @@
         function forceShowAnswers() {
             document.querySelectorAll('.drop-zone').forEach(zone => {
                 if (!zone.classList.contains('locked')) {
-                    // Kembalikan jawaban salah
                     if (zone.children.length > 0) {
                         document.getElementById('answer-bank').appendChild(zone.children[0]);
                     }
-                    // Auto-fill jawaban benar
                     const safeLatex = zone.getAttribute('data-latex');
                     const correctLatex = decodeURIComponent(escape(atob(safeLatex)));
                     
@@ -784,7 +797,6 @@
                 updateProgressUI('failed');
                 msg.style.color = "var(--warning)";
                 
-                // Pause Timer & Tampilkan Tombol Lanjut
                 pauseTimer();
                 document.getElementById('btn-group-play').style.display = 'none';
                 document.getElementById('btn-group-next').style.display = 'flex';
@@ -792,7 +804,7 @@
         }
 
         function handleLanjut() {
-            startTimer(); // Jalankan kembali timer
+            startTimer(); 
             nextQuestion();
         }
 
@@ -807,7 +819,6 @@
 
         function handleTimeUp() {
             alert("Waktu Habis!");
-            // Push sisa array scores dengan 0 jika belum selesai
             while(scores.length < CONFIG.TOTAL_QUESTIONS) {
                 scores.push(0);
             }
@@ -819,7 +830,6 @@
             document.getElementById('game-screen').classList.remove('active');
             document.getElementById('result-screen').classList.add('active');
 
-            // Kalkulasi Skor Total = Jumlah Rasio * Bobot Nilai Per Soal
             let sumRatio = scores.reduce((a, b) => a + b, 0);
             let finalScore = Math.round(sumRatio * CONFIG.POINTS_PER_QUESTION);
 
