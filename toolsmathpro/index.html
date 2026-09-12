@@ -807,12 +807,7 @@
       <input type="range" id="sliderBentukAkar" min="10" max="20" value="10" oninput="updateSettingDisplay('bentukAkar');buildBentukAkarTable()">
       <span class="setting-value" id="valBentukAkar">10</span>
     </div>
-    <button class="refresh-btn-full" id="refreshAkarBtn" onclick="refreshBentukAkar()">
-      <span class="refresh-icon">🔄</span>
-      <span>Acak Ulang Daftar Bentuk Akar</span>
-    </button>
-    <div class="setting-info">📚 Bentuk akar populer untuk SMP. Klik tombol di atas untuk mengacak ulang.</div>
-  </div>
+
  <!-- ===== TAMBAH: Input Masukan Angkamu ===== -->
 <div class="sqrt-input-section">
   <h4> Masukan Angkamu</h4>
@@ -832,6 +827,12 @@
   </div>
   <div class="sqrt-message" id="customSqrtMessage"></div>
 </div>
+       <button class="refresh-btn-full" id="refreshAkarBtn" onclick="refreshBentukAkar()">
+      <span class="refresh-icon">🔄</span>
+      <span>Acak Ulang Daftar Bentuk Akar</span>
+    </button>
+    <div class="setting-info">📚 Bentuk akar populer untuk SMP. Klik tombol di atas untuk mengacak ulang.</div>
+  </div>
   <div class="grid-container">
     <div class="grid-cards" id="bentukAkarGrid"></div>
   </div>
