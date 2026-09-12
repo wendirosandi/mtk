@@ -211,13 +211,7 @@
     flex-shrink: 0;
   }
   .setting-toggle:active { transform: scale(0.92); }
-  .setting-panel {
-    background: rgba(248,250,255,0.9);
-    padding: 15px;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-    display: none;
-  }
-  .setting-panel.show { display: block; }
+
   .setting-row {
     display: flex;
     align-items: center;
@@ -254,7 +248,147 @@
     margin-top: 6px;
     font-style: italic;
   }
+/* ===== GANTI: Setting Panel Default ===== */
+.setting-panel {
+  background: rgba(248,250,255,0.9);
+  padding: 15px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  display: block; /* ← UBAH: dari none jadi block */
+  transition: all 0.3s ease;
+}
+.setting-panel.hidden {
+  display: none;
+}
 
+/* ===== TAMBAH: Animasi Gear Icon ===== */
+.setting-toggle {
+  transition: transform 0.3s, opacity 0.3s;
+}
+.setting-toggle.collapsed {
+  transform: rotate(180deg);
+  opacity: 0.6;
+}
+
+/* ===== TAMBAH: Theme Selector ===== */
+.theme-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(99,102,241,0.2);
+}
+.theme-selector label {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+.theme-options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.theme-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.theme-dot:hover { transform: scale(1.15); }
+.theme-dot.active {
+  border-color: var(--text-primary);
+  transform: scale(1.2);
+}
+.theme-dot[data-theme="purple"] { background: linear-gradient(135deg, #6366f1, #ec4899); }
+.theme-dot[data-theme="blue"] { background: linear-gradient(135deg, #0ea5e9, #06b6d4); }
+.theme-dot[data-theme="green"] { background: linear-gradient(135deg, #10b981, #84cc16); }
+.theme-dot[data-theme="red"] { background: linear-gradient(135deg, #ef4444, #f97316); }
+.theme-dot[data-theme="pink"] { background: linear-gradient(135deg, #ec4899, #a855f7); }
+
+/* ===== TAMBAH: Input Akar Section 4 ===== */
+.sqrt-input-section {
+  background: rgba(248,250,255,0.9);
+  padding: 20px;
+  border-radius: 12px;
+  margin: 15px;
+  border: 2px solid rgba(99,102,241,0.2);
+}
+.sqrt-input-section h4 {
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sqrt-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+.sqrt-input-row .sqrt-symbol {
+  font-size: 1.5rem;
+  color: var(--primary);
+}
+.sqrt-input-row input {
+  width: 80px;
+  padding: 10px;
+  border: 2px solid rgba(99,102,241,0.3);
+  border-radius: 10px;
+  font-size: 1.2rem;
+  text-align: center;
+  font-weight: 700;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.sqrt-input-row input:focus {
+  border-color: var(--primary);
+}
+.sqrt-input-row .equals {
+  color: var(--secondary);
+  font-size: 1.5rem;
+}
+.sqrt-result {
+  min-width: 100px;
+  padding: 10px 15px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 10px;
+  border: 2px solid rgba(99,102,241,0.2);
+  text-align: center;
+  color: var(--primary);
+}
+.sqrt-message {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  display: none;
+}
+.sqrt-message.show { display: block; }
+.sqrt-message.perfect {
+  background: rgba(16,185,129,0.15);
+  color: #047857;
+  border: 1px solid #10b981;
+}
+.sqrt-message.simplified {
+  background: rgba(99,102,241,0.1);
+  color: var(--primary);
+  border: 1px solid rgba(99,102,241,0.3);
+}
+.sqrt-message.prime {
+  background: rgba(107,114,128,0.1);
+  color: var(--text-secondary);
+  border: 1px solid rgba(107,114,128,0.3);
+}
   /* Tombol Refresh Full Width di Setting Panel */
   .refresh-btn-full {
     width: 100%;
@@ -549,10 +683,23 @@
   </div>
   <div class="identity-row" style="justify-content: center;">
     <div class="timer-display" id="timerDisplay">
-      <span>️</span>
+      <span>⏱️</span>
       <span id="timerText">00:00</span>
     </div>
   </div>
+  
+  <!-- ===== TAMBAH: Theme Selector ===== -->
+  <div class="theme-selector">
+    <label> Tema:</label>
+    <div class="theme-options" id="themeOptions">
+      <div class="theme-dot active" data-theme="purple" onclick="applyTheme('purple')" title="Ungu (Default)"></div>
+      <div class="theme-dot" data-theme="blue" onclick="applyTheme('blue')" title="Biru Laut"></div>
+      <div class="theme-dot" data-theme="green" onclick="applyTheme('green')" title="Hijau Alam"></div>
+      <div class="theme-dot" data-theme="red" onclick="applyTheme('red')" title="Merah Api"></div>
+      <div class="theme-dot" data-theme="pink" onclick="applyTheme('pink')" title="Pink Ceria"></div>
+    </div>
+  </div>
+  
   <div class="identity-warning" id="identityWarning">
     ⚠️ Harap isi Nama dan Kelas terlebih dahulu untuk mengakses fitur!
   </div>
@@ -666,6 +813,25 @@
     </button>
     <div class="setting-info">📚 Bentuk akar populer untuk SMP. Klik tombol di atas untuk mengacak ulang.</div>
   </div>
+ <!-- ===== TAMBAH: Input Masukan Angkamu ===== -->
+<div class="sqrt-input-section">
+  <h4> Masukan Angkamu</h4>
+  <div class="sqrt-input-row">
+    <span class="sqrt-symbol">√</span>
+    <input 
+      type="number" 
+      id="customSqrtInput" 
+      inputmode="numeric" 
+      min="2" 
+      max="999" 
+      placeholder="..."
+      oninput="calculateCustomSqrt()"
+    >
+    <span class="equals">=</span>
+    <div class="sqrt-result" id="customSqrtResult">...</div>
+  </div>
+  <div class="sqrt-message" id="customSqrtMessage"></div>
+</div>
   <div class="grid-container">
     <div class="grid-cards" id="bentukAkarGrid"></div>
   </div>
@@ -981,8 +1147,18 @@ function toggleSection(num) {
   }
 }
 
+// ===== GANTI: Toggle Setting (default visible, klik untuk hide) =====
 function toggleSetting(num) {
-  document.getElementById('setting' + num).classList.toggle('show');
+  const panel = document.getElementById('setting' + num);
+  const btn = panel.previousElementSibling?.querySelector('.setting-toggle') 
+           || document.querySelector(`[onclick*="toggleSetting(${num})"]`);
+  
+  panel.classList.toggle('hidden');
+  
+  // Rotasi ikon gear sebagai feedback visual
+  if (btn) {
+    btn.classList.toggle('collapsed', panel.classList.contains('hidden'));
+  }
 }
 
 function updateSettingDisplay(type) {
@@ -1315,6 +1491,146 @@ buildRootTable();
 buildBentukAkarTable();
 renderActivityList();
 trackSectionOpen(1);
+
+ // ===== TAMBAH: Theme Management =====
+const THEMES = {
+  purple: {
+    primary: '#6366f1',
+    primaryDark: '#4f46e5',
+    secondary: '#ec4899',
+    bgGradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+  },
+  blue: {
+    primary: '#0ea5e9',
+    primaryDark: '#0284c7',
+    secondary: '#06b6d4',
+    bgGradient: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)'
+  },
+  green: {
+    primary: '#10b981',
+    primaryDark: '#059669',
+    secondary: '#84cc16',
+    bgGradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+  },
+  red: {
+    primary: '#ef4444',
+    primaryDark: '#dc2626',
+    secondary: '#f97316',
+    bgGradient: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+  },
+  pink: {
+    primary: '#ec4899',
+    primaryDark: '#db2777',
+    secondary: '#a855f7',
+    bgGradient: 'linear-gradient(135deg, #ec4899 0%, #a855f7 100%)'
+  }
+};
+
+function applyTheme(themeName) {
+  const theme = THEMES[themeName];
+  if (!theme) return;
+  
+  const root = document.documentElement;
+  root.style.setProperty('--primary', theme.primary);
+  root.style.setProperty('--primary-dark', theme.primaryDark);
+  root.style.setProperty('--secondary', theme.secondary);
+  root.style.setProperty('--bg-gradient', theme.bgGradient);
+  
+  // Update active dot
+  document.querySelectorAll('.theme-dot').forEach(dot => {
+    dot.classList.toggle('active', dot.dataset.theme === themeName);
+  });
+  
+  // Simpan ke localStorage
+  localStorage.setItem('mtk_theme', themeName);
+}
+
+// Load tema tersimpan saat init
+function loadSavedTheme() {
+  const saved = localStorage.getItem('mtk_theme') || 'purple';
+  applyTheme(saved);
+}
+
+ // ===== TAMBAH: Calculate Custom Square Root =====
+function calculateCustomSqrt() {
+  const input = document.getElementById('customSqrtInput');
+  const resultEl = document.getElementById('customSqrtResult');
+  const messageEl = document.getElementById('customSqrtMessage');
+  
+  const n = parseInt(input.value);
+  
+  // Reset
+  resultEl.textContent = '...';
+  messageEl.className = 'sqrt-message';
+  messageEl.style.display = 'none';
+  
+  if (isNaN(n) || n < 2) {
+    resultEl.textContent = '...';
+    return;
+  }
+  
+  if (n > 999) {
+    input.value = 999;
+    return calculateCustomSqrt();
+  }
+  
+  // Cari faktor kuadrat terbesar
+  let a = 1;
+  let b = n;
+  
+  for (let i = Math.floor(Math.sqrt(n)); i >= 2; i--) {
+    if (n % (i * i) === 0) {
+      a = i;
+      b = n / (i * i);
+      break;
+    }
+  }
+  
+  // Tampilkan hasil dengan KaTeX
+  let latexResult = '';
+  let message = '';
+  let messageClass = '';
+  
+  if (b === 1) {
+    // Kuadrat sempurna
+    latexResult = `${a}`;
+    message = `✅ ${n} adalah Angka Kuadrat Sempurna! (√${n} = ${a})`;
+    messageClass = 'perfect';
+  } else if (a === 1) {
+    // Tidak bisa disederhanakan
+    latexResult = `\\sqrt{${n}}`;
+    message = `️ √${n} tidak dapat disederhanakan lagi`;
+    messageClass = 'prime';
+  } else {
+    // Bisa disederhanakan
+    latexResult = `${a}\\sqrt{${b}}`;
+    message = `️ Bentuk sederhana: √${n} = ${a}√${b}`;
+    messageClass = 'simplified';
+  }
+  
+  // Render dengan KaTeX
+  try {
+    katex.render(latexResult, resultEl, { throwOnError: false, displayMode: false });
+  } catch (e) {
+    resultEl.textContent = latexResult;
+  }
+  
+  // Tampilkan pesan
+  messageEl.textContent = message;
+  messageEl.className = `sqrt-message show ${messageClass}`;
+}
+
+ // ============================================================
+//  INITIALIZATION
+// ============================================================
+loadSavedTheme();  // ← TAMBAH: Load tema tersimpan
+buildMultTable();
+buildPowerTable();
+buildRootTable();
+buildBentukAkarTable();
+renderActivityList();
+trackSectionOpen(1);
+ 
 </script>
 </body>
 </html>
