@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Platform Asesmen: Rasionalisasi Pecahan</title>
+    
+    <!-- KaTeX CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #f59e0b;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Screen Management */
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Lobby & Result Screen */
+        .center-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .card h1 { margin-top: 0; color: var(--primary); font-size: 24px; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px;}
+        .form-input {
+            width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;
+            font-size: 16px; box-sizing: border-box;
+        }
+        .btn {
+            background-color: var(--primary); color: white; border: none;
+            padding: 12px 20px; font-size: 16px; border-radius: 8px; font-weight: bold;
+            cursor: pointer; width: 100%; transition: background 0.2s;
+        }
+        .btn:hover { background-color: var(--primary-hover); }
+
+        /* Game UI */
+        .game-header {
+            background-color: var(--card-bg);
+            padding: 15px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+        .progress-dots { display: flex; gap: 8px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; background-color: #cbd5e1; }
+        .dot.active { background-color: var(--primary); }
+        .dot.done { background-color: var(--success); }
+        .dot.failed { background-color: var(--warning); }
+        .timer { font-weight: bold; font-size: 18px; color: var(--danger); }
+
+        /* Equation Area */
+        .equation-area {
+            flex: 1; overflow-y: auto; overflow-x: auto;
+            padding: 20px; background: white;
+        }
+        .step-row {
+            display: flex; align-items: center; margin-bottom: 30px;
+            font-size: 18px; white-space: nowrap;
+        }
+        .operator { margin: 0 10px; font-weight: bold; }
+        
+        .fraction {
+            display: inline-flex; flex-direction: column; align-items: center;
+            vertical-align: middle; margin: 0 5px;
+        }
+        .numerator {
+            border-bottom: 2px solid #334155; padding: 5px; min-width: 40px;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        .denominator {
+            padding: 5px; min-width: 40px;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+
+        /* Drop Zones & Items */
+        .drop-zone {
+            min-width: 60px; min-height: 42px;
+            border: 2px dashed #94a3b8; border-radius: 6px;
+            background-color: #f8fafc; display: inline-flex;
+            align-items: center; justify-content: center;
+            cursor: pointer; padding: 2px 5px; box-sizing: border-box;
+        }
+        .drop-zone.locked {
+            border: 2px solid var(--success);
+            background-color: #dcfce7;
+            cursor: default;
+        }
+
+        .answer-bank {
+            background-color: #f8fafc; padding: 15px;
+            border-top: 3px solid #e2e8f0; display: flex;
+            flex-wrap: wrap; gap: 10px; justify-content: center;
+            min-height: 120px; max-height: 35vh; overflow-y: auto;
+        }
+        
+        .answer-item {
+            background-color: white; border: 2px solid var(--primary);
+            color: var(--text-main); padding: 8px 12px; border-radius: 6px;
+            cursor: pointer; font-size: 16px; user-select: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s;
+        }
+        .answer-item.selected {
+            background-color: var(--primary); color: white; transform: scale(1.05);
+        }
+        
+        /* State saat item masuk drop zone */
+        .drop-zone .answer-item {
+            border: none; box-shadow: none; background: transparent; padding: 0; margin: 0;
+        }
+        .drop-zone .answer-item.selected { color: var(--primary); }
+
+        /* Animation */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+        .shake-animation {
+            animation: shake 0.4s ease-in-out;
+            border-color: var(--danger) !important;
+            background-color: #fee2e2 !important;
+        }
+
+        /* Controls */
+        .control-panel {
+            background: white; padding: 10px 15px 20px 15px;
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+        }
+        .btn-group { display: flex; gap: 10px; width: 100%; max-width: 400px;}
+        .btn-check { flex: 2; background-color: var(--success); border-radius: 20px;}
+        .btn-check:hover { background-color: #15803d; }
+        .btn-skip { flex: 1; background-color: #64748b; border-radius: 20px;}
+        .btn:disabled {
+            background-color: #cbd5e1 !important;
+            cursor: not-allowed !important;
+            color: #64748b !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        #message { font-weight: 600; font-size: 14px; min-height: 20px; text-align: center; }
+
+    </style>
+</head>
+<body>
+
+    <!-- 1. LOBBY SCREEN -->
+    <div id="lobby-screen" class="screen active">
+        <div class="center-container">
+            <div class="card">
+                <h1>Ujian Rasionalisasi</h1>
+                <div class="form-group">
+                    <label>Nama Siswa</label>
+                    <input type="text" id="input-nama" class="form-input" placeholder="Masukkan nama..." required>
+                </div>
+                <div class="form-group">
+                    <label>Kelas</label>
+                    <input type="text" id="input-kelas" class="form-input" placeholder="Misal: 10 MIPA 1" required>
+                </div>
+                <div class="form-group">
+                    <label>Level Ujian</label>
+                    <select id="input-kategori" class="form-input">
+                        <option value="C">Level C (Rendah) - Dominan Mudah</option>
+                        <option value="B">Level B (Sedang) - Dominan Sedang</option>
+                        <option value="A">Level A (Tinggi) - Dominan Sulit</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="startGame()">Mulai Ujian</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. GAME SCREEN -->
+    <div id="game-screen" class="screen">
+        <div class="game-header">
+            <div>
+                <div id="student-info" style="font-size: 12px; font-weight: bold; color: #64748b;"></div>
+                <div class="progress-dots" id="progress-dots">
+                    <!-- Titik progress akan di-generate otomatis via JS sesuai CONFIG -->
+                </div>
+            </div>
+            <div class="timer" id="timer-display">00:00</div>
+        </div>
+
+        <div class="equation-area" id="equation-area">
+            <!-- Langkah-langkah soal digenerate di sini -->
+        </div>
+
+        <div class="control-panel">
+            <div id="message">Pilih jawaban dari kotak di bawah.</div>
+            
+            <!-- Grup Tombol Saat Bermain -->
+            <div class="btn-group" id="btn-group-play">
+                <button class="btn btn-skip" id="btn-skip-play" onclick="skipQuestion()">Lewati</button>
+                <button class="btn btn-check" id="btn-check-play" onclick="checkAnswer()">CEK JAWABAN</button>
+            </div>
+            
+            <!-- Grup Tombol Lanjut (Muncul saat auto-show atau skip) -->
+            <div class="btn-group" id="btn-group-next" style="display: none;">
+                <button class="btn btn-check" style="background-color: var(--primary);" onclick="handleLanjut()">LANJUT KE SOAL BERIKUTNYA</button>
+            </div>
+        </div>
+
+        <div class="answer-bank" id="answer-bank">
+            <!-- Pilihan Jawaban Acak -->
+        </div>
+    </div>
+
+    <!-- 3. RESULT SCREEN -->
+    <div id="result-screen" class="screen">
+        <div class="center-container">
+            <div class="card">
+                <h1>Ujian Selesai!</h1>
+                <h2 id="res-name" style="margin-bottom: 5px;"></h2>
+                <p id="res-class" style="color: #64748b; margin-top: 0;"></p>
+                <div style="font-size: 60px; font-weight: bold; color: var(--primary); margin: 20px 0;">
+                    <span id="final-score">0</span>
+                </div>
+                <p id="res-stats" style="margin-bottom: 25px;"></p>
+                <button class="btn" onclick="location.reload()">Main Lagi</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === PENGATURAN DEFAULT (CONFIG) ===
+        const CONFIG = {
+            TOTAL_QUESTIONS: 10,       // Diubah menjadi 10 soal sesuai pola (2,3,5)
+            TIME_LIMIT: 1200,          // Waktu global diubah ke 20 Menit (1200 detik)
+            MIN_CHECK_SEC: 60,         // Minimal waktu untuk bisa Cek Jawaban (detik)
+            MIN_SKIP_SEC: 120,         // Minimal waktu untuk bisa Skip Soal (detik)
+            MAX_RETRIES: 1,            // Jumlah kesempatan perbaikan
+            AUTO_SHOW_ANSWER: true,    // Tampilkan jawaban benar saat gagal/skip
+            POINTS_PER_QUESTION: 10    // Diubah menjadi 10 (10 soal x 10 = Max 100)
+        };
+
+        // --- BLUEPRINT POLA SOAL BERDASARKAN LEVEL ---
+        const QUESTION_PATTERNS = {
+            'A': ['C', 'B', 'A', 'C', 'B', 'A', 'B', 'A', 'A', 'A'], // Level Tinggi (Dominan Sulit/A)
+            'B': ['C', 'B', 'B', 'C', 'B', 'A', 'C', 'B', 'B', 'A'], // Level Sedang (Dominan Sedang/B)
+            'C': ['C', 'B', 'C', 'B', 'C', 'B', 'A', 'C', 'B', 'A']  // Level Rendah (Dominan Mudah/C)
+        };
+
+        // Game State Variables
+        let currentQuestion = 1;
+        let timeLeft = CONFIG.TIME_LIMIT;
+        let timerInterval = null;
+        let timeSpentCurrent = 0; // Stopwatch khusus untuk soal yang sedang aktif
+        let retryCount = CONFIG.MAX_RETRIES;
+        let scores = []; 
+        let currentPattern = []; // Menyimpan pola soal yang akan dimainkan
+        
+        let userName, userClass, userCategory;
+        
+        let selectedItem = null;
+        let currentAnswers = []; // Database jawaban untuk soal yang sedang aktif
+        let dictKeys = {}; // Untuk menangani item duplikat
+
+        function startGame() {
+            userName = document.getElementById('input-nama').value;
+            userClass = document.getElementById('input-kelas').value;
+            userCategory = document.getElementById('input-kategori').value;
+
+            if(!userName || !userClass) {
+                alert("Mohon isi Nama dan Kelas terlebih dahulu.");
+                return;
+            }
+
+            // Set Pola Soal Berdasarkan Level yang Dipilih
+            currentPattern = QUESTION_PATTERNS[userCategory];
+
+            // Generate Progress Dots Dinamis sesuai CONFIG
+            const progressContainer = document.getElementById('progress-dots');
+            progressContainer.innerHTML = '';
+            for(let i = 0; i < CONFIG.TOTAL_QUESTIONS; i++) {
+                let dot = document.createElement('div');
+                dot.className = 'dot' + (i === 0 ? ' active' : '');
+                progressContainer.appendChild(dot);
+            }
+
+            document.getElementById('student-info').innerText = `${userName} - ${userClass}`;
+            document.getElementById('lobby-screen').classList.remove('active');
+            document.getElementById('game-screen').classList.add('active');
+
+            updateTimerDisplay(); // Segera tampilkan format waktu 00:00
+            startTimer();
+            loadQuestion();
+        }
+
+        function startTimer() {
+            // Hanya buat interval jika tidak ada yang sedang berjalan
+            if (!timerInterval) {
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    timeSpentCurrent++; // Tambah stopwatch per-soal
+                    
+                    updateTimerDisplay();
+                    updateButtonStates(); // Update status tombol (terkunci/aktif)
+
+                    if (timeLeft <= 0) {
+                        pauseTimer();
+                        handleTimeUp();
+                    }
+                }, 1000);
+            }
+        }
+
+        function pauseTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function updateTimerDisplay() {
+            let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            let s = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timer-display').innerText = `${m}:${s}`;
+        }
+
+        // Fungsi baru untuk mengatur tombol Cek dan Skip
+        function updateButtonStates() {
+            const btnCheck = document.getElementById('btn-check-play');
+            const btnSkip = document.getElementById('btn-skip-play');
+
+            if (!btnCheck || !btnSkip) return;
+
+            // Logika Tombol Cek Jawaban (Minimal 1 Menit)
+            let checkTimeLeft = CONFIG.MIN_CHECK_SEC - timeSpentCurrent;
+            if (checkTimeLeft > 0) {
+                btnCheck.disabled = true;
+                btnCheck.innerText = `CEK JAWABAN (${checkTimeLeft}s)`;
+            } else {
+                btnCheck.disabled = false;
+                btnCheck.innerText = `CEK JAWABAN`;
+            }
+
+            // Logika Tombol Lewati (Minimal 2 Menit)
+            let skipTimeLeft = CONFIG.MIN_SKIP_SEC - timeSpentCurrent;
+            if (skipTimeLeft > 0) {
+                btnSkip.disabled = true;
+                btnSkip.innerText = `Lewati (${skipTimeLeft}s)`;
+            } else {
+                btnSkip.disabled = false;
+                btnSkip.innerText = `Lewati`;
+            }
+        }
+
+        function updateProgressUI(status) {
+            const dots = document.querySelectorAll('.dot');
+            if(status === 'done') {
+                dots[currentQuestion - 1].classList.remove('active');
+                dots[currentQuestion - 1].classList.add('done');
+            } else if (status === 'failed') {
+                dots[currentQuestion - 1].classList.remove('active');
+                dots[currentQuestion - 1].classList.add('failed');
+            }
+
+            if(currentQuestion < CONFIG.TOTAL_QUESTIONS) {
+                dots[currentQuestion].classList.add('active');
+            }
+        }
+
+        function getPrimes() { return [2, 3, 5, 7, 11]; }
+        function getRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+        function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+        // Fungsi mendaftarkan string LaTeX untuk membuat "Kotak Jawaban" dan "Drop Zone" yang terhubung
+        function getZone(latexStr) {
+            if(!dictKeys[latexStr]) {
+                dictKeys[latexStr] = "key_" + Math.random().toString(36).substr(2, 8);
+            }
+            // Tambahkan ke bank (termasuk jika duplikat agar muncul 2x di bawah)
+            currentAnswers.push({ key: dictKeys[latexStr], latex: latexStr });
+            
+            // Encode LaTeX agar aman disimpan di atribut HTML
+            let safeLatex = btoa(unescape(encodeURIComponent(latexStr)));
+            return `<div class="drop-zone" data-expected="${dictKeys[latexStr]}" data-latex="${safeLatex}"></div>`;
+        }
+
+        // --- GENERATOR LOGIC ---
+        function generateCategoryC() {
+            // Tipe 1: c / \sqrt{a}
+            let a = getRandom(getPrimes());
+            let c = randInt(2, 9);
+            
+            let html = `
+            <div class="step-row">
+                <span class="operator">Soal:</span>
+                <div class="fraction">
+                    <div class="numerator katex-static" data-tex="${c}"></div>
+                    <div class="denominator katex-static" data-tex="\\sqrt{${a}}"></div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="operator">=</span>
+                <div class="fraction">
+                    <div class="numerator">${getZone(c.toString())}</div>
+                    <div class="denominator">${getZone(`\\sqrt{${a}}`)}</div>
+                </div>
+                <span class="operator">&times;</span>
+                <div class="fraction">
+                    <div class="numerator">${getZone(`\\sqrt{${a}}`)}</div>
+                    <div class="denominator">${getZone(`\\sqrt{${a}}`)}</div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="operator">=</span>
+                <div class="fraction">
+                    <div class="numerator">${getZone(`${c}\\sqrt{${a}}`)}</div>
+                    <div class="denominator">${getZone(`(\\sqrt{${a}})^2`)}</div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="operator">=</span>
+                <div class="fraction">
+                    <div class="numerator">${getZone(`${c}\\sqrt{${a}}`)}</div>
+                    <div class="denominator">${getZone(a.toString())}</div>
+                </div>
+            </div>`;
+            return html;
+        }
+
+        function generateCategoryB() {
+            // Tipe 2: c / (a \pm \sqrt{b})
+            let a = randInt(2, 5);
+            let b = getRandom(getPrimes());
+            let c = randInt(2, 9);
+            let sign = Math.random() > 0.5 ? '+' : '-';
+            let oppSign = sign === '+' ? '-' : '+';
+
+            let soalBawah = `${a} ${sign} \\sqrt{${b}}`;
+            let sekawan = `${a} ${oppSign} \\sqrt{${b}}`;
+            
+            let html = `
+            <div class="step-row">
+                <span class="operator">Soal:</span>
+                <div class="fraction">
+                    <div class="numerator katex-static" data-tex="${c}"></div>
+                    <div class="denominator katex-static" data-tex="${soalBawah}"></div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="operator">=</span>
+                <div class="fraction">
+                    <div class="numerator">${getZone(c.toString())}</div>
+                    <div class="denominator">${getZone(soalBawah)}</div>
+                </div>
+                <span class="operator">&times;</span>
+                <div class="fraction">
+                    <div class="numerator">${getZone(sekawan)}</div>
+                    <div class="denominator">${getZone(sekawan)}</div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="operator">=</span>
+                <div class="fraction">
+                    <div class="numerator">${getZone(`${c}(${sekawan})`)}</div>
+                    <div class="denominator">${getZone(`${a}^2`)} <span class="operator">-</span> ${getZone(`(\\sqrt{${b}})^2`)}</div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="operator">=</span>
+                <div class="fraction">
+                    <div class="numerator">${getZone(`${c}(${sekawan})`)}</div>
+                    <div class="denominator">${getZone(`${a*a} - ${b}`)}</div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="operator">=</span>
+                <div class="fraction">
+                    <div class="numerator">${getZone(`${c}(${sekawan})`)}</div>
+                    <div class="denominator">${getZone((a*a - b).toString())}</div>
+                </div>
+            </div>`;
+            return html;
+        }
+
+        function generateCategoryA() {
+            // Tipe 3: c / (\sqrt{a} \pm \sqrt{b})
+            let a = getRandom(getPrimes());
+            let b = getRandom(getPrimes());
+            while(a === b) b = getRandom(getPrimes()); // Pastikan a tidak sama dengan b
+            
+            let c = randInt(2, 9);
+            let sign = Math.random() > 0.5 ? '+' : '-';
+            let oppSign = sign === '+' ? '-' : '+';
+
+            let soalBawah = `\\sqrt{${a}} ${sign} \\sqrt{${b}}`;
+            let sekawan = `\\sqrt{${a}} ${oppSign} \\sqrt{${b}}`;
+            
+            let html = `
+            <div class="step-row">
+                <span class="operator">Soal:</span>
+                <div class="fraction">
+                    <div class="numerator katex-static" data-tex="${c}"></div>
+                    <div class="denominator katex-static" data-tex="${soalBawah}"></div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="operator">=</span>
+                <div class="fraction">
+                    <div class="numerator">${getZone(c.toString())}</div>
+                    <div class="denominator">${getZone(soalBawah)}</div>
+                </div>
+                <span class="operator">&times;</span>
+                <div class="fraction">
+                    <div class="numerator">${getZone(sekawan)}</div>
+                    <div class="denominator">${getZone(sekawan)}</div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="operator">=</span>
+                <div class="fraction">
+                    <div class="numerator">${getZone(`${c}(${sekawan})`)}</div>
+                    <div class="denominator">${getZone(`(\\sqrt{${a}})^2`)} <span class="operator">-</span> ${getZone(`(\\sqrt{${b}})^2`)}</div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="operator">=</span>
+                <div class="fraction">
+                    <div class="numerator">${getZone(`${c}(${sekawan})`)}</div>
+                    <div class="denominator">${getZone(`${a} - ${b}`)}</div>
+                </div>
+            </div>
+            <div class="step-row">
+                <span class="operator">=</span>
+                <div class="fraction">
+                    <div class="numerator">${getZone(`${c}(${sekawan})`)}</div>
+                    <div class="denominator">${getZone((a - b).toString())}</div>
+                </div>
+            </div>`;
+            return html;
+        }
+
+        function loadQuestion() {
+            retryCount = CONFIG.MAX_RETRIES;
+            timeSpentCurrent = 0; // Reset stopwatch soal aktif
+            selectedItem = null;
+            currentAnswers = [];
+            dictKeys = {};
+            
+            // Kembalikan UI tombol ke kondisi normal (Bermain)
+            document.getElementById('btn-group-play').style.display = 'flex';
+            document.getElementById('btn-group-next').style.display = 'none';
+            
+            updateButtonStates(); // Update langsung saat soal dimuat agar tombol langsung terkunci
+
+            document.getElementById('message').innerText = `Soal ${currentQuestion} dari ${CONFIG.TOTAL_QUESTIONS}. Pilih jawaban dari bawah.`;
+            document.getElementById('message').style.color = "var(--text-main)";
+
+            let eqArea = document.getElementById('equation-area');
+            
+            // Menentukan Tipe Soal (Mudah/Sedang/Sulit) dari Pola Blueprint
+            let currentDifficulty = currentPattern[currentQuestion - 1]; // Array index mulai dari 0
+
+            // Render HTML Soal berdasarkan kesulitan spesifik untuk nomor ini
+            if(currentDifficulty === 'C') {
+                eqArea.innerHTML = generateCategoryC();
+            } else if(currentDifficulty === 'B') {
+                eqArea.innerHTML = generateCategoryB();
+            } else {
+                eqArea.innerHTML = generateCategoryA();
+            }
+
+            // Render Static KaTeX
+            document.querySelectorAll('.katex-static').forEach(el => {
+                katex.render(el.dataset.tex, el);
+            });
+
+            // Bind events untuk drop zone baru
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.addEventListener('click', () => handleZoneClick(zone));
+            });
+
+            // Populasikan Answer Bank
+            const bank = document.getElementById('answer-bank');
+            bank.innerHTML = ''; // bersihkan
+            
+            // Acak jawaban
+            currentAnswers.sort(() => Math.random() - 0.5);
+
+            currentAnswers.forEach(ans => {
+                const item = document.createElement('div');
+                item.className = 'answer-item';
+                item.dataset.value = ans.key;
+                katex.render(ans.latex, item);
+                item.addEventListener('click', () => handleItemClick(item));
+                bank.appendChild(item);
+            });
+        }
+
+        function handleItemClick(itemEl) {
+            if (selectedItem === itemEl) {
+                itemEl.classList.remove('selected');
+                selectedItem = null;
+                return;
+            }
+            if (selectedItem) selectedItem.classList.remove('selected');
+            itemEl.classList.add('selected');
+            selectedItem = itemEl;
+        }
+
+        function handleZoneClick(zone) {
+            if(zone.classList.contains('locked')) return; // Abaikan jika sudah dikunci (benar)
+
+            if (selectedItem) {
+                // Kembalikan isi lama jika ada
+                if (zone.children.length > 0) {
+                    document.getElementById('answer-bank').appendChild(zone.children[0]);
+                }
+                zone.appendChild(selectedItem);
+                selectedItem.classList.remove('selected');
+                selectedItem = null;
+                zone.style.borderColor = "#94a3b8"; // reset warna error
+            } 
+            else if (zone.children.length > 0) {
+                // Kembalikan manual
+                document.getElementById('answer-bank').appendChild(zone.children[0]);
+                zone.style.borderColor = "#94a3b8";
+            }
+        }
+
+        function checkAnswer() {
+            const zones = document.querySelectorAll('.drop-zone');
+            let total = zones.length;
+            let terisi = 0;
+            let benar = 0;
+            let hasWrong = false;
+
+            zones.forEach(zone => {
+                const expected = zone.dataset.expected;
+                
+                if (zone.children.length > 0) {
+                    terisi++;
+                    const child = zone.children[0];
+                    if (expected === child.dataset.value) {
+                        benar++;
+                        zone.classList.add('locked'); // Kunci jawaban
+                    } else {
+                        hasWrong = true;
+                        zone.classList.add('shake-animation');
+                        // Auto return after animation
+                        setTimeout(() => {
+                            if(!zone.classList.contains('locked') && zone.children.length > 0) {
+                                document.getElementById('answer-bank').appendChild(zone.children[0]);
+                                zone.classList.remove('shake-animation');
+                            }
+                        }, 500);
+                    }
+                }
+            });
+
+            const msg = document.getElementById('message');
+
+            if (terisi < total && !hasWrong && retryCount > 0) {
+                msg.style.color = "var(--warning)";
+                msg.innerText = "Ada kotak yang belum diisi!";
+                return;
+            }
+
+            if (benar === total) {
+                // PERFECT
+                scores.push(1); // 100% rasio
+                msg.style.color = "var(--success)";
+                msg.innerText = "Tepat Sekali!";
+                updateProgressUI('done');
+                pauseTimer(); // Hentikan timer sejenak selama transisi otomatis
+                setTimeout(() => {
+                    startTimer();
+                    nextQuestion();
+                }, 1500);
+            } else {
+                // SALAH ATAU KURANG
+                if (retryCount > 0) {
+                    retryCount--;
+                    msg.style.color = "var(--danger)";
+                    msg.innerText = `Jawaban salah dikembalikan. Kesempatan perbaikan: ${retryCount}`;
+                } else {
+                    // KESEMPATAN HABIS
+                    scores.push(benar / total); // Hitung skor rasio (parsial)
+                    msg.style.color = "var(--danger)";
+                    
+                    if (CONFIG.AUTO_SHOW_ANSWER) {
+                        msg.innerText = "Kesempatan Habis. Berikut adalah jawaban yang benar.";
+                        forceShowAnswers();
+                    } else {
+                        msg.innerText = "Kesempatan Habis. Jawaban Anda kurang tepat.";
+                    }
+                    
+                    updateProgressUI(benar > 0 ? 'done' : 'failed');
+                    
+                    // Pause Timer & Tampilkan Tombol Lanjut
+                    pauseTimer();
+                    document.getElementById('btn-group-play').style.display = 'none';
+                    document.getElementById('btn-group-next').style.display = 'flex';
+                }
+            }
+        }
+
+        function forceShowAnswers() {
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                if (!zone.classList.contains('locked')) {
+                    // Kembalikan jawaban salah
+                    if (zone.children.length > 0) {
+                        document.getElementById('answer-bank').appendChild(zone.children[0]);
+                    }
+                    // Auto-fill jawaban benar
+                    const safeLatex = zone.getAttribute('data-latex');
+                    const correctLatex = decodeURIComponent(escape(atob(safeLatex)));
+                    
+                    const dummy = document.createElement('div');
+                    dummy.className = 'answer-item';
+                    dummy.style.backgroundColor = '#dcfce7';
+                    dummy.style.borderColor = '#16a34a';
+                    dummy.style.cursor = 'default';
+                    katex.render(correctLatex, dummy);
+                    
+                    zone.appendChild(dummy);
+                    zone.classList.add('locked');
+                }
+            });
+        }
+
+        function skipQuestion() {
+            if(confirm("Yakin ingin melewati soal ini? Anda tidak mendapat nilai penuh.")) {
+                const zones = document.querySelectorAll('.drop-zone');
+                let benar = 0;
+                zones.forEach(z => { if(z.classList.contains('locked')) benar++; });
+                
+                scores.push(benar / zones.length);
+                
+                const msg = document.getElementById('message');
+                if (CONFIG.AUTO_SHOW_ANSWER) {
+                    forceShowAnswers();
+                    msg.innerText = "Soal dilewati. Berikut adalah jawaban yang benar.";
+                } else {
+                    msg.innerText = "Soal dilewati.";
+                }
+                
+                updateProgressUI('failed');
+                msg.style.color = "var(--warning)";
+                
+                // Pause Timer & Tampilkan Tombol Lanjut
+                pauseTimer();
+                document.getElementById('btn-group-play').style.display = 'none';
+                document.getElementById('btn-group-next').style.display = 'flex';
+            }
+        }
+
+        function handleLanjut() {
+            startTimer(); // Jalankan kembali timer
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion > CONFIG.TOTAL_QUESTIONS) {
+                endGame();
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function handleTimeUp() {
+            alert("Waktu Habis!");
+            // Push sisa array scores dengan 0 jika belum selesai
+            while(scores.length < CONFIG.TOTAL_QUESTIONS) {
+                scores.push(0);
+            }
+            endGame();
+        }
+
+        function endGame() {
+            pauseTimer();
+            document.getElementById('game-screen').classList.remove('active');
+            document.getElementById('result-screen').classList.add('active');
+
+            // Kalkulasi Skor Total = Jumlah Rasio * Bobot Nilai Per Soal
+            let sumRatio = scores.reduce((a, b) => a + b, 0);
+            let finalScore = Math.round(sumRatio * CONFIG.POINTS_PER_QUESTION);
+
+            document.getElementById('res-name').innerText = userName;
+            document.getElementById('res-class').innerText = userClass;
+            document.getElementById('final-score').innerText = finalScore;
+            
+            let catName = userCategory === 'A' ? "Tinggi" : (userCategory === 'B' ? "Sedang" : "Rendah");
+            document.getElementById('res-stats').innerText = `Level: ${catName} | Sisa Waktu: ${document.getElementById('timer-display').innerText}`;
+        }
+    </script>
+</body>
+</html>
