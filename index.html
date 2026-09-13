@@ -29,7 +29,6 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
 .timer-warning{background:#ef4444;color:#fff;animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.8}}
 .no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
-/* ===== LOADER OVERLAY (transparan + blur) ===== */
 #loader-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
 #loader-overlay.hidden{display:none!important}
 .loader-card{background:rgba(255,255,255,.92);border:1px solid #e5e7eb;border-radius:16px;padding:22px 28px;display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.15);max-width:82%;text-align:center}
@@ -42,8 +41,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
 <body>
 
 <div id="loader-overlay" role="status" aria-live="polite">
-  <div class="loader-card">
-    <div class="spinner"></div>
+  <div class="loader-card"><div class="spinner"></div>
     <div id="loader-text">🔐 Memverifikasi link siswa...</div>
     <div class="loader-sub" id="loader-sub">mohon tunggu, jangan tutup halaman</div>
   </div>
@@ -79,8 +77,8 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
             </select></div>
     </div>
 
-    <div id="lkpd-submitted-banner" class="hidden max-w-4xl mx-auto bg-green-100 border border-green-300 text-green-800 rounded-xl p-4 text-sm font-medium"><i class="fas fa-check-circle mr-2"></i> LKPD sudah terkirim pada <span id="lkpd-submitted-at"></span>. Silakan lanjut ke Kuis di bawah.</div>
-    <div id="kuis-submitted-banner" class="hidden max-w-4xl mx-auto bg-emerald-100 border border-emerald-400 text-emerald-800 rounded-xl p-4 text-sm font-bold"><i class="fas fa-flag-checkered mr-2"></i> Semua tugas (LKPD + Kuis) sudah selesai. Terima kasih!</div>
+    <div id="lkpd-submitted-banner" class="hidden bg-green-100 border border-green-300 text-green-800 rounded-xl p-4 text-sm font-medium"><i class="fas fa-check-circle mr-2"></i> LKPD sudah terkirim pada <span id="lkpd-submitted-at"></span>. Silakan lanjut ke Kuis di bawah.</div>
+    <div id="kuis-submitted-banner" class="hidden bg-emerald-100 border border-emerald-400 text-emerald-800 rounded-xl p-4 text-sm font-bold"><i class="fas fa-flag-checkered mr-2"></i> Semua tugas (LKPD + Kuis) sudah selesai. Terima kasih!</div>
 
     <section class="bg-white rounded-xl border p-4 shadow-sm"><h2 class="font-semibold text-gray-800 mb-2 text-lg">Tujuan Pembelajaran</h2><p class="text-sm text-gray-700">Peserta Didik dapat menyederhanakan bentuk akar dengan tepat.</p></section>
 
@@ -106,8 +104,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
         <p class="text-sm text-gray-600 mt-6 italic border-t pt-4">Lengkapi tabel berikut sesuai kategorimu:</p>
     </section>
 
+    <!-- ================= KATEGORI A ================= -->
     <section class="bg-white rounded-xl border p-4 shadow-sm" id="section-A">
-        <h3 class="font-semibold text-blue-700 text-lg mb-4 flex items-center"><i class="fas fa-star text-blue-500 mr-2"></i> Kategori A</h3>
+        <h3 class="font-semibold text-blue-700 text-lg mb-4"><i class="fas fa-star text-blue-500 mr-2"></i> Kategori A</h3>
         <div class="overflow-x-auto"><table class="min-w-full border border-gray-300 text-sm">
             <thead class="bg-gray-100"><tr><th class="border border-gray-300 p-3 w-1/5 text-left">Bentuk akar</th><th class="border border-gray-300 p-3 text-left">Bentuk Sederhana</th></tr></thead>
             <tbody class="text-gray-700">
@@ -119,8 +118,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
             </tbody></table></div>
     </section>
 
+    <!-- ================= KATEGORI B ================= -->
     <section class="bg-white rounded-xl border p-4 shadow-sm hidden" id="section-B">
-        <h3 class="font-semibold text-purple-700 text-lg mb-4 flex items-center"><i class="fas fa-star-half-alt text-purple-500 mr-2"></i> Kategori B</h3>
+        <h3 class="font-semibold text-purple-700 text-lg mb-4"><i class="fas fa-star-half-alt text-purple-500 mr-2"></i> Kategori B</h3>
         <div class="overflow-x-auto"><table class="min-w-full border border-gray-300 text-sm">
             <thead class="bg-gray-100"><tr><th class="border border-gray-300 p-3 w-1/5 text-left">Bentuk akar</th><th class="border border-gray-300 p-3 text-left">Bentuk Sederhana</th></tr></thead>
             <tbody class="text-gray-700">
@@ -132,8 +132,9 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
             </tbody></table></div>
     </section>
 
+    <!-- ================= KATEGORI C ================= -->
     <section class="bg-white rounded-xl border p-4 shadow-sm hidden" id="section-C">
-        <h3 class="font-semibold text-orange-700 text-lg mb-4 flex items-center"><i class="fas fa-check-circle text-orange-500 mr-2"></i> Kategori C</h3>
+        <h3 class="font-semibold text-orange-700 text-lg mb-4"><i class="fas fa-check-circle text-orange-500 mr-2"></i> Kategori C</h3>
         <div class="overflow-x-auto"><table class="min-w-full border border-gray-300 text-sm">
             <thead class="bg-gray-100"><tr><th class="border border-gray-300 p-3 w-1/5 text-left">Bentuk akar</th><th class="border border-gray-300 p-3 text-left">Bentuk Sederhana</th></tr></thead>
             <tbody class="text-gray-700">
@@ -154,8 +155,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
             <label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="radio" name="refleksi-paham" value="Masih perlu latihan" class="h-4 w-4 text-blue-600"> Masih perlu latihan</label>
         </div>
         <h3 class="font-semibold text-gray-800 mb-2">Refleksi Umum</h3>
-        <p class="text-sm text-gray-700 mb-2">Tuliskan satu hal baru yang kamu pelajari.</p>
-        <textarea id="refleksi-umum" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" rows="4" placeholder="Tuliskan refleksimu..."></textarea>
+        <textarea id="refleksi-umum" class="w-full p-3 border border-gray-300 rounded-lg" rows="3" placeholder="Tuliskan refleksimu..."></textarea>
     </section>
 
     <div class="bg-white rounded-xl border p-4 shadow-sm" id="kirim-card">
@@ -167,173 +167,162 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f7f6;
 </div>
 </div>
 
-<div id="fase-kuis" class="hidden max-w-md mx-auto bg-white rounded-2xl shadow-xl p-5 relative min-h-[500px]"><div id="kuis-content"></div></div>
+<div id="fase-kuis" class="hidden max-w-md mx-auto bg-white rounded-2xl shadow-xl p-5 relative min-h-[500px] mt-6"><div id="kuis-content"></div></div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
     /* ================= KONFIGURASI ================= */
-    const GS_URL  = 'https://script.google.com/macros/s/AKfycbw55mTigv_PQFlsw9ia-lxCspgueQwXRH7ouWKnYKXw15BKn9ytmu0l3mFwO1n3a6fS/exec';
-    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5u_MP8qFVe53hTJUvKBun__A0RAM9rDh4GyrSaUrfc5qwAV0Y_OHA_7mxIKjZ8AOpSSUcTy172j_f/pub?gid=1343827068&single=true&output=csv';
-    const SECRET  = 'MTK001#Rahasia!2026@Guru';   // WAJIB sama dengan Code.gs
-    const SYARAT_KIRIM = 'FULL';
-    const MIN_PCT = 0.90;
-    const MENIT_PER_SOAL = 2;
-    const MIN_WAKTU_RATIO = 0.5;
-    const ENABLE_MATH_KEYBOARD = true;
+    const KODE='MTK-001';
+    const GS_URL='https://script.google.com/macros/s/AKfycbw55mTigv_PQFlsw9ia-lxCspgueQwXRH7ouWKnYKXw15BKn9ytmu0l3mFwO1n3a6fS/exec';
+    const CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5u_MP8qFVe53hTJUvKBun__A0RAM9rDh4GyrSaUrfc5qwAV0Y_OHA_7mxIKjZ8AOpSSUcTy172j_f/pub?gid=1343827068&single=true&output=csv';
+    const SECRET='MTK001#Rahasia!2026@Guru';
+    const SYARAT_KIRIM='FULL';
+    const MIN_PCT=0.90;
+    const MENIT_PER_SOAL=2, MIN_WAKTU_RATIO=0.5;
+    const ENABLE_MATH_KEYBOARD=true;
 
-    const $ = s => document.querySelector(s);
-    const $$ = s => document.querySelectorAll(s);
-    const pad = n => String(n).padStart(2,'0');
-    const slug = t => String(t||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
-    const fmtMs = ms => { const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),d=s%60; return h>0?(pad(h)+'.'+pad(m)+'.'+pad(d)):(pad(m)+'.'+pad(d)); };
-    const fmtSec = sec => { sec=Math.max(0,Math.floor(sec)); return pad(Math.floor(sec/60))+':'+pad(sec%60); };
+    const $=s=>document.querySelector(s);
+    const $$=s=>document.querySelectorAll(s);
+    const pad=n=>String(n).padStart(2,'0');
+    const slug=t=>String(t||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+    const fmtMs=ms=>{const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),d=s%60;return h>0?(pad(h)+'.'+pad(m)+'.'+pad(d)):(pad(m)+'.'+pad(d));};
+    const fmtSec=sec=>{sec=Math.max(0,Math.floor(sec));return pad(Math.floor(sec/60))+':'+pad(sec%60);};
 
-    /* ============ LOADER ============ */
     let loaderT=null;
-    function showLoader(m){ const o=$('#loader-overlay'); if(m) $('#loader-text').textContent=m; o.classList.remove('hidden');
-      clearTimeout(loaderT); $('#loader-sub').textContent='mohon tunggu, jangan tutup halaman';
-      loaderT=setTimeout(()=>{ $('#loader-sub').textContent='Koneksi lambat... periksa internet Anda.'; },12000); }
-    function hideLoader(){ $('#loader-overlay').classList.add('hidden'); clearTimeout(loaderT); }
+    function showLoader(m){const o=$('#loader-overlay');if(m)$('#loader-text').textContent=m;o.classList.remove('hidden');clearTimeout(loaderT);$('#loader-sub').textContent='mohon tunggu, jangan tutup halaman';loaderT=setTimeout(()=>{$('#loader-sub').textContent='Koneksi lambat... periksa internet Anda.';},12000);}
+    function hideLoader(){$('#loader-overlay').classList.add('hidden');clearTimeout(loaderT);}
+    const typesetMath=()=>{const el=$('#kuis-content');if(el&&window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([el]).catch(()=>{});};
 
-    /* ============ MATHJAX DINAMIS (KUIS) ============ */
-    const typesetMath = () => { const el=$('#kuis-content'); if(el && window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([el]).catch(()=>{}); };
-
-    /* ============ 1. DEKRIPSI TOKEN (6 bagian) ============ */
-    const b64urlToB64 = t => { let s=t.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='='; return s; };
-    function decryptToken(t){ try { return CryptoJS.AES.decrypt(b64urlToB64(t), SECRET).toString(CryptoJS.enc.Utf8) || null; } catch(e){ return null; } }
-
-    const token = new URLSearchParams(window.location.search).get('d');
-    let kode='MTK-001', username='', nama1='', kelas='', kategori='', gen=1;
-    const errors = [];
-    if (!token) errors.push('Token link tidak ditemukan. Gunakan link lengkap dari guru.');
-    else {
-        const plain = decryptToken(token);
-        if (!plain) errors.push('Token link rusak / tidak valid.');
-        else {
-            const p = plain.split('|');
-            if (p.length !== 6) errors.push('Format token tidak sesuai (versi lama). Minta link baru ke guru.');
-            else {
-                kode=p[0].trim()||'MTK-001'; username=p[1].trim(); nama1=p[2].trim(); kelas=p[3].trim();
-                kategori=p[4].trim().toUpperCase(); gen=parseInt(p[5],10)||1;
-                if (!username) errors.push('Username dalam token kosong.');
-                if (!nama1) errors.push('Nama dalam token kosong.');
-                if (!kelas) errors.push('Kelas dalam token kosong.');
-                if (!['A','B','C'].includes(kategori)) errors.push('Kategori dalam token tidak valid.');
+    /* ============ 1. TOKEN 6 BAGIAN ============ */
+    const b64urlToB64=t=>{let s=t.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return s;};
+    function decryptToken(t){try{return CryptoJS.AES.decrypt(b64urlToB64(t),SECRET).toString(CryptoJS.enc.Utf8)||null;}catch(e){return null;}}
+    const token=new URLSearchParams(window.location.search).get('d');
+    let kode=KODE,username='',nama1='',kelas='',kategori='',gen=1;
+    const errors=[];
+    if(!token)errors.push('Token link tidak ditemukan. Gunakan link lengkap dari guru.');
+    else{
+        const plain=decryptToken(token);
+        if(!plain)errors.push('Token link rusak / tidak valid.');
+        else{
+            const p=plain.split('|');
+            if(p.length!==6)errors.push('Format token tidak sesuai. Minta link baru ke guru.');
+            else{
+                kode=p[0].trim();username=p[1].trim();nama1=p[2].trim();kelas=p[3].trim();
+                kategori=p[4].trim().toUpperCase();gen=parseInt(p[5],10)||1;
+                if(kode!==KODE)errors.push('Link ini bukan untuk halaman '+KODE+'.');
+                if(!username)errors.push('Username dalam token kosong.');
+                if(!nama1)errors.push('Nama dalam token kosong.');
+                if(!kelas)errors.push('Kelas dalam token kosong.');
+                if(!['A','B','C'].includes(kategori))errors.push('Kategori dalam token tidak valid.');
             }
         }
     }
-    if (errors.length) {
+    if(errors.length){
         $('#main-container').classList.add('hidden');
         $('#error-panel').classList.remove('hidden');
-        errors.forEach(e => { const li=document.createElement('li'); li.textContent=e; $('#error-list').appendChild(li); });
-        hideLoader();
-        return;
+        errors.forEach(e=>{const li=document.createElement('li');li.textContent=e;$('#error-list').appendChild(li);});
+        hideLoader(); return;
     }
-
-    $('#input-kode').value = kode;
-    $('#input-nama1').value = nama1;
-    $('#input-kelas').value = kelas;
-    $('#kategori-select').value = kategori;
-    ['section-A','section-B','section-C'].forEach(id => $('#'+id).classList.add('hidden'));
+    $('#input-kode').value=kode; $('#input-nama1').value=nama1; $('#input-kelas').value=kelas;
+    $('#kategori-select').value=kategori;
+    ['section-A','section-B','section-C'].forEach(id=>$('#'+id).classList.add('hidden'));
     $('#section-'+kategori).classList.remove('hidden');
 
-    /* ============ 2. LOCAL STORAGE UNIK (username + gen) ============ */
-    const storeKey = 'LKPD_'+slug(kode)+'_'+slug(username)+'_g'+gen;
-    let db = { lkpdStarted:false, lkpdAccMs:0, lkpdResumeEpoch:null, lkpdSubmitted:false, lkpdSubmittedAt:null, lkpdFinalMs:0, lkpdAnswers:{}, kuisSubmitted:false, kuisSubmittedAt:null, kuisState:null };
-    try { const r=localStorage.getItem(storeKey); if(r) db=Object.assign(db, JSON.parse(r)); } catch(e){}
-    const save = () => { try { localStorage.setItem(storeKey, JSON.stringify(db)); } catch(e){} };
+    /* ============ 2. STORAGE ============ */
+    const storeKey='LKPD_'+slug(kode)+'_'+slug(username)+'_g'+gen;
+    let db={lkpdStarted:false,lkpdAccMs:0,lkpdResumeEpoch:null,lkpdSubmitted:false,lkpdSubmittedAt:null,lkpdFinalMs:0,lkpdAnswers:{},kuisSubmitted:false,kuisState:null};
+    try{const r=localStorage.getItem(storeKey);if(r)db=Object.assign(db,JSON.parse(r));}catch(e){}
+    const save=()=>{try{localStorage.setItem(storeKey,JSON.stringify(db));}catch(e){}};
 
     /* ============ 3. TOOLBAR SIMBOL (termasuk =) ============ */
-    const insertAtCursor = (input,val) => { const s=input.selectionStart??input.value.length,e=input.selectionEnd??s; input.value=input.value.substring(0,s)+val+input.value.substring(e); input.selectionStart=input.selectionEnd=s+val.length; input.focus(); input.dispatchEvent(new Event('input')); };
-    if (ENABLE_MATH_KEYBOARD && !db.lkpdSubmitted) {
-        $$('.math-input').forEach(input => {
-            const w=document.createElement('div'); w.className='relative flex-1 min-w-[200px]';
-            input.parentNode.insertBefore(w,input); w.appendChild(input); input.classList.remove('flex-1','min-w-[200px]');
-            const tb=document.createElement('div'); tb.className='math-toolbar hidden';
-            ['√','^','(',')','+','-','×','÷','='].forEach(sym => { const b=document.createElement('button'); b.type='button'; b.className='kbd-btn'; b.textContent=sym; b.addEventListener('pointerdown',e=>e.preventDefault()); b.addEventListener('click',e=>{e.preventDefault();insertAtCursor(input,sym);}); tb.appendChild(b); });
-            const c=document.createElement('button'); c.type='button'; c.className='tb-hide'; c.textContent='✕';
-            c.addEventListener('click',()=>{tb.classList.add('hidden');input.blur();}); tb.appendChild(c); w.appendChild(tb);
+    const insertAtCursor=(input,val)=>{const s=input.selectionStart??input.value.length,e=input.selectionEnd??s;input.value=input.value.substring(0,s)+val+input.value.substring(e);input.selectionStart=input.selectionEnd=s+val.length;input.focus();input.dispatchEvent(new Event('input'));};
+    if(ENABLE_MATH_KEYBOARD&&!db.lkpdSubmitted){
+        $$('.math-input').forEach(input=>{
+            const w=document.createElement('div');w.className='relative flex-1 min-w-[200px]';
+            input.parentNode.insertBefore(w,input);w.appendChild(input);input.classList.remove('flex-1','min-w-[200px]');
+            const tb=document.createElement('div');tb.className='math-toolbar hidden';
+            ['√','^','(',')','+','-','×','÷','='].forEach(sym=>{const b=document.createElement('button');b.type='button';b.className='kbd-btn';b.textContent=sym;b.addEventListener('pointerdown',e=>e.preventDefault());b.addEventListener('click',e=>{e.preventDefault();insertAtCursor(input,sym);});tb.appendChild(b);});
+            const c=document.createElement('button');c.type='button';c.className='tb-hide';c.textContent='✕';
+            c.addEventListener('click',()=>{tb.classList.add('hidden');input.blur();});tb.appendChild(c);w.appendChild(tb);
             input.addEventListener('focus',()=>{tb.classList.remove('hidden');setTimeout(()=>input.scrollIntoView({block:'center',behavior:'smooth'}),250);});
             input.addEventListener('blur',()=>setTimeout(()=>tb.classList.add('hidden'),120));
         });
     }
 
-    /* ============ 4. LKPD: AUTOSAVE + PROGRES + TIMER ============ */
-    $$('.num-input,.math-input').forEach((el,i)=>el.dataset.key='q'+i);
-    const collectLKPD = () => { const o={}; $$('.num-input,.math-input').forEach(el=>o[el.dataset.key]=el.value); o.nama2=$('#input-nama2').value; const r=document.querySelector('input[name="refleksi-paham"]:checked'); o.refPaham=r?r.value:''; o.refUmum=$('#refleksi-umum').value; return o; };
-    if (!db.lkpdSubmitted && db.lkpdAnswers) {
+    /* ============ 4. AUTOSAVE / PROGRES / TIMER ============ */
+    $$('input.num-input,.math-input').forEach((el,i)=>el.dataset.key='q'+i);
+    const collectLKPD=()=>{const o={};$$('.num-input,.math-input').forEach(el=>o[el.dataset.key]=el.value);o.nama2=$('#input-nama2').value;const r=document.querySelector('input[name="refleksi-paham"]:checked');o.refPaham=r?r.value:'';o.refUmum=$('#refleksi-umum').value;return o;};
+    if(!db.lkpdSubmitted&&db.lkpdAnswers){
         const a=db.lkpdAnswers;
-        $$('.num-input,.math-input').forEach(el=>{ if(a[el.dataset.key]!==undefined) el.value=a[el.dataset.key]; });
-        if(a.nama2) $('#input-nama2').value=a.nama2;
-        if(a.refPaham){ const r=document.querySelector('input[name="refleksi-paham"][value="'+a.refPaham+'"]'); if(r) r.checked=true; }
-        if(a.refUmum) $('#refleksi-umum').value=a.refUmum;
+        $$('.num-input,.math-input').forEach(el=>{if(a[el.dataset.key]!==undefined)el.value=a[el.dataset.key];});
+        if(a.nama2)$('#input-nama2').value=a.nama2;
+        if(a.refPaham){const r=document.querySelector('input[name="refleksi-paham"][value="'+a.refPaham+'"]');if(r)r.checked=true;}
+        if(a.refUmum)$('#refleksi-umum').value=a.refUmum;
     }
-    const totalButir = 2 + $('#section-'+kategori).querySelectorAll('tr[data-label]').length + 2;
-    const getIsiCount = () => {
+    const totalButir=2+$('#section-'+kategori).querySelectorAll('tr[data-label]').length+2;
+    const getIsiCount=()=>{
         let c=0;
-        $$('.math-input[data-label]').forEach(i=>{ if((i.value||'').trim()) c++; });
+        $$('.math-input[data-label]').forEach(i=>{if((i.value||'').trim())c++;});
         $('#section-'+kategori).querySelectorAll('tr[data-label]').forEach(tr=>{
             const mi=tr.querySelector('.math-input');
-            if (mi) { if(mi.value.trim()) c++; return; }
+            if(mi){if(mi.value.trim())c++;return;}
             const nums=tr.querySelectorAll('.num-input');
-            if (nums.length && Array.from(nums).every(n=>n.value.trim())) c++;
+            if(nums.length&&Array.from(nums).every(n=>n.value.trim()))c++;
         });
-        if (document.querySelector('input[name="refleksi-paham"]:checked')) c++;
-        if ($('#refleksi-umum').value.trim()) c++;
+        if(document.querySelector('input[name="refleksi-paham"]:checked'))c++;
+        if($('#refleksi-umum').value.trim())c++;
         return c;
     };
-    const updateProgress = () => { const isi=getIsiCount(); $('#progress-text').textContent=isi+'/'+totalButir; $('#progress-bar').style.width=Math.round(isi/totalButir*100)+'%'; };
+    const updateProgress=()=>{const i=getIsiCount();$('#progress-text').textContent=i+'/'+totalButir;$('#progress-bar').style.width=Math.round(i/totalButir*100)+'%';};
     updateProgress();
 
-    const timerEl=$('#timer-display'), timerHint=$('#timer-hint');
-    const pauseLKPD=()=>{ if(db.lkpdResumeEpoch){ db.lkpdAccMs+=Date.now()-db.lkpdResumeEpoch; db.lkpdResumeEpoch=null; } };
-    const resumeLKPD=()=>{ if(db.lkpdStarted&&!db.lkpdSubmitted&&!db.lkpdResumeEpoch) db.lkpdResumeEpoch=Date.now(); };
-    const currentMsLKPD=()=> db.lkpdSubmitted?(db.lkpdFinalMs||0):(db.lkpdAccMs+(db.lkpdResumeEpoch?Date.now()-db.lkpdResumeEpoch:0));
-    setInterval(()=>{ if(!db.lkpdSubmitted) timerEl.textContent=fmtMs(currentMsLKPD()); },500);
-    setInterval(()=>{ if(db.lkpdResumeEpoch){ pauseLKPD(); resumeLKPD(); save(); } },5000);
-    document.addEventListener('visibilitychange',()=>{ if(db.lkpdSubmitted)return; if(document.hidden){pauseLKPD();db.lkpdAnswers=collectLKPD();save();} else resumeLKPD(); });
-    window.addEventListener('pagehide',()=>{ pauseLKPD(); db.lkpdAnswers=collectLKPD(); save(); });
-    if (db.lkpdStarted && !db.lkpdSubmitted){ resumeLKPD(); timerHint.textContent='(melanjutkan)'; }
+    const timerEl=$('#timer-display'),timerHint=$('#timer-hint');
+    const pauseLKPD=()=>{if(db.lkpdResumeEpoch){db.lkpdAccMs+=Date.now()-db.lkpdResumeEpoch;db.lkpdResumeEpoch=null;}};
+    const resumeLKPD=()=>{if(db.lkpdStarted&&!db.lkpdSubmitted&&!db.lkpdResumeEpoch)db.lkpdResumeEpoch=Date.now();};
+    const currentMsLKPD=()=>db.lkpdSubmitted?(db.lkpdFinalMs||0):(db.lkpdAccMs+(db.lkpdResumeEpoch?Date.now()-db.lkpdResumeEpoch:0));
+    setInterval(()=>{if(!db.lkpdSubmitted)timerEl.textContent=fmtMs(currentMsLKPD());},500);
+    setInterval(()=>{if(db.lkpdResumeEpoch){pauseLKPD();resumeLKPD();save();}},5000);
+    document.addEventListener('visibilitychange',()=>{if(db.lkpdSubmitted)return;if(document.hidden){pauseLKPD();db.lkpdAnswers=collectLKPD();save();}else resumeLKPD();});
+    window.addEventListener('pagehide',()=>{pauseLKPD();db.lkpdAnswers=collectLKPD();save();});
+    if(db.lkpdStarted&&!db.lkpdSubmitted){resumeLKPD();timerHint.textContent='(melanjutkan)';}
 
     let saveT;
-    $('#fase-lkpd').addEventListener('input', e => {
+    $('#fase-lkpd').addEventListener('input',e=>{
         const t=e.target;
-        if (t.classList.contains('num-input')){ let v=t.value.replace(/[^0-9]/g,''); if(v.length>3)v=v.slice(0,3); t.value=v; }
-        if (t.classList.contains('math-input')){ let v=t.value.replace(/\s+/g,'').replace(/[^0-9,√^+\-×÷\(\)=]/g,''); if(v.length>50)v=v.slice(0,50); t.value=v; }
-        if (!db.lkpdStarted && !db.lkpdSubmitted){ db.lkpdStarted=true; db.lkpdAccMs=0; db.lkpdResumeEpoch=Date.now(); timerHint.textContent='(berjalan)'; save(); }
+        if(t.classList.contains('num-input')){let v=t.value.replace(/[^0-9]/g,'');if(v.length>3)v=v.slice(0,3);t.value=v;}
+        if(t.classList.contains('math-input')){let v=t.value.replace(/\s+/g,'').replace(/[^0-9,√^+\-×÷\(\)=]/g,'');if(v.length>50)v=v.slice(0,50);t.value=v;}
+        if(!db.lkpdStarted&&!db.lkpdSubmitted){db.lkpdStarted=true;db.lkpdAccMs=0;db.lkpdResumeEpoch=Date.now();timerHint.textContent='(berjalan)';save();}
         clearTimeout(saveT);
-        saveT=setTimeout(()=>{ if(!db.lkpdSubmitted){ db.lkpdAnswers=collectLKPD(); save(); updateProgress(); } },300);
+        saveT=setTimeout(()=>{if(!db.lkpdSubmitted){db.lkpdAnswers=collectLKPD();save();updateProgress();}},300);
     });
-    $('#fase-lkpd').addEventListener('change',()=>{ if(!db.lkpdSubmitted){ db.lkpdAnswers=collectLKPD(); save(); updateProgress(); } });
+    $('#fase-lkpd').addEventListener('change',()=>{if(!db.lkpdSubmitted){db.lkpdAnswers=collectLKPD();save();updateProgress();}});
 
-    /* ============ 5. COLLAPSE LKPD + CTA KUIS ============ */
+    /* ============ 5. COLLAPSE + CTA + KIRIM ============ */
     function collapseLKPD(){
-        const sections=$$('#fase-lkpd section'); sections.forEach(s=>s.classList.add('hidden'));
-        const prog=$('#kirim-card'); if(prog) prog.classList.add('hidden');
+        const sections=$$('#fase-lkpd section');sections.forEach(s=>s.classList.add('hidden'));
+        const prog=$('#kirim-card');if(prog)prog.classList.add('hidden');
         if(!$('#lkpd-summary-card')){
-            const card=document.createElement('div'); card.id='lkpd-summary-card';
+            const card=document.createElement('div');card.id='lkpd-summary-card';
             card.className='bg-green-50 border border-green-300 rounded-xl p-3 text-sm cursor-pointer';
             card.innerHTML='<span class="font-semibold text-green-800"><i class="fas fa-lock mr-2"></i>LKPD terkunci & terkirim — ketuk untuk membuka/melipat ringkasan (mode baca).</span>';
-            card.addEventListener('click',()=>{ const showNow=card.dataset.open!=='1'; card.dataset.open=showNow?'1':'0'; sections.forEach(s=>s.classList.toggle('hidden',!showNow)); });
-            const cont=$('#fase-lkpd .space-y-6'); cont.insertBefore(card, cont.children[1]||null);
+            card.addEventListener('click',()=>{const showNow=card.dataset.open!=='1';card.dataset.open=showNow?'1':'0';sections.forEach(s=>s.classList.toggle('hidden',!showNow));});
+            const cont=$('#fase-lkpd .space-y-6');cont.insertBefore(card,cont.children[1]||null);
         }
     }
     function showKuisCTA(){
-        if(db.kuisSubmitted) return;
-        if(!$('#cta-kuis')){ const b=document.createElement('button'); b.id='cta-kuis'; b.className='fixed bottom-5 right-5 z-50 bg-indigo-600 text-white font-bold px-5 py-3 rounded-full shadow-xl'; b.innerHTML='🎯 Lanjutkan Kuis'; b.addEventListener('click',()=>$('#fase-kuis').scrollIntoView({behavior:'smooth'})); document.body.appendChild(b); }
+        if(db.kuisSubmitted)return;
+        if(!$('#cta-kuis')){const b=document.createElement('button');b.id='cta-kuis';b.className='fixed bottom-5 right-5 z-50 bg-indigo-600 text-white font-bold px-5 py-3 rounded-full shadow-xl';b.innerHTML='🎯 Lanjutkan Kuis';b.addEventListener('click',()=>$('#fase-kuis').scrollIntoView({behavior:'smooth'}));document.body.appendChild(b);}
         setTimeout(()=>$('#fase-kuis').scrollIntoView({behavior:'smooth'}),400);
     }
-
-    /* ============ 6. KIRIM LKPD ============ */
-    const valOr = v => { v=(v||'').trim(); return v===''?'-':v.replace(/\|/g,'/'); };
-    const buildJawabanLKPD = () => {
+    const valOr=v=>{v=(v||'').trim();return v===''?'-':v.replace(/\|/g,'/');};
+    const buildJawabanLKPD=()=>{
         const parts=[];
         $$('.math-input[data-label]').forEach(i=>parts.push(i.dataset.label+': '+valOr(i.value)));
         $('#section-'+kategori).querySelectorAll('tr[data-label]').forEach(tr=>{
             const mi=tr.querySelector('.math-input');
-            if (mi) parts.push(tr.dataset.label+': '+valOr(mi.value));
+            if(mi)parts.push(tr.dataset.label+': '+valOr(mi.value));
             else parts.push(tr.dataset.label+': '+Array.from(tr.querySelectorAll('.num-input')).map(n=>valOr(n.value)).join(','));
         });
         const r=document.querySelector('input[name="refleksi-paham"]:checked');
@@ -341,202 +330,155 @@ document.addEventListener('DOMContentLoaded', () => {
         parts.push('RefleksiUmum: '+valOr($('#refleksi-umum').value).replace(/\s+/g,' '));
         return parts.join(' | ');
     };
-    const lockLKPD = () => {
+    const lockLKPD=()=>{
         $$('#fase-lkpd input,#fase-lkpd textarea,#fase-lkpd select').forEach(e=>e.disabled=true);
         $('#btn-kirim-lkpd').classList.add('hidden');
         $('#lkpd-submitted-banner').classList.remove('hidden');
         $('#lkpd-submitted-at').textContent=db.lkpdSubmittedAt||'-';
-        timerHint.textContent='(waktu final)'; timerEl.textContent=fmtMs(db.lkpdFinalMs||0);
-        collapseLKPD(); showKuisCTA();
+        timerHint.textContent='(waktu final)';timerEl.textContent=fmtMs(db.lkpdFinalMs||0);
+        collapseLKPD();showKuisCTA();
     };
-    if (db.lkpdSubmitted) lockLKPD();
+    if(db.lkpdSubmitted)lockLKPD();
 
-    $('#btn-kirim-lkpd').addEventListener('click', async () => {
-        if (db.lkpdSubmitted) return;
+    $('#btn-kirim-lkpd').addEventListener('click',async()=>{
+        if(db.lkpdSubmitted)return;
         const isi=getIsiCount();
-        const butuh = SYARAT_KIRIM==='FULL'? totalButir : Math.ceil(totalButir*MIN_PCT);
-        if (isi<butuh){ alert('Belum cukup terisi: '+isi+'/'+butuh+' butir. Lengkapi dulu.'); return; }
-        if (!confirm('Kirim LKPD sekarang? Jawaban LKPD akan terkunci.')) return;
+        const butuh=SYARAT_KIRIM==='FULL'?totalButir:Math.ceil(totalButir*MIN_PCT);
+        if(isi<butuh){alert('Belum cukup terisi: '+isi+'/'+butuh+' butir. Lengkapi dulu.');return;}
+        if(!confirm('Kirim LKPD sekarang? Jawaban LKPD akan terkunci.'))return;
         showLoader('📤 Mengirim LKPD ke guru...');
-        pauseLKPD(); save();
-        const payload={ tipe:'LKPD', kode: kode, nama1, kelas, kategori, username, nama2: $('#input-nama2').value.trim()||'-', jawaban: buildJawabanLKPD(), waktuPengerjaan: fmtMs(db.lkpdAccMs), percobaan: gen };
-        try {
+        pauseLKPD();save();
+        const payload={tipe:'LKPD',kode:kode,nama1,kelas,kategori,username,nama2:$('#input-nama2').value.trim()||'-',jawaban:buildJawabanLKPD(),waktuPengerjaan:fmtMs(db.lkpdAccMs),percobaan:gen};
+        try{
             await fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-            db.lkpdFinalMs=db.lkpdAccMs; db.lkpdSubmitted=true; db.lkpdSubmittedAt=new Date().toLocaleString('id-ID'); save();
+            db.lkpdFinalMs=db.lkpdAccMs;db.lkpdSubmitted=true;db.lkpdSubmittedAt=new Date().toLocaleString('id-ID');save();
             lockLKPD();
             $('#fase-kuis').classList.remove('hidden');
             $('#fase-kuis').scrollIntoView({behavior:'smooth'});
             renderKuisHome();
-        } catch(err){ resumeLKPD(); save(); alert('Gagal mengirim. Jawaban tersimpan lokal.'); }
-        finally { hideLoader(); }
+        }catch(err){resumeLKPD();save();alert('Gagal mengirim. Jawaban tersimpan lokal.');}
+        finally{hideLoader();}
     });
 
-    /* ============ 7. KUIS ============ */
-    let kuis={ step:'home', questions:[], currentIndex:0, userAnswers:{}, score:0, totalSeconds:0, remainingSeconds:0, totalMs:0, intervalId:null, showGrid:false, sortedPairs:[] };
-    if (db.kuisState) Object.assign(kuis, db.kuisState);
-    const saveKuis=()=>{ db.kuisState={...kuis, intervalId:null}; save(); };
+    /* ============ 6. KUIS (CSV + MathJax) ============ */
+    let kuis={step:'home',questions:[],currentIndex:0,userAnswers:{},score:0,totalSeconds:0,remainingSeconds:0,totalMs:0,intervalId:null,showGrid:false,sortedPairs:[]};
+    if(db.kuisState)Object.assign(kuis,db.kuisState);
+    const saveKuis=()=>{db.kuisState={...kuis,intervalId:null};save();};
     const shuffle=a=>{const arr=[...a];for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;};
     const parseCSV=text=>{const lines=text.split('\n').filter(l=>l.trim()!=='');if(lines.length<2)return[];const pl=line=>{const r=[];let c='',q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"')q=!q;else if(ch===','&&!q){r.push(c.trim().replace(/^"|"$/g,''));c='';}else c+=ch;}r.push(c.trim().replace(/^"|"$/g,''));return r;};const h=pl(lines[0]);const res=[];for(let i=1;i<lines.length;i++){const v=pl(lines[i]);const o={};h.forEach((x,idx)=>o[x.trim()]=v[idx]||'');res.push(o);}return res;};
     const mapQuestions=raw=>raw.map((row,idx)=>{
         const soal=row.Soal||row.soal||'';
         const jb=(row.Jawaban||row.jawaban||'').trim().toUpperCase();
-        let rk=(row.Kategori||row.kategori||'C').trim().toUpperCase();
-        let ck=rk; if(['A','B','C'].includes(rk.charAt(0))) ck=rk.charAt(0);
-        const rawNo=row.NoUrut||row.noUrut||row.no||'';
-        let noUrut=parseInt(rawNo,10); const noUrutMissing=isNaN(noUrut); if(noUrutMissing) noUrut=idx+1;
-        const options=[{text:row.OpsiA||row.opsiA||'',key:'A',isCorrect:false},{text:row.OpsiB||row.opsiB||'',key:'B',isCorrect:false},{text:row.OpsiC||row.opsiC||'',key:'C',isCorrect:false},{text:row.OpsiD||row.opsiD||'',key:'D',isCorrect:false}];
-        options.forEach(o=>{ if(o.key===jb) o.isCorrect=true; });
-        return { noUrut,noUrutMissing,mapel:row.Mapel||row.mapel||'Umum',materi:row.Materi||row.materi||'-',soal,options,kategori:ck,jawabanBenar:jb };
+        let rk=(row.Kategori||row.kategori||'C').trim().toUpperCase();let ck=rk;if(['A','B','C'].includes(rk.charAt(0)))ck=rk.charAt(0);
+        const rawNo=row.NoUrut||row.no||'';let noUrut=parseInt(rawNo,10);const noUrutMissing=isNaN(noUrut);if(noUrutMissing)noUrut=idx+1;
+        const options=[{text:row.OpsiA||'',key:'A',isCorrect:false},{text:row.OpsiB||'',key:'B',isCorrect:false},{text:row.OpsiC||'',key:'C',isCorrect:false},{text:row.OpsiD||'',key:'D',isCorrect:false}];
+        options.forEach(o=>{if(o.key===jb)o.isCorrect=true;});
+        return {noUrut,noUrutMissing,materi:row.Materi||'-',soal,options,kategori:ck};
     }).filter(q=>q.soal&&q.options.some(o=>o.text!==''));
-
-    const renderKuis=()=>{ const app=$('#kuis-content'); if(!app)return; app.innerHTML=''; if(kuis.step==='home')renderKuisHome(); else if(kuis.step==='loading')renderKuisLoading(); else if(kuis.step==='quiz')renderKuisQuiz(); else if(kuis.step==='result')renderKuisResult(); else if(kuis.step==='success')renderKuisSuccess(); };
-
+    const renderKuis=()=>{const app=$('#kuis-content');if(!app)return;app.innerHTML='';if(kuis.step==='home')renderKuisHome();else if(kuis.step==='loading')renderKuisLoading();else if(kuis.step==='quiz')renderKuisQuiz();else if(kuis.step==='result')renderKuisResult();else if(kuis.step==='success')renderKuisSuccess();};
     function renderKuisHome(){
-        if (db.kuisSubmitted){ renderKuisSuccess(); return; }
         const app=$('#kuis-content');
-        const kl={A:'A - Sulit',B:'B - Sedang',C:'C - Mudah'};
-        app.innerHTML=`<div class="text-center fade-in flex flex-col justify-center">
-            <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4"><span class="text-3xl">📚</span></div>
-            <h1 class="text-2xl font-bold text-gray-800 mb-1">Kuis Interaktif</h1>
-            <p class="text-gray-500 text-sm mb-6">Lanjutan LKPD — selamat mengerjakan!</p>
-            <div class="space-y-4 text-left">
-                <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Nama Lengkap</label><input type="text" value="${nama1}" disabled class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 font-medium"></div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Kelas</label><input type="text" value="${kelas}" disabled class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 font-medium text-center"></div>
-                    <div><label class="block text-xs font-semibold text-gray-500 mb-1 uppercase">Kategori</label><input type="text" value="${kl[kategori]||kategori}" disabled class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 font-medium text-center"></div>
-                </div>
-                <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mt-4"><p class="text-sm text-blue-800 leading-relaxed"><span class="font-bold">ℹ️ Aturan:</span><br>• Waktu: Jumlah Soal × ${MENIT_PER_SOAL} menit<br>• Wajib menjawab <b>semua</b> soal.<br>• Tombol "Selesai" aktif setelah ${Math.round(MIN_WAKTU_RATIO*100)}% waktu.<br>• Soal diacak; hasil diurutkan sesuai nomor asli.</p></div>
-                <button id="btn-start-kuis" class="w-full bg-indigo-600 text-white font-bold py-3.5 px-6 rounded-xl hover:bg-indigo-700 shadow-lg">🚀 Mulai Kuis</button>
-            </div></div>`;
-        $('#btn-start-kuis').addEventListener('click', handleStartKuis);
+        if(db.kuisSubmitted){renderKuisSuccess();return;}
+        app.innerHTML=`<div class="text-center fade-in"><h2 class="text-xl font-bold text-gray-800 mb-2">Kuis Interaktif</h2><p class="text-sm text-gray-500 mb-6">Lanjutan LKPD — ${nama1}</p>
+        <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 text-xs text-blue-800 text-left mb-4"><b>Aturan:</b> soal acak sesuai kategori • waktu ${MENIT_PER_SOAL} menit/soal • tombol Selesai aktif setelah ${Math.round(MIN_WAKTU_RATIO*100)}% waktu & semua terjawab.</div>
+        <button id="btn-start-kuis" class="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl">🚀 Mulai Kuis</button></div>`;
+        $('#btn-start-kuis').addEventListener('click',handleStartKuis);
     }
-    function renderKuisLoading(){ $('#kuis-content').innerHTML=`<div class="flex flex-col items-center justify-center min-h-[400px] fade-in"><div class="animate-spin rounded-full h-12 w-12 border-4 border-indigo-100 border-t-indigo-600 mb-4"></div><p class="text-gray-600 font-medium">Memuat bank soal...</p></div>`; }
+    function renderKuisLoading(){$('#kuis-content').innerHTML=`<div class="flex flex-col items-center justify-center min-h-[300px]"><div class="animate-spin rounded-full h-12 w-12 border-4 border-indigo-100 border-t-indigo-600 mb-4"></div><p class="text-gray-600 font-medium">Memuat bank soal...</p></div>`;}
     function renderKuisQuiz(){
-        const q=kuis.questions[kuis.currentIndex], total=kuis.questions.length;
-        const progress=((kuis.currentIndex+1)/total)*100;
+        const q=kuis.questions[kuis.currentIndex],total=kuis.questions.length;
         const curAns=kuis.userAnswers[kuis.currentIndex];
         const isW=kuis.remainingSeconds<60;
         $('#kuis-content').innerHTML=`<div class="fade-in flex flex-col">
-            <div class="flex justify-between items-center mb-4">
-                <button id="btn-toggle-grid" class="text-sm font-semibold text-indigo-600 bg-indigo-50 px-3 py-2 rounded-lg hover:bg-indigo-100">📋 Nomor</button>
-                <div id="timer-display" class="text-xl font-bold font-mono px-3 py-1 rounded-lg ${isW?'timer-warning':'text-indigo-600 bg-indigo-50'}">⏱️ ${fmtSec(kuis.remainingSeconds)}</div>
-            </div>
-            ${kuis.showGrid?`<div class="bg-gray-50 rounded-xl p-3 mb-4 border border-gray-200"><div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-gray-500 uppercase">Peta Soal</span><button id="btn-close-grid" class="text-gray-400">✕</button></div><div class="grid grid-cols-5 gap-2">${kuis.questions.map((_,idx)=>{const a=kuis.userAnswers[idx]!==undefined;const c=idx===kuis.currentIndex;let cls="h-9 rounded-lg text-sm font-bold ";if(c)cls+="bg-indigo-600 text-white ring-2 ring-indigo-200";else if(a)cls+="bg-green-100 text-green-700 border border-green-200";else cls+="bg-white text-gray-500 border border-gray-200";return `<button class="jump-btn ${cls}" data-idx="${idx}">${idx+1}</button>`;}).join('')}</div></div>`:''}
-            <div class="w-full bg-gray-100 rounded-full h-1.5 mb-4"><div class="bg-indigo-600 h-1.5 rounded-full" style="width:${progress}%"></div></div>
-            <div class="flex justify-between items-center mb-3"><span class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">${q.materi}</span><span class="text-xs text-gray-400">Soal ${kuis.currentIndex+1} / ${total}</span></div>
-            <h2 class="text-lg font-semibold text-gray-800 mb-5 leading-relaxed">${q.soal}</h2>
-            <div class="space-y-3 mb-6">${q.shuffledOptions.map(opt=>{const sel=curAns===opt.key;return `<button class="opt-btn option-btn w-full text-left p-3.5 rounded-xl border-2 flex items-start gap-3 ${sel?'border-indigo-600 bg-indigo-50':'border-gray-100 hover:border-indigo-300 hover:bg-gray-50'}" data-key="${opt.key}"><span class="flex-shrink-0 w-8 h-8 rounded-full ${sel?'bg-indigo-600 text-white':'bg-gray-200 text-gray-600'} text-center leading-8 font-bold text-sm">${opt.key}</span><span class="pt-1 text-sm font-medium text-gray-700">${opt.text}</span></button>`;}).join('')}</div>
-            <div class="grid grid-cols-2 gap-3 mt-auto">
-                <button id="btn-prev" class="py-3 px-4 rounded-xl font-semibold border-2 border-gray-200 text-gray-600 hover:bg-gray-50 ${kuis.currentIndex===0?'opacity-50 cursor-not-allowed':''}" ${kuis.currentIndex===0?'disabled':''}>← Kembali</button>
-                ${kuis.currentIndex===total-1?`<button id="btn-finish" class="py-3 px-4 rounded-xl font-bold text-white shadow-md">🏁 Selesai & Kirim</button>`:`<button id="btn-next" class="py-3 px-4 rounded-xl font-semibold bg-indigo-600 text-white hover:bg-indigo-700 shadow-md">Lanjut →</button>`}
-            </div></div>`;
-        $('#btn-toggle-grid').addEventListener('click',()=>{kuis.showGrid=true;renderKuisQuiz();});
-        if($('#btn-close-grid'))$('#btn-close-grid').addEventListener('click',()=>{kuis.showGrid=false;renderKuisQuiz();});
-        $$('.jump-btn').forEach(b=>b.addEventListener('click',e=>{kuis.currentIndex=parseInt(e.currentTarget.dataset.idx,10);kuis.showGrid=false;saveKuis();renderKuisQuiz();}));
+            <div class="flex justify-between items-center mb-4"><span class="text-xs text-gray-400">Soal ${kuis.currentIndex+1}/${total}</span><div id="timer-display" class="text-xl font-bold font-mono px-3 py-1 rounded-lg ${isW?'timer-warning':'text-indigo-600 bg-indigo-50'}">⏱️ ${fmtSec(kuis.remainingSeconds)}</div></div>
+            <h2 class="text-lg font-semibold text-gray-800 mb-5">${q.soal}</h2>
+            <div class="space-y-3 mb-6">${q.shuffledOptions.map(opt=>{const sel=curAns===opt.key;return `<button class="opt-btn option-btn w-full text-left p-3.5 rounded-xl border-2 flex items-start gap-3 ${sel?'border-indigo-600 bg-indigo-50':'border-gray-100'}" data-key="${opt.key}"><span class="flex-shrink-0 w-8 h-8 rounded-full ${sel?'bg-indigo-600 text-white':'bg-gray-200 text-gray-600'} text-center leading-8 font-bold text-sm">${opt.key}</span><span class="pt-1 text-sm font-medium text-gray-700">${opt.text}</span></button>`;}).join('')}</div>
+            <div class="grid grid-cols-2 gap-3 mt-auto"><button id="btn-prev" class="py-3 px-4 rounded-xl font-semibold border-2 border-gray-200 ${kuis.currentIndex===0?'opacity-50':''}" ${kuis.currentIndex===0?'disabled':''}>← Kembali</button>${kuis.currentIndex===total-1?`<button id="btn-finish" class="py-3 px-4 rounded-xl font-bold text-white shadow-md">🏁 Selesai</button>`:`<button id="btn-next" class="py-3 px-4 rounded-xl font-semibold bg-indigo-600 text-white">Lanjut →</button>`}</div></div>`;
         $$('.opt-btn').forEach(b=>b.addEventListener('click',e=>{kuis.userAnswers[kuis.currentIndex]=e.currentTarget.dataset.key;saveKuis();setTimeout(()=>{if(kuis.currentIndex<kuis.questions.length-1){kuis.currentIndex++;saveKuis();renderKuisQuiz();}else renderKuisQuiz();},250);}));
-        if($('#btn-prev'))$('#btn-prev').addEventListener('click',()=>{if(kuis.currentIndex>0){kuis.currentIndex--;saveKuis();renderKuisQuiz();}});
-        if($('#btn-next'))$('#btn-next').addEventListener('click',()=>{if(kuis.currentIndex<kuis.questions.length-1){kuis.currentIndex++;saveKuis();renderKuisQuiz();}});
-        if($('#btn-finish'))$('#btn-finish').addEventListener('click',()=>finishKuis(false));
-        updateFinishBtnState();
-        typesetMath();
+        if($('#btn-prev'))$('#btn-prev').onclick=()=>{if(kuis.currentIndex>0){kuis.currentIndex--;saveKuis();renderKuisQuiz();}};
+        if($('#btn-next'))$('#btn-next').onclick=()=>{if(kuis.currentIndex<total-1){kuis.currentIndex++;saveKuis();renderKuisQuiz();}};
+        if($('#btn-finish'))$('#btn-finish').onclick=()=>finishKuis(false);
+        updateFinishBtnState();typesetMath();
     }
     function updateFinishBtnState(){
-        const btn=$('#btn-finish'); if(!btn)return;
+        const btn=$('#btn-finish');if(!btn)return;
         const elapsed=kuis.totalSeconds-kuis.remainingSeconds;
         const answered=Object.keys(kuis.userAnswers).length;
         const all=answered===kuis.questions.length;
         const can=elapsed>=kuis.totalSeconds*MIN_WAKTU_RATIO&&all;
-        if(!can){ btn.disabled=true; btn.className="py-3 px-4 rounded-xl font-bold text-white shadow-md bg-gray-300 cursor-not-allowed";
-            btn.textContent = !all ? `Jawab ${answered}/${kuis.questions.length} soal` : `⏱️ Tunggu ${Math.ceil((kuis.totalSeconds*MIN_WAKTU_RATIO-elapsed)/60)} menit lagi`;
-        } else { btn.disabled=false; btn.className="py-3 px-4 rounded-xl font-bold text-white shadow-md bg-green-600 hover:bg-green-700"; btn.textContent='🏁 Selesai & Kirim'; }
+        if(!can){btn.disabled=true;btn.className="py-3 px-4 rounded-xl font-bold text-white shadow-md bg-gray-300 cursor-not-allowed";btn.textContent=!all?`Jawab ${answered}/${kuis.questions.length} soal`:`⏱️ Tunggu ${Math.ceil((kuis.totalSeconds*MIN_WAKTU_RATIO-elapsed)/60)} menit lagi`;}
+        else{btn.disabled=false;btn.className="py-3 px-4 rounded-xl font-bold text-white shadow-md bg-green-600";btn.textContent='🏁 Selesai & Kirim';}
     }
     function finishKuis(isAuto){
         if(!isAuto){
             const elapsed=kuis.totalSeconds-kuis.remainingSeconds;
             const answered=Object.keys(kuis.userAnswers).length;
-            if(answered<kuis.questions.length){ alert('Wajib menjawab semua soal. ('+answered+'/'+kuis.questions.length+')'); return; }
-            if(elapsed<kuis.totalSeconds*MIN_WAKTU_RATIO){ alert('Tunggu minimal '+Math.ceil((kuis.totalSeconds*MIN_WAKTU_RATIO-elapsed)/60)+' menit lagi.'); return; }
-            if(!confirm('Yakin menyelesaikan? Jawaban tidak bisa diubah lagi.')) return;
+            if(answered<kuis.questions.length){alert('Wajib menjawab semua soal.');return;}
+            if(elapsed<kuis.totalSeconds*MIN_WAKTU_RATIO){alert('Tunggu minimal '+Math.ceil((kuis.totalSeconds*MIN_WAKTU_RATIO-elapsed)/60)+' menit lagi.');return;}
+            if(!confirm('Yakin menyelesaikan?'))return;
         }
-        if(kuis.intervalId){ clearInterval(kuis.intervalId); kuis.intervalId=null; }
+        if(kuis.intervalId){clearInterval(kuis.intervalId);kuis.intervalId=null;}
         kuis.totalMs=(kuis.totalSeconds-kuis.remainingSeconds)*1000;
         const pairs=kuis.questions.map((q,i)=>({q,idx:i,ans:kuis.userAnswers[i]}));
         pairs.sort((a,b)=>a.q.noUrut-b.q.noUrut);
         kuis.sortedPairs=pairs;
-        let benar=0; pairs.forEach(p=>{ const c=p.q.options.find(o=>o.isCorrect); if(c&&p.ans===c.key) benar++; });
+        let benar=0;pairs.forEach(p=>{const c=p.q.options.find(o=>o.isCorrect);if(c&&p.ans===c.key)benar++;});
         kuis.score=Math.round((benar/pairs.length)*100);
-        kuis.step='result'; saveKuis(); renderKuis();
+        kuis.step='result';saveKuis();renderKuis();
     }
     function renderKuisResult(){
         let detail='';
-        kuis.sortedPairs.forEach(p=>{
-            const c=p.q.options.find(o=>o.isCorrect); const ck=c?c.key:'?';
-            const label=(p.q.noUrutMissing?'[?]':'')+'No.'+p.q.noUrut;
-            if(p.ans===ck) detail+=`<li class="flex items-center text-green-700 text-sm py-1.5 bg-green-50 px-3 rounded-lg mb-1"><span class="mr-2">✅</span><span><b>${label}:</b> Benar (Jawab: ${p.ans})</span></li>`;
-            else detail+=`<li class="flex items-start text-red-700 text-sm py-1.5 bg-red-50 px-3 rounded-lg mb-1"><span class="mr-2">❌</span><span><b>${label}:</b> Salah (Jawab: ${p.ans||'Kosong'}, Kunci: ${ck})</span></li>`;
-        });
-        $('#kuis-content').innerHTML=`<div class="text-center fade-in flex flex-col justify-center">
-            <div class="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4"><span class="text-4xl">🏆</span></div>
-            <h2 class="text-2xl font-bold text-gray-800 mb-1">Kuis Selesai!</h2>
-            <p class="text-gray-500 text-sm mb-6">Soal diurutkan sesuai nomor asli bank soal.</p>
-            <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-6 mb-6 text-white shadow-lg"><div class="text-5xl font-bold mb-1">${kuis.score}</div><div class="text-indigo-100 text-sm font-medium">Skor Akhir</div></div>
-            <div class="text-left bg-gray-50 rounded-xl p-4 mb-6 max-h-60 overflow-y-auto border border-gray-200 no-scrollbar"><h3 class="font-semibold mb-3 text-sm text-gray-700">Detail Jawaban:</h3><ul>${detail}</ul></div>
-            <button id="btn-kirim-kuis" class="w-full bg-green-600 text-white font-bold py-3.5 px-6 rounded-xl hover:bg-green-700 shadow-lg">📤 Kirim Nilai ke Guru</button>
-            <p class="text-xs text-gray-400 mt-3">*Data dikirim & cache lokal dihapus.</p></div>`;
-        $('#btn-kirim-kuis').addEventListener('click', sendKuisToGAS);
-        typesetMath();
+        kuis.sortedPairs.forEach(p=>{const c=p.q.options.find(o=>o.isCorrect);const ck=c?c.key:'?';const lb=(p.q.noUrutMissing?'[?]':'')+'No.'+p.q.noUrut;
+            if(p.ans===ck)detail+=`<li class="text-green-700 text-sm py-1">✅ <b>${lb}:</b> Benar (${p.ans})</li>`;
+            else detail+=`<li class="text-red-700 text-sm py-1">❌ <b>${lb}:</b> Salah (Jawab: ${p.ans||'Kosong'}, Kunci: ${ck})</li>`;});
+        $('#kuis-content').innerHTML=`<div class="text-center fade-in"><div class="text-5xl mb-3">🏆</div><h2 class="text-xl font-bold text-gray-800">Skor: ${kuis.score}</h2><div class="text-left bg-gray-50 rounded-xl p-4 my-4 max-h-52 overflow-y-auto"><ul>${detail}</ul></div><button id="btn-kirim-kuis" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl">📤 Kirim Nilai</button></div>`;
+        $('#btn-kirim-kuis').addEventListener('click',sendKuisToGAS);typesetMath();
     }
-    function renderKuisSuccess(){
-        $('#kuis-content').innerHTML=`<div class="text-center fade-in flex flex-col justify-center min-h-[400px]"><div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"><span class="text-4xl">✅</span></div><h2 class="text-2xl font-bold text-gray-800 mb-2">Berhasil Dikirim!</h2><p class="text-gray-600 mb-8 text-sm">Nilai kamu tersimpan aman di database guru.</p></div>`;
-        $('#kuis-submitted-banner').classList.remove('hidden');
-        $('#lkpd-submitted-banner').classList.remove('hidden');
-        const c=$('#cta-kuis'); if(c) c.remove();
-    }
+    function renderKuisSuccess(){$('#kuis-content').innerHTML=`<div class="text-center py-10"><div class="text-5xl mb-4">✅</div><h2 class="text-xl font-bold text-gray-800">Berhasil Dikirim!</h2></div>`;$('#kuis-submitted-banner').classList.remove('hidden');const c=$('#cta-kuis');if(c)c.remove();}
     async function sendKuisToGAS(){
-        const btn=$('#btn-kirim-kuis'); btn.disabled=true; btn.textContent='⏳ Mengirim...';
+        const btn=$('#btn-kirim-kuis');btn.disabled=true;btn.textContent='⏳ Mengirim...';
         showLoader('📤 Mengirim nilai kuis...');
-        const detailStr=kuis.sortedPairs.map(p=>{ const c=p.q.options.find(o=>o.isCorrect); const ck=c?c.key:'?'; const st=p.ans===ck?'✅':'❌'; return (p.q.noUrutMissing?'[?]':'')+`No.${p.q.noUrut}: ${st} (Jawab: ${p.ans||'Kosong'}, Kunci: ${ck})`; }).join(' | ');
-        const payload={ tipe:'KUIS', kode: kode, nama1, kelas, kategori, username, skor:kuis.score, jawaban:detailStr, waktuPengerjaan: fmtSec(Math.floor(kuis.totalMs/1000)), percobaan: gen };
-        try {
+        const detailStr=kuis.sortedPairs.map(p=>{const c=p.q.options.find(o=>o.isCorrect);const ck=c?c.key:'?';const st=p.ans===ck?'✅':'❌';return (p.q.noUrutMissing?'[?]':'')+`No.${p.q.noUrut}: ${st} (Jawab: ${p.ans||'Kosong'}, Kunci: ${ck})`;}).join(' | ');
+        const payload={tipe:'KUIS',kode:kode,nama1,kelas,kategori,username,skor:kuis.score,jawaban:detailStr,waktuPengerjaan:fmtSec(Math.floor(kuis.totalMs/1000)),percobaan:gen};
+        try{
             await fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-            db.kuisSubmitted=true; db.kuisSubmittedAt=new Date().toLocaleString('id-ID'); save();
-            renderKuisSuccess();
-        } catch(err){ alert('Gagal mengirim. Coba lagi.'); btn.disabled=false; btn.textContent='📤 Kirim Nilai ke Guru'; }
-        finally { hideLoader(); }
+            db.kuisSubmitted=true;save();renderKuisSuccess();
+        }catch(err){alert('Gagal mengirim. Coba lagi.');btn.disabled=false;btn.textContent='📤 Kirim Nilai';}
+        finally{hideLoader();}
     }
     function handleStartKuis(){
         showLoader('🎲 Memuat & mengacak bank soal...');
-        kuis.step='loading'; renderKuis();
+        kuis.step='loading';renderKuis();
         fetch(CSV_URL).then(r=>r.text()).then(text=>{
             let f=mapQuestions(parseCSV(text)).filter(q=>q.kategori===kategori);
-            if(!f.length){ alert('Tidak ada soal untuk Kategori '+kategori+'.'); kuis.step='home'; renderKuis(); hideLoader(); return; }
+            if(!f.length){alert('Tidak ada soal untuk Kategori '+kategori+'.');kuis.step='home';renderKuis();hideLoader();return;}
             f=shuffle(f);
-            kuis.questions=f.map(q=>({...q, shuffledOptions: shuffle([...q.options])}));
+            kuis.questions=f.map(q=>({...q,shuffledOptions:shuffle([...q.options])}));
             kuis.totalSeconds=kuis.questions.length*MENIT_PER_SOAL*60;
             kuis.remainingSeconds=kuis.totalSeconds;
-            kuis.currentIndex=0; kuis.userAnswers={}; kuis.score=0; kuis.step='quiz'; kuis.showGrid=false;
-            startKuisTimer(); saveKuis(); renderKuis(); hideLoader();
-        }).catch(()=>{ alert('Gagal memuat soal.'); kuis.step='home'; renderKuis(); hideLoader(); });
+            kuis.currentIndex=0;kuis.userAnswers={};kuis.score=0;kuis.step='quiz';
+            startKuisTimer();saveKuis();renderKuis();hideLoader();
+        }).catch(()=>{alert('Gagal memuat soal.');kuis.step='home';renderKuis();hideLoader();});
     }
     function startKuisTimer(){
-        if(kuis.intervalId) clearInterval(kuis.intervalId);
+        if(kuis.intervalId)clearInterval(kuis.intervalId);
         kuis.intervalId=setInterval(()=>{
             kuis.remainingSeconds--;
-            if(kuis.remainingSeconds<=0){ clearInterval(kuis.intervalId); kuis.intervalId=null; if(kuis.step==='quiz') finishKuis(true); }
-            if(kuis.step==='quiz'){ const t=$('#timer-display'); if(t){ t.className='text-xl font-bold font-mono px-3 py-1 rounded-lg '+(kuis.remainingSeconds<60?'timer-warning':'text-indigo-600 bg-indigo-50'); t.textContent='⏱️ '+fmtSec(kuis.remainingSeconds);} updateFinishBtnState(); }
+            if(kuis.remainingSeconds<=0){clearInterval(kuis.intervalId);kuis.intervalId=null;if(kuis.step==='quiz')finishKuis(true);}
+            if(kuis.step==='quiz'){const t=$('#timer-display');if(t){t.className='text-xl font-bold font-mono px-3 py-1 rounded-lg '+(kuis.remainingSeconds<60?'timer-warning':'text-indigo-600 bg-indigo-50');t.textContent='⏱️ '+fmtSec(kuis.remainingSeconds);}updateFinishBtnState();}
             saveKuis();
         },1000);
     }
 
-    /* ============ 8. RESTORE STATE (fix: semua cabang unhide kuis) ============ */
-    if (db.lkpdSubmitted){ lockLKPD(); if(!db.kuisSubmitted){ $('#fase-kuis').classList.remove('hidden'); showKuisCTA(); } }
-    if (kuis.step==='quiz' && kuis.totalSeconds>0 && kuis.remainingSeconds>0){ $('#fase-kuis').classList.remove('hidden'); startKuisTimer(); renderKuis(); }
-    else if (kuis.step==='result'){ $('#fase-kuis').classList.remove('hidden'); renderKuis(); }
-    else if (db.kuisSubmitted){ $('#fase-kuis').classList.remove('hidden'); renderKuisSuccess(); }
+    /* ============ 7. RESTORE & INIT ============ */
+    if(db.lkpdSubmitted){$('#fase-kuis').classList.remove('hidden');renderKuisHome();if(!db.kuisSubmitted)showKuisCTA();}
+    if(kuis.step==='quiz'&&kuis.totalSeconds>0&&kuis.remainingSeconds>0){$('#fase-kuis').classList.remove('hidden');startKuisTimer();renderKuis();}
+    else if(kuis.step==='result'){$('#fase-kuis').classList.remove('hidden');renderKuis();}
+    else if(db.kuisSubmitted){$('#fase-kuis').classList.remove('hidden');renderKuisSuccess();}
 
-    window.addEventListener('beforeunload',(e)=>{ if(kuis.intervalId) clearInterval(kuis.intervalId); pauseLKPD(); db.lkpdAnswers=collectLKPD(); save();
-        if(!db.lkpdSubmitted && db.lkpdStarted){ e.preventDefault(); e.returnValue=''; }
-    });
+    if(window.MathJax&&MathJax.startup&&MathJax.startup.promise)MathJax.startup.promise.then(()=>{if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',displayMode:true},{left:'$',right:'$',displayMode:false}],throwOnError:false});});
+    window.addEventListener('beforeunload',(e)=>{if(kuis.intervalId){clearInterval(kuis.intervalId);saveKuis();}pauseLKPD();db.lkpdAnswers=collectLKPD();save();
+        if(!db.lkpdSubmitted&&db.lkpdStarted){e.preventDefault();e.returnValue='';}});
     hideLoader();
 });
 </script>
