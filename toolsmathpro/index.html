@@ -658,6 +658,187 @@
     .kbd-btn { padding: 10px 0; font-size: 1rem; }
     .grid-cards { grid-template-columns: repeat(2, 1fr); }
   }
+
+ /* ===== SECTION 6: BENTUK BAKU ===== */
+.bentuk-baku-container {
+  padding: 15px;
+}
+
+.baku-display-card {
+  background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(236,72,153,0.1));
+  border: 2px solid rgba(99,102,241,0.3);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.baku-display-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.baku-number-display {
+  font-size: clamp(1.5rem, 5vw, 2.2rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+.baku-refresh-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.baku-refresh-btn {
+  background: linear-gradient(135deg, var(--accent), #d97706);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 8px rgba(245,158,11,0.3);
+  transition: transform 0.2s;
+}
+.baku-refresh-btn:active { transform: scale(0.95); }
+.baku-refresh-btn.spinning .refresh-icon {
+  display: inline-block;
+  animation: spin 0.6s ease-in-out;
+}
+
+/* Slider Controls */
+.baku-controls {
+  background: rgba(248,250,255,0.9);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
+  border: 1px solid rgba(99,102,241,0.2);
+}
+
+.baku-control-row {
+  margin-bottom: 15px;
+}
+.baku-control-row:last-child { margin-bottom: 0; }
+
+.baku-control-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.baku-control-value {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  min-width: 60px;
+  text-align: center;
+}
+
+.baku-slider {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: #e5e7eb;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+.baku-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(99,102,241,0.4);
+  border: 2px solid #fff;
+}
+.baku-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  cursor: pointer;
+  border: 2px solid #fff;
+}
+
+/* Status Box */
+.baku-status-box {
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: all 0.3s;
+  border: 2px solid transparent;
+}
+.baku-status-box.correct {
+  background: rgba(16,185,129,0.15);
+  color: #047857;
+  border-color: #10b981;
+}
+.baku-status-box.wrong {
+  background: rgba(239,68,68,0.1);
+  color: #b91c1c;
+  border-color: #ef4444;
+}
+.baku-status-box.almost {
+  background: rgba(245,158,11,0.15);
+  color: #b45309;
+  border-color: #f59e0b;
+}
+.baku-status-box.neutral {
+  background: rgba(107,114,128,0.1);
+  color: var(--text-secondary);
+  border-color: rgba(107,114,128,0.3);
+}
+
+.baku-status-icon {
+  font-size: 1.5rem;
+  margin-right: 8px;
+}
+
+.baku-result-display {
+  background: rgba(255,255,255,0.9);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(99,102,241,0.2);
+  font-size: 1.3rem;
+  color: var(--text-primary);
+}
+
+.baku-hint {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: 10px;
+  font-style: italic;
+}
+ 
 </style>
 </head>
 <body>
@@ -884,12 +1065,111 @@
   </div>
 </div>
 
-<!-- SECTION 6: UPDATE LATER -->
+<!-- SECTION 6: BENTUK BAKU -->
 <div class="section-label" onclick="toggleSection(6)">
-  <span>6. Update Later</span>
-  <span class="arrow-icon">▼</span>
+  <span>6. Bentuk Baku (Notasi Ilmiah)</span>
+  <div style="display:flex;align-items:center;">
+    <button class="refresh-btn" id="refreshBakuBtn" onclick="event.stopPropagation();generateBakuNumber()" title="Generate Angka Baru">🔄</button>
+    <button class="setting-toggle" onclick="event.stopPropagation();toggleSetting(6)">⚙️</button>
+    <span class="arrow-icon" style="margin-left:8px;">▼</span>
+  </div>
 </div>
 <div class="section-content hidden" id="section6">
+  <div class="setting-panel" id="setting6">
+    <div class="setting-row">
+      <label>Tingkat Kesulitan:</label>
+      <select class="select-modern" id="bakuDifficulty" onchange="generateBakuNumber()">
+        <option value="easy">Mudah (2-3 angka penting)</option>
+        <option value="medium" selected>Sedang (3-4 angka penting)</option>
+        <option value="hard">Sulit (4-5 angka penting)</option>
+      </select>
+    </div>
+    <div class="setting-row">
+      <label>Jenis Angka:</label>
+      <select class="select-modern" id="bakuNumberType" onchange="generateBakuNumber()">
+        <option value="large">Angka Besar saja</option>
+        <option value="small">Angka Desimal saja</option>
+        <option value="mixed" selected>Campur (Random)</option>
+      </select>
+    </div>
+    <div class="setting-row">
+      <label>Pangkat Min:</label>
+      <input type="number" id="bakuMinExp" value="-10" min="-10" max="12" onchange="generateBakuNumber()" style="width:70px;padding:6px;border:2px solid rgba(99,102,241,0.3);border-radius:8px;text-align:center;">
+    </div>
+    <div class="setting-row">
+      <label>Pangkat Max:</label>
+      <input type="number" id="bakuMaxExp" value="12" min="-10" max="12" onchange="generateBakuNumber()" style="width:70px;padding:6px;border:2px solid rgba(99,102,241,0.3);border-radius:8px;text-align:center;">
+    </div>
+    <div class="setting-info">💡 Angka 0 tidak dapat diubah ke bentuk baku. Geser slider untuk mencari jawaban!</div>
+  </div>
+  
+  <div class="bentuk-baku-container">
+    <!-- Display Angka Random -->
+    <div class="baku-display-card">
+      <div class="baku-display-label">🎯 Ubah angka ini menjadi Bentuk Baku</div>
+      <div class="baku-number-display" id="bakuNumberDisplay">Tekan 🔄 untuk mulai</div>
+      <div class="baku-refresh-row">
+        <button class="baku-refresh-btn" id="bakuRefreshBtn2" onclick="generateBakuNumber()">
+          <span class="refresh-icon">🔄</span>
+          <span>Generate Angka Baru</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Status Box -->
+    <div class="baku-status-box neutral" id="bakuStatusBox">
+      <span class="baku-status-icon">⏳</span>
+      <span id="bakuStatusText">Geser slider untuk menjawab</span>
+    </div>
+
+    <!-- Slider Controls -->
+    <div class="baku-controls">
+      <div class="baku-control-row">
+        <div class="baku-control-label">
+          <span>Koefisien (a):</span>
+          <span class="baku-control-value" id="bakuAValue">1.00</span>
+        </div>
+        <input type="range" class="baku-slider" id="bakuSliderA" 
+               min="0.1" max="99" step="0.01" value="1"
+               oninput="updateBakuFromSliders()">
+        <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-secondary);margin-top:4px;">
+          <span>0.1</span>
+          <span style="color:#10b981;font-weight:700;">Zona Benar: 1 - 9.99</span>
+          <span>99</span>
+        </div>
+      </div>
+      
+      <div class="baku-control-row">
+        <div class="baku-control-label">
+          <span>Pangkat (n):</span>
+          <span class="baku-control-value" id="bakuNValue">0</span>
+        </div>
+        <input type="range" class="baku-slider" id="bakuSliderN" 
+               min="-10" max="12" step="1" value="0"
+               oninput="updateBakuFromSliders()">
+        <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-secondary);margin-top:4px;">
+          <span>-10</span>
+          <span>0</span>
+          <span>12</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hasil Render KaTeX -->
+    <div class="baku-result-display" id="bakuResultDisplay">
+      <span style="color:var(--text-secondary);font-style:italic;">a × 10ⁿ akan muncul di sini</span>
+    </div>
+    
+    <div class="baku-hint">💡 Syarat Bentuk Baku: 1 ≤ a &lt; 10 dan a × 10ⁿ harus sama dengan angka asli</div>
+  </div>
+</div>
+
+<!-- SECTION 7: UPDATE LATER (Pengganti Section 6 Lama) -->
+<div class="section-label" onclick="toggleSection(7)">
+  <span>7. Update Later</span>
+  <span class="arrow-icon">▼</span>
+</div>
+<div class="section-content hidden" id="section7">
   <div class="update-later">
     <div class="construction-icon">🚧</div>
     <h3>Fitur Ini Segera Hadir!</h3>
@@ -938,7 +1218,13 @@ const CONFIG = {
   akarSempurna: { max: 45, default: 5 },
   bentukAkar: { min: 10, max: 20, default: 10 }
 };
-
+// ===== STATE BENTUK BAKU =====
+const bakuState = {
+  originalNumber: null,
+  correctA: null,
+  correctN: null,
+  numberType: null // 'large' atau 'small'
+};
 const BENTUK_AKAR_POPULER = [
   { n: 8, a: 2, b: 2, weight: 10 }, { n: 12, a: 2, b: 3, weight: 10 },
   { n: 18, a: 3, b: 2, weight: 9 }, { n: 20, a: 2, b: 5, weight: 9 },
@@ -1078,11 +1364,15 @@ function recordActivity(sectionNum) {
   if (duration < 30) return;
   
   const clampedDuration = Math.min(duration, 120);
-  const sectionNames = {
-    1: 'Tabel Perkalian', 2: 'Daftar Perpangkatan',
-    3: 'Tabel Akar Kuadrat Sempurna', 4: 'Bentuk Akar Sederhana',
-    5: 'Latihan Format Matematika'
-  };
+// Di dalam fungsi recordActivity, ganti object sectionNames dengan ini:
+const sectionNames = {
+  1: 'Tabel Perkalian', 
+  2: 'Daftar Perpangkatan',
+  3: 'Tabel Akar Kuadrat Sempurna', 
+  4: 'Bentuk Akar Sederhana',
+  5: 'Latihan Format Matematika',
+  6: 'Bentuk Baku (Notasi Ilmiah)'
+};
   
   const activity = {
     name: document.getElementById('studentName').value.trim(),
@@ -1126,7 +1416,7 @@ function resetActivity() {
 }
 
 // ============================================================
-//  SECTION TOGGLE
+//  SECTION TOGGLE (Updated untuk 7 sections)
 // ============================================================
 function toggleSection(num) {
   if (!trackSectionOpen(num)) return;
@@ -1138,6 +1428,11 @@ function toggleSection(num) {
   if (isHidden) {
     content.classList.remove('hidden');
     label.classList.add('active');
+    
+    // Auto-generate angka saat Section 6 dibuka pertama kali
+    if (num === 6 && bakuState.originalNumber === null) {
+      setTimeout(() => generateBakuNumber(), 300);
+    }
   } else {
     content.classList.add('hidden');
     label.classList.remove('active');
@@ -1147,7 +1442,7 @@ function toggleSection(num) {
     }
   }
 }
-
+ 
 // ===== GANTI: Toggle Setting (default visible, klik untuk hide) =====
 function toggleSetting(num) {
   const panel = document.getElementById('setting' + num);
@@ -1483,6 +1778,203 @@ function updatePreviewMode() {
   document.getElementById('mathPracticeContainer').style.flexDirection = mode === 'bottom' ? 'column' : 'row';
 }
 
+ // ============================================================
+//  SECTION 6: BENTUK BAKU (NOTASI ILMIAH)
+// ============================================================
+
+// Utility: Random integer antara min dan max (inklusif)
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Generate koefisien dengan jumlah angka penting tertentu (1 ≤ a < 10)
+function generateCoefficient(sigFigs) {
+  let min, max;
+  switch(sigFigs) {
+    case 2: min = 10; max = 99; break;
+    case 3: min = 100; max = 999; break;
+    case 4: min = 1000; max = 9999; break;
+    case 5: min = 10000; max = 99999; break;
+    default: min = 100; max = 999;
+  }
+  const raw = randomInt(min, max);
+  return raw / Math.pow(10, sigFigs - 1); // Hasilnya antara 1.0 - 9.9999
+}
+
+// Generate angka random sesuai setting
+function generateBakuNumber() {
+  const difficulty = document.getElementById('bakuDifficulty').value;
+  const numberType = document.getElementById('bakuNumberType').value;
+  const minExp = parseInt(document.getElementById('bakuMinExp').value);
+  const maxExp = parseInt(document.getElementById('bakuMaxExp').value);
+  
+  // Tentukan jumlah angka penting
+  let sigFigs;
+  switch(difficulty) {
+    case 'easy': sigFigs = randomInt(2, 3); break;
+    case 'medium': sigFigs = randomInt(3, 4); break;
+    case 'hard': sigFigs = randomInt(4, 5); break;
+  }
+  
+  // Generate koefisien (1 ≤ a < 10)
+  const coefficient = generateCoefficient(sigFigs);
+  
+  // Pilih pangkat
+  let exponent;
+  if (numberType === 'large') {
+    exponent = randomInt(Math.max(2, minExp), Math.min(12, maxExp));
+  } else if (numberType === 'small') {
+    exponent = randomInt(Math.max(-10, minExp), Math.min(-1, maxExp));
+  } else {
+    // Mixed: 50% besar, 50% kecil
+    if (Math.random() < 0.5) {
+      exponent = randomInt(Math.max(2, minExp), Math.min(12, maxExp));
+    } else {
+      exponent = randomInt(Math.max(-10, minExp), Math.min(-1, maxExp));
+    }
+  }
+  
+  // Hitung angka asli
+  const number = coefficient * Math.pow(10, exponent);
+  
+  // Validasi: hindari 0 dan overflow
+  if (number === 0 || !isFinite(number) || Math.abs(number) > Number.MAX_SAFE_INTEGER) {
+    return generateBakuNumber(); // Retry
+  }
+  
+  // Simpan ke state
+  bakuState.originalNumber = number;
+  bakuState.correctA = coefficient;
+  bakuState.correctN = exponent;
+  bakuState.numberType = exponent >= 0 ? 'large' : 'small';
+  
+  // Tampilkan angka
+  displayBakuNumber(number);
+  
+  // Reset slider
+  document.getElementById('bakuSliderA').value = 1;
+  document.getElementById('bakuSliderN').value = 0;
+  updateBakuFromSliders();
+  
+  // Animasi refresh button
+  const btn = document.getElementById('refreshBakuBtn');
+  const btn2 = document.getElementById('bakuRefreshBtn2');
+  if (btn) { btn.classList.add('spinning'); setTimeout(() => btn.classList.remove('spinning'), 600); }
+  if (btn2) { btn2.classList.add('spinning'); setTimeout(() => btn2.classList.remove('spinning'), 600); }
+}
+
+// Format angka untuk display (Indonesia)
+function formatNumberDisplay(num) {
+  if (num === null) return 'Tekan 🔄 untuk mulai';
+  
+  const absNum = Math.abs(num);
+  
+  // Jika angka sangat kecil (< 0.0001), tampilkan semua desimal
+  if (absNum < 0.0001 && absNum > 0) {
+    // Tampilkan dengan presisi cukup
+    let str = num.toFixed(12);
+    // Hapus trailing zeros
+    str = str.replace(/0+$/, '').replace(/\.$/, '');
+    // Ganti titik dengan koma (format Indonesia)
+    return str.replace('.', ',');
+  }
+  
+  // Jika angka besar, gunakan toLocaleString
+  if (absNum >= 1) {
+    return num.toLocaleString('id-ID', { maximumFractionDigits: 10 });
+  }
+  
+  // Desimal biasa
+  return num.toLocaleString('id-ID', { maximumFractionDigits: 10 });
+}
+
+function displayBakuNumber(num) {
+  const display = document.getElementById('bakuNumberDisplay');
+  display.textContent = formatNumberDisplay(num);
+}
+
+// Update dari slider (dipanggil saat slider digeser)
+function updateBakuFromSliders() {
+  const a = parseFloat(document.getElementById('bakuSliderA').value);
+  const n = parseInt(document.getElementById('bakuSliderN').value);
+  
+  // Update display value
+  document.getElementById('bakuAValue').textContent = a.toFixed(2);
+  document.getElementById('bakuNValue').textContent = n;
+  
+  // Render hasil dengan KaTeX
+  renderBakuResult(a, n);
+  
+  // Validasi
+  validateBakuAnswer(a, n);
+}
+
+// Render hasil dengan KaTeX
+function renderBakuResult(a, n) {
+  const display = document.getElementById('bakuResultDisplay');
+  
+  // Format koefisien: ganti titik dengan koma untuk Indonesia
+  const aFormatted = a.toFixed(2).replace('.', '{,}');
+  
+  // Handle pangkat negatif: tampilkan sebagai 10^{-n}
+  let latex;
+  if (n < 0) {
+    latex = `${aFormatted} \\times 10^{${n}}`;
+  } else {
+    latex = `${aFormatted} \\times 10^{${n}}`;
+  }
+  
+  try {
+    katex.render(latex, display, { throwOnError: false, displayMode: false });
+  } catch (e) {
+    display.textContent = `${a.toFixed(2)} × 10^${n}`;
+  }
+}
+
+// Validasi jawaban
+function validateBakuAnswer(a, n) {
+  if (bakuState.originalNumber === null) return;
+  
+  const statusBox = document.getElementById('bakuStatusBox');
+  const statusText = document.getElementById('bakuStatusText');
+  
+  const calculated = a * Math.pow(10, n);
+  const original = bakuState.originalNumber;
+  
+  // Epsilon untuk floating point comparison (0.01% tolerance)
+  const epsilon = Math.abs(original) * 0.0001;
+  const isValueCorrect = Math.abs(calculated - original) < epsilon;
+  const isARangeCorrect = a >= 1 && a < 10;
+  
+  // Reset class
+  statusBox.className = 'baku-status-box';
+  
+  if (isValueCorrect && isARangeCorrect) {
+    // BENAR SEMPURNA
+    statusBox.classList.add('correct');
+    statusBox.innerHTML = `<span class="baku-status-icon">✅</span><span>BENAR! Bentuk Baku Sesuai!</span>`;
+  } else if (isARangeCorrect && !isValueCorrect) {
+    // HAMPIR BENAR - koefisien OK, pangkat salah
+    const diff = calculated > original ? 'terlalu besar' : 'terlalu kecil';
+    statusBox.classList.add('almost');
+    statusBox.innerHTML = `<span class="baku-status-icon">⚠️</span><span>Hampir! Koefisien benar, tapi hasil ${diff}. Coba adjust pangkat!</span>`;
+  } else if (a < 1) {
+    // SALAH - koefisien terlalu kecil
+    statusBox.classList.add('wrong');
+    statusBox.innerHTML = `<span class="baku-status-icon">❌</span><span>SALAH! Koefisien terlalu kecil (harus ≥ 1)</span>`;
+  } else if (a >= 10) {
+    // SALAH - koefisien terlalu besar
+    statusBox.classList.add('wrong');
+    statusBox.innerHTML = `<span class="baku-status-icon">❌</span><span>SALAH! Koefisien terlalu besar (harus < 10)</span>`;
+  } else {
+    statusBox.classList.add('neutral');
+    statusBox.innerHTML = `<span class="baku-status-icon">⏳</span><span>Geser slider untuk menjawab</span>`;
+  }
+}
+
+// Update toggleSection untuk handle 7 sections
+// (GANTI fungsi toggleSection yang lama dengan ini)
+ 
 // ============================================================
 //  INITIALIZATION
 // ============================================================
@@ -1621,16 +2113,19 @@ function calculateCustomSqrt() {
   messageEl.className = `sqrt-message show ${messageClass}`;
 }
 
- // ============================================================
+// ============================================================
 //  INITIALIZATION
 // ============================================================
-loadSavedTheme();  // ← TAMBAH: Load tema tersimpan
+loadSavedTheme();
 buildMultTable();
 buildPowerTable();
 buildRootTable();
 buildBentukAkarTable();
 renderActivityList();
 trackSectionOpen(1);
+
+// Pre-generate angka untuk Section 6 (agar siap saat dibuka)
+//generateBakuNumber(); // Uncomment jika ingin auto-generate saat load
  
 </script>
 </body>
