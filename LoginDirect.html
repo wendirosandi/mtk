@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — Tes Formatif</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(165deg,#5bb0e8 0%,#2f7fc1 60%,#266ba8 100%);min-height:100vh;margin:0;display:flex;align-items:center;justify-content:center;padding:20px}
+.hidden{display:none!important}
+#loader-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.55);backdrop-filter:blur(3px)}
+#loader-overlay.hidden{display:none!important}
+.loader-card{background:rgba(255,255,255,.92);border-radius:16px;padding:22px 28px;display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.15);text-align:center}
+.spinner{width:46px;height:46px;border-radius:50%;border:5px solid #e0e7ff;border-top-color:#4f46e5;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loader-text{font-weight:700;color:#1f2937;font-size:.95rem}
+</style>
+</head>
+<body>
+<div id="loader-overlay"><div class="loader-card"><div class="spinner"></div><div id="loader-text">🏫 Memuat info kegiatan...</div></div></div>
+
+<div id="ua-block" class="hidden max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
+  <div class="text-5xl mb-4">🛡️</div>
+  <h1 class="text-xl font-bold text-gray-800 mb-2">Akses Dibatasi</h1>
+  <p class="text-sm text-gray-600 mb-4">Halaman ini hanya dapat dibuka melalui aplikasi <b>CBT Exam Browser</b> SMPN 2 Karawang Barat.</p>
+  <p class="text-xs text-gray-500">Silakan buka aplikasi CBT di perangkat Anda, lalu masuk kembali melalui link yang diberikan guru.</p>
+</div>
+
+<div id="login-card" class="hidden max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
+  <div class="text-center mb-6">
+    <div class="text-4xl mb-2">📝</div>
+    <h1 id="d-judul" class="text-xl font-bold text-gray-800">Tes Formatif</h1>
+    <p id="d-subjudul" class="text-sm text-gray-500">Sekolah</p>
+  </div>
+  <p id="d-deskripsi" class="text-sm text-gray-600 bg-blue-50 border border-blue-100 rounded-xl p-3 mb-4"></p>
+  <div class="space-y-3 mb-4">
+    <input id="in-user" class="w-full border rounded-xl px-4 py-3" placeholder="Username">
+    <input id="in-pass" type="password" class="w-full border rounded-xl px-4 py-3" placeholder="Password">
+  </div>
+  <button id="btn-login" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl">Masuk →</button>
+  <p id="d-instruksi" class="text-[11px] text-gray-500 mt-4 whitespace-pre-line"></p>
+  <p id="d-guru" class="text-[11px] text-gray-400 mt-2 text-center"></p>
+</div>
+
+<script>
+const UA_MARKER='CBT-MTK-SMPN2Karbar';
+const GS_URL='https://script.google.com/macros/s/AKfycbw55mTigv_PQFlsw9ia-lxCspgueQwXRH7ouWKnYKXw15BKn9ytmu0l3mFwO1n3a6fS/exec';
+const PENGATURAN_DIRECT_CSV='GANTI_DENGAN_URL_PUBLISH_CSV_PENGATURANDIRECT';
+const $=s=>document.querySelector(s);
+function hideLoader(){$('#loader-overlay').classList.add('hidden');}
+
+if(!navigator.userAgent.includes(UA_MARKER)){
+  hideLoader(); $('#ua-block').classList.remove('hidden');
+} else {
+  fetch(PENGATURAN_DIRECT_CSV).then(r=>r.text()).then(txt=>{
+    const info={};
+    txt.split('\n').forEach(line=>{
+      const m=line.match(/^"?([^",]+)"?\s*,\s*"?(.*)"?\s*$/);
+      if(m) info[m[1].trim()]=m[2].trim();
+    });
+    $('#d-judul').textContent=info.DIRECT_JUDUL||'Tes Formatif';
+    $('#d-subjudul').textContent=info.DIRECT_SUBJUDUL||'';
+    $('#d-deskripsi').textContent=info.DIRECT_DESKRIPSI||'';
+    $('#d-instruksi').textContent=info.DIRECT_INSTRUKSI||'';
+    $('#d-guru').textContent=info.DIRECT_GURU?('Guru: '+info.DIRECT_GURU):'';
+    window.__DIRECT_TARGET=info.DIRECT_URL_TARGET||'TesFormatif1.html';
+    hideLoader(); $('#login-card').classList.remove('hidden');
+  }).catch(()=>{ hideLoader(); $('#login-card').classList.remove('hidden'); });
+
+  $('#btn-login').onclick=async()=>{
+    const u=$('#in-user').value.trim(), p=$('#in-pass').value;
+    if(!u||!p){ alert('Isi username dan password.'); return; }
+    $('#btn-login').disabled=true; $('#btn-login').textContent='⏳ Memverifikasi...';
+    try{
+      const res=await fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'directLogin',u:u,p:p})});
+      const r=await res.json();
+      if(!r.ok){ alert('Username/password salah.'); $('#btn-login').disabled=false; $('#btn-login').textContent='Masuk →'; return; }
+      localStorage.setItem('DIRECT_SESSION', JSON.stringify({username:r.username,nama:r.nama,kelas:r.kelas,kategori:r.kategori,ts:Date.now()}));
+      location.href=(window.__DIRECT_TARGET||'TesFormatif1.html');
+    }catch(e){ alert('Gagal menghubungi server. Coba lagi.'); $('#btn-login').disabled=false; $('#btn-login').textContent='Masuk →'; }
+  };
+}
+</script>
+</body>
+</html>
