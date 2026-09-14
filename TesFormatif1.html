@@ -196,98 +196,209 @@ function normAns(s){
   let t=String(s||'').trim().replace(/\s+/g,'');
   t=t.replace(/×/g,'*').replace(/x/gi,'*');
   let m=t.match(/^(.*)\*10\^(-?\d+)$/);
-  let core = m? m[1] : t;
-  if(/^\d{1,3}([.,]\d{3})+$/.test(core)) core=core.replace(/[.,]/g,'');
-  else core=core.replace(/,/g,'.');
+  let core=m?m[1]:t;
+  if(/^0[.,]/.test(core)){ core=core.replace(/,/g,'.'); }              // desimal <1 : jangan strip grouping
+  else if(/^\d{1,3}([.,]\d{3})+$/.test(core)){ core=core.replace(/[.,]/g,''); } // ribuan
+  else { core=core.replace(/,/g,'.'); }                                 // koma desimal
   if(m) return core+'*10^'+String(parseInt(m[2],10));
   return core;
 }
-
-/* ==== GENERATOR 10 SOAL ==== */
+const gcd=(a,b)=>b?gcd(b,a%b):a;
 const RI=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const PICK=a=>a[Math.floor(Math.random()*a.length)];
+
+/* ==== GENERATOR 10 SOAL (sesuai template & aturan kesulitan) ==== */
 function genQ(){
-  const qs=[]; const b=PICK([2,3,5]);
-  // 1
-  { const t=DIFF+1; let terms=[],N=0;
-    for(let i=0;i<t;i++){ const k=PICK([1,2,3]); const e=RI(2,4); const op=i===0?'':(Math.random()<0.7?'×':'÷');
-      const val=Math.pow(b,k); terms.push({op,base:val,e}); N += (op==='÷'?-1:1)*k*e; }
-    while(N<2){ const last=terms[terms.length-1]; if(last.op==='÷'){last.op='×';N+=2*last.e*RI(1,1);} else N+=1, terms[0].e+=1; }
-    let tex=terms.map((tm,i)=> (i===0?'':(tm.op==='÷'?' \\div ':' \\times ')) + tm.base+'^'+tm.e ).join('');
-    qs.push({no:1,tex,key:b+'^'+N,alts:[String(Math.pow(b,N))]}); }
-  // 2
-  { const M=RI(2,6); let tex=b+'^'+RI(1,3)+' \\div '+b+'^'+(M+RI(1,3));
-    qs.push({no:2,tex,key:'1/'+b+'^'+M,alts:[b+'^-'+M]}); }
-  // 3
-  { const e=RI(2,5); qs.push({no:3,tex:b+'^'+e+' \\div '+b+'^'+e,key:b+'^0',alts:['1']}); }
-  // 4
-  { const N=RI(2,5); const val=Math.pow(b,N); qs.push({no:4,tex:b+'^'+RI(1,2)+' \\times '+b+'^'+(N-RI(1,2)>0?N-RI(1,2):1),key:String(val),alts:[b+'^'+N]}); }
-  // 5
-  { const s=PICK([2,3,5,6,7]); const k=DIFF; let parts=[],C=0;
-    for(let i=0;i<k;i++){ const m=RI(2,4); const c=RI(1,5); parts.push((i&&Math.random()<0.3?'- ':'+ ')+(c*m)+'\\sqrt{'+(s*m*m)+'}'.replace((c*m)+'\\sqrt','\\sqrt')); C+= (i&&false? -c: c); }
-    let tex=parts.join(' ').replace(/^\+ /,'');
-    qs.push({no:5,tex,key:C+'√'+s,alts:[C+'√('+s+')']}); }
-  // 6
-  { const r=RI(4,12); const x=r*RI(2,4); const y=(r*r)/x*RI(1,1)*x? r*r/ (r): r; const xx=PICK([r*2,r*3]); const yy=(r*r)/xx*RI(1,1)|| r;
-    qs.push({no:6,tex:'\\sqrt{'+(r*2)+'} \\times \\sqrt{'+(r*2)+'} \\div \\sqrt{4}',key:String(r),alts:[]}); }
-  // 7
-  { const sig=DIFF+1; const mant=(RI(1,9)+'.'+RI(10,99).toString().padEnd(2,'0')).slice(0,sig+1);
-    const n=RI(3,11); const numFormatted=(parseFloat(mant)*Math.pow(10,n));
-    const dotted=Number(numFormatted).toLocaleString('id-ID');
-    qs.push({no:7,tex:dotted,key:mant.replace('.',',')+'×10^'+n,alts:[mant+'*10^'+n]}); }
-  // 8
-  { const mant='4.'+RI(1,9); const n=-RI(6,9); const val=parseFloat(mant)*Math.pow(10,n);
-    const dec=val.toFixed(Math.abs(n)+1);
-    qs.push({no:8,tex:dec.replace('.',','),key:mant.replace('.',',')+'×10^'+n,alts:[mant+'*10^'+n]}); }
-  // 9
-  { const mant='7.'+RI(10,99); const n=RI(6,10); const val=Math.round(parseFloat(mant)*Math.pow(10,n));
-    qs.push({no:9,tex:mant.replace('.',',')+'\\times 10^{'+n+'}',key:String(val),alts:[val.toLocaleString('id-ID')]}); }
-  // 10
-  { const mant='4.'+RI(1,9); const n=-RI(6,9); const val=(parseFloat(mant)*Math.pow(10,n));
-    qs.push({no:10,tex:mant.replace('.',',')+'\\times 10^{'+n+'}',key:val.toFixed(Math.abs(n)+1),alts:[val.toFixed(Math.abs(n)+1).replace('.',',')]}); }
-  return qs;
+  const qs=[]; const D=DIFF; // D=1 mudah,2 sedang,3 sulit
+  const p=PICK([2,3,5]);
+
+  /* --- Soal 1: (B1^e1 × B2^e2)/((B3^e3)^2); jumlah basis berbeda = D --- */
+  {
+    let ks = D===1?[1,1,1] : D===2?[1,2,2] : [1,2,3];
+    const e1=RI(2,4), e2=RI(2,4), e3=RI(1,3);
+    const B1=Math.pow(p,ks[0]), B2=Math.pow(p,ks[1]), B3=Math.pow(p,ks[2]);
+    let N=ks[0]*e1 + ks[1]*e2 - 2*ks[2]*e3;
+    if(N<2){ N+= (2-N); } // jaga hasil positif
+    qs.push({no:1,type:'math',isLatex:true,
+      tex:`\\frac{${B1}^{${e1}} \\times ${B2}^{${e2}}}{(${B3}^{${e3}})^{2}}`,
+      key:`${p}^${N}`, alts:[String(Math.pow(p,N))]});
+  }
+  /* --- Soal 2: hasil pangkat negatif → kunci 1/p^M --- */
+  {
+    let ks = D===1?[1,1,1] : D===2?[1,2,2] : [1,2,3];
+    const e1=RI(2,4), e2=RI(2,4);
+    const S=ks[0]*e1 + ks[1]*e2;
+    const e3=Math.ceil((S+2)/(2*ks[2]));           // paksa N negatif
+    const B1=Math.pow(p,ks[0]), B2=Math.pow(p,ks[1]), B3=Math.pow(p,ks[2]);
+    const N=S - 2*ks[2]*e3; const M=-N;
+    qs.push({no:2,type:'math',isLatex:true,
+      tex:`\\frac{${B1}^{${e1}} \\times ${B2}^{${e2}}}{(${B3}^{${e3}})^{2}}`,
+      key:`1/${p}^${M}`, alts:[`${p}^-${M}`]});
+  }
+  /* --- Soal 3: hasil pangkat nol → kunci p^0 --- */
+  {
+    const ks=[1,2,2]; const e1=RI(2,4); let e2=RI(2,4);
+    let S=ks[0]*e1 + ks[1]*e2; if(S%2){ e2+=1; S=ks[0]*e1+ks[1]*e2; }
+    const e3=S/(2*ks[2]);
+    const B1=Math.pow(p,ks[0]), B2=Math.pow(p,ks[1]), B3=Math.pow(p,ks[2]);
+    qs.push({no:3,type:'math',isLatex:true,
+      tex:`\\frac{${B1}^{${e1}} \\times ${B2}^{${e2}}}{(${B3}^{${e3}})^{2}}`,
+      key:`${p}^0`, alts:['1']});
+  }
+  /* --- Soal 4: n-akar dari B^e, hasil bulat --- */
+  {
+    const n = D>=3?RI(4,5):RI(2,3);
+    const pp=PICK([2,3,5,7]); const k=RI(1,3);
+    const g=gcd(k,n); const e=(n/g)*RI(1,3);
+    const B=Math.pow(pp,k); const res=Math.pow(pp,(k*e)/n);
+    qs.push({no:4,type:'math',isLatex:true,
+      tex:`\\sqrt[${n}]{${B}^{${e}}}`, key:String(res), alts:[]});
+  }
+  /* --- Soal 5: (a√x ± b√y)/(c√z); akar perlu disederhanakan = D --- */
+  {
+    const s=PICK([2,3,5,6,7]);
+    let u=1,v=1,w=1;
+    const big=()=>RI(2,4);
+    if(D===1){ const pos=RI(1,3); if(pos===1)u=big(); else if(pos===2)v=big(); else w=big(); }
+    else if(D===2){ u=big(); v=big(); }
+    else { u=big(); v=big(); w=big(); }
+    const x=s*u*u, y=s*v*v, z=s*w*w;
+    const a=RI(2,6), b=RI(1,5), c=RI(1,4);
+    let sign=PICK(['+','-']);
+    let A=a*u, Bv=b*v, C=c*w;
+    let num = sign==='+'? A+Bv : A-Bv;
+    if(num<=0){ sign='+'; num=A+Bv; }
+    const g2=gcd(num,C); const nn=num/g2, cc=C/g2;
+    const keyStr = cc===1? String(nn) : `${nn}/${cc}`;
+    qs.push({no:5,type:'math',isLatex:true,
+      tex:`\\frac{${a}\\sqrt{${x}} ${sign} ${b}\\sqrt{${y}}}{${c}\\sqrt{${z}}}`,
+      key:keyStr, alts:[String(+(nn/cc).toFixed(4))]});
+  }
+  /* --- Soal 6: (a√x × b√y)/(c√z) hasil bulat --- */
+  {
+    const t=RI(2,6), m=RI(1,3), z=PICK([2,3,5]);
+    const x=z*m, y=m*t*t;               // x*y/z = (m*t)^2
+    const a=RI(2,6), b=RI(2,6);
+    const c=PICK([a,b,1]);              // jaminan a*b/c bulat
+    const res=(a*b/c)*(m*t);
+    qs.push({no:6,type:'math',isLatex:true,
+      tex:`\\frac{${a}\\sqrt{${x}} \\times ${b}\\sqrt{${y}}}{${c}\\sqrt{${z}}}`,
+      key:String(res), alts:[]});
+  }
+  /* --- Soal 7: angka besar → bentuk baku (n positif); input desimal + slider --- */
+  {
+    const sig=D+1;                                   // 2,3,4 angka penting
+    const dec=sig-1;
+    const mant=RI(1,9)+'.'+String(RI(Math.pow(10,dec-1),Math.pow(10,dec)-1)).padStart(dec,'0');
+    const n=RI(3,11);
+    const val=parseFloat(mant)*Math.pow(10,n);
+    const display=Math.round(val).toLocaleString('id-ID');
+    qs.push({no:7,type:'sci',isLatex:false,tex:display,
+      keyA:mant, keyN:n, alts:[]});
+  }
+  /* --- Soal 8: angka kecil → bentuk baku (n negatif); input desimal + slider --- */
+  {
+    const mant=RI(1,9)+'.'+RI(10,99);
+    const n=-RI(4,9);
+    const val=parseFloat(mant)*Math.pow(10,n);
+    const display=val.toFixed(Math.abs(n)+2).replace('.',',');
+    qs.push({no:8,type:'sci',isLatex:false,tex:display,
+      keyA:mant, keyN:n, alts:[]});
+  }
+  /* --- Soal 9: dari bentuk baku (n positif) → angka; input polos --- */
+  {
+    const mant=RI(1,9)+'.'+RI(10,99);
+    const n=RI(4,10);
+    const val=Math.round(parseFloat(mant)*Math.pow(10,n));
+    qs.push({no:9,type:'plain',isLatex:true,
+      tex:`${mant.replace('.',',')}\\times 10^{${n}}`,
+      key:String(val), alts:[val.toLocaleString('id-ID')]});
+  }
+  /* --- Soal 10: dari bentuk baku (n negatif) → angka; input polos --- */
+  {
+    const mant=RI(1,9)+'.'+RI(10,99);
+    const n=-RI(4,9);
+    const val=parseFloat(mant)*Math.pow(10,n);
+    const dotStr=val.toFixed(Math.abs(n)+2);
+    qs.push({no:10,type:'plain',isLatex:true,
+      tex:`${mant.replace('.',',')}\\times 10^{${n}}`,
+      key:dotStr, alts:[dotStr.replace('.',',')]});
+  }
+  return qs.map(q=>({...q, student:'', studentN:0, locked:false, correct:null, answerString:''}));
 }
 
-/* ==== RENDER SOAL + KUNCI ==== */
-if(!db.questions) db.questions=genQ().map(q=>({...q,student:'',locked:false,correct:null}));
-const insertAtCursor=(inp,val)=>{const s=inp.selectionStart??inp.value.length,e=inp.selectionEnd??s;inp.value=inp.value.substring(0,s)+val+inp.value.substring(e);inp.selectionStart=inp.selectionEnd=s+val.length;inp.focus();inp.dispatchEvent(new Event('input'));};
+/* ==== RENDER SOAL (3 tipe input) ==== */
+function attachToolbar(inp){
+  const w=inp.parentElement; const tb=document.createElement('div'); tb.className='math-toolbar hidden';
+  ['√','^','(',')','+','-','×','÷','=','/','⌫'].forEach(sym=>{ const b=document.createElement('button'); b.type='button'; b.className='kbd-btn'+(sym==='⌫'?' red':''); b.textContent=sym;
+    b.addEventListener('pointerdown',e=>e.preventDefault());
+    b.addEventListener('click',e=>{e.preventDefault();
+      if(sym==='⌫'){const s=inp.selectionStart,e2=inp.selectionEnd; if(s===e2&&s>0){inp.value=inp.value.substring(0,s-1)+inp.value.substring(e2);inp.selectionStart=inp.selectionEnd=s-1;} else if(s!==e2){inp.value=inp.value.substring(0,s)+inp.value.substring(e2);inp.selectionStart=inp.selectionEnd=s;} inp.dispatchEvent(new Event('input')); }
+      else insertAtCursor(inp,sym);});
+    tb.appendChild(b); });
+  const c=document.createElement('button');c.type='button';c.className='tb-hide';c.textContent='✕';c.addEventListener('click',()=>{tb.classList.add('hidden');inp.blur();});tb.appendChild(c);
+  w.appendChild(tb);
+  inp.addEventListener('focus',()=>tb.classList.remove('hidden'));
+  inp.addEventListener('blur',()=>setTimeout(()=>tb.classList.add('hidden'),150));
+}
+function ansFilled(q){ return String(q.student||'').trim()!==''; }
 function renderSoal(){
-  $('#soal-container').innerHTML=db.questions.map((q,i)=>`
-   <div class="bg-white rounded-xl border p-4 shadow-sm" data-i="${i}">
-     <div class="flex items-center gap-2 mb-2">
-       <span class="font-bold text-gray-700">No. ${q.no}</span>
-       <button class="lock-btn ${q.locked?'locked':''}" data-i="${i}" title="Kunci/buka jawaban">${q.locked?'🔒':'🔓'}</button>
-       <span class="ml-auto text-[11px] text-gray-400">${q.locked?'terkunci':'terbuka'}</span>
-     </div>
-     <div class="text-gray-800 mb-3 q-tex" data-tex="${q.tex}"></div>
-     <div class="relative">
-       <input type="text" inputmode="decimal" autocomplete="off" class="math-input q-in" data-i="${i}" value="${q.student}" ${q.locked?'disabled':''} placeholder="Ketik jawaban...">
-     </div>
-   </div>`).join('');
-  $$('.q-tex').forEach(el=>{ try{ katex.render(el.dataset.tex, el, {throwOnError:false,displayMode:false}); }catch(e){ el.innerText=el.dataset.tex; } });
+  $('#soal-container').innerHTML=db.questions.map((q,i)=>{
+    let inputHtml='';
+    if(q.type==='sci'){
+      inputHtml=`<div class="flex items-center gap-2 flex-wrap">
+        <input type="text" inputmode="decimal" autocomplete="off" class="math-input q-in" data-i="${i}" value="${q.student}" style="width:150px;margin:0" placeholder="a">
+        <span class="font-bold">×</span><span class="font-bold">10^</span>
+        <input type="range" min="-15" max="15" step="1" value="${q.studentN||0}" class="q-slider" data-i="${i}" style="flex:1;min-width:120px">
+        <span class="q-nlabel font-mono font-bold text-blue-700" data-i="${i}">${q.studentN||0}</span>
+      </div>`;
+    } else if(q.type==='plain'){
+      inputHtml=`<input type="text" inputmode="decimal" autocomplete="off" class="math-input q-in" data-i="${i}" value="${q.student}" placeholder="Ketik angka...">`;
+    } else {
+      inputHtml=`<input type="text" inputmode="decimal" autocomplete="off" class="math-input q-in" data-i="${i}" value="${q.student}" placeholder="Ketik jawaban...">`;
+    }
+    const texHtml = q.isLatex? `<div class="text-gray-800 mb-3 q-tex" data-tex="${q.tex}"></div>`
+                             : `<div class="text-gray-800 mb-3 font-mono text-lg font-bold">${q.tex}</div>`;
+    return `<div class="bg-white rounded-xl border p-4 shadow-sm" data-i="${i}">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="font-bold text-gray-700">No. ${q.no}</span>
+        <button class="lock-btn ${q.locked?'locked':''}" data-i="${i}">${q.locked?'🔒':'🔓'}</button>
+        <span class="ml-auto text-[11px] text-gray-400">${q.locked?'terkunci':'terbuka'}</span>
+      </div>
+      ${texHtml}
+      <div class="relative">${inputHtml}</div>
+    </div>`;
+  }).join('');
+  $$('.q-tex').forEach(el=>{try{katex.render(el.dataset.tex,el,{throwOnError:false,displayMode:false});}catch(e){el.innerText=el.dataset.tex;}});
   $$('.q-in').forEach(inp=>{
-    const w=inp.parentElement; const tb=document.createElement('div'); tb.className='math-toolbar hidden';
-    ['√','^','(',')','+','-','×','÷','=','/','⌫'].forEach(sym=>{ const b=document.createElement('button'); b.type='button'; b.className='kbd-btn'+(sym==='⌫'?' red':''); b.textContent=sym==='⌫'?'⌫':sym;
-      b.addEventListener('pointerdown',e=>e.preventDefault());
-      b.addEventListener('click',e=>{e.preventDefault();
-        if(sym==='⌫'){const s=inp.selectionStart,e2=inp.selectionEnd; if(s===e2&&s>0){inp.value=inp.value.substring(0,s-1)+inp.value.substring(e2);inp.selectionStart=inp.selectionEnd=s-1;} else if(s!==e2){inp.value=inp.value.substring(0,s)+inp.value.substring(e2);inp.selectionStart=inp.selectionEnd=s;} inp.dispatchEvent(new Event('input')); }
-        else insertAtCursor(inp,sym);});
-      tb.appendChild(b); });
-    const c=document.createElement('button');c.type='button';c.className='tb-hide';c.textContent='✕';c.addEventListener('click',()=>{tb.classList.add('hidden');inp.blur();});tb.appendChild(c);
-    w.appendChild(tb);
-    inp.addEventListener('focus',()=>{tb.classList.remove('hidden');});
-    inp.addEventListener('blur',()=>setTimeout(()=>tb.classList.add('hidden'),150));
-    inp.addEventListener('input',e=>{ let v=e.target.value.replace(/[^0-9,.\/ \n√^+\-×÷\(\)=]/g,''); if(v!==e.target.value)e.target.value=v;
-      const i=+e.target.dataset.i; db.questions[i].student=e.target.value; if(!db.started){db.started=true;db.accMs=0;db.resumeEpoch=Date.now();save();} save(); updateProgress(); });
+    const i=+inp.dataset.i; const q=db.questions[i];
+    if(q.type==='math') attachToolbar(inp);
+    inp.addEventListener('input',e=>{
+      let v=e.target.value;
+      if(q.type==='math') v=v.replace(/[^0-9,.\/ \n√^+\-×÷\(\)=]/g,'');
+      else v=v.replace(/[^0-9.,]/g,'');
+      if(v!==e.target.value)e.target.value=v;
+      q.student=e.target.value;
+      if(!db.started){db.started=true;db.accMs=0;db.resumeEpoch=Date.now();}
+      save(); updateProgress();
+    });
+    if(q.locked) inp.disabled=true;
+  });
+  $$('.q-slider').forEach(sl=>{
+    const i=+sl.dataset.i; const q=db.questions[i];
+    sl.addEventListener('input',()=>{ q.studentN=+sl.value;
+      const lb=document.querySelector(`.q-nlabel[data-i="${i}"]`); if(lb)lb.textContent=sl.value;
+      save(); updateProgress(); });
+    if(q.locked) sl.disabled=true;
   });
   $$('.lock-btn').forEach(b=>b.addEventListener('click',()=>{
     const i=+b.dataset.i; const q=db.questions[i];
     if(q.locked){ if(!confirm('Buka kunci soal No. '+q.no+'?')) return; q.locked=false; }
-    else { if(!q.student.trim()){ alert('Isi jawaban dulu sebelum mengunci.'); return; } q.locked=true; }
+    else { if(!ansFilled(q)){ alert('Isi jawaban dulu sebelum mengunci.'); return; } q.locked=true; }
     save(); renderSoal();
   }));
 }
-function updateProgress(){ const f=db.questions.filter(q=>q.student.trim()).length; $('#progress-text').textContent=f+'/10'; $('#progress-bar').style.width=(f*10)+'%'; }
+function updateProgress(){ const f=db.questions.filter(q=>ansFilled(q)).length; $('#progress-text').textContent=f+'/10'; $('#progress-bar').style.width=(f*10)+'%'; }
 renderSoal(); updateProgress();
 
 /* ==== TIMER ==== */
@@ -301,11 +412,11 @@ if(db.started&&!db.submitted)resume();
 /* ==== KIRIM + MODAL PERINGATAN KUNCI ==== */
 $('#btn-kirim').addEventListener('click',()=>{
   if(db.submitted)return;
-  const empty=db.questions.filter(q=>!q.student.trim());
+  const empty=db.questions.filter(q=>!ansFilled(q));
   if(empty.length){ alert('Masih ada '+empty.length+' soal kosong: No. '+empty.map(q=>q.no).join(', ')); return; }
   const locked=db.questions.filter(q=>q.locked).map(q=>q.no);
   const unlocked=db.questions.filter(q=>!q.locked).map(q=>q.no);
-  $('#modal-root')?.remove();
+  const old=document.getElementById('modal-root'); if(old)old.remove();
   const m=document.createElement('div'); m.id='modal-root';
   m.innerHTML=`<div class="modal-bg"><div class="bg-white rounded-2xl p-6 w-full max-w-sm text-gray-700 text-sm">
     <h3 class="font-bold mb-2">⚠️ Periksa Sebelum Kirim</h3>
@@ -321,23 +432,25 @@ $('#btn-kirim').addEventListener('click',()=>{
   $('#m-all').onclick=()=>{ db.questions.forEach(q=>q.locked=true); save(); m.remove(); doSend(); };
   $('#m-as').onclick=()=>{ m.remove(); doSend(); };
 });
-function grade(){ let c=0; db.questions.forEach(q=>{ const n=normAns(q.student); q.correct = (normAns(q.key)===n) || (q.alts||[]).some(a=>normAns(a)===n); if(q.correct)c++; }); return Math.round(c/10*100); }
-async function doSend(){
-  pause(); save();
-  const score=grade();
-  const jawaban=db.questions.map(q=>`Q${q.no}: ${(q.student||'').trim()} | kunci: ${q.key} | ${q.correct?'✅':'❌'}`).join(' ;; ');
-  const kunciList=db.questions.filter(q=>q.locked).map(q=>q.no).join(',');
-  const payload={tipe:'LKPD',kode:KODE,nama1:nama,kelas:kelas,kategori:kategori,username:username,nama2:'-',jawaban:jawaban,waktuPengerjaan:fmtMs(db.accMs),percobaan:gen,autoNilai:score,totalSoal:10,kunci:kunciList};
-  try{
-    await fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-    db.submitted=true; db.finalMs=db.accMs; db.submittedAt=new Date().toLocaleString('id-ID'); save();
-    $$('#fase-tes input,#fase-tes button').forEach(e=>e.disabled=true);
-    $('#fase-kuis').classList.remove('hidden'); $('#fase-kuis').scrollIntoView({behavior:'smooth'});
-    initGame();
-  }catch(e){ resume(); save(); alert('Gagal mengirim. Coba lagi.'); }
-}
-if(db.submitted){ $$('#fase-tes input,#fase-tes button').forEach(e=>e.disabled=true); $('#fase-kuis').classList.remove('hidden'); }
 
+/* ==== PENILAIAN ==== */
+function grade(){
+  let c=0;
+  db.questions.forEach(q=>{
+    if(q.type==='sci'){
+      const mA=Number(String(q.student).trim().replace(',','.'));
+      q.correct = (Math.abs(mA-Number(q.keyA))<1e-9) && (Number(q.studentN||0)===Number(q.keyN));
+      q.answerString=`${String(q.student).trim()}×10^${q.studentN||0}`;
+    } else {
+      const n=normAns(q.student);
+      q.correct = (normAns(q.key)===n) || (q.alts||[]).some(a=>normAns(a)===n);
+      q.answerString=String(q.student||'').trim();
+    }
+    if(q.correct)c++;
+  });
+  return Math.round(c/10*100);
+}
+  
 /* ==== GAME (template koefisien, tanpa retry) ==== */
 let G={currentQuestion:1,timeLeft:GAME_CONFIG.TIME_LIMIT,timerInterval:null,timeSpentCurrent:0,retryCount:0,scores:[],pattern:[],selectedItem:null,currentAnswers:[],dictKeys:{},phase:'lobby'};
 let dragState=null,ghostEl=null;
