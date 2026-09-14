@@ -450,6 +450,21 @@ function grade(){
   });
   return Math.round(c/10*100);
 }
+
+async function doSend(){
+  pause(); save();
+  const score=grade();
+  const jawaban=db.questions.map(q=>`Q${q.no}: ${q.answerString||''} | kunci: ${q.type==='sci'?(q.keyA+'×10^'+q.keyN):q.key} | ${q.correct?'✅':'❌'}`).join(' ;; ');
+  const kunciList=db.questions.filter(q=>q.locked).map(q=>q.no).join(',');
+  const payload={tipe:'LKPD',kode:KODE,nama1:nama,kelas:kelas,kategori:kategori,username:username,nama2:'-',jawaban:jawaban,waktuPengerjaan:fmtMs(db.accMs),percobaan:gen,autoNilai:score,totalSoal:10,kunci:kunciList};
+  try{
+    await fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+    db.submitted=true; db.finalMs=db.accMs; db.submittedAt=new Date().toLocaleString('id-ID'); save();
+    $$('#fase-tes input,#fase-tes button').forEach(e=>e.disabled=true);
+    $('#fase-kuis').classList.remove('hidden'); $('#fase-kuis').scrollIntoView({behavior:'smooth'});
+    initGame();
+  }catch(e){ resume(); save(); alert('Gagal mengirim. Coba lagi.'); }
+}
   
 /* ==== GAME (template koefisien, tanpa retry) ==== */
 let G={currentQuestion:1,timeLeft:GAME_CONFIG.TIME_LIMIT,timerInterval:null,timeSpentCurrent:0,retryCount:0,scores:[],pattern:[],selectedItem:null,currentAnswers:[],dictKeys:{},phase:'lobby'};
