@@ -76,6 +76,13 @@ if(!navigator.userAgent.includes(UA_MARKER)){
       const res=await fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'directLogin',u:u,p:p})});
       const r=await res.json();
       if(!r.ok){ alert('Username/password salah.'); $('#btn-login').disabled=false; $('#btn-login').textContent='Masuk →'; return; }
+      let doneInfo=null;
+      if(r.status){ for(const k in r.status){ if(r.status[k].skorKuis && r.status[k].skorKuis!=='-'){ doneInfo={kode:k, skorLkpd:r.status[k].skorLkpd, skorKuis:r.status[k].skorKuis}; break; } } }
+      if(doneInfo){
+        if(!confirm('⚠️ Anda sudah menyelesaikan '+doneInfo.kode+' (Skor LKPD: '+doneInfo.skorLkpd+', Kuis: '+doneInfo.skorKuis+').\n\nMasuk lagi akan mencatat PERCOBAAN BARU dan menimpa catatan lama.\n\nLanjutkan?')){
+          $('#btn-login').disabled=false; $('#btn-login').textContent='Masuk →'; return;
+        }
+      }
       localStorage.setItem('DIRECT_SESSION', JSON.stringify({username:r.username,nama:r.nama,kelas:r.kelas,kategori:r.kategori,ts:Date.now()}));
       location.href=(window.__DIRECT_TARGET||'TesFormatif1.html');
     }catch(e){ alert('Gagal menghubungi server. Coba lagi.'); $('#btn-login').disabled=false; $('#btn-login').textContent='Masuk →'; }
