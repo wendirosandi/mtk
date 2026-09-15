@@ -74,7 +74,7 @@ if(!navigator.userAgent.includes(UA_MARKER)){
     if(!u||!p){ alert('Isi username dan password.'); return; }
     $('#btn-login').disabled=true; $('#btn-login').textContent='⏳ Memverifikasi...';
     try{
-      const res=await fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'directLogin',u:u,p:p,kode:(window.__DIRECT_KODE||'MTK-003')});
+      const res=await fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'directLogin',u:u,p:p,kode:(window.__DIRECT_KODE||'MTK-003')})};
       const r=await res.json();
       if(!r.ok){ alert('Username/password salah.'); $('#btn-login').disabled=false; $('#btn-login').textContent='Masuk →'; return; }
       const targetKode = window.__DIRECT_KODE || 'MTK-003';
