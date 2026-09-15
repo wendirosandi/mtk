@@ -45,7 +45,7 @@ body{font-family:'Segoe UI',sans-serif;background:linear-gradient(165deg,#5bb0e8
 
 <script>
 const UA_MARKER='CBT-MTK-SMPN2Karbar';
-const GS_URL='https://script.google.com/macros/s/AKfycbynGs_wnF4Djt1TQIGKcvATYJXZpKKybHP5iYo-uRLKTGqZqK-hrMXltLaz0OjClbLZ/exec';
+const GS_URL='https://script.google.com/macros/s/AKfycbxpRy3ycX4RYV4tpivFsxCj4TZEAYyu9Kgf8S2pcopv5TgdQ8QhDwnzUEfS6tKkMwE/exec';
 const PENGATURAN_DIRECT_CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5u_MP8qFVe53hTJUvKBun__A0RAM9rDh4GyrSaUrfc5qwAV0Y_OHA_7mxIKjZ8AOpSSUcTy172j_f/pub?gid=1953159314&single=true&output=csv';
 const $=s=>document.querySelector(s);
 function hideLoader(){$('#loader-overlay').classList.add('hidden');}
@@ -65,6 +65,7 @@ if(!navigator.userAgent.includes(UA_MARKER)){
     $('#d-instruksi').textContent=info.DIRECT_INSTRUKSI||'';
     $('#d-guru').textContent=info.DIRECT_GURU?('Guru: '+info.DIRECT_GURU):'';
     window.__DIRECT_TARGET=info.DIRECT_URL_TARGET||'TesFormatif1.html';
+        window.__DIRECT_KODE=info.DIRECT_KODE||'MTK-003';
     hideLoader(); $('#login-card').classList.remove('hidden');
   }).catch(()=>{ hideLoader(); $('#login-card').classList.remove('hidden'); });
 
@@ -73,11 +74,13 @@ if(!navigator.userAgent.includes(UA_MARKER)){
     if(!u||!p){ alert('Isi username dan password.'); return; }
     $('#btn-login').disabled=true; $('#btn-login').textContent='⏳ Memverifikasi...';
     try{
-      const res=await fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'directLogin',u:u,p:p})});
+      const res=await fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'directLogin',u:u,p:p,kode:(window.__DIRECT_KODE||'MTK-003')});
       const r=await res.json();
       if(!r.ok){ alert('Username/password salah.'); $('#btn-login').disabled=false; $('#btn-login').textContent='Masuk →'; return; }
+      const targetKode = window.__DIRECT_KODE || 'MTK-003';
       let doneInfo=null;
-      if(r.status){ for(const k in r.status){ if(r.status[k].skorKuis && r.status[k].skorKuis!=='-'){ doneInfo={kode:k, skorLkpd:r.status[k].skorLkpd, skorKuis:r.status[k].skorKuis}; break; } } }
+      const stTarget = (r.status||{})[targetKode];
+      if(stTarget && stTarget.skorKuis && stTarget.skorKuis!=='-'){ doneInfo={kode:targetKode, skorLkpd:stTarget.skorLkpd, skorKuis:stTarget.skorKuis}; }
       if(doneInfo){
         if(!confirm('⚠️ Anda sudah menyelesaikan '+doneInfo.kode+' (Skor LKPD: '+doneInfo.skorLkpd+', Kuis: '+doneInfo.skorKuis+').\n\nMasuk lagi akan mencatat PERCOBAAN BARU dan menimpa catatan lama.\n\nLanjutkan?')){
           $('#btn-login').disabled=false; $('#btn-login').textContent='Masuk →'; return;
