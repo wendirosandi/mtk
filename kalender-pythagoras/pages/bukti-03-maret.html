@@ -246,21 +246,26 @@
     /* warna slice */
     sliceEls.forEach((g, i) => fade(g.firstChild, 2000 + i * 120, 300, 1));
     /* ghost target a² di pusat c² */
+    /* ghost target a² di pusat c² */
     fade(gInner, 2600, 300, 1);
-    /* translasi: a² dulu, lalu 4 slice */
+
+    /* translasi a² (magenta) ke pusat c²; sumbernya jadi ghost dashed */
     addTween(2800, 3500, p => {
         const e = ease(p);
         gA.setAttribute('transform', `translate(${GEO.tA.x * e},${GEO.tA.y * e})`);
-        if (p >= 1) { fade(gGhostA, 0, 1, 1); fade(gSqB && gGhostB, 0, 1, 0); }
     });
-    fade(gGhostA, 2800, 300, 0, 0);
+    fade(gGhostA, 2900, 400, 1);          // outline dashed rumah a² muncul
+
+    /* translasi 4 slice; rumah b² jadi ghost dashed */
     GEO.pieces.forEach((pc, i) => addTween(3300 + i * 220, 4000 + i * 220, p => {
         const e = ease(p);
         sliceEls[i].setAttribute('transform', `translate(${pc.t.x * e},${pc.t.y * e})`);
     }));
-    fade(gSqB, 3300, 500, 0, 1); fade(gGhostB, 3300, 500, 1);
-    fade(gA.firstChild && gGhostA, 3000, 400, 1);
-    addTween(4400, 4800, p => {   /* pulse verifikasi */
+    fade(gSqB, 3300, 500, 0, 1);          // b² polos memudar...
+    fade(gGhostB, 3300, 500, 1);          // ...diganti outline dashed
+
+    /* pulse verifikasi */
+    addTween(4400, 4800, p => {
         const s = 1 + 0.03 * Math.sin(Math.PI * p);
         svg.style.transform = `scale(${s})`;
     });
