@@ -1,22 +1,12 @@
 const kalenderData = [
     {
-        bulan: "Januari",
-        nomor: 1,
-        pembuktian: "Sel Terbang Pythagoras",
-        kelompok: "Contoh Guru",
-        tipe: "guru",
-        status: "completed",
+        bulan: "Januari",        nomor: 1,        pembuktian: "Sel Terbang Pythagoras",
+        kelompok: "Contoh Guru",        tipe: "guru",        status: "completed",
         file: "pages/bukti-01-januari.html"
     },
-    {
-        bulan: "Februari",
-        nomor: 2,
-        pembuktian: "Pembuktian Euclid (I.47)",
-        kelompok: "Contoh Guru",
-        tipe: "guru",
-        status: "pending",
-        file: "#"
-    },
+{ bulan:"Februari", nomor:2, pembuktian:"Rearrangement 4 Segitiga",
+  kelompok:"Contoh Guru", tipe:"guru", status:"completed", 
+  file:"pages/bukti-02-februari.html" },
     {
         bulan: "Maret",
         nomor: 3,
