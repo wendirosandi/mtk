@@ -1,66 +1,80 @@
+/* =====================================================
+   pdf-export.js (revisi)
+   - Export PDF menangkap #exportArea (2 gambar statis)
+   - Mode 1: Download PDF (html2canvas + jsPDF, raster)
+   - Mode 2: Print / Save as PDF (vektor via browser)
+   ===================================================== */
+
+function __pdfFooter(pdf, pageNum, total) {
+    pdf.setFontSize(9);
+    pdf.setTextColor(150);
+    pdf.text('Kalender Pythagoras 2027 - Projek SMP Kelas 8',
+             105, 291, { align: 'center' });
+    pdf.text('Hal. ' + pageNum + ' dari ' + total,
+             200, 291, { align: 'right' });
+}
+
 async function exportToPDF() {
-    const button = document.querySelector('.export-pdf-btn');
-    const originalText = button.innerHTML;
-    button.innerHTML = '⏳ Generating PDF...';
-    button.disabled = true;
+    const btn = document.getElementById('btnDownloadPDF');
+    const original = btn ? btn.innerHTML : '';
+    if (btn) { btn.innerHTML = '⏳ Membuat PDF...'; btn.disabled = true; }
 
     try {
-        const element = document.getElementById('proofContent');
-        
-        const canvas = await html2canvas(element, {
+        const target = document.getElementById('exportArea')
+                    || document.getElementById('proofContent');
+
+        const canvas = await html2canvas(target, {
             scale: 2,
             useCORS: true,
             logging: false,
-            windowWidth: 1200
+            backgroundColor: '#ffffff'
         });
 
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'mm', 'a4');
-        
-        const imgWidth = 210;
-        const pageHeight = 297;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        
-        let heightLeft = imgHeight;
-        let position = 0;
 
-        pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+        const pageW = 210, pageH = 297, margin = 10;
+        const imgW = pageW - 2 * margin;
+        const pxPerMm = canvas.width / imgW;
+        const pageContentH = pageH - 2 * margin - 6;      // sisa untuk footer
+        const slicePx = Math.floor(pageContentH * pxPerMm);
 
-        while (heightLeft >= 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
+        /* potong canvas menjadi beberapa irisan halaman */
+        const slices = [];
+        let y = 0;
+        while (y < canvas.height) {
+            const h = Math.min(slicePx, canvas.height - y);
+            const cut = document.createElement('canvas');
+            cut.width = canvas.width;
+            cut.height = h;
+            cut.getContext('2d').drawImage(canvas, 0, y, canvas.width, h,
+                                           0, 0, canvas.width, h);
+            slices.push(cut);
+            y += h;
         }
 
-        const pageCount = pdf.internal.getNumberOfPages();
-        for (let i = 1; i <= pageCount; i++) {
-            pdf.setPage(i);
-            pdf.setFontSize(10);
-            pdf.setTextColor(100);
-            pdf.text(
-                'Kalender Pythagoras 2027 - Projek SMP Kelas 8',
-                imgWidth / 2,
-                pageHeight - 10,
-                { align: 'center' }
-            );
-            pdf.text(
-                `Halaman ${i} dari ${pageCount}`,
-                imgWidth - 10,
-                pageHeight - 10,
-                { align: 'right' }
-            );
-        }
+        slices.forEach((cut, i) => {
+            if (i > 0) pdf.addPage();
+            pdf.addImage(cut, 'PNG', margin, margin, imgW, cut.height / pxPerMm);
+            __pdfFooter(pdf, i + 1, slices.length);
+        });
 
-        const proofTitle = document.querySelector('.proof-info h1').textContent;
-        pdf.save(`${proofTitle.replace(/[^a-z0-9]/gi, '_')}.pdf`);
+        const title = (document.querySelector('.proof-info h1') || {}).textContent
+                      || 'Pembuktian Pythagoras';
+        pdf.save(title.replace(/[^a-z0-9]/gi, '_') + '.pdf');
 
-    } catch (error) {
-        console.error('Error generating PDF:', error);
+    } catch (err) {
+        console.error('Gagal export PDF:', err);
         alert('Gagal membuat PDF. Silakan coba lagi.');
     } finally {
-        button.innerHTML = originalText;
-        button.disabled = false;
+        if (btn) { btn.innerHTML = original; btn.disabled = false; }
     }
 }
+
+/* Mode 2: cetak vektor via dialog print browser (CSS @media print) */
+function printPDF() {
+    window.print();
+}
+
+window.exportToPDF = exportToPDF;
+window.printPDF = printPDF;
