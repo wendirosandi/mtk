@@ -22,7 +22,7 @@
             </div>
         </div>
         <div class="export-buttons">
-            <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 Download PDF</button>
+            <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 Download PDF (1 hal)</button>
             <button class="btn-print" onclick="printPDF()">🖨 Print / Save as PDF</button>
         </div>
     </header>
@@ -30,7 +30,7 @@
     <nav class="proof-nav no-print">
         <a href="bukti-01-januari.html" class="prev-btn">← Januari (Bukti #1)</a>
         <span class="nav-indicator">2 / 12</span>
-        <a href="#" class="next-btn disabled" onclick="alert('Pembuktian Maret masih dalam tahap pengembangan');return false;">Maret (Bukti #3) →</a>
+        <a href="bukti-03-maret.html" class="next-btn">Maret (Bukti #3) →</a>
     </nav>
 
     <main class="proof-content" id="proofContent">
@@ -38,18 +38,13 @@
         <section class="section introduction no-print">
             <h2>📖 Pengenalan</h2>
             <p class="intro-text">
-                Empat segitiga siku-siku identik (sisi a, b, c) disusun di dalam persegi besar bersisi
-                <strong>(a + b)</strong>. <strong>Susunan 1:</strong> rongga tengah = persegi miring <strong>c²</strong>.
-                <strong>Susunan 2:</strong> segitiga dipasangkan menjadi 2 persegi panjang, rongga =
-                <strong>a² + b²</strong>. Luas total & luas segitiga tidak berubah → sisanya pasti sama!
+                Empat segitiga siku-siku identik disusun di dalam persegi besar sisi (a+b).
+                <strong>Susunan 1:</strong> rongga tengah = c².
+                <strong>Susunan 2:</strong> segitiga dipasangkan menjadi 2 persegi panjang,
+                rongga = a² + b². Karena luas total & luas segitiga tidak berubah, sisanya sama.
             </p>
-            <div class="historical-note">
-                <strong>📜 Sejarah:</strong> Susunan pertama berkaitan dengan <em>diagram tali Zhao Shuang</em>
-                (Tiongkok, ± abad ke-3 M); versi dua-susunan ini populer di buku teks modern.
-            </div>
         </section>
 
-        <!-- ============ ANIMASI INTERAKTIF ============ -->
         <section class="section animation no-print">
             <h2>🎬 Animasi Interaktif</h2>
             <div class="animation-wrapper">
@@ -61,12 +56,11 @@
                         <div class="r2-pinkbox r2-b2" id="pink2b"></div>
                         <div class="r2-dashlabel" id="labC2">c²</div>
                         <div class="r2-dashlabel" id="labA2" style="left:252px;top:92px;">a²</div>
-                        <div class="r2-dashlabel" id="labB2" style:="";left:112px;top:232px;">b²</div>
-                        <span class="r2-sidelab" id="sl1" style="left:105px;top:30px;">a</span>
-                        <span class="r2-sidelab" id="sl2" style="left:245px;top:30px;">b</span>
-                        <span class="r2-sidelab" id="sl3" style="left:348px;top:95px;">a</span>
-                        <span class="r2-sidelab" id="sl4" style="left:348px;top:240px;">b</span>
-                        <!-- 4 segitiga ditambahkan via JS -->
+                        <div class="r2-dashlabel" id="labB2" style="left:112px;top:232px;">b²</div>
+                        <span class="r2-sidelab" style="left:105px;top:30px;">a</span>
+                        <span class="r2-sidelab" style="left:245px;top:30px;">b</span>
+                        <span class="r2-sidelab" style="left:348px;top:95px;">a</span>
+                        <span class="r2-sidelab" style="left:348px;top:240px;">b</span>
                     </div>
                 </div>
                 <div class="animation-controls">
@@ -84,81 +78,64 @@
                     <div class="pbar"><div class="pfill" id="pfill"></div></div>
                     <div class="ptext" id="ptext">Progres: 0%</div>
                 </div>
+                <div class="formula-display" style="margin-top:15px;">
+                    <div class="formula-step active" id="step0">Siap memulai… tekan ▶ Mulai</div>
+                    <div class="formula-step" id="step1">Persegi besar sisi (a+b): luas = (a+b)²</div>
+                    <div class="formula-step" id="step2">Susunan 1: (a+b)² = 4·(½ab) + c²</div>
+                    <div class="formula-step" id="step3">Susunan 2: (a+b)² = 4·(½ab) + a² + b²</div>
+                    <div class="formula-step" id="step4">∴ c² = a² + b² → 25 = 9 + 16 ✓</div>
+                </div>
             </div>
         </section>
-        
-  <div id="exportWrap">
-        <!-- ============ AREA EXPORT (Kalender + 2 Gambar + QR) ============ -->
-             <section class="section export-section">
-            <h2 class="no-print">📄 Area Export / Pratinjau PDF</h2>
-            <div id="exportArea" class="export-area">
-                <div class="export-header">
-                    <h2>Bukti #2: Rearrangement 4 Segitiga</h2>
-                    <p>Kalender Pythagoras 2027 • Februari • Contoh Guru • Level: Dasar</p>
-                </div>
 
-                <!-- BLOK 1: KALENDER FEBRUARI 2027 + META INFO -->
-                <div id="calBlock" class="cal-block"></div>
-                <hr class="cal-divider">
+        <!-- ============ AREA EXPORT (sheet A4) ============ -->
+        <section class="section export-section no-print-screen">
+            <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">
+                👁 Tampilkan Pratinjau PDF (1 halaman)
+            </button>
+            <div class="preview-collapse collapsed" id="previewCollapse">
+              <div class="a4-viewport" id="a4Viewport">
+                <div id="exportArea" class="a4-sheet">
+                    <div class="export-header">
+                        <h2>Bukti #2: Rearrangement 4 Segitiga</h2>
+                        <p>Kalender Pythagoras 2027 • Februari • Contoh Guru • Level: Dasar</p>
+                    </div>
 
-                <!-- BLOK 2: PEMBUKTIAN -->
-                <div class="proof-figures">
-                    <figure class="proof-figure">
-                        <span class="state-badge initial">AWAL</span>
-                        <div class="scene" id="figInitial"></div>
-                        <figcaption><strong>Gbr 1:</strong> 4 segitiga di sudut persegi (a+b);
-                            rongga tengah = persegi miring c².</figcaption>
-                    </figure>
-                    <figure class="proof-figure">
-                        <span class="state-badge final">AKHIR</span>
-                        <div class="scene" id="figFinal"></div>
-                        <figcaption><strong>Gbr 2:</strong> Segitiga dipasangkan jadi 2 persegi
-                            panjang; rongga = a² + b².</figcaption>
-                    </figure>
-                </div>
+                    <div id="calBlock" class="cal-block"></div>
+                    <hr class="cal-divider">
 
-                <div class="export-explain">
-                    <p><strong>Penjelasan singkat:</strong> Luas persegi besar = (a+b)².
-                       Susunan 1: (a+b)² = 4·(½ab) + c². Susunan 2: (a+b)² = 4·(½ab) + a² + b².
-                       Karena ruas kiri dan luas 4 segitiga sama, maka sisanya sama:</p>
-                    <div class="export-formula">c² = a² + b² → 5² = 3² + 4² → 25 = 9 + 16 ✓</div>
-                </div>
+                    <div class="proof-figures">
+                        <figure class="proof-figure">
+                            <span class="state-badge initial">AWAL</span>
+                            <div class="scene" id="figInitial"></div>
+                            <figcaption><strong>Gbr 1:</strong> 4 segitiga di sudut; rongga = c².</figcaption>
+                        </figure>
+                        <figure class="proof-figure">
+                            <span class="state-badge final">AKHIR</span>
+                            <div class="scene" id="figFinal"></div>
+                            <figcaption><strong>Gbr 2:</strong> Segitiga dipasangkan; rongga = a²+b².</figcaption>
+                        </figure>
+                    </div>
 
-                <div class="export-conclusion">
-                    <div class="export-conclusion-text">KESIMPULAN:<br>a² + b² = c²</div>
-                    <div>
-                        <div class="qr-box" id="qrcode">[QR code]</div>
-                        <div class="qr-caption">Scan untuk animasi interaktif</div>
+                    <div class="export-explain">
+                        <p><strong>Penjelasan:</strong> Persegi besar sisi (a+b) berisi 4 segitiga siku-siku.
+                           Susunan 1 meninggalkan rongga c²; susunan 2 meninggalkan rongga a²+b².
+                           Karena luas persegi besar dan luas 4 segitiga sama, sisanya sama.</p>
+                        <div class="export-formula">c² = a² + b² → 5² = 3² + 4² → 25 = 9 + 16 ✓</div>
+                    </div>
+
+                    <div class="export-conclusion">
+                        <div class="export-conclusion-text">KESIMPULAN:<br>a² + b² = c²</div>
+                        <div>
+                            <div class="qr-box" id="qrcode">[QR]</div>
+                            <div class="qr-caption">Scan untuk animasi</div>
+                        </div>
                     </div>
                 </div>
+              </div>
             </div>
-        </section>
-            </div>
-
-        <section class="section steps no-print">
-            <h2>📝 Langkah-langkah Pembuktian</h2>
-            <ol class="proof-steps">
-                <li class="step"><div class="step-number">1</div>
-                    <div class="step-content"><h3>Persegi Besar (a+b)</h3>
-                        <div class="formula">Sisi = a + b = 3 + 4 = 7 → Luas = 49</div></div></li>
-                <li class="step"><div class="step-number">2</div>
-                    <div class="step-content"><h3>Susunan 1 → rongga c²</h3>
-                        <div class="formula">(a+b)² = 4·(½ab) + c² → 49 = 24 + c²</div></div></li>
-                <li class="step"><div class="step-number">3</div>
-                    <div class="step-content"><h3>Susunan 2 → rongga a² + b²</h3>
-                        <div class="formula">(a+b)² = 4·(½ab) + a² + b² → 49 = 24 + 9 + 16</div></div></li>
-                <li class="step"><div class="step-number">4</div>
-                    <div class="step-content"><h3>Samakan → Kesimpulan</h3>
-                        <div class="formula final"><strong>c² = a² + b² ✓</strong></div></div></li>
-            </ol>
         </section>
     </main>
-
-    <nav class="proof-nav bottom no-print">
-        <a href="bukti-01-januari.html" class="prev-btn">← Sebelumnya</a>
-        <a href="../index.html" class="home-btn">🏠 Kalender</a>
-        <a href="#" class="next-btn disabled" onclick="alert('Pembuktian Maret masih dalam tahap pengembangan');return false;">Selanjutnya →</a>
-    </nav>
 
     <footer class="no-print">
         <p><strong>Contoh Guru</strong> - Pembuktian #2</p>
@@ -181,47 +158,58 @@
                 clip-path:polygon(0 0,100% 0,0 100%);transform-origin:0 0;opacity:0;z-index:4;will-change:transform}
     </style>
 
-    <script src="../assets/js/calendar-template.js"></script>
-    <script src="../assets/js/pdf-export.js"></script>
+    <script src="../assets/js/calendar-template.js?v=3"></script>
+    <script src="../assets/js/pdf-export.js?v=31"></script>
     <script>
-    /* ================= GEOMETRI & MESIN ANIMASI (rearrangement) ================= */
+    /* Sheet A4 scaling */
+    function fitSheet() {
+        const viewport = document.getElementById('a4Viewport');
+        const sheet = document.querySelector('.a4-sheet');
+        if (!viewport || !sheet) return;
+        const s = Math.min(1, viewport.clientWidth / 794);
+        sheet.style.transform = `scale(${s})`;
+        sheet.style.transformOrigin = 'top left';
+        viewport.style.height = (1123 * s) + 'px';
+    }
+    window.fitSheet = fitSheet;
+    window.addEventListener('resize', fitSheet);
+    function togglePreview() {
+        const col = document.getElementById('previewCollapse');
+        col.classList.toggle('collapsed');
+        document.getElementById('btnPreview').textContent = col.classList.contains('collapsed')
+            ? '👁 Tampilkan Pratinjau PDF (1 halaman)' : '🙈 Sembunyikan Pratinjau PDF';
+        if (!col.classList.contains('collapsed')) setTimeout(fitSheet, 60);
+    }
+    window.togglePreview = togglePreview;
+
+    /* ========== ANIMASI (rearrangement) ========== */
     const TOTAL = 4500;
-    const stage = document.getElementById('stage');
-    const wrap  = document.getElementById('stageWrap');
+    const stage = document.getElementById('stage'), wrap = document.getElementById('stageWrap');
     const BASE_W = 420, BASE_H = 400;
     function fitStage(){ const s=Math.min(1,wrap.clientWidth/BASE_W);
         stage.style.transform=`scale(${s})`; wrap.style.height=(BASE_H*s)+'px'; }
     window.addEventListener('resize', fitStage);
-
-    const lerp=(a,b,t)=>a+(b-a)*t;
-    const clamp01=t=>Math.max(0,Math.min(1,t));
+    const lerp=(a,b,t)=>a+(b-a)*t;const clamp01=t=>Math.max(0,Math.min(1,t));
     const easeInOutCubic=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
     const easeOutBack=t=>{const c=1.70158;return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2);};
-
-    /* Pose: [x, y, rotasi] — konfigurasi 1 & 2 (rotasi SAMA → gerak translasi murni) */
     const P1=[{x:60,y:50,r:0},{x:340,y:50,r:90},{x:340,y:330,r:180},{x:60,y:330,r:270}];
     const P2=[{x:220,y:170,r:0},{x:220,y:50,r:90},{x:340,y:330,r:180},{x:60,y:170,r:270}];
     const tris=[];
     for(let i=0;i<4;i++){ const d=document.createElement('div'); d.className='r2-tri';
         d.style.transform=`translate(${P1[i].x}px,${P1[i].y}px) rotate(${P1[i].r}deg) scale(0)`;
         stage.appendChild(d); tris.push(d); }
-
     const tweens=[];
     function addTween(t0,t1,update){ const tw={t0,t1,update,last:-1}; tweens.push(tw); return tw; }
     function fade(el,t0,dur,to,from=0){ addTween(t0,t0+dur,p=>{ el.style.opacity=from+(to-from)*p; }); }
-
-    /* timeline */
     fade(document.getElementById('r2Outline'),0,400,1);
-    ['sl1','sl2','sl3','sl4'].forEach((id,i)=>fade(document.getElementById(id),100+i*80,300,1));
-    tris.forEach((el,i)=> addTween(500+i*150, 760+i*150, p=>{
-        const e=easeOutBack(p);
+    document.querySelectorAll('.r2-sidelab').forEach((el,i)=>fade(el,100+i*80,300,1));
+    tris.forEach((el,i)=> addTween(500+i*150, 760+i*150, p=>{ const e=easeOutBack(p);
         el.style.opacity=Math.min(1,p*2.5);
         el.style.transform=`translate(${P1[i].x}px,${P1[i].y}px) rotate(${P1[i].r}deg) scale(${Math.max(0,e)})`;
     }));
     fade(document.getElementById('pink1'),1400,400,1);
     fade(document.getElementById('labC2'),1500,400,1);
-    tris.forEach((el,i)=> addTween(2200+i*200, 3100+i*200, p=>{
-        const e=easeInOutCubic(p);
+    tris.forEach((el,i)=> addTween(2200+i*200, 3100+i*200, p=>{ const e=easeInOutCubic(p);
         const x=lerp(P1[i].x,P2[i].x,e), y=lerp(P1[i].y,P2[i].y,e);
         el.style.transform=`translate(${x}px,${y}px) rotate(${P1[i].r}deg)`;
     }));
@@ -231,7 +219,6 @@
     fade(document.getElementById('pink2b'),2600,600,1);
     fade(document.getElementById('labA2'),2800,400,1);
     fade(document.getElementById('labB2'),2800,400,1);
-
     let vt=0, playing=false, speed=1, lastTs=null;
     const stepTimes=[[0,1],[400,2],[2200,3],[3600,4]];
     function updateStep(){ let n=0; for(const [t,s] of stepTimes) if(vt>=t) n=s;
@@ -240,15 +227,13 @@
     function updateProgress(){ const pct=Math.round(vt/TOTAL*100);
         document.getElementById('ptext').textContent='Progres: '+pct+'%';
         document.getElementById('pfill').style.width=pct+'%'; }
-    function frame(ts){ if(lastTs===null)lastTs=ts;
-        const dt=Math.min(50,ts-lastTs); lastTs=ts;
+    function frame(ts){ if(lastTs===null)lastTs=ts; const dt=Math.min(50,ts-lastTs); lastTs=ts;
         if(playing) vt=Math.min(TOTAL,vt+dt*speed);
         for(const tw of tweens){ const p=clamp01((vt-tw.t0)/(tw.t1-tw.t0));
             if(p!==tw.last){ tw.update(p); tw.last=p; } }
-        updateProgress();
+        updateProgress(); updateStep();
         if(playing&&vt>=TOTAL){ playing=false; onEnd(); }
         requestAnimationFrame(frame); }
-
     const btnStart=document.getElementById('btnStart'), btnPause=document.getElementById('btnPause');
     function onEnd(){ btnStart.textContent='▶ Ulangi'; btnStart.style.display='inline-block'; btnPause.style.display='none'; }
     function resetState(){ vt=0; playing=false; for(const tw of tweens) tw.last=-1;
@@ -260,10 +245,9 @@
     document.getElementById('btnSkip').addEventListener('click',()=>{ vt=TOTAL; playing=false; onEnd(); });
     document.getElementById('btnReset').addEventListener('click',resetState);
     document.getElementById('speedSlider').addEventListener('input',e=>{
-        speed=parseFloat(e.target.value);
-        document.getElementById('speedValue').textContent=speed+'×'; });
+        speed=parseFloat(e.target.value); document.getElementById('speedValue').textContent=speed+'×'; });
 
-    /* ================= GAMBAR STATIS (SVG, print-safe) ================= */
+    /* Gambar statis (SVG) */
     function rearrangeSVG(state){
         const TRI='fill="#5b9bd5" stroke="#2e6da4" stroke-width="1.5"';
         const PINK='fill="#f9c9de" stroke="#e39bb8" stroke-width="1.5"';
@@ -299,24 +283,11 @@
     document.getElementById('figInitial').innerHTML = rearrangeSVG('initial');
     document.getElementById('figFinal').innerHTML   = rearrangeSVG('final');
 
-    /* Kalender Februari 2027 + QR */
     renderCalendar(document.getElementById('calBlock'), 2);
-    try { new QRCode(document.getElementById('qrcode'), { text: window.location.href,
-          width:96, height:96, correctLevel: QRCode.CorrectLevel.M }); }
+    try { new QRCode(document.getElementById('qrcode'), { text: window.location.href, width:84, height:84, correctLevel: QRCode.CorrectLevel.M }); }
     catch(e){ document.getElementById('qrcode').textContent = window.location.href; }
 
-    /* rumus steps (HUD) */
-    document.querySelector('.animation-wrapper').insertAdjacentHTML('beforeend', `
-        <div class="formula-display" style="margin-top:15px;">
-            <div class="formula-step active" id="step0">Siap memulai… tekan ▶ Mulai</div>
-            <div class="formula-step" id="step1">Persegi besar sisi (a+b): luas = (a+b)²</div>
-            <div class="formula-step" id="step2">Susunan 1: (a+b)² = 4·(½ab) + c²</div>
-            <div class="formula-step" id="step3">Susunan 2: (a+b)² = 4·(½ab) + a² + b²</div>
-            <div class="formula-step" id="step4">∴ c² = a² + b² → 25 = 9 + 16 ✓</div>
-        </div>`);
-
-    fitStage();
-    requestAnimationFrame(frame);
+    fitStage(); fitSheet(); requestAnimationFrame(frame);
     </script>
 </body>
 </html>
