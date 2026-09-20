@@ -1,19 +1,17 @@
 /* =====================================================
-   perigal-engine.js  v3
-   - Translasi slice via TABEL PASANGAN SUDUT (terbukti umum)
-   - Tanpa solver numerik, tanpa fallback → deterministik
-   - Self-test: Σ luas slice + a² == c²  →  console "✅ TILING OK"
+   perigal-engine.js  v4
+   K (sudut siku slice) → Q (sudut persegi dalam a²)
+   sah untuk semua a, b, dan offset slice
    ===================================================== */
 function perigalGeometry(a, b, off, viewW, viewH, pad) {
     off = off || { p: 0, q: 0 };
     pad = pad || 20;
     const c = Math.hypot(a, b);
-    const h = { x: a / c, y: -b / c };              // arah hipotenusa (C→A)
-    const n = { x: b / c, y: a / c };               // normal luar
-    const o = { x: off.p * h.x + off.q * n.x,       // vektor offset slice
+    const h = { x: a / c, y: -b / c };
+    const n = { x: b / c, y: a / c };
+    const o = { x: off.p * h.x + off.q * n.x,
                 y: off.p * h.y + off.q * n.y };
 
-    /* ---- skala & pemetaan ke layar ---- */
     const minX = -b, maxX = a + b, minY = -a, maxY = a + b;
     const u = Math.min((viewW - 2 * pad) / (maxX - minX),
                        (viewH - 2 * pad) / (maxY - minY));
@@ -21,7 +19,6 @@ function perigalGeometry(a, b, off, viewW, viewH, pad) {
     const oy = pad + ((viewH - 2 * pad) - (maxY - minY) * u) / 2 + maxY * u;
     const S = (x, y) => ({ x: ox + x * u, y: oy - y * u });
 
-    /* ---- geometri dasar (koordinat math, y-up) ---- */
     const B = { x: 0, y: 0 }, A = { x: a, y: 0 }, C = { x: 0, y: b };
     const sqA = [{ x: 0, y: 0 }, { x: a, y: 0 }, { x: a, y: -a }, { x: 0, y: -a }];
     const sqB = [{ x: -b, y: 0 }, { x: 0, y: 0 }, { x: 0, y: b }, { x: -b, y: b }];
@@ -29,11 +26,10 @@ function perigalGeometry(a, b, off, viewW, viewH, pad) {
         { x: A.x + n.x * c, y: A.y + n.y * c },
         { x: C.x + n.x * c, y: C.y + n.y * c }];
     const Wc = { x: (C.x + sqC[2].x) / 2, y: (C.y + sqC[2].y) / 2 };
-    const W  = { x: Wc.x + o.x, y: Wc.y + o.y };    // pusat a² di dalam c²
+    const W  = { x: Wc.x + o.x, y: Wc.y + o.y };
     const Gc = { x: -b / 2, y: b / 2 };
-    const G  = { x: Gc.x + o.x, y: Gc.y + o.y };    // pusat potongan b²
+    const G  = { x: Gc.x + o.x, y: Gc.y + o.y };
 
-    /* ---- util ---- */
     function clip(poly, P, m, s) {
         const out = [], v = q => m.x * (q.x - P.x) + m.y * (q.y - P.y);
         for (let i = 0; i < poly.length; i++) {
@@ -75,20 +71,11 @@ function perigalGeometry(a, b, off, viewW, viewH, pad) {
         return s / 2;
     }
 
-    /* ---- persegi dalam a² (axis-aligned, pusat W) ---- */
     const inner = [
         { x: W.x - a / 2, y: W.y - a / 2 }, { x: W.x + a / 2, y: W.y - a / 2 },
         { x: W.x + a / 2, y: W.y + a / 2 }, { x: W.x - a / 2, y: W.y + a / 2 }];
 
-    /* ---- TABEL PASANGAN SUDUT  K(b²) → Z(c²)  (sah utk semua a,b,offset) ---- */
-    const table = [
-        { K: { x: 0,  y: 0 }, Z: { x: a + b, y: a } },
-        { K: { x: 0,  y: b }, Z: { x: b,     y: a + b } },
-        { K: { x: -b, y: 0 }, Z: { x: a,     y: 0 } },
-        { K: { x: -b, y: b }, Z: { x: 0,     y: b } }
-    ];
-
-    /* ---- 4 slice + translasi deterministik ---- */
+    /* ---- 4 slice + translasi K → sudut DALAM ---- */
     const signs = [[1, 1], [-1, 1], [-1, -1], [1, -1]];
     const pieces = [];
     signs.forEach(([sH, sN]) => {
@@ -96,11 +83,12 @@ function perigalGeometry(a, b, off, viewW, viewH, pad) {
         poly = clip(poly, G, n, sN);
         if (poly.length < 3 || Math.abs(area(poly)) < 1e-9) return;
         const K = sqB.find(P2 => pip(poly, P2, 1e-7 * b));
-        const row = table.find(r => Math.hypot(r.K.x - K.x, r.K.y - K.y) < 1e-7 * b);
-        pieces.push({ poly, t: { x: row.Z.x - K.x, y: row.Z.y - K.y } });
+        const sx = Math.sign(K.x - G.x), sy = Math.sign(K.y - G.y);
+        const Q = { x: W.x + (a / 2) * sx, y: W.y + (a / 2) * sy };
+        pieces.push({ poly, t: { x: Q.x - K.x, y: Q.y - K.y } });
     });
 
-    const tA = { x: W.x - a / 2, y: W.y + a / 2 };  // translasi persegi a²
+    const tA = { x: W.x - a / 2, y: W.y + a / 2 };
 
     /* ---- SELF-TEST ---- */
     const sumP = pieces.reduce((s, pc) => s + Math.abs(area(pc.poly)), 0);
@@ -110,7 +98,6 @@ function perigalGeometry(a, b, off, viewW, viewH, pad) {
     if (okArea && okInside) console.log('✅ TILING OK (Perigal ' + a + ',' + b + ')');
     else console.warn('⚠️ TILING GAGAL', { okArea, okInside });
 
-    /* ---- keluaran koordinat layar ---- */
     const map = poly => poly.map(P => S(P.x, P.y));
     return {
         a, b, c, u, S,
