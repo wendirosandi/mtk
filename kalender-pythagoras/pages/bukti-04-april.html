@@ -39,19 +39,20 @@
             <h2>📖 Pengenalan</h2>
             <p class="intro-text">
                 Pembuktian Perigal <strong>tidak bergantung pada ukuran segitiga</strong> —
-                prinsip yang sama bekerja untuk triple <strong>5-12-13</strong>, 8-15-17, dan seterusnya.
-                Lebih menarik lagi: <strong>posisi a² di dalam c²</strong> (dan posisi pusat potongan b²)
-                <em>boleh di mana saja</em> — selama dipertahankan sejajar & tegak-lurus hipotenusa.
-                Geser slider di bawah untuk mengeksplorasi sendiri!
+                prinsip yang sama bekerja untuk triple <strong>5-12-13</strong>.
+                Lebih menarik lagi: posisi persegi a² di dalam c² (dan titik potong di b²)
+                <em>dapat digeser</em> sepanjang jendela sah — teorema tetap berlaku.
+                Geser slider untuk mengeksplorasi; sistem akan <strong>meng-clamp otomatis</strong>
+                bila melewati batas matematis.
             </p>
             <div class="historical-note">
-                <strong>📜 Generalisasi:</strong> Pada Bukti #3 (triple 3-4-5), a² diletakkan
-                di pusat c². Di sini kita lihat versi "offset": a² dan titik potong b²
-                <strong>digeser searah hipotenusa</strong>, tetapi teorema tetap berlaku.
+                <strong>📜 Batas jendela:</strong> |offset| dibatasi agar (1) keempat slice tetap
+                memegang satu sudut persegi b², dan (2) persegi a² tetap muat di dalam c².
+                Di luar itu, tiling translasi mustahil — karena itu slider tidak bisa "mentok ke ujung".
             </div>
         </section>
 
-         <!-- ============ ANIMASI + SLIDER EKSPLORASI ============ -->
+        <!-- ============ ANIMASI + SLIDER ============ -->
         <section class="section animation no-print">
             <h2>🎬 Animasi + Eksplorasi Offset</h2>
             <div class="animation-wrapper">
@@ -59,29 +60,26 @@
                     <svg id="stageSvg" viewBox="0 0 560 520" style="display:block;width:100%;height:auto;"></svg>
                 </div>
 
-                <!-- SLIDER OFFSET (auto-range) -->
                 <div style="background:#fff;border:2px solid #667eea;border-radius:10px;padding:14px;margin-top:12px;">
                     <div style="font-weight:bold;color:#333;margin-bottom:8px;">
-                        🔧 Mode Eksplorasi (geser slider — batas otomatis ditentukan)
+                        🔧 Mode Eksplorasi (batas jendela ditentukan otomatis)
                     </div>
                     <div style="display:flex;flex-direction:column;gap:10px;">
-                        <label style="display:flex;align-items:center;gap:10px;font-size:14px;">
-                            <span style="min-width:100px;font-weight:600;">↗ Geser <em>p</em> (∥ hip.):</span>
-                            <input type="range" id="sliderP" min="-2.5" max="2.5" step="0.1" value="1.5" style="flex:1;cursor:pointer;">
-                            <span id="valP" style="min-width:48px;font-weight:bold;color:#667eea;">1.5</span>
+                        <label style="display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:wrap;">
+                            <span style="min-width:150px;font-weight:600;">↗ Geser <em>p</em> (∥ hipotenusa):</span>
+                            <input type="range" id="sliderP" min="-2.5" max="2.5" step="0.1" value="1.5" style="flex:1;min-width:140px;cursor:pointer;">
+                            <span id="valP" style="min-width:44px;font-weight:bold;color:#667eea;">1.5</span>
                         </label>
-                        <label style="display:flex;align-items:center;gap:10px;font-size:14px;">
-                            <span style="min-width:100px;font-weight:600;">↗ Geser <em>q</em> (⊥ hip.):</span>
-                            <input type="range" id="sliderQ" min="-2.5" max="2.5" step="0.1" value="1.0" style="flex:1;cursor:pointer;">
-                            <span id="valQ" style="min-width:48px;font-weight:bold;color:#667eea;">1.0</span>
+                        <label style="display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:wrap;">
+                            <span style="min-width:150px;font-weight:600;">↗ Geser <em>q</em> (⊥ hipotenusa):</span>
+                            <input type="range" id="sliderQ" min="-2.5" max="2.5" step="0.1" value="1.0" style="flex:1;min-width:140px;cursor:pointer;">
+                            <span id="valQ" style="min-width:44px;font-weight:bold;color:#667eea;">1.0</span>
                         </label>
                     </div>
-                    <div id="clampNotice" style="display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:8px;margin-top:10px;font-size:13px;color:#856404;">
-                        ⚠️ Offset di-clamp otomatis ke nilai sah terdekat.
-                    </div>
+                    <div id="clampNotice" style="display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:8px;margin-top:10px;font-size:13px;color:#856404;"></div>
                     <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
-                        <button class="btn-reset" id="btnDefault" style="background:#667eea;padding:8px 14px;font-size:13px;">🔄 Reset Offset (1.5, 1.0)</button>
-                        <button class="btn-reset" id="btnCenter" style="background:#1565c0;padding:8px 14px;font-size:13px;">⊕ Mode Pusat (0, 0)</button>
+                        <button id="btnDefault" style="background:#667eea;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:13px;cursor:pointer;">🔄 Reset Offset (1.5, 1.0)</button>
+                        <button id="btnCenter" style="background:#1565c0;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:13px;cursor:pointer;">⊕ Mode Pusat (0, 0)</button>
                     </div>
                 </div>
 
@@ -104,7 +102,7 @@
                     <div class="formula-step active" id="step0">Siap memulai… tekan ▶ Mulai</div>
                     <div class="formula-step" id="step1">Segitiga siku-siku: a = 5, b = 12, c = 13</div>
                     <div class="formula-step" id="step2">a² = 25 • b² = 144 • c² = 169</div>
-                    <div class="formula-step" id="step3">b² dipotong 4 slice (∥ & ⊥ hipotenusa, dengan offset)</div>
+                    <div class="formula-step" id="step3">b² dipotong 4 slice (∥ &  hipotenusa, dengan offset)</div>
                     <div class="formula-step" id="step4">4 slice + a² digeser (tanpa rotasi) ke c²</div>
                     <div class="formula-step" id="step5">c² tertutup sempurna → c² = a² + b² ✓</div>
                 </div>
@@ -113,7 +111,7 @@
 
         <!-- ============ GEOGEBRA ============ -->
         <section class="section external-resources no-print">
-            <h2>🔗 Applet GeoGebra (Slice Fleksibel — Triple Berubah)</h2>
+            <h2>🔗 Applet GeoGebra (Slice Fleksibel)</h2>
             <div class="embed-container">
                 <iframe src="https://www.geogebra.org/material/iframe/id/cqgadg5k/width/900/height/520"
                         width="100%" height="520" frameborder="0"
@@ -148,15 +146,15 @@
                         <figure class="proof-figure">
                             <span class="state-badge final">AKHIR</span>
                             <div class="scene" id="figFinal"></div>
-                            <figcaption><strong>Gbr 2:</strong> 4 slice + a² mengisi c² (offset); sumber kosong.</figcaption>
+                            <figcaption><strong>Gbr 2:</strong> 4 slice + a² mengisi c²; sumber kosong.</figcaption>
                         </figure>
                     </div>
 
                     <div class="export-explain">
                         <p><strong>Penjelasan:</strong> Dengan triple <strong>5-12-13</strong> dan posisi
-                           slice <em>di-offset</em> (tidak di pusat), 4 potongan b² tetap cukup untuk menutup
-                           c² bersama persegi a². Prinsip Perigal <strong>tidak bergantung pada posisi pusat</strong>
-                           maupun triple — hanya pada translasi murni.</p>
+                           slice di-offset (dalam jendela sah), 4 potongan b² tetap cukup menutup c²
+                           bersama persegi a² — prinsip Perigal hanya bergantung pada
+                           <em>translasi murni</em>, bukan pada posisi pusat.</p>
                         <div class="export-formula">c² = a² + b² → 13² = 5² + 12² → 169 = 25 + 144 ✓</div>
                     </div>
 
@@ -184,16 +182,14 @@
         <p>Projek Kalender Pythagoras 2027</p>
     </footer>
 
-     <script src="../assets/js/perigal-engine.js?v=6"></script>
+    <script src="../assets/js/perigal-engine.js?v=61"></script>
     <script src="../assets/js/calendar-template.js?v=3"></script>
     <script src="../assets/js/pdf-export.js?v=31"></script>
     <script>
-    /* ================= GEOMETRI PARAMETERIK 5-12-13 ================= */
-    /* ================= GEOMETRI PARAMETERIK 5-12-13 ================= */
+    /* ================= PARAM & UTIL ================= */
     const A = 5, B = 12;
     const DEF_OFF = { p: 1.5, q: 1.0 };
     let curOff = { ...DEF_OFF };
-    let actualOff = { ...DEF_OFF };
     const VIEW_W = 560, VIEW_H = 520, PAD = 24;
     const NS = 'http://www.w3.org/2000/svg';
     const svg = document.getElementById('stageSvg');
@@ -209,12 +205,11 @@
 
     let GEO, gTri, gSqC, gSqB, gGhostB, gGhostA, gCutG, cut1, cut2, gInner, gA, sliceEls;
     const tweens = [];
-    let TOTAL = 5000;
+    const TOTAL = 5000;
 
     function buildStage(off) {
         clearSVG();
         GEO = perigalGeometry(A, B, off, VIEW_W, VIEW_H, PAD);
-        actualOff = GEO.actualOff;  /* offset aktual (setelah clamp) */
 
         const defs = mk('defs', {});
         const cp = mk('clipPath', { id: 'clipB' }, defs);
@@ -340,12 +335,25 @@
         speed = parseFloat(e.target.value);
         document.getElementById('speedValue').textContent = speed + '×'; });
 
-    /* =============== SLIDER EKSPLORASI + CLAMP NOTICE =============== */
-    const slP = document.getElementById('sliderP');
-    const slQ = document.getElementById('sliderQ');
-    const valP = document.getElementById('valP');
-    const valQ = document.getElementById('valQ');
+    /* ================= SLIDER + CLAMP NOTICE ================= */
+    const slP = document.getElementById('sliderP'), slQ = document.getElementById('sliderQ');
+    const valP = document.getElementById('valP'), valQ = document.getElementById('valQ');
     const clampNotice = document.getElementById('clampNotice');
+
+    function showNotice() {
+        const ao = GEO.actualOff;
+        const clamped = Math.abs(ao.p - curOff.p) > 0.01 || Math.abs(ao.q - curOff.q) > 0.01;
+        if (GEO.degraded) {
+            clampNotice.style.display = 'block';
+            clampNotice.textContent = '⚠️ Offset tidak valid — kembali ke Mode Pusat (0, 0).';
+        } else if (clamped) {
+            clampNotice.style.display = 'block';
+            clampNotice.textContent = '⚠️ Melewati jendela sah — offset dipakai: (' +
+                ao.p.toFixed(2) + ', ' + ao.q.toFixed(2) + ').';
+        } else {
+            clampNotice.style.display = 'none';
+        }
+    }
 
     function refreshStage() {
         playing = false;
@@ -353,44 +361,26 @@
         buildTimeline();
         for (const tw of tweens) tw.fn(1);
         vt = TOTAL;
-        updateStep(); updateProgress();
+        updateStep(); updateProgress(); showNotice();
         btnStart.textContent = '▶ Ulangi';
         btnStart.style.display = 'inline-block';
         btnPause.style.display = 'none';
-
-        /* cek apakah offset di-clamp */
-        const clamped = Math.abs(actualOff.p - curOff.p) > 0.01 ||
-                        Math.abs(actualOff.q - curOff.q) > 0.01;
-        clampNotice.style.display = clamped ? 'block' : 'none';
-        if (clamped) {
-            clampNotice.innerHTML = `⚠️ Offset di-clamp otomatis dari (${curOff.p.toFixed(1)}, ${curOff.q.toFixed(1)}) ke (${actualOff.p.toFixed(2)}, ${actualOff.q.toFixed(2)}) agar tiling valid.`;
-        }
     }
 
-    slP.addEventListener('input', e => {
-        curOff.p = parseFloat(e.target.value);
-        valP.textContent = curOff.p.toFixed(1);
-        refreshStage();
-    });
-    slQ.addEventListener('input', e => {
-        curOff.q = parseFloat(e.target.value);
-        valQ.textContent = curOff.q.toFixed(1);
-        refreshStage();
-    });
+    slP.addEventListener('input', e => { curOff.p = parseFloat(e.target.value);
+        valP.textContent = curOff.p.toFixed(1); refreshStage(); });
+    slQ.addEventListener('input', e => { curOff.q = parseFloat(e.target.value);
+        valQ.textContent = curOff.q.toFixed(1); refreshStage(); });
     document.getElementById('btnDefault').addEventListener('click', () => {
         curOff = { ...DEF_OFF }; slP.value = DEF_OFF.p; slQ.value = DEF_OFF.q;
         valP.textContent = DEF_OFF.p.toFixed(1); valQ.textContent = DEF_OFF.q.toFixed(1);
-        resetState(); buildStage(curOff); buildTimeline();
-        clampNotice.style.display = 'none';
-    });
+        resetState(); buildStage(curOff); buildTimeline(); showNotice(); });
     document.getElementById('btnCenter').addEventListener('click', () => {
         curOff = { p: 0, q: 0 }; slP.value = 0; slQ.value = 0;
         valP.textContent = '0.0'; valQ.textContent = '0.0';
-        resetState(); buildStage(curOff); buildTimeline();
-        clampNotice.style.display = 'none';
-    });
+        resetState(); buildStage(curOff); buildTimeline(); showNotice(); });
 
-    /* =============== GAMBAR STATIS (sheet A4) =============== */
+    /* ================= GAMBAR STATIS (sheet A4, deterministik) ================= */
     function perigalScene(state, w, off) {
         const g = perigalGeometry(A, B, off, w, Math.round(w * 0.93), 14);
         const P = poly => poly.map(p => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
@@ -421,7 +411,7 @@
     document.getElementById('figInitial').innerHTML = perigalScene('initial', 260, DEF_OFF);
     document.getElementById('figFinal').innerHTML   = perigalScene('final',   260, DEF_OFF);
 
-    /* =============== Sheet A4 + Kalender + QR =============== */
+    /* ================= Sheet A4 + Kalender + QR ================= */
     function fitSheet() {
         const viewport = document.getElementById('a4Viewport');
         const sheet = document.querySelector('.a4-sheet');
@@ -447,9 +437,9 @@
           width: 84, height: 84, correctLevel: QRCode.CorrectLevel.M }); }
     catch (e) { document.getElementById('qrcode').textContent = window.location.href; }
 
+    showNotice();
     fitSheet();
     requestAnimationFrame(frame);
-        
     </script>
 </body>
 </html>
