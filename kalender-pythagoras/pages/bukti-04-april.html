@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bukti #4: Perigal Generalisasi (5-12-13) - Kalender Pythagoras 2027</title>
+    <title>Bukti #4: Perigal Generalisasi Triple - Kalender Pythagoras 2027</title>
     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="../assets/css/proof.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -14,7 +14,7 @@
     <header class="proof-header no-print">
         <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
         <div class="proof-info">
-            <h1>Bukti #4: Perigal Generalisasi (5-12-13)</h1>
+            <h1>Bukti #4: Perigal Generalisasi Triple</h1>
             <div class="proof-meta">
                 <span class="meta-item">📅 April 2027</span>
                 <span class="meta-item">👥 Kelompok 2</span>
@@ -38,48 +38,33 @@
         <section class="section introduction no-print">
             <h2>📖 Pengenalan</h2>
             <p class="intro-text">
-                Pembuktian Perigal <strong>tidak bergantung pada ukuran segitiga</strong> —
-                prinsip yang sama bekerja untuk triple <strong>5-12-13</strong>.
-                Lebih menarik lagi: posisi persegi a² di dalam c² (dan titik potong di b²)
-                <em>dapat digeser</em> sepanjang jendela sah — teorema tetap berlaku.
-                Geser slider untuk mengeksplorasi; sistem akan <strong>meng-clamp otomatis</strong>
-                bila melewati batas matematis.
+                Bukti #3 menunjukkan Perigal untuk triple <strong>3-4-5</strong>.
+                Bulan ini kita uji <strong>generalisasi</strong>: prinsip yang sama harus bekerja
+                untuk triple apa pun — <strong>5-12-13, 8-15-17, 9-12-15, 20-21-29</strong>.
+                Pilih triple di bawah dan saksikan cincin slice tetap menutup c² dengan sempurna.
             </p>
             <div class="historical-note">
-                <strong>📜 Batas jendela:</strong> |offset| dibatasi agar (1) keempat slice tetap
-                memegang satu sudut persegi b², dan (2) persegi a² tetap muat di dalam c².
-                Di luar itu, tiling translasi mustahil — karena itu slider tidak bisa "mentok ke ujung".
+                <strong>🔗 Eksplorasi lanjutan:</strong> versi "slice fleksibel" (menggeser titik potong
+                O & M) tersedia pada applet GeoGebra tersemat — gunakan applet untuk eksplorasi bebas,
+                gunakan halaman ini untuk pembuktian terverifikasi.
             </div>
         </section>
 
-        <!-- ============ ANIMASI + SLIDER ============ -->
+        <!-- ============ ANIMASI + PEMILIH TRIPLE ============ -->
         <section class="section animation no-print">
-            <h2>🎬 Animasi + Eksplorasi Offset</h2>
+            <h2>🎬 Animasi + Pilih Triple</h2>
             <div class="animation-wrapper">
                 <div class="stage-wrap" style="position:relative;width:100%;background:#f4f6fb;border:3px solid #e0e0e0;border-radius:15px;overflow:hidden;">
                     <svg id="stageSvg" viewBox="0 0 560 520" style="display:block;width:100%;height:auto;"></svg>
                 </div>
 
                 <div style="background:#fff;border:2px solid #667eea;border-radius:10px;padding:14px;margin-top:12px;">
-                    <div style="font-weight:bold;color:#333;margin-bottom:8px;">
-                        🔧 Mode Eksplorasi (batas jendela ditentukan otomatis)
-                    </div>
-                    <div style="display:flex;flex-direction:column;gap:10px;">
-                        <label style="display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:wrap;">
-                            <span style="min-width:150px;font-weight:600;">↗ Geser <em>p</em> (∥ hipotenusa):</span>
-                            <input type="range" id="sliderP" min="-2.5" max="2.5" step="0.1" value="1.5" style="flex:1;min-width:140px;cursor:pointer;">
-                            <span id="valP" style="min-width:44px;font-weight:bold;color:#667eea;">1.5</span>
-                        </label>
-                        <label style="display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:wrap;">
-                            <span style="min-width:150px;font-weight:600;">↗ Geser <em>q</em> (⊥ hipotenusa):</span>
-                            <input type="range" id="sliderQ" min="-2.5" max="2.5" step="0.1" value="1.0" style="flex:1;min-width:140px;cursor:pointer;">
-                            <span id="valQ" style="min-width:44px;font-weight:bold;color:#667eea;">1.0</span>
-                        </label>
-                    </div>
-                    <div id="clampNotice" style="display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:8px;margin-top:10px;font-size:13px;color:#856404;"></div>
-                    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
-                        <button id="btnDefault" style="background:#667eea;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:13px;cursor:pointer;">🔄 Reset Offset (1.5, 1.0)</button>
-                        <button id="btnCenter" style="background:#1565c0;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:13px;cursor:pointer;">⊕ Mode Pusat (0, 0)</button>
+                    <div style="font-weight:bold;color:#333;margin-bottom:8px;">🔢 Pilih Triple Pythagoras:</div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;" id="tripleBtns">
+                        <button data-a="5"  data-b="12" class="triple-btn active" style="background:#667eea;color:#fff;border:none;border-radius:6px;padding:8px 14px;cursor:pointer;">5-12-13</button>
+                        <button data-a="8"  data-b="15" class="triple-btn" style="background:#e0e0e0;color:#333;border:none;border-radius:6px;padding:8px 14px;cursor:pointer;">8-15-17</button>
+                        <button data-a="9"  data-b="12" class="triple-btn" style="background:#e0e0e0;color:#333;border:none;border-radius:6px;padding:8px 14px;cursor:pointer;">9-12-15</button>
+                        <button data-a="20" data-b="21" class="triple-btn" style="background:#e0e0e0;color:#333;border:none;border-radius:6px;padding:8px 14px;cursor:pointer;">20-21-29</button>
                     </div>
                 </div>
 
@@ -100,11 +85,11 @@
                 </div>
                 <div class="formula-display" style="margin-top:15px;">
                     <div class="formula-step active" id="step0">Siap memulai… tekan ▶ Mulai</div>
-                    <div class="formula-step" id="step1">Segitiga siku-siku: a = 5, b = 12, c = 13</div>
-                    <div class="formula-step" id="step2">a² = 25 • b² = 144 • c² = 169</div>
-                    <div class="formula-step" id="step3">b² dipotong 4 slice (∥ &  hipotenusa, dengan offset)</div>
+                    <div class="formula-step" id="step1"></div>
+                    <div class="formula-step" id="step2"></div>
+                    <div class="formula-step" id="step3">b² dipotong 4 slice (∥ & ⊥ hipotenusa)</div>
                     <div class="formula-step" id="step4">4 slice + a² digeser (tanpa rotasi) ke c²</div>
-                    <div class="formula-step" id="step5">c² tertutup sempurna → c² = a² + b² ✓</div>
+                    <div class="formula-step" id="step5"></div>
                 </div>
             </div>
         </section>
@@ -130,7 +115,7 @@
               <div class="a4-viewport" id="a4Viewport">
                 <div id="exportArea" class="a4-sheet">
                     <div class="export-header">
-                        <h2>Bukti #4: Perigal Generalisasi (5-12-13)</h2>
+                        <h2>Bukti #4: Perigal Generalisasi Triple</h2>
                         <p>Kalender Pythagoras 2027 • April • Kelompok 2 • Level: Menengah</p>
                     </div>
 
@@ -141,7 +126,7 @@
                         <figure class="proof-figure">
                             <span class="state-badge initial">AWAL</span>
                             <div class="scene" id="figInitial"></div>
-                            <figcaption><strong>Gbr 1:</strong> b² terpotong 4 slice (offset); a² utuh; c² kosong.</figcaption>
+                            <figcaption><strong>Gbr 1:</strong> b² terpotong 4 slice; a² utuh; c² kosong.</figcaption>
                         </figure>
                         <figure class="proof-figure">
                             <span class="state-badge final">AKHIR</span>
@@ -151,11 +136,11 @@
                     </div>
 
                     <div class="export-explain">
-                        <p><strong>Penjelasan:</strong> Dengan triple <strong>5-12-13</strong> dan posisi
-                           slice di-offset (dalam jendela sah), 4 potongan b² tetap cukup menutup c²
-                           bersama persegi a² — prinsip Perigal hanya bergantung pada
-                           <em>translasi murni</em>, bukan pada posisi pusat.</p>
-                        <div class="export-formula">c² = a² + b² → 13² = 5² + 12² → 169 = 25 + 144 ✓</div>
+                        <p><strong>Penjelasan:</strong> Prinsip Perigal tidak bergantung pada ukuran
+                           segitiga. Untuk triple terpilih, 4 potongan b² dan persegi a²
+                           hanya <em>digeser</em> (translasi murni) hingga menutup c² tanpa celah
+                           dan tanpa tumpang-tindih.</p>
+                        <div class="export-formula" id="exportFormula"></div>
                     </div>
 
                     <div class="export-conclusion">
@@ -182,14 +167,12 @@
         <p>Projek Kalender Pythagoras 2027</p>
     </footer>
 
-    <script src="../assets/js/perigal-engine.js?v=61"></script>
+    <script src="../assets/js/perigal-engine.js?v=7"></script>
     <script src="../assets/js/calendar-template.js?v=3"></script>
     <script src="../assets/js/pdf-export.js?v=31"></script>
     <script>
-    /* ================= PARAM & UTIL ================= */
-    const A = 5, B = 12;
-    const DEF_OFF = { p: 1.5, q: 1.0 };
-    let curOff = { ...DEF_OFF };
+    /* ================= STATE ================= */
+    let A = 5, B = 12;
     const VIEW_W = 560, VIEW_H = 520, PAD = 24;
     const NS = 'http://www.w3.org/2000/svg';
     const svg = document.getElementById('stageSvg');
@@ -207,9 +190,10 @@
     const tweens = [];
     const TOTAL = 5000;
 
-    function buildStage(off) {
+    function buildStage() {
         clearSVG();
-        GEO = perigalGeometry(A, B, off, VIEW_W, VIEW_H, PAD);
+        GEO = perigalGeometry(A, B, { p: 0, q: 0 }, VIEW_W, VIEW_H, PAD);
+        const C = Math.round(Math.hypot(A, B));
 
         const defs = mk('defs', {});
         const cp = mk('clipPath', { id: 'clipB' }, defs);
@@ -245,12 +229,12 @@
                 'font-weight': 'bold', opacity: 0, 'text-anchor': 'middle' });
             t.textContent = txt; return t;
         }
-        lab(GEO.labels.a, 'a = 5', '#c62828');
-        lab(GEO.labels.b, 'b = 12', '#2e7d32');
-        lab(GEO.labels.c, 'c = 13', '#1565c0');
-        lab(GEO.labels.b2, '144', '#1565c0', 20);
-        lab(GEO.labels.a2, '25', '#b02ab0', 18);
-        lab(GEO.labels.c2, '169', '#1565c0', 22);
+        lab(GEO.labels.a, 'a = ' + A, '#c62828');
+        lab(GEO.labels.b, 'b = ' + B, '#2e7d32');
+        lab(GEO.labels.c, 'c = ' + C, '#1565c0');
+        lab(GEO.labels.b2, String(B * B), '#1565c0', 20);
+        lab(GEO.labels.a2, String(A * A), '#b02ab0', 18);
+        lab(GEO.labels.c2, String(C * C), '#1565c0', 22);
     }
 
     const addTween = (t0, t1, fn) => { const tw = { t0, t1, fn, last: -1 }; tweens.push(tw); return tw; };
@@ -291,9 +275,20 @@
         });
     }
 
-    buildStage(curOff);
-    buildTimeline();
+    /* ================= teks rumus dinamis ================= */
+    function updateTexts() {
+        const C = Math.round(Math.hypot(A, B));
+        document.getElementById('step1').textContent =
+            `Segitiga siku-siku: a = ${A}, b = ${B}, c = ${C}`;
+        document.getElementById('step2').textContent =
+            `a² = ${A*A} • b² = ${B*B} • c² = ${C*C}`;
+        document.getElementById('step5').textContent =
+            `c² tertutup sempurna → ${C*C} = ${A*A} + ${B*B} ✓`;
+        document.getElementById('exportFormula').textContent =
+            `c² = a² + b² → ${C}² = ${A}² + ${B}² → ${C*C} = ${A*A} + ${B*B} ✓`;
+    }
 
+    /* ================= kontrol play ================= */
     let vt = 0, playing = false, speed = 1, lastTs = null;
     const stepTimes = [[0, 1], [400, 2], [1400, 3], [2800, 4], [4400, 5]];
     function updateStep() {
@@ -335,54 +330,22 @@
         speed = parseFloat(e.target.value);
         document.getElementById('speedValue').textContent = speed + '×'; });
 
-    /* ================= SLIDER + CLAMP NOTICE ================= */
-    const slP = document.getElementById('sliderP'), slQ = document.getElementById('sliderQ');
-    const valP = document.getElementById('valP'), valQ = document.getElementById('valQ');
-    const clampNotice = document.getElementById('clampNotice');
+    /* ================= pemilih triple ================= */
+    document.getElementById('tripleBtns').addEventListener('click', e => {
+        const btn = e.target.closest('.triple-btn');
+        if (!btn) return;
+        document.querySelectorAll('.triple-btn').forEach(b => {
+            b.style.background = '#e0e0e0'; b.style.color = '#333'; b.classList.remove('active');
+        });
+        btn.style.background = '#667eea'; btn.style.color = '#fff'; btn.classList.add('active');
+        A = parseInt(btn.dataset.a, 10);
+        B = parseInt(btn.dataset.b, 10);
+        initAll();
+    });
 
-    function showNotice() {
-        const ao = GEO.actualOff;
-        const clamped = Math.abs(ao.p - curOff.p) > 0.01 || Math.abs(ao.q - curOff.q) > 0.01;
-        if (GEO.degraded) {
-            clampNotice.style.display = 'block';
-            clampNotice.textContent = '⚠️ Offset tidak valid — kembali ke Mode Pusat (0, 0).';
-        } else if (clamped) {
-            clampNotice.style.display = 'block';
-            clampNotice.textContent = '⚠️ Melewati jendela sah — offset dipakai: (' +
-                ao.p.toFixed(2) + ', ' + ao.q.toFixed(2) + ').';
-        } else {
-            clampNotice.style.display = 'none';
-        }
-    }
-
-    function refreshStage() {
-        playing = false;
-        buildStage(curOff);
-        buildTimeline();
-        for (const tw of tweens) tw.fn(1);
-        vt = TOTAL;
-        updateStep(); updateProgress(); showNotice();
-        btnStart.textContent = '▶ Ulangi';
-        btnStart.style.display = 'inline-block';
-        btnPause.style.display = 'none';
-    }
-
-    slP.addEventListener('input', e => { curOff.p = parseFloat(e.target.value);
-        valP.textContent = curOff.p.toFixed(1); refreshStage(); });
-    slQ.addEventListener('input', e => { curOff.q = parseFloat(e.target.value);
-        valQ.textContent = curOff.q.toFixed(1); refreshStage(); });
-    document.getElementById('btnDefault').addEventListener('click', () => {
-        curOff = { ...DEF_OFF }; slP.value = DEF_OFF.p; slQ.value = DEF_OFF.q;
-        valP.textContent = DEF_OFF.p.toFixed(1); valQ.textContent = DEF_OFF.q.toFixed(1);
-        resetState(); buildStage(curOff); buildTimeline(); showNotice(); });
-    document.getElementById('btnCenter').addEventListener('click', () => {
-        curOff = { p: 0, q: 0 }; slP.value = 0; slQ.value = 0;
-        valP.textContent = '0.0'; valQ.textContent = '0.0';
-        resetState(); buildStage(curOff); buildTimeline(); showNotice(); });
-
-    /* ================= GAMBAR STATIS (sheet A4, deterministik) ================= */
-    function perigalScene(state, w, off) {
-        const g = perigalGeometry(A, B, off, w, Math.round(w * 0.93), 14);
+    /* ================= gambar statis sheet A4 ================= */
+    function perigalScene(state, w) {
+        const g = perigalGeometry(A, B, { p: 0, q: 0 }, w, Math.round(w * 0.93), 14);
         const P = poly => poly.map(p => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
         const C4 = ['#f16a7a', '#5b5bee', '#5bf17a', '#f1d95b'];
         const hh = Math.round(w * 0.93);
@@ -408,8 +371,15 @@
         s += `</svg>`;
         return s;
     }
-    document.getElementById('figInitial').innerHTML = perigalScene('initial', 260, DEF_OFF);
-    document.getElementById('figFinal').innerHTML   = perigalScene('final',   260, DEF_OFF);
+
+    function initAll() {
+        resetState();
+        buildStage();
+        buildTimeline();
+        updateTexts();
+        document.getElementById('figInitial').innerHTML = perigalScene('initial', 260);
+        document.getElementById('figFinal').innerHTML   = perigalScene('final', 260);
+    }
 
     /* ================= Sheet A4 + Kalender + QR ================= */
     function fitSheet() {
@@ -437,7 +407,7 @@
           width: 84, height: 84, correctLevel: QRCode.CorrectLevel.M }); }
     catch (e) { document.getElementById('qrcode').textContent = window.location.href; }
 
-    showNotice();
+    initAll();
     fitSheet();
     requestAnimationFrame(frame);
     </script>
