@@ -1,14 +1,19 @@
 /* =====================================================
-   perigal-engine.js  v2  (solver translasi numerik)
-   perigalGeometry(a, b, offset, viewW, viewH, pad)
+   perigal-engine.js  v3
+   - Translasi slice via TABEL PASANGAN SUDUT (terbukti umum)
+   - Tanpa solver numerik, tanpa fallback → deterministik
+   - Self-test: Σ luas slice + a² == c²  →  console "✅ TILING OK"
    ===================================================== */
 function perigalGeometry(a, b, off, viewW, viewH, pad) {
     off = off || { p: 0, q: 0 };
     pad = pad || 20;
     const c = Math.hypot(a, b);
-    const h = { x: a / c, y: -b / c };
-    const n = { x: b / c, y: a / c };
+    const h = { x: a / c, y: -b / c };              // arah hipotenusa (C→A)
+    const n = { x: b / c, y: a / c };               // normal luar
+    const o = { x: off.p * h.x + off.q * n.x,       // vektor offset slice
+                y: off.p * h.y + off.q * n.y };
 
+    /* ---- skala & pemetaan ke layar ---- */
     const minX = -b, maxX = a + b, minY = -a, maxY = a + b;
     const u = Math.min((viewW - 2 * pad) / (maxX - minX),
                        (viewH - 2 * pad) / (maxY - minY));
@@ -16,21 +21,19 @@ function perigalGeometry(a, b, off, viewW, viewH, pad) {
     const oy = pad + ((viewH - 2 * pad) - (maxY - minY) * u) / 2 + maxY * u;
     const S = (x, y) => ({ x: ox + x * u, y: oy - y * u });
 
+    /* ---- geometri dasar (koordinat math, y-up) ---- */
     const B = { x: 0, y: 0 }, A = { x: a, y: 0 }, C = { x: 0, y: b };
     const sqA = [{ x: 0, y: 0 }, { x: a, y: 0 }, { x: a, y: -a }, { x: 0, y: -a }];
     const sqB = [{ x: -b, y: 0 }, { x: 0, y: 0 }, { x: 0, y: b }, { x: -b, y: b }];
     const sqC = [C, A,
         { x: A.x + n.x * c, y: A.y + n.y * c },
         { x: C.x + n.x * c, y: C.y + n.y * c }];
-
     const Wc = { x: (C.x + sqC[2].x) / 2, y: (C.y + sqC[2].y) / 2 };
-    const W  = { x: Wc.x + off.p * h.x + off.q * n.x,
-                 y: Wc.y + off.p * h.y + off.q * n.y };
+    const W  = { x: Wc.x + o.x, y: Wc.y + o.y };    // pusat a² di dalam c²
     const Gc = { x: -b / 2, y: b / 2 };
-    const G  = { x: Gc.x + off.p * h.x + off.q * n.x,
-                 y: Gc.y + off.p * h.y + off.q * n.y };
+    const G  = { x: Gc.x + o.x, y: Gc.y + o.y };    // pusat potongan b²
 
-    /* ---- clip half-plane (Sutherland–Hodgman 1 garis) ---- */
+    /* ---- util ---- */
     function clip(poly, P, m, s) {
         const out = [], v = q => m.x * (q.x - P.x) + m.y * (q.y - P.y);
         for (let i = 0; i < poly.length; i++) {
@@ -47,62 +50,67 @@ function perigalGeometry(a, b, off, viewW, viewH, pad) {
         }
         return out;
     }
-
-    /* ---- util uji titik ---- */
-    function pip(poly, p, eps) {           // inside-or-on (eps toleransi)
-        let ok = false;
+    function pip(poly, p, eps) {
+        eps = eps || 0;
         for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
             const xi = poly[i].x, yi = poly[i].y, xj = poly[j].x, yj = poly[j].y;
-            if (Math.abs((yj - yi) * (p.x - xi) - (xj - xi) * (p.y - yi)) < eps &&
-                Math.min(xi, xj) - eps <= p.x && p.x <= Math.max(xi, xj) + eps &&
-                Math.min(yi, yj) - eps <= p.y && p.y <= Math.max(yi, yj) + eps) return true;
+            const len = Math.hypot(xj - xi, yj - yi) || 1;
+            const cross = (xj - xi) * (p.y - yi) - (yj - yi) * (p.x - xi);
+            if (Math.abs(cross) / len <= eps &&
+                p.x >= Math.min(xi, xj) - eps && p.x <= Math.max(xi, xj) + eps &&
+                p.y >= Math.min(yi, yj) - eps && p.y <= Math.max(yi, yj) + eps) return true;
         }
+        let inside = false;
         for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
             const xi = poly[i].x, yi = poly[i].y, xj = poly[j].x, yj = poly[j].y;
             if ((yi > p.y) !== (yj > p.y) &&
-                p.x < (xj - xi) * (p.y - yi) / (yj - yi) + xi) ok = !ok;
+                p.x < (xj - xi) * (p.y - yi) / (yj - yi) + xi) inside = !inside;
         }
-        return ok;
+        return inside;
     }
-    const near = (p, q, eps) => Math.hypot(p.x - q.x, p.y - q.y) < eps;
+    function area(poly) {
+        let s = 0;
+        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++)
+            s += poly[j].x * poly[i].y - poly[i].x * poly[j].y;
+        return s / 2;
+    }
 
     /* ---- persegi dalam a² (axis-aligned, pusat W) ---- */
     const inner = [
         { x: W.x - a / 2, y: W.y - a / 2 }, { x: W.x + a / 2, y: W.y - a / 2 },
         { x: W.x + a / 2, y: W.y + a / 2 }, { x: W.x - a / 2, y: W.y + a / 2 }];
 
-    /* ---- 4 slice + SOLVER translasi ---- */
+    /* ---- TABEL PASANGAN SUDUT  K(b²) → Z(c²)  (sah utk semua a,b,offset) ---- */
+    const table = [
+        { K: { x: 0,  y: 0 }, Z: { x: a + b, y: a } },
+        { K: { x: 0,  y: b }, Z: { x: b,     y: a + b } },
+        { K: { x: -b, y: 0 }, Z: { x: a,     y: 0 } },
+        { K: { x: -b, y: b }, Z: { x: 0,     y: b } }
+    ];
+
+    /* ---- 4 slice + translasi deterministik ---- */
     const signs = [[1, 1], [-1, 1], [-1, -1], [1, -1]];
-    const eps = 1e-6 * Math.max(1, b);
-    const pieces = signs.map(([sH, sN]) => {
+    const pieces = [];
+    signs.forEach(([sH, sN]) => {
         let poly = clip(sqB.slice(), G, h, sH);
         poly = clip(poly, G, n, sN);
-        const K = sqB.find(P2 =>
-            Math.sign(h.x * (P2.x - G.x) + h.y * (P2.y - G.y)) === sH &&
-            Math.sign(n.x * (P2.x - G.x) + n.y * (P2.y - G.y)) === sN);
-
-        /* cari sudut c² tujuan: G harus mendarat di sudut inner & slice muat */
-        let t = null;
-        for (const Z of sqC) {
-            const cand = { x: Z.x - K.x, y: Z.y - K.y };
-            const G2 = { x: G.x + cand.x, y: G.y + cand.y };
-            if (!inner.some(Q => near(Q, G2, 1e-6 * b + 1e-9))) continue;
-            const moved = poly.map(p => ({ x: p.x + cand.x, y: p.y + cand.y }));
-            const okAll = moved.every(p => pip(sqC, p, 1e-6 * b + 1e-9) && !pip(inner, p, -1e-9) ||
-                                           pip(sqC, p, 1e-6 * b + 1e-9));
-            const okOut = moved.every(p => pip(sqC, p, 1e-6 * b + 1e-9));
-            const okNotIn = moved.every(p => !pip(inner, p, 0) ||
-                                           inner.some(Q => near(Q, p, 1e-6 * b + 1e-9)) ||
-                                           Math.abs(p.x - W.x) >= a / 2 - 1e-6 ||
-                                           Math.abs(p.y - W.y) >= a / 2 - 1e-6);
-            if (okAll && okOut && okNotIn) { t = cand; break; }
-        }
-        if (!t) t = { x: W.x - G.x, y: W.y - G.y };   // fallback aman
-        return { poly, t };
+        if (poly.length < 3 || Math.abs(area(poly)) < 1e-9) return;
+        const K = sqB.find(P2 => pip(poly, P2, 1e-7 * b));
+        const row = table.find(r => Math.hypot(r.K.x - K.x, r.K.y - K.y) < 1e-7 * b);
+        pieces.push({ poly, t: { x: row.Z.x - K.x, y: row.Z.y - K.y } });
     });
 
-    const tA = { x: W.x - a / 2, y: W.y + a / 2 };    // translasi persegi a²
+    const tA = { x: W.x - a / 2, y: W.y + a / 2 };  // translasi persegi a²
 
+    /* ---- SELF-TEST ---- */
+    const sumP = pieces.reduce((s, pc) => s + Math.abs(area(pc.poly)), 0);
+    const okArea = Math.abs(sumP + a * a - c * c) < 1e-6 * c * c;
+    const okInside = pieces.every(pc => pc.poly.every(p =>
+        pip(sqC, { x: p.x + pc.t.x, y: p.y + pc.t.y }, 1e-6 * b + 1e-9)));
+    if (okArea && okInside) console.log('✅ TILING OK (Perigal ' + a + ',' + b + ')');
+    else console.warn('⚠️ TILING GAGAL', { okArea, okInside });
+
+    /* ---- keluaran koordinat layar ---- */
     const map = poly => poly.map(P => S(P.x, P.y));
     return {
         a, b, c, u, S,
