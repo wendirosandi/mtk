@@ -91,7 +91,7 @@
                     <h2>Bukti #1: Sel Terbang Pythagoras</h2>
                     <p>Kalender Pythagoras 2027 • Januari • Contoh Guru • Level: Dasar</p>
                 </div>
-
+                <div id="calBlock" class="cal-block"></div> <hr class="cal-divider">
                 <div class="proof-figures">
                     <figure class="proof-figure">
                         <span class="state-badge initial">AWAL</span>
@@ -190,6 +190,7 @@
 
     <script src="../assets/js/static-scenes.js"></script>
     <script src="../assets/js/pdf-export.js"></script>
+    <script src="../assets/js/calendar-template.js"></script>
     <script>
     /* ================= MESIN ANIMASI LIVE (tidak berubah) ================= */
     const CELL=40,COS=0.8,SIN=0.6,ROT=36.87;
@@ -276,6 +277,7 @@
         document.getElementById('speedValue').textContent=speed+'×';});
 
     /* ================= INISIALISASI GAMBAR STATIS + QR ================= */
+         renderCalendar(document.getElementById('calBlock'), 1);   // Januari 2027
     renderStaticScene(document.getElementById('figInitial'), 'initial', 0.5);
     renderStaticScene(document.getElementById('figFinal'),   'final',   0.5);
 
