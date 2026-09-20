@@ -7,15 +7,9 @@ const kalenderData = [
 { bulan:"Februari", nomor:2, pembuktian:"Rearrangement 4 Segitiga",
   kelompok:"Contoh Guru", tipe:"guru", status:"completed", 
   file:"pages/bukti-02-februari.html" },
-    {
-        bulan: "Maret",
-        nomor: 3,
-        pembuktian: "Pembuktian Garfield",
-        kelompok: "Kelompok 1",
-        tipe: "siswa",
-        status: "pending",
-        file: "#"
-    },
+{ bulan:"Maret", nomor:3, pembuktian:"Diseksi Perigal (Slice Fleksibel)",
+  kelompok:"Kelompok 1", tipe:"siswa", status:"completed",
+  file:"pages/bukti-03-maret.html" },
     {
         bulan: "April",
         nomor: 4,
