@@ -462,3 +462,24 @@ input[type=range] {
     .export-area { border:none; padding:0; max-width:100%; }
     .proof-figure { break-inside:avoid; page-break-inside:avoid; }
 }
+
+
+/* ============ BLOK KALENDER BULANAN (template export) ============ */
+.cal-block { border:2px solid #667eea; border-radius:10px; padding:15px;
+             margin-bottom:18px; background:#fff; }
+.cal-title { display:flex; justify-content:space-between; align-items:baseline;
+             margin-bottom:10px; }
+.cal-month, .cal-year { font-size:26px; font-weight:800; }
+.cal-month { color:#333; } .cal-year { color:#667eea; }
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+.cal-dow { font-weight:700; text-align:center; color:#333; padding:4px 0; }
+.cal-dow.sun { color:#e53935; }
+.cal-cell { text-align:center; padding:6px 0; border:1px solid #e0e0e0;
+            border-radius:4px; font-weight:600; color:#333; background:#fafafa; }
+.cal-cell.sun { color:#e53935; background:#fdecea; }
+.cal-cell.empty { border:none; background:transparent; }
+.cal-meta { margin-top:12px; border:2px dashed #b0bec5; border-radius:8px;
+            padding:10px 12px; background:#fcfcfc; }
+.cal-meta-title { font-weight:700; font-size:13px; color:#546e7a; margin-bottom:6px; }
+.cal-meta-line { font-size:13px; color:#78909c; margin:4px 0; }
+.cal-divider { border:none; border-top:3px double #667eea; margin:18px 0; }
