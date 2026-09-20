@@ -1,24 +1,16 @@
 const kalenderData = [
-    {
-        bulan: "Januari",        nomor: 1,        pembuktian: "Sel Terbang Pythagoras",
+    {         bulan: "Januari",        nomor: 1,        pembuktian: "Sel Terbang Pythagoras",
         kelompok: "Contoh Guru",        tipe: "guru",        status: "completed",
-        file: "pages/bukti-01-januari.html"
-    },
+        file: "pages/bukti-01-januari.html"     },
 { bulan:"Februari", nomor:2, pembuktian:"Rearrangement 4 Segitiga",
   kelompok:"Contoh Guru", tipe:"guru", status:"completed", 
   file:"pages/bukti-02-februari.html" },
 { bulan:"Maret", nomor:3, pembuktian:"Diseksi Perigal (Slice Fleksibel)",
   kelompok:"Kelompok 1", tipe:"siswa", status:"completed",
   file:"pages/bukti-03-maret.html" },
-    {
-        bulan: "April",
-        nomor: 4,
-        pembuktian: "Pembuktian Bhaskara",
-        kelompok: "Kelompok 2",
-        tipe: "siswa",
-        status: "pending",
-        file: "#"
-    },
+{ bulan:"April", nomor:4, pembuktian:"Perigal Generalisasi (5-12-13)",
+  kelompok:"Kelompok 2", tipe:"siswa", status:"completed",
+  file:"pages/bukti-04-april.html" },
     {
         bulan: "Mei",
         nomor: 5,
