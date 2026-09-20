@@ -51,7 +51,7 @@
             </div>
         </section>
 
-        <!-- ============ ANIMASI + SLIDER EKSPLORASI ============ -->
+         <!-- ============ ANIMASI + SLIDER EKSPLORASI ============ -->
         <section class="section animation no-print">
             <h2>🎬 Animasi + Eksplorasi Offset</h2>
             <div class="animation-wrapper">
@@ -59,23 +59,28 @@
                     <svg id="stageSvg" viewBox="0 0 560 520" style="display:block;width:100%;height:auto;"></svg>
                 </div>
 
-                <!-- SLIDER OFFSET -->
+                <!-- SLIDER OFFSET (auto-range) -->
                 <div style="background:#fff;border:2px solid #667eea;border-radius:10px;padding:14px;margin-top:12px;">
-                    <div style="font-weight:bold;color:#333;margin-bottom:8px;">🔧 Mode Eksplorasi (geser slider untuk menggeser slice & a²)</div>
+                    <div style="font-weight:bold;color:#333;margin-bottom:8px;">
+                        🔧 Mode Eksplorasi (geser slider — batas otomatis ditentukan)
+                    </div>
                     <div style="display:flex;flex-direction:column;gap:10px;">
                         <label style="display:flex;align-items:center;gap:10px;font-size:14px;">
-                            <span style="min-width:100px;font-weight:600;">↗ Geser <em>p</em> (∥ hipotenusa):</span>
-                            <input type="range" id="sliderP" min="-1" max="1" step="0.05" value="0.6" style="flex:1;cursor:pointer;">
-                            <span id="valP" style="min-width:48px;font-weight:bold;color:#667eea;">0.60</span>
+                            <span style="min-width:100px;font-weight:600;">↗ Geser <em>p</em> (∥ hip.):</span>
+                            <input type="range" id="sliderP" min="-2.5" max="2.5" step="0.1" value="1.5" style="flex:1;cursor:pointer;">
+                            <span id="valP" style="min-width:48px;font-weight:bold;color:#667eea;">1.5</span>
                         </label>
                         <label style="display:flex;align-items:center;gap:10px;font-size:14px;">
-                            <span style="min-width:100px;font-weight:600;">↗ Geser <em>q</em> (⊥ hipotenusa):</span>
-                            <input type="range" id="sliderQ" min="-1" max="1" step="0.05" value="0.4" style="flex:1;cursor:pointer;">
-                            <span id="valQ" style="min-width:48px;font-weight:bold;color:#667eea;">0.40</span>
+                            <span style="min-width:100px;font-weight:600;">↗ Geser <em>q</em> (⊥ hip.):</span>
+                            <input type="range" id="sliderQ" min="-2.5" max="2.5" step="0.1" value="1.0" style="flex:1;cursor:pointer;">
+                            <span id="valQ" style="min-width:48px;font-weight:bold;color:#667eea;">1.0</span>
                         </label>
                     </div>
+                    <div id="clampNotice" style="display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:8px;margin-top:10px;font-size:13px;color:#856404;">
+                        ⚠️ Offset di-clamp otomatis ke nilai sah terdekat.
+                    </div>
                     <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
-                        <button class="btn-reset" id="btnDefault" style="background:#667eea;padding:8px 14px;font-size:13px;">🔄 Reset Offset (0.6, 0.4)</button>
+                        <button class="btn-reset" id="btnDefault" style="background:#667eea;padding:8px 14px;font-size:13px;">🔄 Reset Offset (1.5, 1.0)</button>
                         <button class="btn-reset" id="btnCenter" style="background:#1565c0;padding:8px 14px;font-size:13px;">⊕ Mode Pusat (0, 0)</button>
                     </div>
                 </div>
@@ -179,14 +184,16 @@
         <p>Projek Kalender Pythagoras 2027</p>
     </footer>
 
-    <script src="../assets/js/perigal-engine.js?v=5"></script>
+     <script src="../assets/js/perigal-engine.js?v=6"></script>
     <script src="../assets/js/calendar-template.js?v=3"></script>
     <script src="../assets/js/pdf-export.js?v=31"></script>
     <script>
     /* ================= GEOMETRI PARAMETERIK 5-12-13 ================= */
+    /* ================= GEOMETRI PARAMETERIK 5-12-13 ================= */
     const A = 5, B = 12;
-    const DEF_OFF = { p: 0.6, q: 0.4 };
+    const DEF_OFF = { p: 1.5, q: 1.0 };
     let curOff = { ...DEF_OFF };
+    let actualOff = { ...DEF_OFF };
     const VIEW_W = 560, VIEW_H = 520, PAD = 24;
     const NS = 'http://www.w3.org/2000/svg';
     const svg = document.getElementById('stageSvg');
@@ -200,15 +207,14 @@
     }
     function clearSVG() { while (svg.firstChild) svg.removeChild(svg.firstChild); }
 
-    /* =============== Build stage dari geometri saat ini =============== */
-    let gTri, gSqC, gSqB, gGhostB, gGhostA, gCutG, cut1, cut2, gInner, gA, sliceEls;
-    let GEO;   // referensi global
+    let GEO, gTri, gSqC, gSqB, gGhostB, gGhostA, gCutG, cut1, cut2, gInner, gA, sliceEls;
     const tweens = [];
     let TOTAL = 5000;
 
     function buildStage(off) {
         clearSVG();
         GEO = perigalGeometry(A, B, off, VIEW_W, VIEW_H, PAD);
+        actualOff = GEO.actualOff;  /* offset aktual (setelah clamp) */
 
         const defs = mk('defs', {});
         const cp = mk('clipPath', { id: 'clipB' }, defs);
@@ -252,7 +258,6 @@
         lab(GEO.labels.c2, '169', '#1565c0', 22);
     }
 
-    /* =============== Timeline tween =============== */
     const addTween = (t0, t1, fn) => { const tw = { t0, t1, fn, last: -1 }; tweens.push(tw); return tw; };
     const fade = (el, t0, dur, to, from = 0) => addTween(t0, t0 + dur, p => el.setAttribute('opacity', from + (to - from) * p));
     const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -291,7 +296,6 @@
         });
     }
 
-    /* =============== Inisialisasi awal =============== */
     buildStage(curOff);
     buildTimeline();
 
@@ -336,45 +340,54 @@
         speed = parseFloat(e.target.value);
         document.getElementById('speedValue').textContent = speed + '×'; });
 
-    /* =============== SLIDER EKSPLORASI OFFSET =============== */
+    /* =============== SLIDER EKSPLORASI + CLAMP NOTICE =============== */
     const slP = document.getElementById('sliderP');
     const slQ = document.getElementById('sliderQ');
     const valP = document.getElementById('valP');
     const valQ = document.getElementById('valQ');
+    const clampNotice = document.getElementById('clampNotice');
 
     function refreshStage() {
-        const wasPlaying = playing;
         playing = false;
         buildStage(curOff);
         buildTimeline();
-        /* langsung ke kondisi akhir agar terlihat */
         for (const tw of tweens) tw.fn(1);
         vt = TOTAL;
         updateStep(); updateProgress();
         btnStart.textContent = '▶ Ulangi';
         btnStart.style.display = 'inline-block';
         btnPause.style.display = 'none';
+
+        /* cek apakah offset di-clamp */
+        const clamped = Math.abs(actualOff.p - curOff.p) > 0.01 ||
+                        Math.abs(actualOff.q - curOff.q) > 0.01;
+        clampNotice.style.display = clamped ? 'block' : 'none';
+        if (clamped) {
+            clampNotice.innerHTML = `⚠️ Offset di-clamp otomatis dari (${curOff.p.toFixed(1)}, ${curOff.q.toFixed(1)}) ke (${actualOff.p.toFixed(2)}, ${actualOff.q.toFixed(2)}) agar tiling valid.`;
+        }
     }
 
     slP.addEventListener('input', e => {
         curOff.p = parseFloat(e.target.value);
-        valP.textContent = curOff.p.toFixed(2);
+        valP.textContent = curOff.p.toFixed(1);
         refreshStage();
     });
     slQ.addEventListener('input', e => {
         curOff.q = parseFloat(e.target.value);
-        valQ.textContent = curOff.q.toFixed(2);
+        valQ.textContent = curOff.q.toFixed(1);
         refreshStage();
     });
     document.getElementById('btnDefault').addEventListener('click', () => {
         curOff = { ...DEF_OFF }; slP.value = DEF_OFF.p; slQ.value = DEF_OFF.q;
-        valP.textContent = DEF_OFF.p.toFixed(2); valQ.textContent = DEF_OFF.q.toFixed(2);
+        valP.textContent = DEF_OFF.p.toFixed(1); valQ.textContent = DEF_OFF.q.toFixed(1);
         resetState(); buildStage(curOff); buildTimeline();
+        clampNotice.style.display = 'none';
     });
     document.getElementById('btnCenter').addEventListener('click', () => {
         curOff = { p: 0, q: 0 }; slP.value = 0; slQ.value = 0;
-        valP.textContent = '0.00'; valQ.textContent = '0.00';
+        valP.textContent = '0.0'; valQ.textContent = '0.0';
         resetState(); buildStage(curOff); buildTimeline();
+        clampNotice.style.display = 'none';
     });
 
     /* =============== GAMBAR STATIS (sheet A4) =============== */
@@ -405,7 +418,6 @@
         s += `</svg>`;
         return s;
     }
-    /* Sheet A4 selalu memakai offset default agar deterministik */
     document.getElementById('figInitial').innerHTML = perigalScene('initial', 260, DEF_OFF);
     document.getElementById('figFinal').innerHTML   = perigalScene('final',   260, DEF_OFF);
 
@@ -437,6 +449,7 @@
 
     fitSheet();
     requestAnimationFrame(frame);
+        
     </script>
 </body>
 </html>
