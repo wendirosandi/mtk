@@ -1,8 +1,8 @@
 /* =====================================================
-   perigal-engine.js  v6
-   - Solver 256-kombinasi (Kᵢ → Qⱼ) untuk offset apa pun
-   - Auto-clamp ke offset sah jika melebihi jendela
-   - Men返回 geometri + offset aktual (setelah clamp)
+   perigal-engine.js  v6.1
+   - Cek overlap via LUAS IRISAN konveks (aman utk tepi berimpit)
+   - Rantai fallback: model W=WC+o → W=WC → binary-search → sign-rule
+   - DIJAMIN tidak pernah return null
    ===================================================== */
 function perigalGeometry(a, b, off, viewW, viewH, pad) {
     off = off || { p: 0, q: 0 };
@@ -26,7 +26,10 @@ function perigalGeometry(a, b, off, viewW, viewH, pad) {
         { x: C.x + n.x * c, y: C.y + n.y * c }];
     const Wc = { x: (C.x + sqC[2].x) / 2, y: (C.y + sqC[2].y) / 2 };
     const Gc = { x: -b / 2, y: b / 2 };
+    const add = (P, o) => ({ x: P.x + o.x, y: P.y + o.y });
+    const oVec = (p, q) => ({ x: p * h.x + q * n.x, y: p * h.y + q * n.y });
 
+    /* ---------- util ---------- */
     function clip(poly, P, m, s) {
         const out = [], v = q => m.x * (q.x - P.x) + m.y * (q.y - P.y);
         for (let i = 0; i < poly.length; i++) {
@@ -67,20 +70,41 @@ function perigalGeometry(a, b, off, viewW, viewH, pad) {
             s += poly[j].x * poly[i].y - poly[i].x * poly[j].y;
         return s / 2;
     }
-    function polysOverlap(p1, p2) {
-        for (const p of p1) if (pip(p2, p, 1e-6)) return true;
-        for (const p of p2) if (pip(p1, p, 1e-6)) return true;
-        return false;
+    function centroid(poly) {
+        let x = 0, y = 0;
+        poly.forEach(p => { x += p.x; y += p.y; });
+        return { x: x / poly.length, y: y / poly.length };
+    }
+    function clipHalf(poly, P, m, s) {
+        const out = [], f = q => (m.x * (q.x - P.x) + m.y * (q.y - P.y)) * s;
+        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+            const cur = poly[i], prev = poly[j];
+            const fc = f(cur), fp = f(prev);
+            if (fc >= 0) out.push(cur);
+            if ((fc > 0) !== (fp > 0)) {
+                const t = fp / (fp - fc);
+                out.push({ x: prev.x + (cur.x - prev.x) * t,
+                           y: prev.y + (cur.y - prev.y) * t });
+            }
+        }
+        return out;
+    }
+    /* luas irisan dua poligon konveks (0 untuk tepi berimpit) */
+    function interArea(Ap, Bp) {
+        let out = Ap.slice();
+        const cb = centroid(Bp);
+        for (let i = 0, j = Bp.length - 1; i < Bp.length && out.length; j = i++) {
+            const P = Bp[j], Q = Bp[i];
+            const m = { x: -(Q.y - P.y), y: Q.x - P.x };
+            const s = (m.x * (cb.x - P.x) + m.y * (cb.y - P.y)) > 0 ? 1 : -1;
+            out = clipHalf(out, P, m, s);
+        }
+        return out.length ? Math.abs(area(out)) : 0;
     }
 
-    /* Fungsi inti: cari tiling untuk offset (p,q) tertentu.
-       Kembalikan { pieces, tA, W } atau null jika gagal. */
-    function trySolve(pOff, qOff) {
-        const o = { x: pOff * h.x + qOff * n.x, y: pOff * h.y + qOff * n.y };
-        const P = { x: Gc.x + o.x, y: Gc.y + o.y };
-        const W = { x: Wc.x + o.x, y: Wc.y + o.y };
+    const target = Math.abs(area(sqC)) - a * a;   // = b²
 
-        /* 4 slice */
+    function buildPieces(P) {
         const signs = [[1, 1], [-1, 1], [-1, -1], [1, -1]];
         const pieces = [];
         for (const [sH, sN] of signs) {
@@ -91,36 +115,32 @@ function perigalGeometry(a, b, off, viewW, viewH, pad) {
             if (!K) return null;
             pieces.push({ poly, K });
         }
+        const sum = pieces.reduce((s, pc) => s + Math.abs(area(pc.poly)), 0);
+        if (Math.abs(sum - target) > 1e-4 * target) return null;
+        return pieces;
+    }
 
-        /* 4 sudut persegi dalam */
-        const Qs = [
-            { x: W.x + a / 2, y: W.y - a / 2 },
-            { x: W.x + a / 2, y: W.y + a / 2 },
-            { x: W.x - a / 2, y: W.y + a / 2 },
-            { x: W.x - a / 2, y: W.y - a / 2 }
-        ];
+    function verify(pieces, ts, inner) {
+        const moved = pieces.map((pc, i) =>
+            pc.poly.map(p => ({ x: p.x + ts[i].x, y: p.y + ts[i].y })));
+        for (const m of moved)
+            for (const p of m)
+                if (!pip(sqC, p, 1e-7 * c)) return false;
+        for (const m of moved)
+            if (interArea(m, inner) > 1e-6 * target) return false;
+        for (let i = 0; i < 4; i++)
+            for (let j = i + 1; j < 4; j++)
+                if (interArea(moved[i], moved[j]) > 1e-6 * target) return false;
+        return true;
+    }
 
-        /* Area c² − a² (harus = b²) */
-        const targetArea = Math.abs(area(sqC)) - a * a;
-
-        /* Solver: coba 256 kombinasi */
-        function verify(ts) {
-            const moved = pieces.map((pc, i) =>
-                pc.poly.map(p => ({ x: p.x + ts[i].x, y: p.y + ts[i].y })));
-            /* semua slice harus di dalam c² */
-            for (const m of moved)
-                for (const p of m)
-                    if (!pip(sqC, p, 1e-6 * b)) return false;
-            /* tidak ada overlap antar slice */
-            for (let i = 0; i < 4; i++)
-                for (let j = i + 1; j < 4; j++)
-                    if (polysOverlap(moved[i], moved[j])) return false;
-            /* Σ luas harus = targetArea (toleransi) */
-            const sumArea = moved.reduce((s, m) => s + Math.abs(area(m)), 0);
-            if (Math.abs(sumArea - targetArea) > 1e-4 * targetArea) return false;
-            return true;
-        }
-
+    function trySolve(P, W) {
+        const pieces = buildPieces(P);
+        if (!pieces) return null;
+        const inner = [
+            { x: W.x - a / 2, y: W.y - a / 2 }, { x: W.x + a / 2, y: W.y - a / 2 },
+            { x: W.x + a / 2, y: W.y + a / 2 }, { x: W.x - a / 2, y: W.y - a / 2 }];
+        const Qs = inner;
         let solution = null;
         for (let c1 = 0; c1 < 4 && !solution; c1++)
         for (let c2 = 0; c2 < 4 && !solution; c2++)
@@ -130,68 +150,64 @@ function perigalGeometry(a, b, off, viewW, viewH, pad) {
                 { x: Qs[c1].x - pieces[0].K.x, y: Qs[c1].y - pieces[0].K.y },
                 { x: Qs[c2].x - pieces[1].K.x, y: Qs[c2].y - pieces[1].K.y },
                 { x: Qs[c3].x - pieces[2].K.x, y: Qs[c3].y - pieces[2].K.y },
-                { x: Qs[c4].x - pieces[3].K.x, y: Qs[c4].y - pieces[3].K.y }
-            ];
-            if (verify(ts)) solution = ts;
+                { x: Qs[c4].x - pieces[3].K.x, y: Qs[c4].y - pieces[3].K.y }];
+            if (verify(pieces, ts, inner)) solution = ts;
         }
-
         if (!solution) return null;
-
-        const tA = { x: W.x - a / 2, y: W.y + a / 2 };
         pieces.forEach((pc, i) => pc.t = solution[i]);
-        return { pieces, tA, W, P };
+        return { pieces, inner, W, P };
     }
 
-    /* Auto-clamp: jika gagal, binary search ke arah (0,0) */
-    let result = trySolve(off.p, off.q);
+    /* ---------- rantai solusi ---------- */
+    let result = trySolve(add(Gc, oVec(off.p, off.q)), add(Wc, oVec(off.p, off.q)));
     let actualOff = { ...off };
     if (!result) {
-        let lo = 0, hi = 1;
-        for (let iter = 0; iter < 20 && !result; iter++) {
+        result = trySolve(add(Gc, oVec(off.p, off.q)), Wc);
+        if (result) console.info('ℹ️ Perigal: model W=pusat');
+    }
+    if (!result) {
+        let lo = 0, hi = 1, best = null, bestOff = { p: 0, q: 0 };
+        for (let it = 0; it < 14; it++) {
             const mid = (lo + hi) / 2;
-            const testOff = { p: off.p * mid, q: off.q * mid };
-            result = trySolve(testOff.p, testOff.q);
-            if (result) {
-                actualOff = testOff;
-            } else {
-                hi = mid;
-            }
+            const o2 = oVec(off.p * mid, off.q * mid);
+            const r = trySolve(add(Gc, o2), add(Wc, o2)) || trySolve(add(Gc, o2), Wc);
+            if (r) { best = r; bestOff = { p: off.p * mid, q: off.q * mid }; lo = mid; }
+            else hi = mid;
         }
-        if (!result) {
-            /* fallback absolut: mode pusat */
-            result = trySolve(0, 0);
-            actualOff = { p: 0, q: 0 };
-        }
+        result = best; actualOff = bestOff;
+        if (result) console.info('ℹ️ Perigal: offset di-clamp ke (' +
+            bestOff.p.toFixed(2) + ',' + bestOff.q.toFixed(2) + ')');
+    }
+    let degraded = false;
+    if (!result) {   /* jaminan terakhir: sign-rule klasik di pusat */
+        degraded = true; actualOff = { p: 0, q: 0 };
+        const pieces = buildPieces(Gc);
+        pieces.forEach(pc => {
+            const sx = Math.sign(pc.K.x - Gc.x), sy = Math.sign(pc.K.y - Gc.y);
+            pc.t = { x: Wc.x + (a / 2) * sx - pc.K.x, y: Wc.y + (a / 2) * sy - pc.K.y };
+        });
+        result = { pieces, W: Wc, P: Gc,
+            inner: [{ x: Wc.x - a / 2, y: Wc.y - a / 2 }, { x: Wc.x + a / 2, y: Wc.y - a / 2 },
+                    { x: Wc.x + a / 2, y: Wc.y + a / 2 }, { x: Wc.x - a / 2, y: Wc.y - a / 2 }] };
+        console.warn('⚠️ Perigal: mode degradasi (sign-rule)');
     }
 
-    const { pieces, tA, W, P } = result;
+    const { pieces, inner, W, P } = result;
+    const tA = { x: W.x - a / 2, y: W.y + a / 2 };
 
-    /* Garis potong */
-    const cut1 = [S(P.x - h.x * b * 2, P.y - h.y * b * 2),
-                  S(P.x + h.x * b * 2, P.y + h.y * b * 2)];
-    const cut2 = [S(P.x - n.x * b * 2, P.y - n.y * b * 2),
-                  S(P.x + n.x * b * 2, P.y + n.y * b * 2)];
-
-    const inner = [
-        { x: W.x - a / 2, y: W.y - a / 2 }, { x: W.x + a / 2, y: W.y - a / 2 },
-        { x: W.x + a / 2, y: W.y + a / 2 }, { x: W.x - a / 2, y: W.y + a / 2 }];
+    if (!degraded) console.log('✅ TILING OK (Perigal ' + a + ',' + b +
+        ' | offset ' + actualOff.p.toFixed(2) + ',' + actualOff.q.toFixed(2) + ')');
 
     const map = poly => poly.map(P2 => S(P2.x, P2.y));
-
-    /* SELF-TEST */
-    console.log('✅ TILING OK (Perigal ' + a + ',' + b + ', offset=' +
-                actualOff.p.toFixed(2) + ',' + actualOff.q.toFixed(2) + ')');
-
     return {
-        a, b, c, u, S, actualOff,
+        a, b, c, u, S, actualOff, degraded,
         tri: map([B, A, C]),
         sqA: map(sqA), sqB: map(sqB), sqC: map(sqC), inner: map(inner),
-        pieces: pieces.map(pc => ({
-            poly: map(pc.poly),
-            t: { x: pc.t.x * u, y: -pc.t.y * u }
-        })),
+        pieces: pieces.map(pc => ({ poly: map(pc.poly),
+                                    t: { x: pc.t.x * u, y: -pc.t.y * u } })),
         tA: { x: tA.x * u, y: -tA.y * u },
-        cut1, cut2,
+        cut1: [S(P.x - h.x * b * 2, P.y - h.y * b * 2), S(P.x + h.x * b * 2, P.y + h.y * b * 2)],
+        cut2: [S(P.x - n.x * b * 2, P.y - n.y * b * 2), S(P.x + n.x * b * 2, P.y + n.y * b * 2)],
         G: S(P.x, P.y), W: S(W.x, W.y),
         labels: {
             a: S(a / 2, 0.6), b: S(-0.9, b / 2),
