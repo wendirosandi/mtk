@@ -22,7 +22,7 @@
             </div>
         </div>
         <div class="export-buttons">
-            <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 Download PDF</button>
+            <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 Download PDF (1 hal)</button>
             <button class="btn-print" onclick="printPDF()">🖨 Print / Save as PDF</button>
         </div>
     </header>
@@ -30,7 +30,7 @@
     <nav class="proof-nav no-print">
         <a href="../index.html" class="prev-btn">← Kalender</a>
         <span class="nav-indicator">1 / 12</span>
-        <a href="#" class="next-btn disabled" onclick="alert('Pembuktian Februari masih dalam tahap pengembangan');return false;">Februari (Bukti #2) →</a>
+        <a href="bukti-02-februari.html" class="next-btn">Februari (Bukti #2) →</a>
     </nav>
 
     <main class="proof-content" id="proofContent">
@@ -42,22 +42,15 @@
                 9 kotak dari sisi a dan 16 kotak dari sisi b dipindahkan untuk membentuk tepat
                 25 kotak di sisi c, membuktikan <strong>a² + b² = c²</strong>.
             </p>
-            <div class="historical-note">
-                <strong>💡 Konsep Utama:</strong> Jika kotak-kotak dari persegi a dan b tepat memenuhi
-                persegi c tanpa sisa, maka luasnya pasti sama.
-            </div>
         </section>
 
-        <!-- ============ ANIMASI INTERAKTIF (tidak ikut dicetak) ============ -->
         <section class="section animation no-print">
             <h2>🎬 Animasi Interaktif</h2>
             <div class="animation-wrapper">
                 <div class="stage-wrap" id="stageWrap">
                     <div class="stage" id="stage">
-                        <div class="guide-v"></div>
-                        <div class="guide-h"></div>
-                        <div class="ghost ghost-a"></div>
-                        <div class="ghost ghost-b"></div>
+                        <div class="guide-v"></div><div class="guide-h"></div>
+                        <div class="ghost ghost-a"></div><div class="ghost ghost-b"></div>
                         <div class="ghost ghost-c" id="ghostC"></div>
                         <div class="triangle" id="triangle"></div>
                         <div class="slabel label-a" id="labelA">a = 3</div>
@@ -83,93 +76,60 @@
             </div>
         </section>
 
-        <!-- ============ AREA EXPORT: 2 GAMBAR DOKUMENTASI ============ -->
-        <section class="section export-section">
-            <h2 class="no-print">📄 Area Export / Pratinjau PDF</h2>
-            <div id="exportArea" class="export-area">
-                <div class="export-header">
-                    <h2>Bukti #1: Sel Terbang Pythagoras</h2>
-                    <p>Kalender Pythagoras 2027 • Januari • Contoh Guru • Level: Dasar</p>
-                </div>
-                <div id="calBlock" class="cal-block"></div> <hr class="cal-divider">
-                <div class="proof-figures">
-                    <figure class="proof-figure">
-                        <span class="state-badge initial">AWAL</span>
-                        <div class="scene" id="figInitial"></div>
-                        <figcaption><strong>Gbr 1:</strong> Segitiga 3-4-5 dengan a² = 9 kotak merah
-                            dan b² = 16 kotak hijau terisi; persegi c² di sisi miring masih kosong.</figcaption>
-                    </figure>
-                    <figure class="proof-figure">
-                        <span class="state-badge final">AKHIR</span>
-                        <div class="scene" id="figFinal"></div>
-                        <figcaption><strong>Gbr 2:</strong> Seluruh 25 kotak telah pindah dan tepat
-                            memenuhi c²; persegi a² dan b² kini kosong → 9 + 16 = 25.</figcaption>
-                    </figure>
-                </div>
-
-                <div class="export-explain">
-                    <p><strong>Penjelasan singkat:</strong> Kotak satuan pada persegi di sisi siku-siku
-                       (a² = 3² = 9 dan b² = 4² = 16) dipindahkan seluruhnya ke persegi di sisi miring
-                       (c² = 5² = 25). Karena muat tepat tanpa sisa dan tanpa tumpang tindih,
-                       maka jumlah luas kedua persegi sisi siku-siku sama dengan luas persegi sisi miring.</p>
-                    <div class="export-formula">3² + 4² = 9 + 16 = 25 = 5²</div>
-                </div>
-
-                <div class="export-conclusion">
-                    <div class="export-conclusion-text">
-                        KESIMPULAN:<br>a² + b² = c²
+        <!-- ============ AREA EXPORT (sheet A4) ============ -->
+        <section class="section export-section no-print-screen">
+            <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">
+                👁 Tampilkan Pratinjau PDF (1 halaman)
+            </button>
+            <div class="preview-collapse collapsed" id="previewCollapse">
+              <div class="a4-viewport" id="a4Viewport">
+                <div id="exportArea" class="a4-sheet">
+                    <div class="export-header">
+                        <h2>Bukti #1: Sel Terbang Pythagoras</h2>
+                        <p>Kalender Pythagoras 2027 • Januari • Contoh Guru • Level: Dasar</p>
                     </div>
-                    <div>
-                        <div class="qr-box" id="qrcode">[QR code]</div>
-                        <div class="qr-caption">Scan untuk animasi interaktif</div>
+
+                    <div id="calBlock" class="cal-block"></div>
+                    <hr class="cal-divider">
+
+                    <div class="proof-figures">
+                        <figure class="proof-figure">
+                            <span class="state-badge initial">AWAL</span>
+                            <div class="scene" id="figInitial"></div>
+                            <figcaption><strong>Gbr 1:</strong> a² & b² terisi; c² kosong.</figcaption>
+                        </figure>
+                        <figure class="proof-figure">
+                            <span class="state-badge final">AKHIR</span>
+                            <div class="scene" id="figFinal"></div>
+                            <figcaption><strong>Gbr 2:</strong> c² terisi 25 kotak; a² & b² kosong.</figcaption>
+                        </figure>
+                    </div>
+
+                    <div class="export-explain">
+                        <p><strong>Penjelasan:</strong> 9 kotak merah (a²) dan 16 kotak hijau (b²)
+                           dipindahkan seluruhnya ke c² (sisi miring). Karena muat tepat tanpa sisa
+                           dan tanpa tumpang-tindih, luasnya sama.</p>
+                        <div class="export-formula">3² + 4² = 9 + 16 = 25 = 5²</div>
+                    </div>
+
+                    <div class="export-conclusion">
+                        <div class="export-conclusion-text">KESIMPULAN:<br>a² + b² = c²</div>
+                        <div>
+                            <div class="qr-box" id="qrcode">[QR]</div>
+                            <div class="qr-caption">Scan untuk animasi</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <section class="section steps no-print">
-            <h2>📝 Langkah-langkah Pembuktian</h2>
-            <ol class="proof-steps">
-                <li class="step"><div class="step-number">1</div>
-                    <div class="step-content"><h3>Segitiga Siku-siku 3-4-5</h3>
-                        <ul>
-                            <li><strong style="color:#e53935">a = 3</strong> (sisi vertikal)</li>
-                            <li><strong style="color:#43a047">b = 4</strong> (sisi horizontal)</li>
-                            <li><strong style="color:#1565c0">c = 5</strong> (hipotenusa)</li>
-                        </ul></div></li>
-                <li class="step"><div class="step-number">2</div>
-                    <div class="step-content"><h3>Bangun Persegi di Setiap Sisi</h3>
-                        <div class="formula">a² = 3² = 9 kotak • b² = 4² = 16 kotak • c² = 5² = 25 slot</div></div></li>
-                <li class="step"><div class="step-number">3</div>
-                    <div class="step-content"><h3>Pindahkan Semua Kotak ke c²</h3>
-                        <div class="formula">9 (merah) + 16 (hijau) = 25 → muat tepat!</div></div></li>
-                <li class="step"><div class="step-number">4</div>
-                    <div class="step-content"><h3>Verifikasi & Kesimpulan</h3>
-                        <div class="formula final"><strong>3² + 4² = 5² → 9 + 16 = 25 ✓ → a² + b² = c²</strong></div></div></li>
-            </ol>
-        </section>
-
-        <section class="section conclusion no-print">
-            <h2>✨ Kesimpulan</h2>
-            <div class="conclusion-box">
-                <p class="conclusion-text">Seluruh kotak dari persegi sisi a dan b tepat memenuhi persegi sisi c:</p>
-                <div class="main-formula"><strong>a² + b² = c²</strong></div>
+              </div>
             </div>
         </section>
     </main>
-
-    <nav class="proof-nav bottom no-print">
-        <a href="../index.html" class="prev-btn">← Kalender</a>
-        <a href="../index.html" class="home-btn">🏠 Home</a>
-        <a href="#" class="next-btn disabled" onclick="alert('Pembuktian Februari masih dalam tahap pengembangan');return false;">Selanjutnya →</a>
-    </nav>
 
     <footer class="no-print">
         <p><strong>Contoh Guru</strong> - Pembuktian #1</p>
         <p>Projek Kalender Pythagoras 2027</p>
     </footer>
 
-    <!-- Style stage animasi (sama seperti versi sebelumnya) -->
     <style>
         .stage-wrap{position:relative;width:100%;overflow:hidden;background:#f4f6fb;border:3px solid #e0e0e0;border-radius:15px}
         .stage{position:absolute;top:0;left:0;width:660px;height:640px;transform-origin:0 0}
@@ -181,32 +141,47 @@
         .ghost-c{left:250px;top:80px;width:200px;height:200px;border:2px dashed rgba(21,101,192,.65);border-radius:4px;transform-origin:0 200px;transform:rotate(36.87deg);opacity:0}
         .triangle{position:absolute;left:250px;top:280px;width:160px;height:120px;background:rgba(144,164,174,.45);clip-path:polygon(0 0,0 100%,100% 100%);opacity:0;z-index:3}
         .slabel{position:absolute;z-index:4;font-weight:bold;font-size:16px;opacity:0}
-        .label-a{left:258px;top:322px;color:#c62828}
-        .label-b{left:315px;top:382px;color:#2e7d32}
-        .label-c{left:452px;top:158px;color:#1565c0}
+        .label-a{left:258px;top:322px;color:#c62828}.label-b{left:315px;top:382px;color:#2e7d32}.label-c{left:452px;top:158px;color:#1565c0}
         .cell{position:absolute;left:0;top:0;width:40px;height:40px;border:2px solid rgba(0,0,0,.35);border-radius:4px;opacity:0;z-index:5;will-change:transform}
         .cell.red{background:#e53935}.cell.green{background:#43a047}
     </style>
 
-    <script src="../assets/js/static-scenes.js"></script>
-    <script src="../assets/js/pdf-export.js"></script>
-    <script src="../assets/js/calendar-template.js"></script>
+    <script src="../assets/js/static-scenes.js?v=3"></script>
+    <script src="../assets/js/calendar-template.js?v=3"></script>
+    <script src="../assets/js/pdf-export.js?v=31"></script>
     <script>
-    /* ================= MESIN ANIMASI LIVE (tidak berubah) ================= */
-    const CELL=40,COS=0.8,SIN=0.6,ROT=36.87;
-    const C1={x:250,y:280};
+    /* Sheet A4 scaling */
+    function fitSheet() {
+        const viewport = document.getElementById('a4Viewport');
+        const sheet = document.querySelector('.a4-sheet');
+        if (!viewport || !sheet) return;
+        const s = Math.min(1, viewport.clientWidth / 794);
+        sheet.style.transform = `scale(${s})`;
+        sheet.style.transformOrigin = 'top left';
+        viewport.style.height = (1123 * s) + 'px';
+    }
+    window.fitSheet = fitSheet;
+    window.addEventListener('resize', fitSheet);
+
+    function togglePreview() {
+        const col = document.getElementById('previewCollapse');
+        col.classList.toggle('collapsed');
+        document.getElementById('btnPreview').textContent = col.classList.contains('collapsed')
+            ? '👁 Tampilkan Pratinjau PDF (1 halaman)' : '🙈 Sembunyikan Pratinjau PDF';
+        if (!col.classList.contains('collapsed')) setTimeout(fitSheet, 60);
+    }
+    window.togglePreview = togglePreview;
+
+    /* ========== ANIMASI (tidak berubah) ========== */
+    const CELL=40,COS=0.8,SIN=0.6,ROT=36.87,C1={x:250,y:280};
     const BASE_W=660,BASE_H=640,TOTAL=10500;
-    const stage=document.getElementById('stage');
-    const wrap=document.getElementById('stageWrap');
-    function fitStage(){const s=Math.min(1,wrap.clientWidth/BASE_W);
-        stage.style.transform=`scale(${s})`;wrap.style.height=(BASE_H*s)+'px';}
+    const stage=document.getElementById('stage'),wrap=document.getElementById('stageWrap');
+    function fitStage(){const s=Math.min(1,wrap.clientWidth/BASE_W);stage.style.transform=`scale(${s})`;wrap.style.height=(BASE_H*s)+'px';}
     window.addEventListener('resize',fitStage);
-    const lerp=(a,b,t)=>a+(b-a)*t;
-    const clamp01=t=>Math.max(0,Math.min(1,t));
+    const lerp=(a,b,t)=>a+(b-a)*t;const clamp01=t=>Math.max(0,Math.min(1,t));
     const easeInOutCubic=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
     const easeOutBack=t=>{const c=1.70158;return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2);};
-    function slotTarget(k){const col=k%5,row=(k/5)|0;
-        const lx=col*CELL+20,ly=row*CELL+20,dx=lx,dy=ly-200;
+    function slotTarget(k){const col=k%5,row=(k/5)|0;const lx=col*CELL+20,ly=row*CELL+20,dx=lx,dy=ly-200;
         return{x:C1.x+COS*dx-SIN*dy-20,y:C1.y+SIN*dx+COS*dy-20};}
     const redCells=[],greenCells=[];
     for(let i=0;i<9;i++){const el=document.createElement('div');el.className='cell red';
@@ -216,24 +191,18 @@
         const x=250+(j%4)*CELL,y=400+((j/4)|0)*CELL;el.dataset.hx=x;el.dataset.hy=y;
         el.style.transform=`translate(${x}px,${y}px) scale(0)`;stage.appendChild(el);greenCells.push(el);}
     const tweens=[],cellTweens=[];
-    function addTween(t0,t1,update,isCell){const tw={t0,t1,update,last:-1};
-        tweens.push(tw);if(isCell)cellTweens.push(tw);return tw;}
-    function popTween(el,t0){const x=+el.dataset.hx,y=+el.dataset.hy;
-        addTween(t0,t0+260,p=>{const e=easeOutBack(p);
-            el.style.opacity=Math.min(1,p*2.5);
-            el.style.transform=`translate(${x}px,${y}px) scale(${Math.max(0,e)})`;},true);}
+    function addTween(t0,t1,update,isCell){const tw={t0,t1,update,last:-1};tweens.push(tw);if(isCell)cellTweens.push(tw);return tw;}
+    function popTween(el,t0){const x=+el.dataset.hx,y=+el.dataset.hy;addTween(t0,t0+260,p=>{const e=easeOutBack(p);
+        el.style.opacity=Math.min(1,p*2.5);el.style.transform=`translate(${x}px,${y}px) scale(${Math.max(0,e)})`;},true);}
     function flyTween(el,slot,t0){const fx=+el.dataset.hx,fy=+el.dataset.hy;const to=slotTarget(slot);
-        addTween(t0,t0+800,p=>{const e=easeInOutCubic(p);
-            const x=lerp(fx,to.x,e),y=lerp(fy,to.y,e),r=lerp(0,ROT,e);
-            const sc=1+0.3*Math.sin(Math.PI*e);
-            el.style.zIndex=p<1?60:50;
-            el.style.transform=`translate(${x}px,${y}px) rotate(${r}deg) scale(${sc})`;
-            if(p>=1)el.style.transform=`translate(${to.x}px,${to.y}px) rotate(${ROT}deg)`;},true);}
+        addTween(t0,t0+800,p=>{const e=easeInOutCubic(p);const x=lerp(fx,to.x,e),y=lerp(fy,to.y,e),r=lerp(0,ROT,e);
+        const sc=1+0.3*Math.sin(Math.PI*e);el.style.zIndex=p<1?60:50;
+        el.style.transform=`translate(${x}px,${y}px) rotate(${r}deg) scale(${sc})`;
+        if(p>=1)el.style.transform=`translate(${to.x}px,${to.y}px) rotate(${ROT}deg)`;},true);}
     function fadeTween(el,t0,dur,to){addTween(t0,t0+dur,p=>{el.style.opacity=to*p;},false);}
     function buildTimeline(){tweens.length=0;cellTweens.length=0;
         fadeTween(document.getElementById('triangle'),0,500,.55);
-        fadeTween(document.getElementById('labelA'),100,400,1);
-        fadeTween(document.getElementById('labelB'),200,400,1);
+        fadeTween(document.getElementById('labelA'),100,400,1);fadeTween(document.getElementById('labelB'),200,400,1);
         fadeTween(document.getElementById('labelC'),300,400,1);
         for(let i=0;i<9;i++)popTween(redCells[i],500+i*110);
         for(let j=0;j<16;j++)popTween(greenCells[j],1700+j*90);
@@ -241,58 +210,32 @@
         for(let k=0;k<9;k++)flyTween(redCells[k],16+k,3600+k*240);
         for(let m=0;m<16;m++)flyTween(greenCells[m],m,6400+m*170);}
     buildTimeline();
-    let vt=0,playing=false,started=false,speed=1,lastTs=null;
-    const btnStart=document.getElementById('btnStart');
-    const btnPause=document.getElementById('btnPause');
-    function updateProgress(){let done=0;
-        for(const tw of cellTweens)if(tw.last>=1)done++;
-        const pct=Math.round(done/50*100);
-        document.getElementById('ptext').textContent='Progres: '+pct+'%';
+    let vt=0,playing=false,speed=1,lastTs=null;
+    function updateProgress(){let done=0;for(const tw of cellTweens)if(tw.last>=1)done++;
+        const pct=Math.round(done/50*100);document.getElementById('ptext').textContent='Progres: '+pct+'%';
         document.getElementById('pfill').style.width=pct+'%';}
-    function frame(ts){if(lastTs===null)lastTs=ts;
-        const dt=Math.min(50,ts-lastTs);lastTs=ts;
+    function frame(ts){if(lastTs===null)lastTs=ts;const dt=Math.min(50,ts-lastTs);lastTs=ts;
         if(playing)vt=Math.min(TOTAL,vt+dt*speed);
-        for(const tw of tweens){const p=clamp01((vt-tw.t0)/(tw.t1-tw.t0));
-            if(p!==tw.last){tw.update(p);tw.last=p;}}
-        updateProgress();
-        if(playing&&vt>=TOTAL){playing=false;onEnd();}
-        requestAnimationFrame(frame);}
-    function onEnd(){btnStart.textContent='▶ Ulangi';
-        btnStart.style.display='inline-block';btnPause.style.display='none';}
-    function resetState(){vt=0;playing=false;started=false;
-        for(const tw of tweens)tw.last=-1;
-        btnStart.textContent='▶ Mulai';btnStart.style.display='inline-block';
-        btnPause.style.display='none';}
-    btnStart.addEventListener('click',()=>{if(vt>=TOTAL)resetState();
-        started=true;playing=true;btnStart.style.display='none';
-        btnPause.style.display='inline-block';});
-    btnPause.addEventListener('click',()=>{playing=false;
-        btnStart.textContent='▶ Lanjut';btnStart.style.display='inline-block';
-        btnPause.style.display='none';});
-    document.getElementById('btnSkip').addEventListener('click',()=>{
-        started=true;vt=TOTAL;playing=false;onEnd();});
+        for(const tw of tweens){const p=clamp01((vt-tw.t0)/(tw.t1-tw.t0));if(p!==tw.last){tw.update(p);tw.last=p;}}
+        updateProgress();if(playing&&vt>=TOTAL){playing=false;onEnd();}requestAnimationFrame(frame);}
+    const btnStart=document.getElementById('btnStart'),btnPause=document.getElementById('btnPause');
+    function onEnd(){btnStart.textContent='▶ Ulangi';btnStart.style.display='inline-block';btnPause.style.display='none';}
+    function resetState(){vt=0;playing=false;for(const tw of tweens)tw.last=-1;
+        btnStart.textContent='▶ Mulai';btnStart.style.display='inline-block';btnPause.style.display='none';}
+    btnStart.addEventListener('click',()=>{if(vt>=TOTAL)resetState();playing=true;btnStart.style.display='none';btnPause.style.display='inline-block';});
+    btnPause.addEventListener('click',()=>{playing=false;btnStart.textContent='▶ Lanjut';btnStart.style.display='inline-block';btnPause.style.display='none';});
+    document.getElementById('btnSkip').addEventListener('click',()=>{vt=TOTAL;playing=false;onEnd();});
     document.getElementById('btnReset').addEventListener('click',resetState);
-    const slider=document.getElementById('speedSlider');
-    slider.addEventListener('input',()=>{speed=parseFloat(slider.value);
-        document.getElementById('speedValue').textContent=speed+'×';});
+    document.getElementById('speedSlider').addEventListener('input',e=>{speed=parseFloat(e.target.value);document.getElementById('speedValue').textContent=speed+'×';});
 
-    /* ================= INISIALISASI GAMBAR STATIS + QR ================= */
-         renderCalendar(document.getElementById('calBlock'), 1);   // Januari 2027
-    renderStaticScene(document.getElementById('figInitial'), 'initial', 0.5);
-    renderStaticScene(document.getElementById('figFinal'),   'final',   0.5);
+    /* Gambar statis + kalender + QR */
+    renderStaticScene(document.getElementById('figInitial'), 'initial', 0.6);
+    renderStaticScene(document.getElementById('figFinal'),   'final',   0.6);
+    renderCalendar(document.getElementById('calBlock'), 1);
+    try { new QRCode(document.getElementById('qrcode'), { text: window.location.href, width:84, height:84, correctLevel: QRCode.CorrectLevel.M }); }
+    catch(e){ document.getElementById('qrcode').textContent = window.location.href; }
 
-    try {
-        new QRCode(document.getElementById('qrcode'), {
-            text: window.location.href,
-            width: 96, height: 96,
-            correctLevel: QRCode.CorrectLevel.M
-        });
-    } catch (e) {
-        document.getElementById('qrcode').textContent = window.location.href;
-    }
-
-    fitStage();
-    requestAnimationFrame(frame);
+    fitStage(); fitSheet(); requestAnimationFrame(frame);
     </script>
 </body>
 </html>
