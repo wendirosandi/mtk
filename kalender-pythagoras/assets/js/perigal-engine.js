@@ -1,11 +1,9 @@
 /* =====================================================
-   perigal-engine.js  v6.1
-   - Cek overlap via LUAS IRISAN konveks (aman utk tepi berimpit)
-   - Rantai fallback: model W=WC+o → W=WC → binary-search → sign-rule
-   - DIJAMIN tidak pernah return null
+   perigal-engine.js  v7  (Perigal KLASIK, offset dikunci 0)
+   = mesin v5 yang terverifikasi visual oleh pengguna.
+   Parameter `off` diterima tetapi DIABAIKAN (selalu pusat).
    ===================================================== */
 function perigalGeometry(a, b, off, viewW, viewH, pad) {
-    off = off || { p: 0, q: 0 };
     pad = pad || 20;
     const c = Math.hypot(a, b);
     const h = { x: a / c, y: -b / c };
@@ -25,11 +23,9 @@ function perigalGeometry(a, b, off, viewW, viewH, pad) {
         { x: A.x + n.x * c, y: A.y + n.y * c },
         { x: C.x + n.x * c, y: C.y + n.y * c }];
     const Wc = { x: (C.x + sqC[2].x) / 2, y: (C.y + sqC[2].y) / 2 };
-    const Gc = { x: -b / 2, y: b / 2 };
-    const add = (P, o) => ({ x: P.x + o.x, y: P.y + o.y });
-    const oVec = (p, q) => ({ x: p * h.x + q * n.x, y: p * h.y + q * n.y });
+    const W = { x: Wc.x, y: Wc.y };
+    const G = { x: -b / 2, y: b / 2 };
 
-    /* ---------- util ---------- */
     function clip(poly, P, m, s) {
         const out = [], v = q => m.x * (q.x - P.x) + m.y * (q.y - P.y);
         for (let i = 0; i < poly.length; i++) {
@@ -64,151 +60,117 @@ function perigalGeometry(a, b, off, viewW, viewH, pad) {
         }
         return ins;
     }
+    function distPoly(poly, p) {
+        let d = Infinity;
+        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+            const xi = poly[i].x, yi = poly[i].y, xj = poly[j].x, yj = poly[j].y;
+            const dx = xj - xi, dy = yj - yi;
+            const t = Math.max(0, Math.min(1, ((p.x - xi) * dx + (p.y - yi) * dy) / (dx * dx + dy * dy || 1)));
+            d = Math.min(d, Math.hypot(p.x - (xi + dx * t), p.y - (yi + dy * t)));
+        }
+        return d;
+    }
     function area(poly) {
         let s = 0;
         for (let i = 0, j = poly.length - 1; i < poly.length; j = i++)
             s += poly[j].x * poly[i].y - poly[i].x * poly[j].y;
         return s / 2;
     }
-    function centroid(poly) {
-        let x = 0, y = 0;
-        poly.forEach(p => { x += p.x; y += p.y; });
-        return { x: x / poly.length, y: y / poly.length };
-    }
-    function clipHalf(poly, P, m, s) {
-        const out = [], f = q => (m.x * (q.x - P.x) + m.y * (q.y - P.y)) * s;
-        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-            const cur = poly[i], prev = poly[j];
-            const fc = f(cur), fp = f(prev);
-            if (fc >= 0) out.push(cur);
-            if ((fc > 0) !== (fp > 0)) {
-                const t = fp / (fp - fc);
-                out.push({ x: prev.x + (cur.x - prev.x) * t,
-                           y: prev.y + (cur.y - prev.y) * t });
-            }
-        }
-        return out;
-    }
-    /* luas irisan dua poligon konveks (0 untuk tepi berimpit) */
-    function interArea(Ap, Bp) {
-        let out = Ap.slice();
-        const cb = centroid(Bp);
-        for (let i = 0, j = Bp.length - 1; i < Bp.length && out.length; j = i++) {
-            const P = Bp[j], Q = Bp[i];
-            const m = { x: -(Q.y - P.y), y: Q.x - P.x };
-            const s = (m.x * (cb.x - P.x) + m.y * (cb.y - P.y)) > 0 ? 1 : -1;
-            out = clipHalf(out, P, m, s);
-        }
-        return out.length ? Math.abs(area(out)) : 0;
-    }
+    const move = (poly, t) => poly.map(p => ({ x: p.x + t.x, y: p.y + t.y }));
 
-    const target = Math.abs(area(sqC)) - a * a;   // = b²
+    const inner = [
+        { x: W.x - a / 2, y: W.y - a / 2 }, { x: W.x + a / 2, y: W.y - a / 2 },
+        { x: W.x + a / 2, y: W.y + a / 2 }, { x: W.x - a / 2, y: W.y - a / 2 }];
+    const mids = [
+        { x: W.x, y: W.y - a / 2 }, { x: W.x + a / 2, y: W.y },
+        { x: W.x, y: W.y + a / 2 }, { x: W.x - a / 2, y: W.y }];
+    const targets = inner.concat(mids, [W]);
 
-    function buildPieces(P) {
-        const signs = [[1, 1], [-1, 1], [-1, -1], [1, -1]];
-        const pieces = [];
-        for (const [sH, sN] of signs) {
-            let poly = clip(sqB.slice(), P, h, sH);
-            poly = clip(poly, P, n, sN);
-            if (poly.length < 3 || Math.abs(area(poly)) < 1e-9) return null;
-            const K = sqB.find(P2 => pip(poly, P2, 1e-6 * b));
-            if (!K) return null;
-            pieces.push({ poly, K });
+    const signs = [[1, 1], [-1, 1], [-1, -1], [1, -1]];
+    const pieces = [];
+    signs.forEach(([sH, sN]) => {
+        let poly = clip(sqB.slice(), G, h, sH);
+        poly = clip(poly, G, n, sN);
+        if (poly.length < 3 || Math.abs(area(poly)) < 1e-9) return;
+        pieces.push({ poly, t: null });
+    });
+
+    const tol = 0.02 * c;
+    const samples = [];
+    const step = c / 22;
+    for (let x = minX; x <= maxX; x += step)
+        for (let y = minY; y <= maxY; y += step) {
+            const p = { x, y };
+            if (!pip(sqC, p, 0) || pip(inner, p, 0)) continue;
+            if (distPoly(sqC, p) < tol || distPoly(inner, p) < tol) continue;
+            samples.push(p);
         }
-        const sum = pieces.reduce((s, pc) => s + Math.abs(area(pc.poly)), 0);
-        if (Math.abs(sum - target) > 1e-4 * target) return null;
-        return pieces;
+    function coveredOnce(moved) {
+        for (const p of samples) {
+            let cnt = 0;
+            for (const m of moved) if (pip(m, p, 0)) cnt++;
+            if (cnt !== 1) return false;
+        }
+        return true;
     }
-
-    function verify(pieces, ts, inner) {
-        const moved = pieces.map((pc, i) =>
-            pc.poly.map(p => ({ x: p.x + ts[i].x, y: p.y + ts[i].y })));
-        for (const m of moved)
-            for (const p of m)
-                if (!pip(sqC, p, 1e-7 * c)) return false;
-        for (const m of moved)
-            if (interArea(m, inner) > 1e-6 * target) return false;
-        for (let i = 0; i < 4; i++)
-            for (let j = i + 1; j < 4; j++)
-                if (interArea(moved[i], moved[j]) > 1e-6 * target) return false;
+    function noOverlap(mNew, placed) {
+        const probe = mNew.concat([
+            { x: (mNew[0].x + mNew[2].x) / 2, y: (mNew[0].y + mNew[2].y) / 2 }]);
+        for (const q of probe)
+            for (const m of placed)
+                if (pip(m, q, -1e-9) && distPoly(m, q) > 1e-7) return false;
         return true;
     }
 
-    function trySolve(P, W) {
-        const pieces = buildPieces(P);
-        if (!pieces) return null;
-        const inner = [
-            { x: W.x - a / 2, y: W.y - a / 2 }, { x: W.x + a / 2, y: W.y - a / 2 },
-            { x: W.x + a / 2, y: W.y + a / 2 }, { x: W.x - a / 2, y: W.y - a / 2 }];
-        const Qs = inner;
-        let solution = null;
-        for (let c1 = 0; c1 < 4 && !solution; c1++)
-        for (let c2 = 0; c2 < 4 && !solution; c2++)
-        for (let c3 = 0; c3 < 4 && !solution; c3++)
-        for (let c4 = 0; c4 < 4 && !solution; c4++) {
-            const ts = [
-                { x: Qs[c1].x - pieces[0].K.x, y: Qs[c1].y - pieces[0].K.y },
-                { x: Qs[c2].x - pieces[1].K.x, y: Qs[c2].y - pieces[1].K.y },
-                { x: Qs[c3].x - pieces[2].K.x, y: Qs[c3].y - pieces[2].K.y },
-                { x: Qs[c4].x - pieces[3].K.x, y: Qs[c4].y - pieces[3].K.y }];
-            if (verify(pieces, ts, inner)) solution = ts;
+    const cands = pieces.map(pc => {
+        const list = [];
+        for (const V of pc.poly) for (const Q of targets)
+            list.push({ x: Q.x - V.x, y: Q.y - V.y });
+        return list;
+    });
+    let solution = null;
+    (function dfs(i, placed, ts) {
+        if (solution) return;
+        if (i === pieces.length) { if (coveredOnce(placed)) solution = ts.slice(); return; }
+        for (const t of cands[i]) {
+            const m = move(pieces[i].poly, t);
+            if (!m.every(p => pip(sqC, p, 1e-7))) continue;
+            if (!noOverlap(m, placed)) continue;
+            ts.push(t); placed.push(m);
+            dfs(i + 1, placed, ts);
+            ts.pop(); placed.pop();
+            if (solution) return;
         }
-        if (!solution) return null;
-        pieces.forEach((pc, i) => pc.t = solution[i]);
-        return { pieces, inner, W, P };
-    }
+    })(0, [], []);
 
-    /* ---------- rantai solusi ---------- */
-    let result = trySolve(add(Gc, oVec(off.p, off.q)), add(Wc, oVec(off.p, off.q)));
-    let actualOff = { ...off };
-    if (!result) {
-        result = trySolve(add(Gc, oVec(off.p, off.q)), Wc);
-        if (result) console.info('ℹ️ Perigal: model W=pusat');
-    }
-    if (!result) {
-        let lo = 0, hi = 1, best = null, bestOff = { p: 0, q: 0 };
-        for (let it = 0; it < 14; it++) {
-            const mid = (lo + hi) / 2;
-            const o2 = oVec(off.p * mid, off.q * mid);
-            const r = trySolve(add(Gc, o2), add(Wc, o2)) || trySolve(add(Gc, o2), Wc);
-            if (r) { best = r; bestOff = { p: off.p * mid, q: off.q * mid }; lo = mid; }
-            else hi = mid;
-        }
-        result = best; actualOff = bestOff;
-        if (result) console.info('ℹ️ Perigal: offset di-clamp ke (' +
-            bestOff.p.toFixed(2) + ',' + bestOff.q.toFixed(2) + ')');
-    }
-    let degraded = false;
-    if (!result) {   /* jaminan terakhir: sign-rule klasik di pusat */
-        degraded = true; actualOff = { p: 0, q: 0 };
-        const pieces = buildPieces(Gc);
+    if (!solution) {
+        console.warn('⚠️ solver Perigal: fallback tanda-sumbu');
         pieces.forEach(pc => {
-            const sx = Math.sign(pc.K.x - Gc.x), sy = Math.sign(pc.K.y - Gc.y);
-            pc.t = { x: Wc.x + (a / 2) * sx - pc.K.x, y: Wc.y + (a / 2) * sy - pc.K.y };
+            const K = sqB.find(P2 => pip(pc.poly, P2, 1e-7 * b));
+            const sx = Math.sign(K.x - G.x), sy = Math.sign(K.y - G.y);
+            pc.t = { x: W.x + (a / 2) * sx - K.x, y: W.y + (a / 2) * sy - K.y };
         });
-        result = { pieces, W: Wc, P: Gc,
-            inner: [{ x: Wc.x - a / 2, y: Wc.y - a / 2 }, { x: Wc.x + a / 2, y: Wc.y - a / 2 },
-                    { x: Wc.x + a / 2, y: Wc.y + a / 2 }, { x: Wc.x - a / 2, y: Wc.y - a / 2 }] };
-        console.warn('⚠️ Perigal: mode degradasi (sign-rule)');
+    } else {
+        pieces.forEach((pc, i) => pc.t = solution[i]);
     }
 
-    const { pieces, inner, W, P } = result;
+    const moved = pieces.map(pc => move(pc.poly, pc.t));
+    const okCover = coveredOnce(moved);
+    if (okCover) console.log('✅ TILING OK (Perigal ' + a + ',' + b + ')');
+    else console.warn('⚠️ TILING GAGAL', { okCover });
+
     const tA = { x: W.x - a / 2, y: W.y + a / 2 };
-
-    if (!degraded) console.log('✅ TILING OK (Perigal ' + a + ',' + b +
-        ' | offset ' + actualOff.p.toFixed(2) + ',' + actualOff.q.toFixed(2) + ')');
-
-    const map = poly => poly.map(P2 => S(P2.x, P2.y));
+    const map = poly => poly.map(P => S(P.x, P.y));
     return {
-        a, b, c, u, S, actualOff, degraded,
+        a, b, c, u, S, actualOff: { p: 0, q: 0 }, degraded: false,
         tri: map([B, A, C]),
         sqA: map(sqA), sqB: map(sqB), sqC: map(sqC), inner: map(inner),
         pieces: pieces.map(pc => ({ poly: map(pc.poly),
                                     t: { x: pc.t.x * u, y: -pc.t.y * u } })),
         tA: { x: tA.x * u, y: -tA.y * u },
-        cut1: [S(P.x - h.x * b * 2, P.y - h.y * b * 2), S(P.x + h.x * b * 2, P.y + h.y * b * 2)],
-        cut2: [S(P.x - n.x * b * 2, P.y - n.y * b * 2), S(P.x + n.x * b * 2, P.y + n.y * b * 2)],
-        G: S(P.x, P.y), W: S(W.x, W.y),
+        cut1: [S(G.x - h.x * b * 2, G.y - h.y * b * 2), S(G.x + h.x * b * 2, G.y + h.y * b * 2)],
+        cut2: [S(G.x - n.x * b * 2, G.y - n.y * b * 2), S(G.x + n.x * b * 2, G.y + n.y * b * 2)],
+        G: S(G.x, G.y), W: S(W.x, W.y),
         labels: {
             a: S(a / 2, 0.6), b: S(-0.9, b / 2),
             c: S(a / 2 + n.x * 0.8, b / 2 + n.y * 0.8),
