@@ -1,7 +1,4 @@
-/* =====================================================
-   perigal-page.js — membangun halaman lengkap dari PCFG
-   PCFG = { month, a, b, preset, group, level }
-   ===================================================== */
+/* perigal-page.js v2 */
 (function () {
     const PC = window.PCFG;
     const MONTHS = ['Januari','Februari','Maret','April','Mei','Juni',
@@ -10,14 +7,13 @@
     const PRE = perigalPresets(A, B);
     const VALID = {};
     for (let k = 0; k <= 4; k++)
-        VALID[k] = perigalGeometry(A, B, PRE[k], 200, 200, 10).valid;
+        VALID[k] = !!perigalGeometry(A, B, PRE[k], 200, 200, 10).valid;
 
-    const prevFile = 'bukti-0' + (PC.month - 1) + '-' +
-        ['','januari','februari','maret','april','mei','juni','juli'][PC.month - 1] + '.html';
+    const prevNames = ['','januari','februari','maret','april','mei','juni','juli'];
+    const prevFile = 'bukti-0' + (PC.month - 1) + '-' + prevNames[PC.month - 1] + '.html';
     const nextM = PC.month + 1;
-    const nextFile = nextM <= 7 ? 'bukti-0' + nextM + '-' +
-        ['','','','','','mei','juni','juli'][nextM - 1] + '.html' : '#';
     const nextOk = nextM <= 7;
+    const nextFile = nextOk ? 'bukti-0' + nextM + '-' + prevNames[nextM] + '.html' : '#';
 
     document.getElementById('app').innerHTML = `
     <header class="proof-header no-print">
@@ -44,11 +40,11 @@
     <main class="proof-content">
         <section class="section introduction no-print">
             <h2>📖 Pengenalan</h2>
-            <p class="intro-text">Bulan ini keluarga Perigor/Perigal menampilkan konfigurasi
+            <p class="intro-text">Bulan ini keluarga Perigal menampilkan konfigurasi
                <strong>${PRE[PC.preset].label}</strong> pada triple <strong>${A}-${B}-${C}</strong>:
-               titik potong O & M berada di posisi ekstrem yang terkunci, sehingga bentuk slice
-               dan posisi persegi a² di dalam c² berbeda dari bulan-bulan lain —
-               namun cincin tetap menutup sempurna karena <em>translasi murni</em>.</p>
+               titik potong O & M berada di posisi ekstrem terkunci, sehingga bentuk slice
+               dan posisi persegi a² di dalam c² berbeda dari bulan lain — namun cincin tetap
+               menutup sempurna karena <em>translasi murni</em>.</p>
             <div class="historical-note"><strong>🔒 Preset terkunci bulan ini:</strong>
                ${PRE[PC.preset].label}. Tombol preset lain tersedia untuk eksplorasi;
                PDF/kalender selalu memakai preset terkunci.</div>
@@ -60,7 +56,7 @@
                     <svg id="stageSvg" viewBox="0 0 560 520" style="display:block;width:100%;height:auto;"></svg>
                 </div>
                 <div style="background:#fff;border:2px solid #667eea;border-radius:10px;padding:12px;margin-top:12px;">
-                    <div style="font-weight:bold;color:#333;margin-bottom:8px;">🔧 Preset Slice (O & M terkunci per bulan):</div>
+                    <div style="font-weight:bold;color:#333;margin-bottom:8px;">🔧 Preset Slice (O & M):</div>
                     <div style="display:flex;gap:8px;flex-wrap:wrap;" id="presetBtns"></div>
                     <div id="presetInfo" style="margin-top:8px;font-size:13px;color:#555;"></div>
                 </div>
@@ -91,11 +87,14 @@
         </section>
         <section class="section external-resources no-print">
             <h2>🔗 Applet GeoGebra (Slice Fleksibel)</h2>
-            <div class="embed-container">
-                <iframe src="https://www.geogebra.org/material/iframe/id/cqgadg5k/width/900/height/520"
-                        width="100%" height="520" frameborder="0" title="GeoGebra cqgadg5k"></iframe>
-                <a class="external-link" target="_blank"
-                   href="https://www.geogebra.org/calculator/cqgadg5k">Buka di GeoGebra →</a>
+            <div class="embed-container" style="text-align:center;padding:24px;">
+                <div style="font-size:40px;">📐</div>
+                <p style="margin:10px 0;color:#555;">Applet <strong>"Pembuktian Teorema Pythagoras 3 —
+                   Versi Slice Fleksibel"</strong> (menggeser titik O & M serta A & C).</p>
+                <a class="external-link" target="_blank" rel="noopener"
+                   href="https://www.geogebra.org/calculator/cqgadg5k"
+                   style="display:inline-block;background:#667eea;color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;text-decoration:none;">
+                   🔗 Buka Applet GeoGebra cqgadg5k</a>
             </div>
         </section>
         <section class="section export-section no-print-screen">
@@ -143,37 +142,46 @@
     <footer class="no-print"><p><strong>${PC.group}</strong> - Pembuktian #${PC.month}</p>
         <p>Projek Kalender Pythagoras 2027</p></footer>`;
 
-    /* ================= stage & timeline ================= */
+    /* ================= stage ================= */
     const NS = 'http://www.w3.org/2000/svg';
     const svg = document.getElementById('stageSvg');
-    const pts = poly => poly.map(p => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
+    const P = poly => (poly || []).map(p => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
     const COL = ['#f16a7a', '#5b5bee', '#5bf17a', '#f1d95b'];
     const mk = (t, at, pa) => { const e = document.createElementNS(NS, t);
         for (const k in at) e.setAttribute(k, at[k]); (pa || svg).appendChild(e); return e; };
     const clearSVG = () => { while (svg.firstChild) svg.removeChild(svg.firstChild); };
+
+    function geoSafe(cfg) {
+        let g = perigalGeometry(A, B, cfg, 560, 520, 24);
+        if (!g || !g.sqB || g.fallback) {
+            g = perigalGeometry(A, B, PRE[0], 560, 520, 24);
+            g.usedFallback = true;
+        }
+        return g;
+    }
 
     let cur = PC.preset, GEO, gTri, gSqC, gSqB, gGhostB, gGhostA, gCutG, cut1, cut2, gInner, gA, sliceEls;
     const tweens = []; const TOTAL = 5000;
 
     function buildStage() {
         clearSVG();
-        GEO = perigalGeometry(A, B, PRE[cur], 560, 520, 24);
+        GEO = geoSafe(PRE[cur]);
         const defs = mk('defs', {}); const cp = mk('clipPath', { id: 'clipB' }, defs);
-        mk('polygon', { points: pts(GEO.sqB) }, cp);
-        gTri  = mk('polygon', { points: pts(GEO.tri), fill: 'rgba(144,164,174,.45)', opacity: 0 });
-        gSqC  = mk('polygon', { points: pts(GEO.sqC), fill: '#eef4fb', stroke: '#2f7bd9', 'stroke-width': 2.5, opacity: 0 });
-        gSqB  = mk('polygon', { points: pts(GEO.sqB), fill: '#ffffff', stroke: '#2f7bd9', 'stroke-width': 2, opacity: 0 });
-        gGhostB = mk('polygon', { points: pts(GEO.sqB), fill: 'none', stroke: '#2f7bd9', 'stroke-width': 2, 'stroke-dasharray': '6 5', opacity: 0 });
-        gGhostA = mk('polygon', { points: pts(GEO.sqA), fill: 'none', stroke: '#b02ab0', 'stroke-width': 2, 'stroke-dasharray': '6 5', opacity: 0 });
+        mk('polygon', { points: P(GEO.sqB) }, cp);
+        gTri  = mk('polygon', { points: P(GEO.tri), fill: 'rgba(144,164,174,.45)', opacity: 0 });
+        gSqC  = mk('polygon', { points: P(GEO.sqC), fill: '#eef4fb', stroke: '#2f7bd9', 'stroke-width': 2.5, opacity: 0 });
+        gSqB  = mk('polygon', { points: P(GEO.sqB), fill: '#ffffff', stroke: '#2f7bd9', 'stroke-width': 2, opacity: 0 });
+        gGhostB = mk('polygon', { points: P(GEO.sqB), fill: 'none', stroke: '#2f7bd9', 'stroke-width': 2, 'stroke-dasharray': '6 5', opacity: 0 });
+        gGhostA = mk('polygon', { points: P(GEO.sqA), fill: 'none', stroke: '#b02ab0', 'stroke-width': 2, 'stroke-dasharray': '6 5', opacity: 0 });
         gCutG = mk('g', { 'clip-path': 'url(#clipB)', opacity: 0 });
         cut1 = mk('line', { x1: GEO.cut1[0].x, y1: GEO.cut1[0].y, x2: GEO.cut1[1].x, y2: GEO.cut1[1].y, stroke: '#37474f', 'stroke-width': 2.5 }, gCutG);
         cut2 = mk('line', { x1: GEO.cut2[0].x, y1: GEO.cut2[0].y, x2: GEO.cut2[1].x, y2: GEO.cut2[1].y, stroke: '#37474f', 'stroke-width': 2.5 }, gCutG);
-        gInner = mk('polygon', { points: pts(GEO.inner), fill: 'none', stroke: '#b02ab0', 'stroke-width': 2, 'stroke-dasharray': '6 5', opacity: 0 });
+        gInner = mk('polygon', { points: P(GEO.inner), fill: 'none', stroke: '#b02ab0', 'stroke-width': 2, 'stroke-dasharray': '6 5', opacity: 0 });
         gA = mk('g', { transform: 'translate(0,0)', opacity: 0 });
-        mk('polygon', { points: pts(GEO.sqA), fill: '#ee55ee', stroke: '#b02ab0', 'stroke-width': 2 }, gA);
+        mk('polygon', { points: P(GEO.sqA), fill: '#ee55ee', stroke: '#b02ab0', 'stroke-width': 2 }, gA);
         sliceEls = GEO.pieces.map((pc, i) => {
             const g = mk('g', { transform: 'translate(0,0)' });
-            mk('polygon', { points: pts(pc.poly), fill: COL[i], stroke: 'rgba(0,0,0,.35)', 'stroke-width': 1.5, opacity: 0 }, g);
+            mk('polygon', { points: P(pc.poly), fill: COL[i], stroke: 'rgba(0,0,0,.35)', 'stroke-width': 1.5, opacity: 0 }, g);
             return g; });
         const lab = (p, t, col, sz) => { const e = mk('text', { x: p.x, y: p.y, fill: col,
             'font-size': sz || 15, 'font-weight': 'bold', opacity: 0, 'text-anchor': 'middle' });
@@ -249,7 +257,7 @@
         speed = parseFloat(e.target.value);
         document.getElementById('speedValue').textContent = speed + '×'; });
 
-    /* ================= tombol preset ================= */
+    /* ================= preset buttons ================= */
     const wrapBtns = document.getElementById('presetBtns');
     for (let k = 0; k <= 4; k++) {
         const b = document.createElement('button');
@@ -267,16 +275,16 @@
             b.style.background = k === cur ? '#667eea' : '#e0e0e0';
             b.style.color = k === cur ? '#fff' : '#333'; });
         resetState(); buildStage(); buildTimeline(); updateTexts();
-        const g = GEO;
-        document.getElementById('presetInfo').innerHTML =
-            `Preset aktif: <strong>${PRE[cur].label}</strong> • O = ${PRE[cur].xO.toFixed(2)} • M = ${PRE[cur].yM.toFixed(2)}` +
-            ` • W′ = (${g.W.x.toFixed(2)}, ${g.W.y.toFixed(2)}) ✅ tiling eksak`;
+        let info = `Preset aktif: <strong>${PRE[cur].label}</strong> • O = ${PRE[cur].xO.toFixed(2)} • M = ${PRE[cur].yM.toFixed(2)}`;
+        if (GEO.usedFallback) info += ` • <span style="color:#856404;">⚠️ preset ini tidak memiliki solusi eksak — ditampilkan konfigurasi Pusat.</span>`;
+        else info += ` • W′ = (${GEO.W.x.toFixed(2)}, ${GEO.W.y.toFixed(2)}) ✅ tiling eksak`;
+        document.getElementById('presetInfo').innerHTML = info;
     }
 
-    /* ================= gambar statis sheet (preset terkunci) ================= */
+    /* ================= gambar statis sheet ================= */
     function perigalScene(state, w) {
-        const g = perigalGeometry(A, B, PRE[PC.preset], w, Math.round(w * 0.93), 14);
-        const P = poly => poly.map(p => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
+        let g = perigalGeometry(A, B, PRE[PC.preset], w, Math.round(w * 0.93), 14);
+        if (!g || !g.sqB) g = perigalGeometry(A, B, PRE[0], w, Math.round(w * 0.93), 14);
         const C4 = ['#f16a7a', '#5b5bee', '#5bf17a', '#f1d95b'];
         const hh = Math.round(w * 0.93);
         let s = `<svg viewBox="0 0 ${w} ${hh}" width="${w}" height="${hh}" style="display:block;margin:auto;">`;
@@ -301,7 +309,7 @@
     document.getElementById('figInitial').innerHTML = perigalScene('initial', 260);
     document.getElementById('figFinal').innerHTML   = perigalScene('final', 260);
 
-    /* ================= sheet, kalender, QR ================= */
+    /* ================= sheet/kalender/QR ================= */
     function fitSheet() {
         const vp = document.getElementById('a4Viewport');
         const sh = document.querySelector('.a4-sheet');
