@@ -8,37 +8,10 @@ const kalenderData = [
 { bulan:"Maret", nomor:3, pembuktian:"Diseksi Perigal (Slice Fleksibel)",
   kelompok:"Kelompok 1", tipe:"siswa", status:"completed",
   file:"pages/bukti-03-maret.html" },
-{ bulan:"April", nomor:4, pembuktian:"Perigal Generalisasi (5-12-13)",
-  kelompok:"Kelompok 2", tipe:"siswa", status:"completed",
-  file:"pages/bukti-04-april.html" },
-    {
-        bulan: "Mei",
-        nomor: 5,
-        pembuktian: "Similar Triangles",
-        kelompok: "Kelompok 3",
-        tipe: "siswa",
-        status: "pending",
-        file: "#"
-    },
-    {
-        bulan: "Juni",
-        nomor: 6,
-        pembuktian: "Pembuktian Aljabar",
-        kelompok: "Kelompok 4",
-        tipe: "siswa",
-        status: "pending",
-        file: "#"
-    },
-    {
-        bulan: "Juli",
-        nomor: 7,
-        pembuktian: "Geometric Dissection",
-        kelompok: "Kelompok 5",
-        tipe: "siswa",
-        status: "pending",
-        file: "#"
-    },
-    {
+{ bulan:"April",  nomor:4, pembuktian:"Perigal Preset O− M− (5-12-13)",  kelompok:"Kelompok 2", tipe:"siswa", status:"completed", file:"pages/bukti-04-april.html" },
+{ bulan:"Mei",    nomor:5, pembuktian:"Perigal Preset O− M+ (8-15-17)",  kelompok:"Kelompok 3", tipe:"siswa", status:"completed", file:"pages/bukti-05-mei.html" },
+{ bulan:"Juni",   nomor:6, pembuktian:"Perigal Preset O+ M+ (9-40-41)",  kelompok:"Kelompok 4", tipe:"siswa", status:"completed", file:"pages/bukti-06-juni.html" },
+{ bulan:"Juli",   nomor:7, pembuktian:"Perigal Preset O+ M− (7-24-25)",  kelompok:"Kelompok 5", tipe:"siswa", status:"completed", file:"pages/bukti-07-juli.html" },    {
         bulan: "Agustus",
         nomor: 8,
         pembuktian: "Rearrangement Proof",
