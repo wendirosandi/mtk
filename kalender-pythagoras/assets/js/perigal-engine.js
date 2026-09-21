@@ -1,8 +1,6 @@
 /* =====================================================
-   perigal-engine.js  v8
-   Solver ANALITIK: W' diselesaikan dari persamaan linear
-   kesejajaran garis potong (9–36 kombinasi, murah & eksak).
-   Tidak ada pencarian buta, tidak ada fallback salah.
+   perigal-engine.js  v8.1
+   = v8 + fallback internal ke Pusat (objek selalu lengkap)
    ===================================================== */
 function perigalPresets(a, b) {
     const m = 0.12 * Math.min(a, b - a);
@@ -17,7 +15,7 @@ function perigalPresets(a, b) {
 }
 window.perigalPresets = perigalPresets;
 
-function perigalGeometry(a, b, cfg, viewW, viewH, pad) {
+function perigalGeometry(a, b, cfg, viewW, viewH, pad, _depth) {
     pad = pad || 20;
     const c = Math.hypot(a, b);
     const h = { x: a / c, y: -b / c };
@@ -38,7 +36,6 @@ function perigalGeometry(a, b, cfg, viewW, viewH, pad) {
         { x: C.x + n.x * c, y: C.y + n.y * c }];
     const Opp = { x: C.x + n.x * c, y: C.y + n.y * c };
 
-    /* ---- util ---- */
     function clip(poly, P, m, s) {
         const out = [], v = q => m.x * (q.x - P.x) + m.y * (q.y - P.y);
         for (let i = 0; i < poly.length; i++) {
@@ -81,31 +78,32 @@ function perigalGeometry(a, b, cfg, viewW, viewH, pad) {
     }
     const cross = (v, w) => v.x * w.y - v.y * w.x;
 
-    /* ---- titik potong P dari O & M ---- */
     const O = { x: cfg.xO, y: 0 }, M = { x: 0, y: cfg.yM };
-    const s = -(cfg.xO * n.y + n.x * cfg.yM);
-    const P = { x: O.x + s * h.x, y: O.y + s * h.y };
+    const sPar = -(cfg.xO * n.y + n.x * cfg.yM);
+    const P = { x: O.x + sPar * h.x, y: O.y + sPar * h.y };
 
-    /* ---- 4 slice ---- */
     const signs = [[1, 1], [-1, 1], [-1, -1], [1, -1]];
     const pieces = [];
     for (const [sH, sN] of signs) {
         let poly = clip(sqB.slice(), P, n, sN);
         poly = clip(poly, P, h, sH);
-        if (poly.length < 3 || Math.abs(area(poly)) < 1e-9)
+        if (poly.length < 3 || Math.abs(area(poly)) < 1e-9) {
+            if (!_depth) { const g = perigalGeometry(a, b, perigalPresets(a, b)[0], viewW, viewH, pad, 1); g.fallback = true; return g; }
             return { valid: false, degraded: true };
+        }
         const K = sqB.find(P2 => pip(poly, P2, 1e-6 * b));
-        if (!K) return { valid: false, degraded: true };
+        if (!K) {
+            if (!_depth) { const g = perigalGeometry(a, b, perigalPresets(a, b)[0], viewW, viewH, pad, 1); g.fallback = true; return g; }
+            return { valid: false, degraded: true };
+        }
         let cx = 0, cy = 0;
         poly.forEach(p => { cx += p.x; cy += p.y; });
         cx /= poly.length; cy /= poly.length;
-        const sigma = { x: Math.sign(cx - K.x), y: Math.sign(cy - K.y) };
+        const sigma = { x: Math.sign(cx - K.x) || 1, y: Math.sign(cy - K.y) || 1 };
         pieces.push({ poly, K, sigma, konst: { x: (a / 2) * sigma.x - K.x,
                                               y: (a / 2) * sigma.y - K.y } });
     }
 
-    /* ---- sampel verifikasi ---- */
-    const target = Math.abs(area(sqC)) - a * a;
     function makeSamples(W) {
         const inner = [
             { x: W.x - a / 2, y: W.y - a / 2 }, { x: W.x + a / 2, y: W.y - a / 2 },
@@ -131,22 +129,21 @@ function perigalGeometry(a, b, cfg, viewW, viewH, pad) {
         return { samples: out, inner };
     }
     function verify(W) {
-        const { samples, inner } = makeSamples(W);
-        if (!samples.length) return null;
+        const ms = makeSamples(W);
+        if (!ms.samples.length) return null;
         const moved = pieces.map(pc =>
             pc.poly.map(p => ({ x: p.x + W.x + pc.konst.x, y: p.y + W.y + pc.konst.y })));
         for (const m of moved)
             for (const p of m)
                 if (!pip(sqC, p, 1e-7 * c)) return null;
-        for (const p of samples) {
+        for (const p of ms.samples) {
             let cnt = 0;
             for (const m of moved) if (pip(m, p, 0)) cnt++;
             if (cnt !== 1) return null;
         }
-        return { moved, inner };
+        return ms.inner;
     }
 
-    /* ---- solver analitik W' ---- */
     const pairings = [[[0, 1], [2, 3]], [[0, 2], [1, 3]], [[0, 3], [1, 2]]];
     const par = (v, w) => Math.abs(cross(v, w)) < 1e-9;
     let solved = null;
@@ -166,12 +163,20 @@ function perigalGeometry(a, b, cfg, viewW, viewH, pad) {
             const r2 = cross({ x: nBase.x - P.x - pieces[k].konst.x,
                                y: nBase.y - P.y - pieces[k].konst.y }, n);
             const W = { x: -n.x * r1 + h.x * r2, y: -n.y * r1 + h.y * r2 };
-            const res = verify(W);
-            if (res) { solved = { W, ...res }; break; }
+            const inner = verify(W);
+            if (inner) { solved = { W, inner }; break; }
         }
         if (solved) break;
     }
-    if (!solved) return { valid: false, degraded: true };
+
+    if (!solved) {
+        if (!_depth) {
+            const g = perigalGeometry(a, b, perigalPresets(a, b)[0], viewW, viewH, pad, 1);
+            g.fallback = true;
+            return g;
+        }
+        return { valid: false, degraded: true };
+    }
 
     const { W, inner } = solved;
     pieces.forEach(pc => pc.t = { x: W.x + pc.konst.x, y: W.y + pc.konst.y });
@@ -183,7 +188,7 @@ function perigalGeometry(a, b, cfg, viewW, viewH, pad) {
 
     const map = poly => poly.map(P2 => S(P2.x, P2.y));
     return {
-        a, b, c, u, S, valid: true, degraded: false, W, P,
+        a, b, c, u, S, valid: true, degraded: false, fallback: false, W, P,
         tri: map([B, A, C]),
         sqA: map(sqA), sqB: map(sqB), sqC: map(sqC), inner: map(inner),
         pieces: pieces.map(pc => ({ poly: map(pc.poly),
