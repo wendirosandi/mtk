@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LKPD & Simulasi Animasi Teorema Pythagoras - Mesir Kuno</title>
+    <style>
+        :root {
+            --primary: #92400e;
+            --primary-dark: #78350f;
+            --primary-light: #fef3c7;
+            --accent-blue: #1e3a8a;
+            --accent-green: #047857;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --border-color: #cbd5e1;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding-bottom: 40px;
+        }
+
+        .control-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #ffffff;
+            border-bottom: 2px solid var(--primary-light);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .control-title {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: #f1f5f9;
+            color: #334155;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+        }
+
+        .btn-print {
+            background-color: var(--accent-blue);
+        }
+
+        .btn-print:hover {
+            background-color: #1e40af;
+        }
+
+        #animationSection {
+            max-width: 900px;
+            margin: 20px auto;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.08);
+            padding: 24px;
+            border: 1px solid #fef3c7;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+        }
+
+        .anim-header {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .anim-header h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .canvas-area {
+            width: 100%;
+            height: 420px;
+            background: #fffbeb;
+            border: 2px dashed #fde68a;
+            border-radius: 10px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .stick {
+            stroke-linecap: round;
+            transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .step-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .info-card {
+            background-color: var(--primary-light);
+            border-left: 4px solid var(--primary);
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin-top: 16px;
+            font-size: 0.95rem;
+        }
+
+        .badge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .badge {
+            background: #ffffff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #fcd34d;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .badge span {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: normal;
+            color: #64748b;
+        }
+
+        .lkpd-container {
+            max-width: 900px;
+            margin: 20px auto;
+        }
+
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto 20px auto;
+            padding: 16mm 18mm 12mm 18mm;
+            background-color: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            box-sizing: border-box;
+            font-family: 'Georgia', 'Times New Roman', serif;
+        }
+
+        .page-content {
+            flex: 1 1 0;
+        }
+
+        .page-footer {
+            flex-shrink: 0;
+            margin-top: auto;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 8.5pt;
+            color: #64748b;
+            font-family: sans-serif;
+        }
+
+        .header-banner {
+            border-bottom: 2px solid #b45309;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .header-title h1 {
+            font-size: 14pt;
+            color: #78350f;
+            margin: 0 0 2px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-title p {
+            font-size: 9pt;
+            color: #475569;
+            margin: 0;
+            font-style: italic;
+            font-family: sans-serif;
+        }
+
+        .badge-tag {
+            background-color: #fef3c7;
+            color: #92400e;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 8.5pt;
+            font-family: sans-serif;
+            border: 1px solid #fde68a;
+        }
+
+        .identity-box {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-bottom: 12px;
+            font-family: sans-serif;
+            font-size: 9pt;
+        }
+
+        .identity-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            row-gap: 4px;
+            column-gap: 16px;
+        }
+
+        .field-line {
+            border-bottom: 1px dotted #94a3b8;
+            display: inline-block;
+            width: 65%;
+        }
+
+        .story-box {
+            background-color: #fffbe2;
+            border-left: 4px solid #b45309;
+            border-top: 1px solid #fde68a;
+            border-right: 1px solid #fde68a;
+            border-bottom: 1px solid #fde68a;
+            padding: 10px 12px;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 12px;
+            font-size: 9pt;
+            line-height: 1.45;
+        }
+
+        .story-box h2 {
+            font-size: 10pt;
+            color: #78350f;
+            margin: 0 0 4px 0;
+            font-family: sans-serif;
+            text-transform: uppercase;
+        }
+
+        .section-title {
+            font-size: 10.5pt;
+            color: #1e3a8a;
+            border-bottom: 1.5px solid #1e3a8a;
+            padding-bottom: 2px;
+            margin: 10px 0 8px 0;
+            font-family: sans-serif;
+            font-weight: bold;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 8.5pt;
+            font-family: sans-serif;
+        }
+
+        .info-card-lkpd {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 10px;
+        }
+
+        .info-card-lkpd h3 {
+            font-size: 9pt;
+            color: #334155;
+            margin: 0 0 4px 0;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 2px;
+        }
+
+        .info-card-lkpd ul {
+            margin: 0;
+            padding-left: 14px;
+        }
+
+        .info-card-lkpd li { margin-bottom: 2px; }
+
+        .steps-list {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 9pt;
+            line-height: 1.45;
+        }
+
+        .steps-list li { margin-bottom: 6px; }
+
+        table.data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+            font-size: 8.5pt;
+            font-family: sans-serif;
+        }
+
+        table.data-table th, table.data-table td {
+            border: 1px solid #cbd5e1;
+            padding: 5px 6px;
+            text-align: center;
+        }
+
+        table.data-table th {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            font-weight: bold;
+        }
+
+        .question-item {
+            margin-bottom: 8px;
+            font-size: 9pt;
+            line-height: 1.4;
+        }
+
+        .answer-space {
+            border-bottom: 1px dotted #94a3b8;
+            min-height: 18px;
+            margin-top: 4px;
+        }
+
+        .conclusion-box {
+            border: 2px dashed #b45309;
+            background-color: #fffbe2;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-top: 8px;
+        }
+
+        .conclusion-box h3 {
+            margin: 0 0 4px 0;
+            color: #78350f;
+            font-size: 9.5pt;
+            font-family: sans-serif;
+        }
+
+        .math {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            font-weight: bold;
+        }
+
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+
+            body {
+                background: #ffffff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                color: #000000 !important;
+            }
+
+            .no-print, .control-bar, #animationSection {
+                display: none !important;
+            }
+
+            .lkpd-container {
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: none !important;
+            }
+
+            .page {
+                margin: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+                width: 210mm !important;
+                height: 297mm !important;
+                padding: 12mm 15mm 10mm 15mm !important;
+                break-after: page;
+                page-break-after: always;
+            }
+
+            .page:last-child {
+                break-after: auto;
+                page-break-after: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="control-bar no-print">
+    <div class="control-title">
+        <span>📐</span> LKPD & Simulasi Teorema Pythagoras
+    </div>
+    <div class="btn-group">
+        <button class="btn btn-secondary" onclick="toggleAnimation()" id="btnToggleAnim">
+            👁️ Sembunyikan Animasi
+        </button>
+        <button class="btn btn-print" onclick="window.print()">
+            🖨️ Cetak / Ekspor PDF (2 Halaman)
+        </button>
+    </div>
+</div>
+
+<div id="animationSection" class="no-print">
+    <div class="anim-header">
+        <h2>Simulasi Interaktif: 12 Tongkat Harpedonaptai</h2>
+        <p style="color: #64748b; font-size: 0.9rem;">
+            Eksperimen pembentukan sudut siku-siku & luas ladang Mesir Kuno
+        </p>
+    </div>
+
+    <div class="canvas-area">
+        <svg id="svgCanvas" viewBox="0 0 600 400">
+            <!-- SVG items rendered dynamically by JavaScript -->
+        </svg>
+    </div>
+
+    <div class="step-controls">
+        <button id="btnStep1" class="btn" onclick="setStage(1)">1. 12 Tongkat Lurus</button>
+        <button id="btnStep2" class="btn btn-secondary" onclick="setStage(2)">2. Tekuk Segitiga (3-4-5)</button>
+        <button id="btnStep3" class="btn btn-secondary" onclick="setStage(3)">3. Tampilkan Siku & Luas Ladang</button>
+        <button class="btn btn-secondary" onclick="resetAnimation()">Reset</button>
+    </div>
+
+    <div class="info-card">
+        <h3 id="stepTitle" style="color: var(--primary); margin-bottom: 4px;">Langkah 1: 12 Tongkat Berukuran Sama</h3>
+        <p id="stepDesc">Juru ukur Mesir Kuno membawa 12 ruas tongkat/tali dengan panjang identik yang disambungkan satu sama lain.</p>
+    </div>
+
+    <div class="badge-grid">
+        <div class="badge">
+            <span>Tinggi (Sisi A)</span>
+            <strong id="valB" style="color: #d97706;">3 Unit</strong>
+        </div>
+        <div class="badge">
+            <span>Alas (Sisi B)</span>
+            <strong id="valA" style="color: #2563eb;">4 Unit</strong>
+        </div>
+        <div class="badge">
+            <span>Miring / Diagonal (Sisi C)</span>
+            <strong id="valC" style="color: #059669;">5 Unit</strong>
+        </div>
+        <div class="badge">
+            <span>Total Luas Ladang (3 × 4)</span>
+            <strong id="valArea" style="color: #1e3a8a;">12 m²</strong>
+        </div>
+    </div>
+</div>
+
+<div class="lkpd-container">
+
+    <!-- HALAMAN 1 LKPD -->
+    <div class="page">
+        <div class="page-content">
+            <div class="header-banner">
+                <div class="header-title">
+                    <h1>LEMBAR KEGIATAN PESERTA DIDIK (LKPD)</h1>
+                    <p>Misteri Tali Mesir Kuno & Pembuktian Teorema Pythagoras</p>
+                </div>
+                <div class="badge-tag">Matematika SMP - Kelas VIII</div>
+            </div>
+
+            <div class="identity-box">
+                <div class="identity-grid">
+                    <div><strong>Nama Kelompok:</strong> <span class="field-line"></span></div>
+                    <div><strong>Hari / Tanggal:</strong> <span class="field-line"></span></div>
+                    <div><strong>Anggota Kelompok:</strong> <span class="field-line"></span></div>
+                    <div><strong>Kelas:</strong> <span class="field-line"></span></div>
+                </div>
+            </div>
+
+            <div class="story-box">
+                <h2>Kisah Penali Tali Mesir Kuno (Harpedonaptai)</h2>
+                Setiap tahun, luapan Sungai Nil menghapus patok batas tanah para petani di Mesir Kuno. Untuk membagikan kembali lahan secara adil, Firaun mengutus juru ukur tanah yang disebut <i>Harpedonaptai</i> (penarik tali). Mereka menggunakan seutas tali/rangkaian <b>12 tongkat kayu dengan panjang persis sama</b>. Ketika disambungkan membentuk segitiga dengan kombinasi sisi <b>3, 4, dan 5 unit</b>, sudut di antara sisi 3 dan 4 otomatis membentuk <b>sudut siku-siku (90°)</b>. Sudut siku-siku ini digunakan untuk membagi ladang persegi panjang berukuran 3 m × 4 m (luas total 12 m²) secara presisi.
+            </div>
+
+            <div class="info-grid">
+                <div class="info-card-lkpd">
+                    <h3>Tujuan Pembelajaran</h3>
+                    <ul>
+                        <li>Membuktikan sudut siku-siku dengan perbandingan sisi 3 : 4 : 5.</li>
+                        <li>Memahami hubungan kuadrat sisi segitiga siku-siku (<span class="math">a² + b² = c²</span>).</li>
+                        <li>Menemukan pasangan angka lain yang membentuk Tripel Pythagoras.</li>
+                    </ul>
+                </div>
+                <div class="info-card-lkpd">
+                    <h3>Alat dan Bahan</h3>
+                    <ul>
+                        <li>12 buah sedotan plastik (panjang sama persis)</li>
+                        <li>Benang kasur / Tali kur (panjang ± 1 meter)</li>
+                        <li>Busur derajat, Penggaris, dan Gunting</li>
+                        <li>Kertas Karton / HVS</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-title">Langkah-Langkah Eksperimen Praktis</div>
+            <ol class="steps-list">
+                <li><b>Membuat Rantai Sedotan:</b> Masukkan benang ke dalam 12 sedotan secara berurutan. Ikat ujung benang dengan rapat hingga membentuk rantai lingkaran tertutup yang terdiri dari 12 sedotan utuh.</li>
+                <li><b>Membentuk Segitiga Mesir Kuno:</b> Tekuk rantai sedotan pada sambungan tertentu hingga membentuk segitiga dengan pembagian jumlah sedotan pada masing-masing sisi:
+                    <br>• <b>Sisi A</b> = 3 sedotan &nbsp;&nbsp;&nbsp;&nbsp;• <b>Sisi B</b> = 4 sedotan &nbsp;&nbsp;&nbsp;&nbsp;• <b>Sisi C</b> = 5 sedotan
+                </li>
+                <li><b>Pengujian Sudut Tegak Lurus:</b> Tempelkan segitiga sedotan di atas kertas. Gunakan <b>busur derajat</b> untuk mengukur besar sudut yang terbentuk di antara Sisi A (3 sedotan) dan Sisi B (4 sedotan).</li>
+                <li><b>Simulasi Pembagian Ladang:</b> Anggap 1 sedotan = 1 meter. Gunakan sudut siku-siku yang kalian dapatkan sebagai sudut acuan pojok untuk menggambar ladang persegi panjang berukuran 3 m × 4 m di atas kertas.</li>
+            </ol>
+        </div>
+
+        <footer class="page-footer">
+            <span>LKPD Matematika - Pembuktian Teorema Pythagoras</span>
+            <span>Halaman 1 dari 2</span>
+        </footer>
+    </div>
+
+    <!-- HALAMAN 2 LKPD -->
+    <div class="page">
+        <div class="page-content">
+            <div class="section-title">Bagian A: Pengamatan Segitiga Mesir Kuno (3 - 4 - 5)</div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Sisi A (Unit)</th>
+                        <th>Sisi B (Unit)</th>
+                        <th>Sisi C (Unit)</th>
+                        <th>Besar Sudut A & B (Busur)</th>
+                        <th>Hitungan <span class="math">A² + B²</span></th>
+                        <th>Hitungan <span class="math">C²</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>3</td>
+                        <td>4</td>
+                        <td>5</td>
+                        <td>..........°</td>
+                        <td>3² + 4² = ..... + ..... = .....</td>
+                        <td>5² = .....</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="question-item">
+                <b>1. Perhitungan Luas Ladang Mesir Kuno:</b> Berapakah luas ladang berbentuk persegi panjang yang berhasil dibuat menggunakan sudut siku-siku dari sisi 3 meter dan 4 meter?
+                <div class="answer-space"><b>Jawab:</b> Luas = ....... m × ....... m = ............... m²</div>
+            </div>
+
+            <div class="section-title">Bagian B: Eksplorasi Mandiri (Mencari Kombinasi Angka Lain)</div>
+            <p style="font-size: 8.5pt; margin-top: -4px; margin-bottom: 6px; font-family: sans-serif;">
+                Ujilah beberapa kombinasi ukuran sisi segitiga berikut (Gunakan sedotan/penggaris) dan isilah tabel pengamatan:
+            </p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Kombinasi Sisi (A - B - C)</th>
+                        <th>Perhitungan <span class="math">A² + B²</span></th>
+                        <th>Perhitungan <span class="math">C²</span></th>
+                        <th>Apakah <span class="math">A² + B² = C²</span>?</th>
+                        <th>Membentuk Sudut Siku-Siku?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><b>2 - 3 - 4</b></td>
+                        <td>2² + 3² = 4 + 9 = 13</td>
+                        <td>4² = 16</td>
+                        <td>Tidak (13 ≠ 16)</td>
+                        <td><b>Tidak Siku-siku</b></td>
+                    </tr>
+                    <tr>
+                        <td><b>6 - 8 - 10</b></td>
+                        <td>6² + 8² = ..... + ..... = .....</td>
+                        <td>10² = .....</td>
+                        <td>.........................</td>
+                        <td>.........................</td>
+                    </tr>
+                    <tr>
+                        <td><b>5 - 12 - 13</b></td>
+                        <td>5² + 12² = ..... + ..... = .....</td>
+                        <td>13² = .....</td>
+                        <td>.........................</td>
+                        <td>.........................</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="section-title">Bagian C: Pertanyaan Analisis & Diskusi</div>
+            
+            <div class="question-item">
+                <b>2. Syarat Sudut Siku-Siku:</b> Dari tabel di atas, syarat apakah yang harus dipenuhi oleh panjang ketiga sisi segitiga agar sudut yang dihasilkan tepat $90^\circ$ (siku-siku)?
+                <div class="answer-space"></div>
+            </div>
+
+            <div class="question-item">
+                <b>3. Konsep Tripel Pythagoras:</b> Kelompok tiga angka bulat yang memenuhi hubungan <span class="math">a² + b² = c²</span> disebut <i>Tripel Pythagoras</i>. Tuliskan 2 kelompok Tripel Pythagoras yang kalian temukan!
+                <div class="answer-space"></div>
+            </div>
+
+            <div class="conclusion-box">
+                <h3>KESIMPULAN AKHIR SISWA:</h3>
+                <p style="font-size: 9pt; margin: 0; line-height: 1.5;">
+                    Berdasarkan hasil eksperimen praktikum, bunyi <b>Teorema Pythagoras</b> adalah:<br>
+                    <i>"Pada setiap segitiga siku-siku, kuadrat dari sisi miring (hipotenusa) sama dengan ............................................................................................................................................................................................ "</i>
+                    <br><br>
+                    <b>Persamaan / Rumus Matematika:</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="math" style="font-size: 11pt; color: #1e3a8a;">c² = ....... + .......</span>
+                </p>
+            </div>
+        </div>
+
+        <footer class="page-footer">
+            <span>LKPD Matematika - Pembuktian Teorema Pythagoras</span>
+            <span>Halaman 2 dari 2</span>
+        </footer>
+    </div>
+
+</div>
+
+<script>
+    let isAnimationVisible = true;
+    let currentStage = 1;
+
+    // SVG Geometry coordinates (600x400 viewBox)
+    const pCorner = { x: 200, y: 310 }; // Right-angle vertex
+    const pRight  = { x: 440, y: 310 }; // 4 units horizontal = 240px (60px/unit)
+    const pTop    = { x: 200, y: 130 }; // 3 units vertical = 180px (60px/unit)
+
+    function toggleAnimation() {
+        const animSec = document.getElementById('animationSection');
+        const btn = document.getElementById('btnToggleAnim');
+        isAnimationVisible = !isAnimationVisible;
+
+        if (isAnimationVisible) {
+            animSec.style.display = 'block';
+            btn.innerHTML = '👁️ Sembunyikan Animasi';
+        } else {
+            animSec.style.display = 'none';
+            btn.innerHTML = '👁️ Tampilkan Animasi';
+        }
+    }
+
+    function drawStage1() {
+        const svg = document.getElementById('svgCanvas');
+        svg.innerHTML = '';
+
+        const startX = 40;
+        const endX = 560;
+        const y = 200;
+        const stickLen = (endX - startX) / 12;
+
+        for (let i = 0; i < 12; i++) {
+            const x1 = startX + i * stickLen;
+            const x2 = x1 + stickLen;
+            
+            // Stick line
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x1 + 2);
+            line.setAttribute('y1', y);
+            line.setAttribute('x2', x2 - 2);
+            line.setAttribute('y2', y);
+            line.setAttribute('stroke', (i < 3) ? '#d97706' : (i < 7) ? '#2563eb' : '#059669');
+            line.setAttribute('stroke-width', '8');
+            line.setAttribute('class', 'stick');
+            svg.appendChild(line);
+
+            // Joint node
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', x1);
+            circle.setAttribute('cy', y);
+            circle.setAttribute('r', '4');
+            circle.setAttribute('fill', '#78350f');
+            svg.appendChild(circle);
+        }
+
+        const endCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        endCircle.setAttribute('cx', endX);
+        endCircle.setAttribute('cy', y);
+        endCircle.setAttribute('r', '4');
+        endCircle.setAttribute('fill', '#78350f');
+        svg.appendChild(endCircle);
+    }
+
+    function drawStage2(showSquare = false) {
+        const svg = document.getElementById('svgCanvas');
+        svg.innerHTML = '';
+
+        if (showSquare) {
+            // STEP 3: Render Land Area Overlay (12 m² rectangle)
+            // Complementary triangle (top-right half)
+            const upperTriangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            upperTriangle.setAttribute('points', `${pTop.x},${pTop.y} 440,130 ${pRight.x},${pRight.y}`);
+            upperTriangle.setAttribute('fill', 'rgba(251, 191, 36, 0.18)');
+            upperTriangle.setAttribute('stroke', '#d97706');
+            upperTriangle.setAttribute('stroke-dasharray', '5,5');
+            upperTriangle.setAttribute('stroke-width', '2');
+            svg.appendChild(upperTriangle);
+
+            // Shaded 3-4-5 Triangle (lower-left half)
+            const lowerTriangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            lowerTriangle.setAttribute('points', `${pCorner.x},${pCorner.y} ${pRight.x},${pRight.y} ${pTop.x},${pTop.y}`);
+            lowerTriangle.setAttribute('fill', 'rgba(251, 191, 36, 0.45)');
+            svg.appendChild(lowerTriangle);
+
+            // Rectangle outer border label
+            const rectLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            rectLabel.setAttribute('x', '320');
+            rectLabel.setAttribute('y', '115');
+            rectLabel.setAttribute('fill', '#78350f');
+            rectLabel.setAttribute('font-weight', 'bold');
+            rectLabel.setAttribute('font-size', '14');
+            rectLabel.setAttribute('text-anchor', 'middle');
+            rectLabel.textContent = 'Total Luas Ladang Persegi Panjang = 12 m²';
+            svg.appendChild(rectLabel);
+
+            // Triangle halves label
+            const t1Label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            t1Label.setAttribute('x', '260');
+            t1Label.setAttribute('y', '260');
+            t1Label.setAttribute('fill', '#92400e');
+            t1Label.setAttribute('font-size', '12');
+            t1Label.setAttribute('font-weight', 'bold');
+            t1Label.textContent = 'Segitiga = 6 m²';
+            svg.appendChild(t1Label);
+
+            const t2Label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            t2Label.setAttribute('x', '350');
+            t2Label.setAttribute('y', '180');
+            t2Label.setAttribute('fill', '#b45309');
+            t2Label.setAttribute('font-size', '12');
+            t2Label.textContent = 'Paruh Ladang = 6 m²';
+            svg.appendChild(t2Label);
+        }
+
+        // Draw 12 stick segments around 3-4-5 triangle
+        function drawSegment(p1, p2, count, color) {
+            const dx = (p2.x - p1.x) / count;
+            const dy = (p2.y - p1.y) / count;
+
+            for (let i = 0; i < count; i++) {
+                const sx = p1.x + i * dx;
+                const sy = p1.y + i * dy;
+                const ex = sx + dx;
+                const ey = sy + dy;
+
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', sx + (dx*0.08));
+                line.setAttribute('y1', sy + (dy*0.08));
+                line.setAttribute('x2', ex - (dx*0.08));
+                line.setAttribute('y2', ey - (dy*0.08));
+                line.setAttribute('stroke', color);
+                line.setAttribute('stroke-width', '8');
+                line.setAttribute('class', 'stick');
+                svg.appendChild(line);
+
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', sx);
+                circle.setAttribute('cy', sy);
+                circle.setAttribute('r', '4');
+                circle.setAttribute('fill', '#78350f');
+                svg.appendChild(circle);
+            }
+        }
+
+        drawSegment(pCorner, pTop, 3, '#d97706');    // Sisi A (3 units - Amber)
+        drawSegment(pCorner, pRight, 4, '#2563eb');  // Sisi B (4 units - Blue)
+        drawSegment(pRight, pTop, 5, '#059669');     // Sisi C (5 units - Emerald)
+
+        [pCorner, pTop, pRight].forEach(pt => {
+            const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            c.setAttribute('cx', pt.x);
+            c.setAttribute('cy', pt.y);
+            c.setAttribute('r', '6');
+            c.setAttribute('fill', '#b45309');
+            svg.appendChild(c);
+        });
+
+        if (showSquare) {
+            // Draw 90 Degree Right-Angle Marker
+            const rectPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            rectPath.setAttribute('d', `M ${pCorner.x} ${pCorner.y - 24} L ${pCorner.x + 24} ${pCorner.y - 24} L ${pCorner.x + 24} ${pCorner.y}`);
+            rectPath.setAttribute('fill', 'none');
+            rectPath.setAttribute('stroke', '#dc2626');
+            rectPath.setAttribute('stroke-width', '3');
+            svg.appendChild(rectPath);
+
+            const textAngle = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            textAngle.setAttribute('x', pCorner.x + 30);
+            textAngle.setAttribute('y', pCorner.y - 30);
+            textAngle.setAttribute('fill', '#dc2626');
+            textAngle.setAttribute('font-weight', 'bold');
+            textAngle.setAttribute('font-size', '15');
+            textAngle.textContent = '90° (Siku-Siku)';
+            svg.appendChild(textAngle);
+        }
+    }
+
+    function setStage(stage) {
+        currentStage = stage;
+
+        document.getElementById('btnStep1').className = stage === 1 ? 'btn' : 'btn btn-secondary';
+        document.getElementById('btnStep2').className = stage === 2 ? 'btn' : 'btn btn-secondary';
+        document.getElementById('btnStep3').className = stage === 3 ? 'btn' : 'btn btn-secondary';
+
+        const title = document.getElementById('stepTitle');
+        const desc = document.getElementById('stepDesc');
+
+        if (stage === 1) {
+            title.textContent = "Langkah 1: 12 Tongkat Berukuran Sama";
+            desc.textContent = "Juru ukur Mesir Kuno (Harpedonaptai) menyatukan 12 tongkat/tali dengan panjang yang persis sama dalam satu rantai lurus.";
+            drawStage1();
+        } else if (stage === 2) {
+            title.textContent = "Langkah 2: Menekuk Menjadi Segitiga (3 - 4 - 5)";
+            desc.textContent = "Rantai 12 tongkat dibentuk menjadi segitiga dengan membagi sisinya menjadi 3 unit, 4 unit, dan 5 unit tongkat.";
+            drawStage2(false);
+        } else if (stage === 3) {
+            title.textContent = "Langkah 3: Sudut Siku-Siku & Luas Ladang Terbentuk";
+            desc.textContent = "Pertemuan antara sisi 3 unit dan 4 unit otomatis membentuk sudut 90°. Sisi miring (5 unit) menjadi diagonal yang membagi ladang 12 m² menjadi dua segitiga 6 m²!";
+            drawStage2(true);
+        }
+    }
+
+    function resetAnimation() {
+        setStage(1);
+    }
+
+    window.onload = function() {
+        drawStage1();
+    };
+</script>
+</body>
+</html>
