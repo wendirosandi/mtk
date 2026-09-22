@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bukti #4: Perigal Preset O− M− (5-12-13) - Kalender Pythagoras 2027</title>
+    <title>Bukti #4: Perigal 4 Triple (Gunting-Tempel) - Kalender Pythagoras 2027</title>
     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="../assets/css/proof.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -11,11 +11,157 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
-    <div id="app"></div>
-    <script>window.PCFG = { month: 4, a: 5, b: 12, preset: 1, group: 'Kelompok 2', level: 'Menengah' };</script>
-    <script src="../assets/js/perigal-engine.js?v=8"></script>
+    <header class="proof-header no-print">
+        <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
+        <div class="proof-info">
+            <h1>Bukti #4: Perigal 4 Triple (Gunting-Tempel)</h1>
+            <div class="proof-meta">
+                <span class="meta-item">📅 April 2027</span>
+                <span class="meta-item">👥 Kelompok 2</span>
+                <span class="meta-item">🎯 Level: Dasar</span>
+            </div>
+        </div>
+        <div class="export-buttons">
+            <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 Download PDF (1 hal)</button>
+            <button class="btn-print" onclick="printPDF()">🖨 Print / Save as PDF</button>
+        </div>
+    </header>
+
+    <nav class="proof-nav no-print">
+        <a href="bukti-03-maret.html" class="prev-btn">← Maret (Bukti #3)</a>
+        <span class="nav-indicator">4 / 12</span>
+        <a href="#" class="next-btn disabled" onclick="alert('Mei masih ditunda/ pengembangan');return false;">Mei (Bukti #5) →</a>
+    </nav>
+
+    <main class="proof-content" id="proofContent">
+        <section class="section introduction no-print">
+            <h2>📖 Pengenalan: Belajar Tanpa Animasi</h2>
+            <p class="intro-text">
+                Bulan ini <strong>tanpa animasi</strong>: setiap kartu menampilkan
+                <strong>Gbr 1 (AWAL)</strong> dan dapat dibalik menjadi <strong>Gbr 2 (AKHIR)</strong>.
+                Tugas kalian: <strong>print lembar A4, gunting 4 slice + persegi a² dari Gbr 1,
+                lalu tempelkan ke Gbr 2</strong> — jika menutup sempurna tanpa celah, kalian sudah
+                <em>membuktikan sendiri</em> bahwa a² + b² = c². Prinsipnya sama untuk keempat triple!
+            </p>
+            <div class="historical-note"><strong>✂️ Aktivitas kelas:</strong> kerja berpasangan;
+                satu memegang gunting, satu memegang lem; verifikasi dengan menghitung
+                jumlah kotak satuan pada tiap persegi.</div>
+        </section>
+
+        <section class="section no-print">
+            <h2>🃏 Kartu Triple (klik untuk balik AWAL ↔ AKHIR)</h2>
+            <div id="cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;"></div>
+        </section>
+
+        <section class="section export-section no-print-screen">
+            <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">
+                👁 Tampilkan Pratinjau PDF (1 halaman)</button>
+            <div class="preview-collapse collapsed" id="previewCollapse">
+              <div class="a4-viewport" id="a4Viewport">
+                <div id="exportArea" class="a4-sheet">
+                    <div class="export-header">
+                        <h2>Bukti #4: Perigal 4 Triple (Gunting-Tempel)</h2>
+                        <p>Kalender Pythagoras 2027 • April • Kelompok 2 • Level: Dasar</p>
+                    </div>
+                    <div id="calBlock" class="cal-block"></div>
+                    <hr class="cal-divider">
+                    <div class="proof-figures">
+                        <figure class="proof-figure"><span class="state-badge initial">AWAL</span>
+                            <div class="scene" id="figInitial"></div>
+                            <figcaption><strong>Gbr 1 (potong ini):</strong> 4 slice berwarna + a² magenta.</figcaption></figure>
+                        <figure class="proof-figure"><span class="state-badge final">AKHIR</span>
+                            <div class="scene" id="figFinal"></div>
+                            <figcaption><strong>Gbr 2 (tempel di sini):</strong> c² tertutup sempurna.</figcaption></figure>
+                    </div>
+                    <div class="export-explain">
+                        <p><strong>Penjelasan:</strong> untuk triple apa pun, dua garis potong melalui pusat b²
+                           menghasilkan 4 slice yang bersama a² menutup c² hanya dengan translasi.
+                           Coba keempat triple: 3-4-5, 5-12-13, 8-15-17, 7-24-25 — prinsipnya identik.</p>
+                        <div class="export-formula">7-24-25: 625 = 49 + 576 ✓ • 5-12-13: 169 = 25 + 144 ✓</div>
+                    </div>
+                    <div class="export-conclusion">
+                        <div class="export-conclusion-text">KESIMPULAN:<br>a² + b² = c²</div>
+                        <div><div class="qr-box" id="qrcode">[QR]</div>
+                        <div class="qr-caption">Scan untuk animasi</div></div>
+                    </div>
+                </div>
+              </div>
+            </div>
+        </section>
+    </main>
+
+    <nav class="proof-nav bottom no-print">
+        <a href="bukti-03-maret.html" class="prev-btn">← Sebelumnya</a>
+        <a href="../index.html" class="home-btn">🏠 Kalender</a>
+        <a href="#" class="next-btn disabled" onclick="alert('Mei masih ditunda/ pengembangan');return false;">Selanjutnya →</a>
+    </nav>
+    <footer class="no-print"><p><strong>Kelompok 2</strong> - Pembuktian #4</p><p>Projek Kalender Pythagoras 2027</p></footer>
+
+    <script src="../assets/js/perigal-classic.js?v=1"></script>
     <script src="../assets/js/calendar-template.js?v=3"></script>
     <script src="../assets/js/pdf-export.js?v=31"></script>
-    <script src="../assets/js/perigal-page.js?v=1"></script>
+    <script>
+    const TRIPLES=[[3,4,5],[5,12,13],[8,15,17],[7,24,25]];
+    function perigalScene(a,b,state,w){
+        const g=perigalClassic(a,b,w,Math.round(w*0.93),14);
+        const P=poly=>poly.map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
+        const C4=['#f16a7a','#5b5bee','#5bf17a','#f1d95b'];
+        const hh=Math.round(w*0.93);
+        let s=`<svg viewBox="0 0 ${w} ${hh}" width="100%" style="display:block;margin:auto;">`;
+        s+=`<defs><clipPath id="cb_${a}_${b}_${state}"><polygon points="${P(g.sqB)}"/></clipPath></defs>`;
+        s+=`<polygon points="${P(g.tri)}" fill="rgba(144,164,174,.45)"/>`;
+        s+=`<polygon points="${P(g.sqC)}" fill="#eef4fb" stroke="#2f7bd9" stroke-width="2"/>`;
+        if(state==='initial'){
+            s+=`<polygon points="${P(g.sqB)}" fill="#ffffff" stroke="#2f7bd9" stroke-width="2"/>`;
+            g.pieces.forEach((pc,i)=>s+=`<polygon points="${P(pc.poly)}" fill="${C4[i]}" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/>`);
+            s+=`<g clip-path="url(#cb_${a}_${b}_${state})"><line x1="${g.cut1[0].x}" y1="${g.cut1[0].y}" x2="${g.cut1[1].x}" y2="${g.cut1[1].y}" stroke="#37474f" stroke-width="2"/>`+
+               `<line x1="${g.cut2[0].x}" y1="${g.cut2[0].y}" x2="${g.cut2[1].x}" y2="${g.cut2[1].y}" stroke="#37474f" stroke-width="2"/></g>`;
+            s+=`<polygon points="${P(g.sqA)}" fill="#ee55ee" stroke="#b02ab0" stroke-width="2"/>`;
+        } else {
+            g.pieces.forEach((pc,i)=>s+=`<polygon points="${P(pc.poly.map(p=>({x:p.x+pc.t.x,y:p.y+pc.t.y})))}" fill="${C4[i]}" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/>`);
+            s+=`<polygon points="${P(g.sqA.map(p=>({x:p.x+g.tA.x,y:p.y+g.tA.y})))}" fill="#ee55ee" stroke="#b02ab0" stroke-width="2"/>`;
+            s+=`<polygon points="${P(g.sqB)}" fill="none" stroke="#2f7bd9" stroke-width="2" stroke-dasharray="6 5"/>`;
+            s+=`<polygon points="${P(g.sqA)}" fill="none" stroke="#b02ab0" stroke-width="2" stroke-dasharray="6 5"/>`;
+        }
+        return s+`</svg>`;
+    }
+    /* kartu interaktif */
+    const wrap=document.getElementById('cards');
+    TRIPLES.forEach(([a,b,c])=>{
+        const card=document.createElement('div');
+        card.style.cssText='background:#fff;border:2px solid #667eea;border-radius:12px;padding:12px;text-align:center;';
+        card.innerHTML=`<div style="font-weight:bold;font-size:16px;color:#333;">${a}-${b}-${c}</div>
+            <div style="font-size:12px;color:#666;margin:4px 0;">${a}² + ${b}² = ${a*a} + ${b*b} = ${c*c} = ${c}²</div>
+            <div class="sceneBox"></div>
+            <button style="margin-top:8px;background:#667eea;color:#fff;border:none;border-radius:6px;padding:8px 14px;cursor:pointer;">🔄 Lihat AKHIR</button>`;
+        wrap.appendChild(card);
+        let state='initial';
+        const box=card.querySelector('.sceneBox'), btn=card.querySelector('button');
+        const render=()=>{ box.innerHTML=perigalScene(a,b,state,220);
+            btn.textContent = state==='initial' ? '🔄 Lihat AKHIR' : '🔄 Lihat AWAL'; };
+        btn.addEventListener('click',()=>{ state = state==='initial'?'final':'initial'; render(); });
+        render();
+    });
+    /* sheet A4 memakai 5-12-13 */
+    document.getElementById('figInitial').innerHTML=perigalScene(5,12,'initial',260);
+    document.getElementById('figFinal').innerHTML=perigalScene(5,12,'final',260);
+
+    function fitSheet(){const vp=document.getElementById('a4Viewport');
+        const sh=document.querySelector('.a4-sheet');if(!vp||!sh)return;
+        const s=Math.min(1,vp.clientWidth/794);
+        sh.style.transform=`scale(${s})`;sh.style.transformOrigin='top left';
+        vp.style.height=(1123*s)+'px';}
+    window.fitSheet=fitSheet;window.addEventListener('resize',fitSheet);
+    window.togglePreview=function(){const col=document.getElementById('previewCollapse');
+        col.classList.toggle('collapsed');
+        document.getElementById('btnPreview').textContent=col.classList.contains('collapsed')
+            ?'👁 Tampilkan Pratinjau PDF (1 halaman)':'🙈 Sembunyikan Pratinjau PDF';
+        if(!col.classList.contains('collapsed'))setTimeout(fitSheet,60);};
+    renderCalendar(document.getElementById('calBlock'),4);
+    try{new QRCode(document.getElementById('qrcode'),{text:window.location.href,
+        width:84,height:84,correctLevel:QRCode.CorrectLevel.M});}
+    catch(e){document.getElementById('qrcode').textContent=window.location.href;}
+    fitSheet();
+    </script>
 </body>
 </html>
