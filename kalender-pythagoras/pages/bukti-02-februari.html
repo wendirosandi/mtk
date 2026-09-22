@@ -88,6 +88,7 @@
             <polygon id="innerD" class="dash dI" points="" opacity="0"/>
             <polygon id="tri"  class="tri" points="" opacity="0"/>
             <polygon id="sqA"  class="sqAf" points="" opacity="0"/>
+            <polygon id="sqAfill" class="sqAf" points="" opacity="0"/>
             <g clip-path="url(#clipB)">
               <line id="cut1" class="cut" opacity="0"/>
               <line id="cut2" class="cut" opacity="0"/>
@@ -185,7 +186,7 @@
 </nav>
 <footer class="no-print"><p><strong>Contoh Guru</strong> - Pembuktian #2</p><p>Projek Kalender Pythagoras 2027</p></footer>
 
-<script src="../assets/js/perigal-engine-v5.js?v=1"></script>
+<script src="../assets/js/perigal-engine-v5.js?v=2"></script>
 <script src="../assets/js/calendar-template.js?v=3"></script>
 <script src="../assets/js/pdf-export.js?v=31"></script>
 
@@ -230,6 +231,7 @@ function build(a,b){
   el.innerD.setAttribute('points',pts(G.inner));
   el.tri.setAttribute('points',pts(G.tri));
   el.sqA.setAttribute('points',pts(G.sqA));
+    document.getElementById('sqAfill').setAttribute('points', pts(G.inner));
   G.pieces.forEach((pc,i)=>{el.pc[i].setAttribute('points',pts(pc.poly));
                             el.pc[i].removeAttribute('transform');});
   setLine(el.cut1,G.cut1); setLine(el.cut2,G.cut2);
@@ -262,7 +264,7 @@ function render(t){
   el.tri.setAttribute('opacity',fTri);
   el.la.setAttribute('opacity',fTri); el.lb.setAttribute('opacity',fTri); el.lc.setAttribute('opacity',fTri);
   el.sqA.setAttribute('opacity',fA);
-  el.sqA.setAttribute('transform','translate('+(G.tA.x*mA).toFixed(2)+','+(G.tA.y*mA).toFixed(2)+')');
+
   el.la2.setAttribute('opacity',fA);
   el.dashA.setAttribute('opacity',mA*.9);
   el.sqB.setAttribute('opacity',fB*(1-fCut));
