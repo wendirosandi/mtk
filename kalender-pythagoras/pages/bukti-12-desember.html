@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bukti #12: Sintesis Dua Identitas Luas - Kalender Pythagoras 2027</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/proof.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <header class="proof-header no-print">
+        <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
+        <div class="proof-info">
+            <h1>Bukti #12: Sintesis Dua Identitas Luas (Feb + Agu)</h1>
+            <div class="proof-meta">
+                <span class="meta-item">📅 Desember 2027</span>
+                <span class="meta-item">👥 Kelompok 10</span>
+                <span class="meta-item">🎯 Level: Sintesis</span>
+            </div>
+        </div>
+        <div class="export-buttons">
+            <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 Download PDF (1 hal)</button>
+            <button class="btn-print" onclick="printPDF()">🖨 Print / Save as PDF</button>
+        </div>
+    </header>
+
+    <nav class="proof-nav no-print">
+        <a href="bukti-11-november.html" class="prev-btn">← November (Bukti #11)</a>
+        <span class="nav-indicator">12 / 12</span>
+        <a href="../index.html" class="next-btn">🏁 Kalender 2027 →</a>
+    </nav>
+
+    <main class="proof-content" id="proofContent">
+
+        <section class="section introduction no-print">
+            <h2>📖 Pengenalan: Menutup Tahun dengan Sintesis</h2>
+            <p class="intro-text">
+                Sepanjang 2027 kita mengumpulkan 12 cara membuktikan Teorema Pythagoras.
+                Bulan Desember merangkai <strong>dua identitas luas</strong> yang sudah kita kenal:
+                <strong>(1)</strong> persegi sisi (a+b) terurai menjadi 4 segitiga + rongga <strong>c²</strong>
+                (Bukti #2), dan <strong>(2)</strong> persegi sisi c terurai menjadi 4 segitiga + rongga
+                <strong>(b−a)²</strong> (Bukti #8). Karena kedua uraian memakai <em>4 segitiga yang sama
+                besarnya (2ab)</em>, menyamakan sisanya langsung memberi <strong>a² + b² = c²</strong>. ∎
+            </p>
+            <div class="historical-note">
+                <strong>🏁 Aktivitas penutup kelas:</strong> cetak lembar A4 bulan ini, lalu tempelkan
+                di dinding kelas sebagai <em>peta keluarga bukti</em> — setiap panah menunjuk bulan
+                dimana identitas itu pertama kali dibuktikan.
+            </div>
+        </section>
+
+        <!-- ============ ANIMASI DUA PANEL ============ -->
+        <section class="section animation no-print">
+            <h2>🎬 Animasi Interaktif (dua panel)</h2>
+            <div class="animation-wrapper">
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                    <div style="flex:1;min-width:260px;background:#f4f6fb;border:3px solid #e0e0e0;border-radius:15px;overflow:hidden;position:relative;">
+                        <div style="text-align:center;font-weight:bold;padding:6px;color:#1565c0;">Panel 1 — Identitas (a+b)² = 2ab + c²</div>
+                        <svg id="svg1" viewBox="0 0 300 300" style="display:block;width:100%;height:auto;"></svg>
+                    </div>
+                    <div style="flex:1;min-width:260px;background:#f4f6fb;border:3px solid #e0e0e0;border-radius:15px;overflow:hidden;position:relative;">
+                        <div style="text-align:center;font-weight:bold;padding:6px;color:#b02ab0;">Panel 2 — Identitas c² = 2ab + (b−a)²</div>
+                        <svg id="svg2" viewBox="0 0 300 300" style="display:block;width:100%;height:auto;"></svg>
+                    </div>
+                </div>
+                <div class="animation-controls">
+                    <button class="btn-start" id="btnStart">▶ Mulai</button>
+                    <button class="btn-pause" id="btnPause" style="display:none">⏸ Pause</button>
+                    <button class="btn-skip" id="btnSkip">⏭ Selesai</button>
+                    <button class="btn-reset" id="btnReset">↺ Reset</button>
+                    <div class="speed-control">
+                        <label for="speedSlider">⚡ Kecepatan:</label>
+                        <input type="range" id="speedSlider" min="0.5" max="3" step="0.5" value="1">
+                        <span class="speed-value" id="speedValue">1×</span>
+                    </div>
+                </div>
+                <div class="progress-box">
+                    <div class="pbar"><div class="pfill" id="pfill"></div></div>
+                    <div class="ptext" id="ptext">Progres: 0%</div>
+                </div>
+                <div class="formula-display" style="margin-top:15px;">
+                    <div class="formula-step active" id="step0">Siap memulai… tekan ▶ Mulai</div>
+                    <div class="formula-step" id="step1">Panel 1: (a+b)² = 4·(½ab) + c² → 49 = 24 + 25</div>
+                    <div class="formula-step" id="step2">Panel 2: c² = 4·(½ab) + (b−a)² → 25 = 24 + 1</div>
+                    <div class="formula-step" id="step3">Keduanya memuat 2ab = 24 segitiga yang sama</div>
+                    <div class="formula-step" id="step4">(a+b)² − c² = c² − (b−a)² → 49 − 25 = 25 − 1</div>
+                    <div class="formula-step" id="step5">⇒ 2a² + 2b² = 2c² ⇒ a² + b² = c² → 9 + 16 = 25 ✓</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ GALERI 12 BULAN ============ -->
+        <section class="section no-print" style="border-left:6px solid #ff9800;">
+            <h2>🗓️ Peta Keluarga Bukti 2027</h2>
+            <div id="gallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;font-size:13px;"></div>
+            <p style="margin-top:10px;color:#666;font-size:13px;">
+                Kotak abu-abu = bulan keluarga Perigal yang <strong>ditunda</strong> (Apr–Jul);
+                akan diisi menyusul tanpa mengubah nomor bulan.</p>
+        </section>
+
+        <!-- ============ AREA EXPORT (sheet A4) ============ -->
+        <section class="section export-section no-print-screen">
+            <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">
+                👁 Tampilkan Pratinjau PDF (1 halaman)</button>
+            <div class="preview-collapse collapsed" id="previewCollapse">
+              <div class="a4-viewport" id="a4Viewport">
+                <div id="exportArea" class="a4-sheet">
+                    <div class="export-header">
+                        <h2>Bukti #12: Sintesis Dua Identitas Luas</h2>
+                        <p>Kalender Pythagoras 2027 • Desember • Kelompok 10 • Level: Sintesis</p>
+                    </div>
+                    <div id="calBlock" class="cal-block"></div>
+                    <hr class="cal-divider">
+                    <div class="proof-figures">
+                        <figure class="proof-figure"><span class="state-badge initial">AWAL</span>
+                            <div class="scene" id="figInitial"></div>
+                            <figcaption><strong>Gbr 1:</strong> kedua persegi kosong; 8 segitiga menunggu di luar.</figcaption></figure>
+                        <figure class="proof-figure"><span class="state-badge final">AKHIR</span>
+                            <div class="scene" id="figFinal"></div>
+                            <figcaption><strong>Gbr 2:</strong> kedua identitas terpenuhi; sisanya sama ⇒ a²+b²=c².</figcaption></figure>
+                    </div>
+                    <div class="export-explain">
+                        <p><strong>Penjelasan:</strong> (a+b)² = 2ab + c² dan c² = 2ab + (b−a)².
+                           Kurangkan: (a+b)² − c² = 2ab = c² − (b−a)², sehingga
+                           (a+b)² + (b−a)² = 2c² → 2a² + 2b² = 2c² → a² + b² = c².</p>
+                        <div class="export-formula">49 = 24 + 25 & 25 = 24 + 1 ⇒ 9 + 16 = 25 ✓</div>
+                    </div>
+                    <div class="export-conclusion">
+                        <div class="export-conclusion-text">KESIMPULAN:<br>a² + b² = c²</div>
+                        <div><div class="qr-box" id="qrcode">[QR]</div>
+                        <div class="qr-caption">Scan untuk animasi</div></div>
+                    </div>
+                </div>
+              </div>
+            </div>
+        </section>
+    </main>
+
+    <nav class="proof-nav bottom no-print">
+        <a href="bukti-11-november.html" class="prev-btn">← Sebelumnya</a>
+        <a href="../index.html" class="home-btn">🏁 Kalender 2027</a>
+    </nav>
+
+    <footer class="no-print">
+        <p><strong>Kelompok 10</strong> - Pembuktian #12 — Penutup Tahun</p>
+        <p>Projek Kalender Pythagoras 2027</p>
+    </footer>
+
+    <script src="../assets/js/calendar-template.js?v=3"></script>
+    <script src="../assets/js/pdf-export.js?v=31"></script>
+    <script>
+    /* ================= GEOMETRI DUA PANEL (3-4-5) ================= */
+    const a=3, b=4, c=5, s=a+b;
+    /* Panel 1: persegi (a+b)² , 4 segitiga sudut, rongga c² miring */
+    const P1_TRI=[ [{x:0,y:0},{x:a,y:0},{x:0,y:b}],
+                   [{x:a,y:0},{x:s,y:0},{x:s,y:a}],
+                   [{x:s,y:a},{x:s,y:s},{x:b,y:s}],
+                   [{x:b,y:s},{x:0,y:s},{x:0,y:b}] ];
+    const P1_GAP=[{x:a,y:0},{x:s,y:a},{x:b,y:s},{x:0,y:b}];
+    const P1_PARK=[{x:-1.5,y:-1.5},{x:1.5,y:-1.5},{x:1.5,y:1.5},{x:-1.5,y:1.5}];
+    /* Panel 2: persegi c² , 4 segitiga Zhao Shuang, rongga (b−a)² */
+    const V1={x:b*b/c,y:a*b/c}, rot=p=>({x:c-p.y,y:p.x});
+    const V2=rot(V1),V3=rot(V2),V4=rot(V3);
+    const P2_TRI=[ [{x:0,y:0},{x:c,y:0},V1], [{x:c,y:0},{x:c,y:c},V2],
+                   [{x:c,y:c},{x:0,y:c},V3], [{x:0,y:c},{x:0,y:0},V4] ];
+    const P2_GAP=[V1,V2,V3,V4];
+    const P2_PARK=[{x:0,y:-1.5},{x:1.5,y:0},{x:0,y:1.5},{x:-1.5,y:0}];
+    const COL=['#f16a7a','#5b5bee','#5bf17a','#f1d95b'];
+
+    /* SELF-TEST dua identitas */
+    (function(){
+        const ar=poly=>{let t=0;for(let i=0,j=poly.length-1;i<poly.length;j=i++)t+=poly[j].x*poly[i].y-poly[i].x*poly[j].y;return Math.abs(t/2);};
+        const ok1=Math.abs(s*s-(4*(a*b/2)+c*c))<1e-9;
+        const ok2=Math.abs(c*c-(4*(a*b/2)+(b-a)*(b-a)))<1e-9;
+        if(ok1&&ok2)console.log('✅ DUA IDENTITAS OK (Sintesis 3,4,5)');
+        else console.warn('⚠️ SINTESIS GAGAL',{ok1,ok2});
+    })();
+
+    /* ================= renderer panel ================= */
+    const NS='http://www.w3.org/2000/svg';
+    function makePanel(svgId, tris, gap, parks, sq, gapCol){
+        const svg=document.getElementById(svgId);
+        const mk=(t,at,pa)=>{const e=document.createElementNS(NS,t);for(const k in at)e.setAttribute(k,at[k]);(pa||svg).appendChild(e);return e;};
+        const x0=-3,x1=s+3,y0=-3,y1=s+3;
+        const U=280/(x1-x0); const OX=10-x0*U; const OY=10+y1*U;
+        const S=(x,y)=>({x:OX+x*U,y:OY-y*U});
+        const pts=poly=>poly.map(p=>{const q=S(p.x,p.y);return q.x.toFixed(1)+','+q.y.toFixed(1);}).join(' ');
+        const gSq=mk('polygon',{points:pts(sq),fill:'#eef4fb',stroke:'#2f7bd9','stroke-width':2,opacity:0});
+        const gGap=mk('polygon',{points:pts(gap),fill:gapCol,stroke:'rgba(0,0,0,.3)','stroke-width':1.5,opacity:0});
+        const gs=tris.map((t,i)=>{const g=mk('g',{});mk('polygon',{points:pts(t),fill:COL[i],stroke:'rgba(0,0,0,.35)','stroke-width':1.2},g);return g;});
+        const ghosts=parks.map((p,i)=>mk('polygon',{points:pts(tris[i].map(q=>({x:q.x+p.x,y:q.y+p.y}))),fill:'none',stroke:COL[i],'stroke-width':1.5,'stroke-dasharray':'5 4',opacity:0}));
+        return {svg,mk,S,pts,gSq,gGap,gs,ghosts,parks};
+    }
+    const sq1=[{x:0,y:0},{x:s,y:0},{x:s,y:s},{x:0,y:s}];
+    const sq2=[{x:0,y:0},{x:c,y:0},{x:c,y:c},{x:0,y:c}];
+    const pan1=makePanel('svg1',P1_TRI,P1_GAP,P1_PARK,sq1,'#8ecae6');
+    const pan2=makePanel('svg2',P2_TRI,P2_GAP,P2_PARK,sq2,'#ee55ee');
+
+    /* ================= timeline ================= */
+    const tweens=[]; const TOTAL=6000;
+    const addTween=(t0,t1,fn)=>{const tw={t0,t1,fn,last:-1};tweens.push(tw);return tw;};
+    const fade=(el,t0,d,to,from=0)=>addTween(t0,t0+d,p=>el.setAttribute('opacity',from+(to-from)*p));
+    const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+    function slide(panel,t0){
+        panel.gs.forEach((g,i)=>{ const o=panel.parks[i];
+            const dx=o.x* (280/ (s+6)), dy=-o.y*(280/(s+6));
+            g.setAttribute('transform',`translate(${dx},${dy})`); g.setAttribute('opacity',0);
+            fade(g,t0+i*120,250,1);
+            addTween(t0+300+i*150, t0+900+i*150, p=>{const e=ease(p);
+                g.setAttribute('transform',`translate(${dx*(1-e)},${dy*(1-e)})`);}); });
+    }
+    function buildTimeline(){
+        tweens.length=0;
+        fade(pan1.gSq,0,300,1); fade(pan2.gSq,100,300,1);
+        slide(pan1,400);  fade(pan1.gGap,1600,400,.85);
+        slide(pan2,2200); fade(pan2.gGap,3400,400,.85);
+        pan1.ghosts.forEach((g,i)=>fade(g,1700+i*80,300,1));
+        pan2.ghosts.forEach((g,i)=>fade(g,3500+i*80,300,1));
+        addTween(5200,5600,p=>{ pan1.svg.style.transform=`scale(${1+0.02*Math.sin(Math.PI*p)})`;
+                                pan2.svg.style.transform=`scale(${1+0.02*Math.sin(Math.PI*p)})`; });
+    }
+    buildTimeline();
+
+    let vt=0,playing=false,speed=1,lastTs=null;
+    const stepTimes=[[0,1],[1600,2],[3400,3],[4200,4],[5200,5]];
+    function frame(ts){
+        if(lastTs===null)lastTs=ts; const dt=Math.min(50,ts-lastTs); lastTs=ts;
+        if(playing) vt=Math.min(TOTAL,vt+dt*speed);
+        for(const tw of tweens){const p=Math.max(0,Math.min(1,(vt-tw.t0)/(tw.t1-tw.t0)));
+            if(p!==tw.last){tw.fn(p);tw.last=p;}}
+        const pct=Math.round(vt/TOTAL*100);
+        document.getElementById('ptext').textContent='Progres: '+pct+'%';
+        document.getElementById('pfill').style.width=pct+'%';
+        let n=0; for(const [t,s] of stepTimes) if(vt>=t) n=s;
+        document.querySelectorAll('.formula-step').forEach(el=>el.classList.remove('active'));
+        const el=document.getElementById('step'+n); if(el) el.classList.add('active');
+        if(playing&&vt>=TOTAL){playing=false;
+            const b=document.getElementById('btnStart');
+            b.textContent='▶ Ulangi'; b.style.display='inline-block';
+            document.getElementById('btnPause').style.display='none';}
+        requestAnimationFrame(frame);
+    }
+    function resetState(){vt=0;playing=false;pan1.svg.style.transform='none';pan2.svg.style.transform='none';
+        for(const tw of tweens)tw.last=-1; buildTimeline();
+        const b=document.getElementById('btnStart');
+        b.textContent='▶ Mulai'; b.style.display='inline-block';
+        document.getElementById('btnPause').style.display='none';}
+    document.getElementById('btnStart').addEventListener('click',()=>{if(vt>=TOTAL)resetState();
+        playing=true;document.getElementById('btnStart').style.display='none';
+        document.getElementById('btnPause').style.display='inline-block';});
+    document.getElementById('btnPause').addEventListener('click',()=>{playing=false;
+        const b=document.getElementById('btnStart');b.textContent='▶ Lanjut';
+        b.style.display='inline-block';document.getElementById('btnPause').style.display='none';});
+    document.getElementById('btnSkip').addEventListener('click',()=>{vt=TOTAL;playing=false;
+        for(const tw of tweens){tw.fn(1);tw.last=1;}});
+    document.getElementById('btnReset').addEventListener('click',resetState);
+    document.getElementById('speedSlider').addEventListener('input',e=>{
+        speed=parseFloat(e.target.value);document.getElementById('speedValue').textContent=speed+'×';});
+
+    /* ================= galeri 12 bulan ================= */
+    (function(){
+        const M=[['Jan','Sel Terbang (Guru)','done'],['Feb','Rearrangement (Guru)','done'],
+            ['Mar','Perigal Klasik (K1)','done'],['Apr','Perigal Preset','post'],['Mei','Perigal Preset','post'],
+            ['Jun','Perigal Preset','post'],['Jul','Perigal Preset','post'],['Agu','Zhao Shuang (K6)','done'],
+            ['Sep','Garfield (K7)','done'],['Okt','Euclid I.47 (K8)','done'],['Nov','Incircle (K9)','done'],
+            ['Des','Sintesis (K10)','done']];
+        document.getElementById('gallery').innerHTML=M.map(m=>
+            `<div style="border:2px solid ${m[2]==='done'?'#4CAF50':'#bdbdbd'};border-radius:8px;padding:8px;background:${m[2]==='done'?'#f1f8f4':'#f5f5f5'};">
+             <strong>${m[0]}</strong><br>${m[1]}</div>`).join('');
+    })();
+
+    /* ================= gambar statis sheet ================= */
+    function synthScene(state,w){
+        const half=w/2-6;
+        function one(tris,gap,parks,sq,gapCol,off){
+            const x0=-3,x1=s+3,y0=-3,y1=s+3;
+            const U=(half-8)/(x1-x0); const ox=off+4-x0*U; const oy=4+y1*U;
+            const S=(x,y)=>({x:ox+x*U,y:oy-y*U});
+            const P=poly=>poly.map(p=>{const q=S(p.x,p.y);return q.x.toFixed(1)+','+q.y.toFixed(1);}).join(' ');
+            let o=`<polygon points="${P(sq)}" fill="#eef4fb" stroke="#2f7bd9" stroke-width="1.5"/>`;
+            if(state==='initial'){
+                tris.forEach((t,i)=>o+=`<polygon points="${P(t.map(q=>({x:q.x+parks[i].x,y:q.y+parks[i].y})))}" fill="${COL[i]}" stroke="rgba(0,0,0,.35)" stroke-width="1"/>`);
+            } else {
+                tris.forEach((t,i)=>o+=`<polygon points="${P(t)}" fill="${COL[i]}" stroke="rgba(0,0,0,.35)" stroke-width="1"/>`);
+                o+=`<polygon points="${P(gap)}" fill="${gapCol}" opacity=".85"/>`;
+            }
+            return o;
+        }
+        const hh=Math.round(w*0.55);
+        let o=`<svg viewBox="0 0 ${w} ${hh}" width="${w}" height="${hh}" style="display:block;margin:auto;">`;
+        o+=one(P1_TRI,P1_GAP,P1_PARK,sq1,'#8ecae6',0);
+        o+=one(P2_TRI,P2_GAP,P2_PARK,sq2,'#ee55ee',half+4);
+        return o+`</svg>`;
+    }
+    document.getElementById('figInitial').innerHTML=synthScene('initial',520);
+    document.getElementById('figFinal').innerHTML=synthScene('final',520);
+
+    /* ================= sheet/kalender/QR ================= */
+    function fitSheet(){const vp=document.getElementById('a4Viewport');
+        const sh=document.querySelector('.a4-sheet');if(!vp||!sh)return;
+        const s=Math.min(1,vp.clientWidth/794);
+        sh.style.transform=`scale(${s})`;sh.style.transformOrigin='top left';
+        vp.style.height=(1123*s)+'px';}
+    window.fitSheet=fitSheet;window.addEventListener('resize',fitSheet);
+    window.togglePreview=function(){const col=document.getElementById('previewCollapse');
+        col.classList.toggle('collapsed');
+        document.getElementById('btnPreview').textContent=col.classList.contains('collapsed')
+            ?'👁 Tampilkan Pratinjau PDF (1 halaman)':'🙈 Sembunyikan Pratinjau PDF';
+        if(!col.classList.contains('collapsed'))setTimeout(fitSheet,60);};
+    renderCalendar(document.getElementById('calBlock'),12);
+    try{new QRCode(document.getElementById('qrcode'),{text:window.location.href,
+        width:84,height:84,correctLevel:QRCode.CorrectLevel.M});}
+    catch(e){document.getElementById('qrcode').textContent=window.location.href;}
+    fitSheet();
+    requestAnimationFrame(frame);
+    </script>
+</body>
+</html>
