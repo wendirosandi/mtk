@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bukti #6: Perigal Preset O+ M+ (9-40-41) - Kalender Pythagoras 2027</title>
-    <script>window.PCFG = { month: 6, a: 9, b: 40, preset: 3, group: 'Kelompok 4', level: 'Lanjut' };</script>
-  
+    <title>Bukti #6: Diseksi Einstein (3-4-5) - Kalender Pythagoras 2027</title>
     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="../assets/css/proof.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -13,13 +11,251 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
-    <div id="app"></div>
-    <script>window.PCFG = { month: 4, a: 5, b: 12, preset: 1, group: 'Kelompok 2', level: 'Menengah' };</script>
+    <header class="proof-header no-print">
+        <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
+        <div class="proof-info">
+            <h1>Bukti #6: Diseksi Einstein (3-4-5)</h1>
+            <div class="proof-meta">
+                <span class="meta-item">📅 Juni 2027</span>
+                <span class="meta-item">👥 Kelompok 4</span>
+                <span class="meta-item">🎯 Level: Pengayaan (cerita)</span>
+            </div>
+        </div>
+        <div class="export-buttons">
+            <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 Download PDF (1 hal)</button>
+            <button class="btn-print" onclick="printPDF()">🖨 Print / Save as PDF</button>
+        </div>
+    </header>
 
-        <script src="../assets/js/perigal-engine.js?v=82"></script>
+    <nav class="proof-nav no-print">
+        <a href="bukti-05-mei.html" class="prev-btn">← Mei (Bukti #5)</a>
+        <span class="nav-indicator">6 / 12</span>
+        <a href="bukti-07-juli.html" class="next-btn">Juli (Bukti #7) →</a>
+    </nav>
+
+    <main class="proof-content" id="proofContent">
+        <section class="section introduction no-print">
+            <h2>📖 Pengenalan: Bukti yang Ditemukan Einstein Kecil</h2>
+            <p class="intro-text">
+                Konon <strong>Albert Einstein</strong> menemukan bukti ini saat masih anak-anak:
+                <strong>tanpa memindahkan potongan apa pun</strong>. Cukup jatuhkan
+                <strong>garis tinggi dari sudut siku-siku</strong> — segitiga terbelah menjadi
+                <strong>dua segitiga yang sebangun dengan segitiga asal</strong>. Karena luas bangun
+                sebangun berbanding sebagai <em>kuadrat sisi miringnya</em>, maka
+                [Δ₁]+[Δ₂] = [Δ] langsung memberi <strong>a² + b² = c²</strong>.
+            </p>
+            <div class="historical-note"><strong>⚠️ Catatan kurikulum:</strong> kesebangunan resmi
+                dipelajari di kelas 9 — bulan ini disajikan sebagai <em>cerita & intuisi</em>;
+                pembuktian lengkapnya dapat kalian ulangi tahun depan.</div>
+        </section>
+
+        <section class="section animation no-print">
+            <h2>🎬 Animasi Interaktif</h2>
+            <div class="animation-wrapper">
+                <div class="stage-wrap" style="position:relative;width:100%;background:#f4f6fb;border:3px solid #e0e0e0;border-radius:15px;overflow:hidden;">
+                    <svg id="stageSvg" viewBox="0 0 560 420" style="display:block;width:100%;height:auto;"></svg>
+                </div>
+                <div class="animation-controls">
+                    <button class="btn-start" id="btnStart">▶ Mulai</button>
+                    <button class="btn-pause" id="btnPause" style="display:none">⏸ Pause</button>
+                    <button class="btn-skip" id="btnSkip">⏭ Selesai</button>
+                    <button class="btn-reset" id="btnReset">↺ Reset</button>
+                    <div class="speed-control">
+                        <label for="speedSlider">⚡ Kecepatan:</label>
+                        <input type="range" id="speedSlider" min="0.5" max="3" step="0.5" value="1">
+                        <span class="speed-value" id="speedValue">1×</span>
+                    </div>
+                </div>
+                <div class="progress-box">
+                    <div class="pbar"><div class="pfill" id="pfill"></div></div>
+                    <div class="ptext" id="ptext">Progres: 0%</div>
+                </div>
+                <div class="formula-display" style="margin-top:15px;">
+                    <div class="formula-step active" id="step0">Siap memulai… tekan ▶ Mulai</div>
+                    <div class="formula-step" id="step1">Garis tinggi CF membelah ΔABC → Δ1 (miring a) + Δ2 (miring b)</div>
+                    <div class="formula-step" id="step2">Δ1 ∼ ΔABC dan Δ2 ∼ ΔABC (sudut-sudutnya sama)</div>
+                    <div class="formula-step" id="step3">Luas sebangun ∝ kuadrat miring: [Δ1]/[Δ] = a²/c² = 9/25; [Δ2]/[Δ] = 16/25</div>
+                    <div class="formula-step" id="step4">[Δ1] + [Δ2] = [Δ] ⇒ (a²+b²)/c² = 1</div>
+                    <div class="formula-step" id="step5">⇒ a² + b² = c² → 9 + 16 = 25 ✓</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section external-resources no-print">
+            <h2>🔗 Rujukan</h2>
+            <div class="embed-container" style="text-align:center;padding:24px;">
+                <div style="font-size:40px;">🧠</div>
+                <p style="margin:10px 0;color:#555;">Wikipedia ID: <strong>"Bukti Einstein dengan diseksi
+                   tanpa penataan ulang"</strong> — sumber utama bulan ini.</p>
+                <a class="external-link" target="_blank" rel="noopener" href="https://id.wikipedia.org/wiki/Teorema_Pythagoras"
+                   style="display:inline-block;background:#667eea;color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;text-decoration:none;">
+                   🔗 Wikipedia: Teorema Pythagoras</a>
+            </div>
+        </section>
+
+        <section class="section export-section no-print-screen">
+            <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">
+                👁 Tampilkan Pratinjau PDF (1 halaman)</button>
+            <div class="preview-collapse collapsed" id="previewCollapse">
+              <div class="a4-viewport" id="a4Viewport">
+                <div id="exportArea" class="a4-sheet">
+                    <div class="export-header">
+                        <h2>Bukti #6: Diseksi Einstein</h2>
+                        <p>Kalender Pythagoras 2027 • Juni • Kelompok 4 • Level: Pengayaan</p>
+                    </div>
+                    <div id="calBlock" class="cal-block"></div>
+                    <hr class="cal-divider">
+                    <div class="proof-figures">
+                        <figure class="proof-figure"><span class="state-badge initial">AWAL</span>
+                            <div class="scene" id="figInitial"></div>
+                            <figcaption><strong>Gbr 1:</strong> garis tinggi CF; Δ1 merah, Δ2 hijau.</figcaption></figure>
+                        <figure class="proof-figure"><span class="state-badge final">AKHIR</span>
+                            <div class="scene" id="figFinal"></div>
+                            <figcaption><strong>Gbr 2:</strong> tiga segitiga sebangun; rasio luas = 9/25 + 16/25 = 1.</figcaption></figure>
+                    </div>
+                    <div class="export-explain">
+                        <p><strong>Penjelasan:</strong> garis tinggi dari sudut siku-siku membelah segitiga
+                           menjadi dua segitiga yang masing-masing sebangun dengan segitiga asal.
+                           Luas bangun sebangun berbanding sebagai kuadrat sisi miring, sehingga
+                           a²/c² + b²/c² = 1 ⇒ a² + b² = c².</p>
+                        <div class="export-formula">9/25 + 16/25 = 25/25 ⇒ 9 + 16 = 25 ✓</div>
+                    </div>
+                    <div class="export-conclusion">
+                        <div class="export-conclusion-text">KESIMPULAN:<br>a² + b² = c²</div>
+                        <div><div class="qr-box" id="qrcode">[QR]</div>
+                        <div class="qr-caption">Scan untuk animasi</div></div>
+                    </div>
+                </div>
+              </div>
+            </div>
+        </section>
+    </main>
+
+    <nav class="proof-nav bottom no-print">
+        <a href="bukti-05-mei.html" class="prev-btn">← Sebelumnya</a>
+        <a href="../index.html" class="home-btn">🏠 Kalender</a>
+        <a href="bukti-07-juli.html" class="next-btn">Selanjutnya →</a>
+    </nav>
+    <footer class="no-print"><p><strong>Kelompok 4</strong> - Pembuktian #6</p><p>Projek Kalender Pythagoras 2027</p></footer>
+
     <script src="../assets/js/calendar-template.js?v=3"></script>
     <script src="../assets/js/pdf-export.js?v=31"></script>
-    <script src="../assets/js/perigal-page.js?v=3"></script>
-    
+    <script>
+    const a=3,b=4,c=5;
+    const C={x:0,y:0},B={x:a,y:0},A={x:0,y:b};
+    const F={x:a*b*b/(c*c), y:a*a*b/(c*c)};
+    (function(){ const onAB=Math.abs(F.x/a+F.y/b-1)<1e-9;
+        const ar=p=>{let s=0;for(let i=0,j=p.length-1;i<p.length;j=i++)s+=p[j].x*p[i].y-p[i].x*p[j].y;return Math.abs(s/2);};
+        const ok=Math.abs(ar([C,B,F])+ar([C,A,F])-ar([C,B,A]))<1e-9;
+        console.log((onAB&&ok)?'✅ EINSTEIN OK (3,4,5)':'⚠️ EINSTEIN GAGAL'); })();
+    const NS='http://www.w3.org/2000/svg';
+    const svg=document.getElementById('stageSvg');
+    const mk=(t,at,pa)=>{const e=document.createElementNS(NS,t);for(const k in at)e.setAttribute(k,at[k]);(pa||svg).appendChild(e);return e;};
+    const x0=-1,x1=a+1,y0=-1,y1=b+6;
+    const U=Math.min(340/(x1-x0),300/(y1-y0));
+    const OX=20-x0*U, OY=20+y1*U;
+    const S=(x,y)=>({x:OX+x*U,y:OY-y*U});
+    const pts=poly=>poly.map(p=>{const q=S(p.x,p.y);return q.x.toFixed(1)+','+q.y.toFixed(1);}).join(' ');
+    const gTri=mk('polygon',{points:pts([C,B,A]),fill:'rgba(144,164,174,.35)',stroke:'#37474f','stroke-width':2.5,opacity:0});
+    const gAlt=mk('line',{x1:S(C.x,C.y).x,y1:S(C.x,C.y).y,x2:S(F.x,F.y).x,y2:S(F.y?F.y:F.y,F.y).y,stroke:'#8e24aa','stroke-width':2.5,opacity:0});
+    gAlt.setAttribute('x2',S(F.x,F.y).x); gAlt.setAttribute('y2',S(F.x,F.y).y);
+    const gF=mk('circle',{cx:S(F.x,F.y).x,cy:S(F.x,F.y).y,r:4,fill:'#8e24aa',opacity:0});
+    const gD1=mk('polygon',{points:pts([C,B,F]),fill:'#f16a7a',opacity:0});
+    const gD2=mk('polygon',{points:pts([C,A,F]),fill:'#5bf17a',opacity:0});
+    function lab(x,y,t,col,sz){const e=mk('text',{x:S(x,y).x,y:S(x,y).y,'text-anchor':'middle',fill:col,'font-size':sz||15,'font-weight':'bold',opacity:0});e.textContent=t;return e;}
+    const labs=[lab(a/2,-0.6,'a = 3','#c62828'),lab(-0.7,b/2,'b = 4','#2e7d32'),
+        lab(a/2+0.8,b/2+0.6,'c = 5','#1565c0'),lab(F.x+0.5,F.y+0.5,'F','#8e24aa',13)];
+    /* baris mini: Δ1, Δ2, Δ pada skala sama */
+    const mini=[{poly:[C,B,F],col:'#f16a7a',dx:0,t:'Δ1 = 9/25 · Δ'},{poly:[C,A,F],col:'#5bf17a',dx:4.2,t:'Δ2 = 16/25 · Δ'},{poly:[C,B,A],col:'#90a4ae',dx:7.4,t:'Δ = 25/25 · Δ'}];
+    const miniEls=mini.map(m=>{const g=mk('g',{opacity:0});
+        mk('polygon',{points:m.poly.map(p=>{const q=S(p.x+m.dx,p.y- 0);return q.x.toFixed(1)+','+(q.y+150).toFixed(1);}).join(' '),fill:m.col,stroke:'rgba(0,0,0,.3)','stroke-width':1.5},g);
+        const e=mk('text',{x:S(m.dx+1.5,0).x,y:S(0,0).y+185,'text-anchor':'middle',fill:'#37474f','font-size':13,'font-weight':'bold'},g);
+        e.textContent=m.t; return g;});
+
+    const tweens=[]; const TOTAL=5000;
+    const addTween=(t0,t1,fn)=>{const tw={t0,t1,fn,last:-1};tweens.push(tw);return tw;};
+    const fade=(el,t0,d,to,from=0)=>addTween(t0,t0+d,p=>el.setAttribute('opacity',from+(to-from)*p));
+    function buildTimeline(){
+        tweens.length=0;
+        fade(gTri,0,400,1); labs.slice(0,3).forEach((l,i)=>fade(l,150+i*100,300,1));
+        const AL=Math.hypot(S(F.x,F.y).x-S(0,0).x,S(F.x,F.y).y-S(0,0).y);
+        gAlt.setAttribute('stroke-dasharray',AL); gAlt.setAttribute('stroke-dashoffset',AL);
+        fade(gAlt,500,100,1); fade(gF,600,200,1); fade(labs[3],700,200,1);
+        addTween(500,1100,p=>gAlt.setAttribute('stroke-dashoffset',AL*(1-p)));
+        fade(gD1,1200,400,.55); fade(gD2,1800,400,.55);
+        miniEls.forEach((g,i)=>fade(g,2600+i*300,400,1));
+        addTween(4600,4900,p=>{svg.style.transform=`scale(${1+.02*Math.sin(Math.PI*p)})`;});
+    }
+    buildTimeline();
+    let vt=0,playing=false,speed=1,lastTs=null;
+    const stepTimes=[[0,1],[1200,2],[2600,3],[3600,4],[4600,5]];
+    function frame(ts){if(lastTs===null)lastTs=ts;const dt=Math.min(50,ts-lastTs);lastTs=ts;
+        if(playing)vt=Math.min(TOTAL,vt+dt*speed);
+        for(const tw of tweens){const p=Math.max(0,Math.min(1,(vt-tw.t0)/(tw.t1-tw.t0)));
+            if(p!==tw.last){tw.fn(p);tw.last=p;}}
+        const pct=Math.round(vt/TOTAL*100);
+        document.getElementById('ptext').textContent='Progres: '+pct+'%';
+        document.getElementById('pfill').style.width=pct+'%';
+        let n=0;for(const[t,s2]of stepTimes)if(vt>=t)n=s2;
+        document.querySelectorAll('.formula-step').forEach(el=>el.classList.remove('active'));
+        const el=document.getElementById('step'+n);if(el)el.classList.add('active');
+        if(playing&&vt>=TOTAL){playing=false;const b2=document.getElementById('btnStart');
+            b2.textContent='▶ Ulangi';b2.style.display='inline-block';
+            document.getElementById('btnPause').style.display='none';}
+        requestAnimationFrame(frame);}
+    function resetState(){vt=0;playing=false;svg.style.transform='none';
+        for(const tw of tweens)tw.last=-1;
+        const b2=document.getElementById('btnStart');b2.textContent='▶ Mulai';
+        b2.style.display='inline-block';document.getElementById('btnPause').style.display='none';}
+    document.getElementById('btnStart').addEventListener('click',()=>{if(vt>=TOTAL)resetState();
+        playing=true;document.getElementById('btnStart').style.display='none';
+        document.getElementById('btnPause').style.display='inline-block';});
+    document.getElementById('btnPause').addEventListener('click',()=>{playing=false;
+        const b2=document.getElementById('btnStart');b2.textContent='▶ Lanjut';
+        b2.style.display='inline-block';document.getElementById('btnPause').style.display='none';});
+    document.getElementById('btnSkip').addEventListener('click',()=>{vt=TOTAL;playing=false;
+        for(const tw of tweens){tw.fn(1);tw.last=1;}});
+    document.getElementById('btnReset').addEventListener('click',resetState);
+    document.getElementById('speedSlider').addEventListener('input',e=>{
+        speed=parseFloat(e.target.value);document.getElementById('speedValue').textContent=speed+'×';});
+
+    function einsteinScene(state,w){
+        const X0=-1,X1=a+1,Y0=-1,Y1=b+1;
+        const u=(w-16)/(X1-X0); const ox=8-X0*u; const oy=8+Y1*u;
+        const s=(x,y)=>({x:ox+x*u,y:oy-y*u});
+        const P=poly=>poly.map(p=>{const q=s(p.x,p.y);return q.x.toFixed(1)+','+q.y.toFixed(1);}).join(' ');
+        const hh=Math.round(w*0.93);
+        let o=`<svg viewBox="0 0 ${w} ${hh}" width="${w}" height="${hh}" style="display:block;margin:auto;">`;
+        o+=`<polygon points="${P([C,B,A])}" fill="rgba(144,164,174,.35)" stroke="#37474f" stroke-width="2"/>`;
+        o+=`<polygon points="${P([C,B,F])}" fill="#f16a7a" opacity=".6"/>`;
+        o+=`<polygon points="${P([C,A,F])}" fill="#5bf17a" opacity=".6"/>`;
+        o+=`<line x1="${s(C.x,C.y).x}" y1="${s(C.x,C.y).y}" x2="${s(F.x,F.y).x}" y2="${s(F.x,F.y).y}" stroke="#8e24aa" stroke-width="2"/>`;
+        o+=`<circle cx="${s(F.x,F.y).x}" cy="${s(F.x,F.y).y}" r="3" fill="#8e24aa"/>`;
+        if(state==='final'){
+            o+=`<text x="${s(a/2,-0.6).x}" y="${s(a/2,-0.6).y}" text-anchor="middle" font-size="12" font-weight="bold" fill="#c62828">9/25</text>`;
+            o+=`<text x="${s(-0.7,b/2).x}" y="${s(-0.7,b/2).y}" text-anchor="middle" font-size="12" font-weight="bold" fill="#2e7d32">16/25</text>`;
+        }
+        return o+`</svg>`;
+    }
+    document.getElementById('figInitial').innerHTML=einsteinScene('initial',260);
+    document.getElementById('figFinal').innerHTML=einsteinScene('final',260);
+
+    function fitSheet(){const vp=document.getElementById('a4Viewport');
+        const sh=document.querySelector('.a4-sheet');if(!vp||!sh)return;
+        const s=Math.min(1,vp.clientWidth/794);
+        sh.style.transform=`scale(${s})`;sh.style.transformOrigin='top left';
+        vp.style.height=(1123*s)+'px';}
+    window.fitSheet=fitSheet;window.addEventListener('resize',fitSheet);
+    window.togglePreview=function(){const col=document.getElementById('previewCollapse');
+        col.classList.toggle('collapsed');
+        document.getElementById('btnPreview').textContent=col.classList.contains('collapsed')
+            ?'👁 Tampilkan Pratinjau PDF (1 halaman)':'🙈 Sembunyikan Pratinjau PDF';
+        if(!col.classList.contains('collapsed'))setTimeout(fitSheet,60);};
+    renderCalendar(document.getElementById('calBlock'),6);
+    try{new QRCode(document.getElementById('qrcode'),{text:window.location.href,
+        width:84,height:84,correctLevel:QRCode.CorrectLevel.M});}
+    catch(e){document.getElementById('qrcode').textContent=window.location.href;}
+    fitSheet();requestAnimationFrame(frame);
+    </script>
 </body>
 </html>
