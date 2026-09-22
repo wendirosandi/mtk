@@ -1,0 +1,10 @@
+images/
+│       └── april/                  # Screenshot applet untuk April
+│           ├── opsi1-awal.png
+│           ├── opsi1-akhir.png
+│           ├── opsi2-awal.png
+│           ├── opsi2-akhir.png
+│           ├── opsi3-awal.png
+│           ├── opsi3-akhir.png
+│           ├── opsi4-awal.png      # (menyusul)
+│           └── opsi4-akhir.png     # (menyusul)
