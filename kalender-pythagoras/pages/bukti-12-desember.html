@@ -3,75 +3,162 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bukti #12: Tessellation Pythagoras (Penataan Ulang) - Kalender Pythagoras 2027</title>
+<title>Bukti #12: Puzzle Tessellation Pythagoras - Kalender Pythagoras 2027</title>
 <link rel="stylesheet" href="../assets/css/main.css">
 <link rel="stylesheet" href="../assets/css/proof.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
-  .tess-stage {
+  .puzzle-stage {
     background: #f8f9fa;
     border: 1px solid #e2e8f0;
     border-radius: 14px;
     padding: 12px;
     margin-bottom: 12px;
   }
-  .tess-container {
+  .puzzle-container {
     position: relative;
     width: 100%;
     max-width: 500px;
     margin: 0 auto;
-    aspect-ratio: 1;
     background: #fff;
     border-radius: 8px;
     overflow: hidden;
   }
-  .tess-layer {
+  .puzzle-area {
+    position: relative;
+    width: 100%;
+    height: 250px;
+    border: 2px dashed #cbd5e0;
+    margin: 10px 0;
+    background: #f0f4ff;
+  }
+  .puzzle-area.target {
+    background: #e0f2fe;
+    border-color: #3b82f6;
+  }
+  .puzzle-area-label {
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 8px;
+    left: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    color: #4a5568;
+    background: rgba(255,255,255,0.9);
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  .piece {
+    position: absolute;
+    cursor: grab;
+    transition: transform 0.2s, box-shadow 0.2s;
+    user-select: none;
+    touch-action: none;
+  }
+  .piece:active {
+    cursor: grabbing;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 100;
+  }
+  .piece.placed {
+    cursor: default;
+    border: 3px solid #22c55e !important;
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+    animation: snapPulse 0.5s ease-out;
+  }
+  @keyframes snapPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+  .piece svg {
     width: 100%;
     height: 100%;
-    transition: opacity 0.4s ease-in-out;
+    pointer-events: none;
   }
-  .tess-layer.hidden {
-    opacity: 0;
+  .target-zone {
+    position: absolute;
+    border: 2px dashed #94a3b8;
+    background: rgba(148, 163, 184, 0.1);
+    transition: all 0.3s;
   }
-  .tess-layer.visible {
-    opacity: 1;
+  .target-zone.highlight {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.2);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
   }
-  .slider-container {
-    margin: 20px 0;
-    padding: 15px;
+  .progress-container {
+    margin: 15px 0;
+    padding: 12px;
     background: #f0f4ff;
     border-radius: 10px;
   }
-  .slider-label {
+  .progress-bar {
+    height: 20px;
+    background: #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #48bb78, #4299e1);
+    border-radius: 10px;
+    transition: width 0.4s ease;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    justify-content: center;
+    color: #fff;
     font-weight: 700;
-    color: #4a5568;
+    font-size: 12px;
   }
-  input[type=range].tess-slider {
-    width: 100%;
-    height: 10px;
-    -webkit-appearance: none;
-    appearance: none;
-    background: linear-gradient(90deg, #48bb78 0%, #4299e1 100%);
-    border-radius: 5px;
-    outline: none;
+  .progress-text {
+    text-align: center;
+    font-weight: 700;
+    color: #2f855a;
+    font-size: 16px;
   }
-  input[type=range].tess-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: #5a67d8;
+  .controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 15px;
+  }
+  .controls button {
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
     cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    transition: all 0.2s;
+  }
+  .controls button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  #btnReset { background: #f56565; }
+  #btnHint { background: #ed8936; }
+  .success-message {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 800;
+    color: #2f855a;
+    margin: 20px 0;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  .success-message.show {
+    opacity: 1;
+    animation: bounce 0.6s ease;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
   }
   .legend {
     display: flex;
@@ -93,24 +180,13 @@
     border-radius: 4px;
     border: 2px solid #374151;
   }
-  .mode-indicator {
-    text-align: center;
-    font-weight: 700;
-    font-size: 16px;
-    padding: 8px;
-    background: #fff;
-    border-radius: 8px;
-    margin-bottom: 10px;
-  }
-  .mode-a { color: #2f855a; }
-  .mode-c { color: #1e40af; }
 </style>
 </head>
 <body>
 <header class="proof-header no-print">
     <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
     <div class="proof-info">
-        <h1>Bukti #12: Tessellation Pythagoras</h1>
+        <h1>Bukti #12: Puzzle Tessellation Pythagoras</h1>
         <div class="proof-meta">
             <span class="meta-item">📅 Desember 2027</span>
             <span class="meta-item">👥 Kelompok 10</span>
@@ -131,87 +207,61 @@
 
 <main class="proof-content" id="proofContent">
     <section class="section introduction no-print">
-        <h2>📖 Pengenalan: Penutup Tahun dengan Pola yang Indah</h2>
-        <p class="intro-text">Bukti ini menggunakan <strong>penataan ulang yang rumit</strong> (tessellation) —
-           pola geometris berulang yang menutup bidang tanpa celah. <strong>Konfigurasi 1</strong>
-           menunjukkan luas a² + b², sedangkan <strong>Konfigurasi 2</strong> menunjukkan luas c².
-           Karena kedua konfigurasi menggunakan <em>pola tessellation yang sama</em>, luasnya pasti
-           sama → <strong>a² + b² = c²</strong>. Bukti yang sempurna untuk menutup tahun!</p>
-        <div class="historical-note"><strong>🎨 Keindahan matematika:</strong> tessellation adalah
-           seni menyusun pola berulang — digunakan dalam arsitektur Islam, seni Escher, dan kini
-           membuktikan teorema paling terkenal di dunia!</div>
+        <h2>📖 Pengenalan: Puzzle Penutup Tahun</h2>
+        <p class="intro-text">Bukti ini menggunakan <strong>penataan ulang</strong> (tessellation) — 
+           susun 6 potongan dari a² + b² menjadi c²! <strong>Drag & drop</strong> setiap potongan 
+           ke posisi yang benar. Ketika semua potongan tersusun sempurna, kamu telah membuktikan 
+           <strong>a² + b² = c²</strong> secara visual!</p>
+        <div class="historical-note"><strong> Cara bermain:</strong> geser potongan dari area atas 
+           ke area bawah. Potongan akan "snap" ke posisi benar ketika dekat. Selesaikan puzzle untuk 
+           melihat bukti lengkap!</div>
     </section>
 
     <section class="section animation no-print">
-        <h2>🎬 Animasi Interaktif (Slider Tessellation)</h2>
-        <div class="tess-stage">
-          <div class="mode-indicator" id="modeIndicator">
-            <span class="mode-a"> KONFIGURASI 1: Luas = a² + b²</span>
-          </div>
-          
-          <div class="tess-container" id="tessContainer">
-            <!-- Konfigurasi 1: a² + b² -->
-            <svg id="config1" class="tess-layer visible" viewBox="0 0 400 400">
-              <defs>
-                <pattern id="pattern1" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-                  <polygon points="0,0 50,0 50,50 0,50" fill="#86efac" stroke="#166534" stroke-width="1"/>
-                  <polygon points="50,0 100,0 100,50 50,50" fill="#60a5fa" stroke="#1e40af" stroke-width="1"/>
-                  <polygon points="0,50 50,50 50,100 0,100" fill="#4ade80" stroke="#15803d" stroke-width="1"/>
-                  <polygon points="50,50 100,50 100,100 50,100" fill="#3b82f6" stroke="#1e3a8a" stroke-width="1"/>
-                </pattern>
-              </defs>
-              <rect x="0" y="0" width="400" height="400" fill="url(#pattern1)"/>
-              <!-- Highlight a² (hijau) -->
-              <rect x="50" y="50" width="100" height="100" fill="#22c55e" opacity="0.6" stroke="#14532d" stroke-width="3"/>
-              <!-- Highlight b² (biru) -->
-              <rect x="200" y="200" width="120" height="120" fill="#3b82f6" opacity="0.6" stroke="#1e3a8a" stroke-width="3"/>
-              <!-- Labels -->
-              <text x="100" y="105" text-anchor="middle" font-size="18" font-weight="bold" fill="#14532d">a²</text>
-              <text x="260" y="265" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e3a8a">b²</text>
-            </svg>
+        <h2>🧩 Puzzle Interaktif (Drag & Drop)</h2>
+        <div class="puzzle-stage">
+          <div class="puzzle-container">
+            <!-- Area Sumber (Konfigurasi 1: a² + b²) -->
+            <div class="puzzle-area" id="sourceArea">
+              <div class="puzzle-area-label">📦 KONFIGURASI 1: a² + b² = 25 + 144 = 169</div>
+              <!-- Pieces akan di-generate oleh JavaScript -->
+            </div>
             
-            <!-- Konfigurasi 2: c² -->
-            <svg id="config2" class="tess-layer hidden" viewBox="0 0 400 400">
-              <defs>
-                <pattern id="pattern2" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-                  <polygon points="0,0 50,0 50,50 0,50" fill="#93c5fd" stroke="#1e40af" stroke-width="1" transform="rotate(45 50 50)"/>
-                  <polygon points="50,0 100,0 100,50 50,50" fill="#bfdbfe" stroke="#1e3a8a" stroke-width="1" transform="rotate(45 50 50)"/>
-                  <polygon points="0,50 50,50 50,100 0,100" fill="#60a5fa" stroke="#1e40af" stroke-width="1" transform="rotate(45 50 50)"/>
-                  <polygon points="50,50 100,50 100,100 50,100" fill="#3b82f6" stroke="#1e3a8a" stroke-width="1" transform="rotate(45 50 50)"/>
-                </pattern>
-              </defs>
-              <rect x="0" y="0" width="400" height="400" fill="url(#pattern2)"/>
-              <!-- Highlight c² (persegi miring) -->
-              <rect x="100" y="100" width="200" height="200" fill="#2563eb" opacity="0.6" stroke="#1e3a8a" stroke-width="3" transform="rotate(45 200 200)"/>
-              <!-- Label -->
-              <text x="200" y="205" text-anchor="middle" font-size="24" font-weight="bold" fill="#1e3a8a">c²</text>
-            </svg>
+            <!-- Area Target (Konfigurasi 2: c²) -->
+            <div class="puzzle-area target" id="targetArea">
+              <div class="puzzle-area-label">🎯 KONFIGURASI 2: c² = 169</div>
+              <!-- Target zones akan di-generate oleh JavaScript -->
+            </div>
           </div>
           
-          <div class="slider-container">
-            <div class="slider-label">
-              <span>🔀 Geser untuk transformasi:</span>
-              <span id="sliderValue">0%</span>
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill" style="width: 0%;">0/6</div>
             </div>
-            <input type="range" class="tess-slider" id="tessSlider" min="0" max="100" value="0">
-            <div style="display:flex;justify-content:space-between;font-size:12px;color:#6b7280;margin-top:5px;">
-              <span>Konfigurasi 1 (a² + b²)</span>
-              <span>Konfigurasi 2 (c²)</span>
-            </div>
+            <div class="progress-text" id="progressText">Susun 6 potongan untuk membuktikan a² + b² = c²</div>
+          </div>
+          
+          <div class="success-message" id="successMessage">
+            🎉 SELESAI! a² + b² = c² TERBUKTI! 🎉
+          </div>
+          
+          <div class="controls">
+            <button id="btnReset"> Reset Puzzle</button>
+            <button id="btnHint">💡 Petunjuk</button>
           </div>
           
           <div class="legend">
             <div class="legend-item">
               <div class="legend-color" style="background:#22c55e;"></div>
-              <span>a² = <span id="valA2">25</span></span>
+              <span>a² = 25 (5×5)</span>
             </div>
             <div class="legend-item">
               <div class="legend-color" style="background:#3b82f6;"></div>
-              <span>b² = <span id="valB2">144</span></span>
+              <span>b² = 144 (12×12)</span>
             </div>
             <div class="legend-item">
-              <div class="legend-color" style="background:#2563eb;"></div>
-              <span>c² = <span id="valC2">169</span></span>
+              <div class="legend-color" style="background:#fbbf24;"></div>
+              <span>Pengisi</span>
             </div>
           </div>
         </div>
@@ -236,7 +286,7 @@
           <div class="a4-viewport" id="a4Viewport">
             <div id="exportArea" class="a4-sheet">
                 <div class="export-header">
-                    <h2>Bukti #12: Tessellation Pythagoras</h2>
+                    <h2>Bukti #12: Puzzle Tessellation Pythagoras</h2>
                     <p>Kalender Pythagoras 2027 • Desember • Kelompok 10 • Level: Menengah</p>
                 </div>
                 <div id="calBlock" class="cal-block"></div>
@@ -244,15 +294,14 @@
                 <div class="proof-figures">
                     <figure class="proof-figure"><span class="state-badge initial">KONFIG 1</span>
                         <div class="scene" id="figInitial"></div>
-                        <figcaption><strong>Gbr 1:</strong> tessellation dengan luas a² + b².</figcaption></figure>
+                        <figcaption><strong>Gbr 1:</strong> 6 potongan dari a² + b².</figcaption></figure>
                     <figure class="proof-figure"><span class="state-badge final">KONFIG 2</span>
                         <div class="scene" id="figFinal"></div>
-                        <figcaption><strong>Gbr 2:</strong> pola yang sama, tersusun sebagai c².</figcaption></figure>
+                        <figcaption><strong>Gbr 2:</strong> potongan tersusun jadi c².</figcaption></figure>
                 </div>
                 <div class="export-explain">
-                    <p><strong>Penjelasan:</strong> kedua konfigurasi menggunakan pola tessellation yang
-                       identik. Karena luas total tidak berubah saat pola ditata ulang, maka
-                       a² + b² = c². Bukti visual yang indah untuk menutup tahun!</p>
+                    <p><strong>Penjelasan:</strong> susun 6 potongan dari a² + b² menjadi c².
+                       Karena luas total tidak berubah saat ditata ulang, maka a² + b² = c².</p>
                     <div class="export-formula">25 + 144 = 169 → 5² + 12² = 13² ✓</div>
                 </div>
                 <div class="export-conclusion">
@@ -281,93 +330,303 @@
 
 /* Self-test numerik */
 const a=5, b=12, c=13;
-console.log(Math.abs(a*a+b*b-c*c)<1e-9 ? '✅ TESSELATION OK (5,12,13)' : '⚠️ TESSELATION GAGAL');
+console.log(Math.abs(a*a+b*b-c*c)<1e-9 ? '✅ PUZZLE OK (5,12,13)' : '⚠️ PUZZLE GAGAL');
+
+/* Konstanta puzzle */
+const SNAP_THRESHOLD = 40; // px
+const PIECE_SIZE = 60; // px
+
+/* Definisi 6 pieces */
+const pieces = [
+  {
+    id: 'A',
+    type: 'square',
+    size: 50, // 5×5 = a²
+    color: '#22c55e',
+    label: 'a²/2',
+    sourceX: 20,
+    sourceY: 60,
+    targetX: 50,
+    targetY: 280,
+    placed: false
+  },
+  {
+    id: 'B',
+    type: 'square',
+    size: 50,
+    color: '#4ade80',
+    label: 'a²/2',
+    sourceX: 90,
+    sourceY: 60,
+    targetX: 110,
+    targetY: 280,
+    placed: false
+  },
+  {
+    id: 'C',
+    type: 'rect',
+    width: 120,
+    height: 40,
+    color: '#3b82f6',
+    label: 'b²/3',
+    sourceX: 20,
+    sourceY: 130,
+    targetX: 50,
+    targetY: 340,
+    placed: false
+  },
+  {
+    id: 'D',
+    type: 'rect',
+    width: 120,
+    height: 40,
+    color: '#60a5fa',
+    label: 'b²/3',
+    sourceX: 160,
+    sourceY: 130,
+    targetX: 180,
+    targetY: 340,
+    placed: false
+  },
+  {
+    id: 'E',
+    type: 'rect',
+    width: 120,
+    height: 40,
+    color: '#93c5fd',
+    label: 'b²/3',
+    sourceX: 20,
+    sourceY: 190,
+    targetX: 310,
+    targetY: 340,
+    placed: false
+  },
+  {
+    id: 'F',
+    type: 'triangle',
+    size: 40,
+    color: '#fbbf24',
+    label: 'fill',
+    sourceX: 160,
+    sourceY: 190,
+    targetX: 230,
+    targetY: 380,
+    placed: false
+  }
+];
 
 /* DOM elements */
 const $ = id => document.getElementById(id);
-const config1 = $('config1');
-const config2 = $('config2');
-const slider = $('tessSlider');
-const sliderValue = $('sliderValue');
-const modeIndicator = $('modeIndicator');
-const valA2 = $('valA2');
-const valB2 = $('valB2');
-const valC2 = $('valC2');
+const sourceArea = $('sourceArea');
+const targetArea = $('targetArea');
+const progressFill = $('progressFill');
+const progressText = $('progressText');
+const successMessage = $('successMessage');
+const btnReset = $('btnReset');
+const btnHint = $('btnHint');
 
-/* Update nilai legenda */
-valA2.textContent = a*a;
-valB2.textContent = b*b;
-valC2.textContent = c*c;
+/* State */
+let draggedPiece = null;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+let placedCount = 0;
 
-/* Slider handler */
-slider.oninput = function() {
-  const value = parseInt(this.value);
-  sliderValue.textContent = value + '%';
+/* Render pieces */
+function renderPieces() {
+  pieces.forEach(piece => {
+    const el = document.createElement('div');
+    el.className = 'piece';
+    el.id = `piece-${piece.id}`;
+    el.style.width = piece.type === 'rect' ? piece.width + 'px' : piece.size + 'px';
+    el.style.height = piece.type === 'rect' ? piece.height + 'px' : piece.size + 'px';
+    el.style.left = piece.sourceX + 'px';
+    el.style.top = piece.sourceY + 'px';
+    el.style.background = piece.color;
+    el.style.border = '2px solid #1e293b';
+    el.style.borderRadius = '6px';
+    el.style.display = 'flex';
+    el.style.alignItems = 'center';
+    el.style.justifyContent = 'center';
+    el.style.fontWeight = '700';
+    el.style.color = '#fff';
+    el.style.fontSize = '12px';
+    el.textContent = piece.label;
+    
+    // Event listeners untuk drag
+    el.addEventListener('mousedown', startDrag);
+    el.addEventListener('touchstart', startDrag, { passive: false });
+    
+    sourceArea.appendChild(el);
+  });
+}
+
+/* Render target zones */
+function renderTargets() {
+  pieces.forEach(piece => {
+    const zone = document.createElement('div');
+    zone.className = 'target-zone';
+    zone.id = `target-${piece.id}`;
+    zone.style.width = piece.type === 'rect' ? piece.width + 'px' : piece.size + 'px';
+    zone.style.height = piece.type === 'rect' ? piece.height + 'px' : piece.size + 'px';
+    zone.style.left = piece.targetX + 'px';
+    zone.style.top = piece.targetY + 'px';
+    targetArea.appendChild(zone);
+  });
+}
+
+/* Drag handlers */
+function startDrag(e) {
+  e.preventDefault();
+  const piece = e.currentTarget;
+  if (piece.classList.contains('placed')) return;
   
-  /* Update opacity */
-  if (value < 50) {
-    /* Dominan Konfigurasi 1 */
-    const opacity1 = 1 - (value / 50) * 0.7;
-    const opacity2 = (value / 50) * 0.7;
-    config1.style.opacity = opacity1;
-    config2.style.opacity = opacity2;
-    modeIndicator.innerHTML = '<span class="mode-a">🎯 KONFIGURASI 1: Luas = a² + b²</span>';
+  draggedPiece = piece;
+  const rect = piece.getBoundingClientRect();
+  const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+  const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+  dragOffsetX = clientX - rect.left;
+  dragOffsetY = clientY - rect.top;
+  
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', endDrag);
+  document.addEventListener('touchmove', drag, { passive: false });
+  document.addEventListener('touchend', endDrag);
+}
+
+function drag(e) {
+  if (!draggedPiece) return;
+  e.preventDefault();
+  
+  const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+  const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+  
+  const containerRect = sourceArea.parentElement.getBoundingClientRect();
+  const x = clientX - containerRect.left - dragOffsetX;
+  const y = clientY - containerRect.top - dragOffsetY;
+  
+  draggedPiece.style.left = x + 'px';
+  draggedPiece.style.top = y + 'px';
+  
+  // Highlight target zone jika dekat
+  highlightNearTarget(draggedPiece);
+}
+
+function endDrag(e) {
+  if (!draggedPiece) return;
+  
+  document.removeEventListener('mousemove', drag);
+  document.removeEventListener('mouseup', endDrag);
+  document.removeEventListener('touchmove', drag);
+  document.removeEventListener('touchend', endDrag);
+  
+  // Check snap
+  const pieceId = draggedPiece.id.replace('piece-', '');
+  const piece = pieces.find(p => p.id === pieceId);
+  const targetZone = $(`target-${pieceId}`);
+  
+  const pieceRect = draggedPiece.getBoundingClientRect();
+  const targetRect = targetZone.getBoundingClientRect();
+  
+  const distance = Math.hypot(
+    pieceRect.left - targetRect.left,
+    pieceRect.top - targetRect.top
+  );
+  
+  if (distance < SNAP_THRESHOLD) {
+    // Snap!
+    draggedPiece.style.left = piece.targetX + 'px';
+    draggedPiece.style.top = piece.targetY + 'px';
+    draggedPiece.classList.add('placed');
+    piece.placed = true;
+    placedCount++;
+    updateProgress();
+    
+    // Pindahkan ke target area
+    targetArea.appendChild(draggedPiece);
   } else {
-    /* Dominan Konfigurasi 2 */
-    const progress = (value - 50) / 50;
-    const opacity1 = 0.3 * (1 - progress);
-    const opacity2 = 0.3 + progress * 0.7;
-    config1.style.opacity = opacity1;
-    config2.style.opacity = opacity2;
-    modeIndicator.innerHTML = '<span class="mode-c">🎯 KONFIGURASI 2: Luas = c²</span>';
+    // Kembali ke posisi awal
+    draggedPiece.style.left = piece.sourceX + 'px';
+    draggedPiece.style.top = piece.sourceY + 'px';
   }
   
-  /* Update classes untuk transition */
-  if (value === 0) {
-    config1.classList.remove('hidden');
-    config1.classList.add('visible');
-    config2.classList.remove('visible');
-    config2.classList.add('hidden');
-  } else if (value === 100) {
-    config2.classList.remove('hidden');
-    config2.classList.add('visible');
-    config1.classList.remove('visible');
-    config1.classList.add('hidden');
-  } else {
-    config1.classList.remove('hidden', 'visible');
-    config2.classList.remove('hidden', 'visible');
+  // Remove highlight
+  document.querySelectorAll('.target-zone').forEach(z => z.classList.remove('highlight'));
+  
+  draggedPiece = null;
+}
+
+function highlightNearTarget(piece) {
+  const pieceRect = piece.getBoundingClientRect();
+  document.querySelectorAll('.target-zone').forEach(zone => {
+    const zoneRect = zone.getBoundingClientRect();
+    const distance = Math.hypot(
+      pieceRect.left - zoneRect.left,
+      pieceRect.top - zoneRect.top
+    );
+    if (distance < SNAP_THRESHOLD * 1.5) {
+      zone.classList.add('highlight');
+    } else {
+      zone.classList.remove('highlight');
+    }
+  });
+}
+
+function updateProgress() {
+  const percentage = (placedCount / pieces.length) * 100;
+  progressFill.style.width = percentage + '%';
+  progressFill.textContent = `${placedCount}/6`;
+  progressText.textContent = `${placedCount} dari 6 potongan tersusun`;
+  
+  if (placedCount === pieces.length) {
+    successMessage.classList.add('show');
+    progressText.textContent = '🎉 SELESAI! a² + b² = c² TERBUKTI!';
   }
+}
+
+/* Reset */
+btnReset.onclick = () => {
+  pieces.forEach(piece => {
+    piece.placed = false;
+    const el = $(`piece-${piece.id}`);
+    el.classList.remove('placed');
+    el.style.left = piece.sourceX + 'px';
+    el.style.top = piece.sourceY + 'px';
+    sourceArea.appendChild(el);
+  });
+  placedCount = 0;
+  updateProgress();
+  successMessage.classList.remove('show');
+};
+
+/* Hint */
+btnHint.onclick = () => {
+  pieces.forEach(piece => {
+    if (!piece.placed) {
+      const el = $(`piece-${piece.id}`);
+      el.style.transition = 'all 0.5s';
+      el.style.left = piece.targetX + 'px';
+      el.style.top = piece.targetY + 'px';
+      setTimeout(() => {
+        el.style.left = piece.sourceX + 'px';
+        el.style.top = piece.sourceY + 'px';
+      }, 1500);
+    }
+  });
 };
 
 /* Inisialisasi */
-slider.oninput.call(slider);
+renderPieces();
+renderTargets();
+updateProgress();
 
-/* Integrasi projek: sheet, QR, snapshot */
-function snap(config) {
-  const container = $('tessContainer').cloneNode(true);
-  container.style.width = '250px';
-  container.style.height = '250px';
-  
-  const svg = container.querySelector('svg#' + config);
-  if (svg) {
-    svg.classList.remove('hidden');
-    svg.classList.add('visible');
-    svg.style.opacity = '1';
-  }
-  
-  const otherSvg = container.querySelector('svg#' + (config === 'config1' ? 'config2' : 'config1'));
-  if (otherSvg) {
-    otherSvg.classList.remove('visible');
-    otherSvg.classList.add('hidden');
-    otherSvg.style.opacity = '0';
-  }
-  
-  return container.outerHTML;
-}
-
+/* Integrasi projek: sheet, QR */
 function refreshSheet() {
-  $('figInitial').innerHTML = snap('config1');
-  $('figFinal').innerHTML = snap('config2');
+  $('figInitial').innerHTML = `<div style="background:#f0f4ff;padding:20px;border-radius:8px;text-align:center;">
+    <strong>KONFIGURASI 1</strong><br>6 potongan dari a² + b²
+  </div>`;
+  $('figFinal').innerHTML = `<div style="background:#e0f2fe;padding:20px;border-radius:8px;text-align:center;">
+    <strong>KONFIGURASI 2</strong><br>Potongan tersusun jadi c²
+  </div>`;
 }
 
 function fitSheet() {
