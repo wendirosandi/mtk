@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bukti #10: Euclid I.47 Kincir Angin (3-4-5) - Kalender Pythagoras 2027</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/proof.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <header class="proof-header no-print">
+        <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
+        <div class="proof-info">
+            <h1>Bukti #10: Euclid I.47 "Kincir Angin" (3-4-5)</h1>
+            <div class="proof-meta">
+                <span class="meta-item">📅 Oktober 2027</span>
+                <span class="meta-item">👥 Kelompok 8</span>
+                <span class="meta-item">🎯 Level: Menengah</span>
+            </div>
+        </div>
+        <div class="export-buttons">
+            <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 Download PDF (1 hal)</button>
+            <button class="btn-print" onclick="printPDF()">🖨 Print / Save as PDF</button>
+        </div>
+    </header>
+
+    <nav class="proof-nav no-print">
+        <a href="bukti-09-september.html" class="prev-btn">← September (Bukti #9)</a>
+        <span class="nav-indicator">10 / 12</span>
+        <a href="#" class="next-btn disabled" onclick="alert('November masih dalam tahap pengembangan');return false;">November (Bukti #11) →</a>
+    </nav>
+
+    <main class="proof-content" id="proofContent">
+
+        <section class="section introduction no-print">
+            <h2>📖 Pengenalan</h2>
+            <p class="intro-text">
+                Inilah pembuktian paling terkenal dalam sejarah matematika: <strong>Euclid, Elements
+                Buku I Proposisi 47</strong> (± 300 SM), dijuluki <em>"Windmill"</em> atau
+                <em>"Bride's Chair"</em>. Sebuah <strong>garis tegak-lurus dari sudut siku-siku</strong>
+                membagi persegi c² menjadi <strong>dua persegi-panjang</strong>; kemudian
+                <strong>sepasang segitiga kongruen</strong> (diputar 90°) menunjukkan:
+                persegi-panjang kiri = b² dan persegi-panjang kanan = a². Jumlahnya = c². Selesai. ∎
+            </p>
+            <div class="historical-note">
+                <strong>🌬️ Mengapa "kincir"?</strong> Empat "baling-baling" (dua persegi kaki + dua
+                persegi-panjang di c²) mengelilingi segitiga seperti kincir angin — dan setiap baling
+                kaki "berputar 90°" menuju baling-panjangnya lewat segitiga kongruen.
+            </div>
+        </section>
+
+        <!-- ============ ANIMASI ============ -->
+        <section class="section animation no-print">
+            <h2>🎬 Animasi Interaktif</h2>
+            <div class="animation-wrapper">
+                <div class="stage-wrap" style="position:relative;width:100%;background:#f4f6fb;border:3px solid #e0e0e0;border-radius:15px;overflow:hidden;">
+                    <svg id="stageSvg" viewBox="0 0 560 520" style="display:block;width:100%;height:auto;"></svg>
+                </div>
+                <div class="animation-controls">
+                    <button class="btn-start" id="btnStart">▶ Mulai</button>
+                    <button class="btn-pause" id="btnPause" style="display:none">⏸ Pause</button>
+                    <button class="btn-skip" id="btnSkip">⏭ Selesai</button>
+                    <button class="btn-reset" id="btnReset">↺ Reset</button>
+                    <div class="speed-control">
+                        <label for="speedSlider">⚡ Kecepatan:</label>
+                        <input type="range" id="speedSlider" min="0.5" max="3" step="0.5" value="1">
+                        <span class="speed-value" id="speedValue">1×</span>
+                    </div>
+                </div>
+                <div class="progress-box">
+                    <div class="pbar"><div class="pfill" id="pfill"></div></div>
+                    <div class="ptext" id="ptext">Progres: 0%</div>
+                </div>
+                <div class="formula-display" style="margin-top:15px;">
+                    <div class="formula-step active" id="step0">Siap memulai… tekan ▶ Mulai</div>
+                    <div class="formula-step" id="step1">Segitiga siku-siku 3-4-5 + tiga persegi (9, 16, 25)</div>
+                    <div class="formula-step" id="step2">Garis tinggi dari C membagi c² = 25 menjadi 2 persegi-panjang</div>
+                    <div class="formula-step" id="step3">ΔABB′ ≅ ΔPBC (SAS, rotasi 90° di B) → persegi-panjang kanan = a² = 9</div>
+                    <div class="formula-step" id="step4">ΔBAA′ ≅ ΔP′AC (SAS, rotasi 90° di A) → persegi-panjang kiri = b² = 16</div>
+                    <div class="formula-step" id="step5">a² + b² = 9 + 16 = 25 = c² ✓</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ MATERI KONGRUEN (KELAS 8) ============ -->
+        <section class="section no-print" style="border-left:6px solid #667eea;">
+            <h2>📚 Pengayaan Kelas 8: Memahami Segitiga Kongruen</h2>
+            <p style="line-height:1.8;">
+                Dua segitiga disebut <strong>kongruen</strong> (<em>≅</em>) jika bentuk dan ukurannya
+                <strong>sama persis</strong> — artinya salah satu dapat <strong>tepat menutupi</strong>
+                yang lain setelah <strong>digeser (translasi), diputar (rotasi), atau dibalik
+                (refleksi)</strong>. Tidak perlu mengukur semua sisi & sudut: cukup salah satu
+                kriteria berikut:
+            </p>
+            <table style="width:100%;border-collapse:collapse;margin:12px 0;">
+                <thead><tr style="background:#667eea;color:#fff;">
+                    <th style="padding:8px;border:1px solid #ddd;">Kriteria</th>
+                    <th style="padding:8px;border:1px solid #ddd;">Artinya</th>
+                    <th style="padding:8px;border:1px solid #ddd;">Contoh sehari-hari</th>
+                </tr></thead>
+                <tbody style="font-size:14px;">
+                    <tr><td style="padding:8px;border:1px solid #ddd;"><strong>SSS</strong></td>
+                        <td style="padding:8px;border:1px solid #ddd;">3 pasang sisi sama panjang</td>
+                        <td style="padding:8px;border:1px solid #ddd;">Rangka segitiga atap identik</td></tr>
+                    <tr style="background:#f5f7ff;"><td style="padding:8px;border:1px solid #ddd;"><strong>SAS</strong></td>
+                        <td style="padding:8px;border:1px solid #ddd;">2 pasang sisi + <em>sudut apit</em> sama</td>
+                        <td style="padding:8px;border:1px solid #ddd;">Engsel pintu dibuka sama lebar</td></tr>
+                    <tr><td style="padding:8px;border:1px solid #ddd;"><strong>ASA</strong></td>
+                        <td style="padding:8px;border:1px solid #ddd;">2 pasang sudut + sisi apit sama</td>
+                        <td style="padding:8px;border:1px solid #ddd;">Ubin segitiga cetakan sama</td></tr>
+                    <tr style="background:#f5f7ff;"><td style="padding:8px;border:1px solid #ddd;"><strong>AAS</strong></td>
+                        <td style="padding:8px;border:1px solid #ddd;">2 pasang sudut + sisi tak-apit sama</td>
+                        <td style="padding:8px;border:1px solid #ddd;">Potongan kue cetakan sama</td></tr>
+                </tbody>
+            </table>
+            <h3 style="margin:14px 0 6px;">🔍 Kongruen mana yang dipakai Euclid? → <span style="color:#667eea;">SAS</span></h3>
+            <ol style="margin-left:20px;line-height:1.9;font-size:15px;">
+                <li><strong>Sisi 1:</strong> AB = BP = c = 5 &nbsp;(AB sisi segitiga; BP sisi persegi c²) → sama panjang.</li>
+                <li><strong>Sisi 2:</strong> BB′ = BC = a = 3 &nbsp;(BB′ sisi persegi a²; BC sisi segitiga) → sama panjang.</li>
+                <li><strong>Sudut apit:</strong> ∠ABB′ = ∠ABC + 90° dan ∠PBC = ∠PBA + ∠ABC = 90° + ∠ABC
+                    → <strong>kedua sudut apit sama besar</strong>.</li>
+                <li>Maka <strong>ΔABB′ ≅ ΔPBC</strong> (SAS) → <strong>luasnya pasti sama</strong>.</li>
+            </ol>
+            <p style="line-height:1.8;margin-top:8px;">
+                <strong> Lihat animasinya:</strong> segitiga merah <em>benar-benar diputar 90° di titik B</em>
+                dan <strong>tepat berimpit</strong> dengan segitiga tujuan — itulah arti kongruen!
+                (Pasangan biru diputar 90° di titik A dengan cara sama.)
+            </p>
+            <h3 style="margin:14px 0 6px;">📐 Dari kongruen ke luas (lemma "alas & tinggi sama")</h3>
+            <ul style="margin-left:20px;line-height:1.9;font-size:15px;">
+                <li>ΔABB′ punya alas BB′ = 3 dan puncaknya A berada di garis sejajar berjarak 3
+                    → luas = ½ · 3 · 3 = <strong>½ · a²</strong> (setengah persegi a²).</li>
+                <li>ΔPBC punya alas BP = 5 dan puncaknya C berada di garis pembelahan (garis tinggi)
+                    berjarak 9/5 → luas = ½ · 5 · 9/5 = <strong>½ · persegi-panjang kanan</strong>.</li>
+                <li>Karena dua segitiga itu kongruen: ½·a² = ½·persegi-panjang kanan
+                    → <strong>persegi-panjang kanan = a²</strong>. Ulangi sisi biru untuk kiri = b².</li>
+                <li>Jumlah: <strong>a² + b² = persegi-panjang kanan + kiri = c²</strong> ∎</li>
+            </ul>
+            <div class="historical-note">
+                <strong>✏️ Latihan kelas 8:</strong> dengan triple 6-8-10, tunjukkan pasangan SAS yang
+                sama (sisi 10 & 6, sudut apit 90° + ∠ABC) dan hitung kedua luas untuk membuktikan
+                persegi-panjang kanan = 36.
+            </div>
+        </section>
+
+        <!-- ============ RUJUKAN ============ -->
+        <section class="section external-resources no-print">
+            <h2>🔗 Rujukan Interaktif</h2>
+            <div class="embed-container" style="text-align:center;padding:24px;">
+                <div style="font-size:40px;">🌬️</div>
+                <p style="margin:10px 0;color:#555;">Applet GeoGebra <strong>"Euclid I.47 / Windmill proof"</strong> —
+                   geser titik A/B dan saksikan dua persegi-panjang selalu sama dengan dua persegi kaki.</p>
+                <a class="external-link" target="_blank" rel="noopener"
+                   href="https://www.geogebra.org/search?query=euclid%20I.47%20windmill"
+                   style="display:inline-block;background:#667eea;color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;text-decoration:none;">
+                   🔗 Cari Applet GeoGebra: Euclid I.47</a>
+            </div>
+        </section>
+
+        <!-- ============ AREA EXPORT (sheet A4) ============ -->
+        <section class="section export-section no-print-screen">
+            <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">
+                👁 Tampilkan Pratinjau PDF (1 halaman)</button>
+            <div class="preview-collapse collapsed" id="previewCollapse">
+              <div class="a4-viewport" id="a4Viewport">
+                <div id="exportArea" class="a4-sheet">
+                    <div class="export-header">
+                        <h2>Bukti #10: Euclid I.47 "Kincir Angin"</h2>
+                        <p>Kalender Pythagoras 2027 • Oktober • Kelompok 8 • Level: Menengah</p>
+                    </div>
+                    <div id="calBlock" class="cal-block"></div>
+                    <hr class="cal-divider">
+                    <div class="proof-figures">
+                        <figure class="proof-figure"><span class="state-badge initial">AWAL</span>
+                            <div class="scene" id="figInitial"></div>
+                            <figcaption><strong>Gbr 1:</strong> kincir lengkap; dua segitiga kunci (merah & biru) di posisi awal.</figcaption></figure>
+                        <figure class="proof-figure"><span class="state-badge final">AKHIR</span>
+                            <div class="scene" id="figFinal"></div>
+                            <figcaption><strong>Gbr 2:</strong> setelah rotasi 90°: persegi-panjang kanan = a², kiri = b².</figcaption></figure>
+                    </div>
+                    <div class="export-explain">
+                        <p><strong>Penjelasan:</strong> garis tinggi dari sudut siku-siku membagi c² menjadi
+                           dua persegi-panjang. Dengan kriteria <strong>SAS</strong>, ΔABB′ ≅ ΔPBC (rotasi 90° di B)
+                           sehingga persegi-panjang kanan = a²; serupa kiri = b². Maka a² + b² = c².</p>
+                        <div class="export-formula">a² + b² = c² → 9 + 16 = 25 ✓ (SAS: sisi c & a, sudut apit 90°+∠B)</div>
+                    </div>
+                    <div class="export-conclusion">
+                        <div class="export-conclusion-text">KESIMPULAN:<br>a² + b² = c²</div>
+                        <div><div class="qr-box" id="qrcode">[QR]</div>
+                        <div class="qr-caption">Scan untuk animasi</div></div>
+                    </div>
+                </div>
+              </div>
+            </div>
+        </section>
+    </main>
+
+    <nav class="proof-nav bottom no-print">
+        <a href="bukti-09-september.html" class="prev-btn">← Sebelumnya</a>
+        <a href="../index.html" class="home-btn">🏠 Kalender</a>
+        <a href="#" class="next-btn disabled" onclick="alert('November masih dalam tahap pengembangan');return false;">Selanjutnya →</a>
+    </nav>
+
+    <footer class="no-print">
+        <p><strong>Kelompok 8</strong> - Pembuktian #10</p>
+        <p>Projek Kalender Pythagoras 2027</p>
+    </footer>
+
+    <script src="../assets/js/calendar-template.js?v=3"></script>
+    <script src="../assets/js/pdf-export.js?v=31"></script>
+    <script>
+    /* ================= GEOMETRI EKSAK EUCLID I.47 ================= */
+    const A3 = 3, B3 = 4, C3 = 5;
+    const a = A3, b = B3, c = C3;
+    const Cpt = {x:0,y:0}, Apt = {x:0,y:b}, Bpt = {x:a,y:0};
+    const Bp = {x:a,y:-a}, Cp = {x:0,y:-a};            // persegi a²
+    const Ap = {x:-b,y:b}, Cpp = {x:-b,y:0};           // persegi b²
+    const P2 = {x:a+b,y:a}, P3 = {x:b,y:a+b};          // persegi c²
+    const n = {x:b/c, y:a/c}, hgt = a*b/c;
+    const F = {x:hgt*n.x, y:hgt*n.y};                  // kaki tinggi di AB
+    const L = {x:F.x+c*n.x, y:F.y+c*n.y};              // ujung tinggi di sisi jauh c²
+    const RA = [Apt,F,L,P3], RB = [F,Bpt,P2,L];
+    const Y1 = [Apt,Bpt,Bp], X1 = [P2,Bpt,Cpt];        // pasangan kongruen 1 (rotasi di B)
+    const Y2 = [Bpt,Apt,Ap], X2 = [P3,Apt,Cpt];        // pasangan kongruen 2 (rotasi di A)
+
+    /* SELF-TEST: rotasi tepat + luas persegi-panjang */
+    (function(){
+        const rotB = p => ({ x: Bpt.x + (p.y-Bpt.y), y: Bpt.y - (p.x-Bpt.x) });   // CW90 di B
+        const rotA = p => ({ x: Apt.x - (p.y-Apt.y), y: Apt.y + (p.x-Apt.x) });   // CCW90 di A
+        const d1 = Math.hypot(rotB(Apt).x-P2.x, rotB(Apt).y-P2.y) + Math.hypot(rotB(Bp).x-Cpt.x, rotB(Bp).y-Cpt.y);
+        const d2 = Math.hypot(rotA(Bpt).x-P3.x, rotA(Bpt).y-P3.y) + Math.hypot(rotA(Ap).x-Cpt.x, rotA(Ap).y-Cpt.y);
+        const ar = poly => { let s=0; for(let i=0,j=poly.length-1;i<poly.length;j=i++)
+            s+=poly[j].x*poly[i].y-poly[i].x*poly[j].y; return Math.abs(s/2); };
+        const okRot = d1 < 1e-9 && d2 < 1e-9;
+        const okArea = Math.abs(ar(RB)-a*a) < 1e-9 && Math.abs(ar(RA)-b*b) < 1e-9;
+        if (okRot && okArea) console.log('✅ KONGRUEN & LUAS OK (Euclid ' + a + ',' + b + ',' + c + ')');
+        else console.warn('⚠️ EUCLID GAGAL', { d1, d2, okArea });
+    })();
+
+    /* ================= pemetaan layar ================= */
+    const VW=560, VH=520, PAD=24;
+    const mnx=-b, mxx=a+b, mny=-a, mxy=a+b;
+    const U=Math.min((VW-2*PAD)/(mxx-mnx),(VH-2*PAD)/(mxy-mny));
+    const OX=PAD+((VW-2*PAD)-(mxx-mnx)*U)/2-mnx*U;
+    const OY=PAD+((VH-2*PAD)-(mxy-mny)*U)/2+mxy*U;
+    const S=(x,y)=>({x:OX+x*U, y:OY-y*U});
+    const pts=poly=>poly.map(p=>{const q=S(p.x,p.y);return q.x.toFixed(1)+','+q.y.toFixed(1);}).join(' ');
+    const NS='http://www.w3.org/2000/svg';
+    const svg=document.getElementById('stageSvg');
+    const mk=(t,at,pa)=>{const e=document.createElementNS(NS,t);for(const k in at)e.setAttribute(k,at[k]);(pa||svg).appendChild(e);return e;};
+
+    const gTri = mk('polygon',{points:pts([Cpt,Apt,Bpt]),fill:'rgba(144,164,174,.5)',stroke:'#37474f','stroke-width':2,opacity:0});
+    const gSqA = mk('polygon',{points:pts([Cpt,Bpt,Bp,Cp]),fill:'#fdecea',stroke:'#c62828','stroke-width':2,opacity:0});
+    const gSqB = mk('polygon',{points:pts([Cpt,Apt,Ap,Cpp]),fill:'#e8f5e9',stroke:'#2e7d32','stroke-width':2,opacity:0});
+    const gSqC = mk('polygon',{points:pts([Apt,Bpt,P2,P3]),fill:'#eef4fb',stroke:'#2f7bd9','stroke-width':2,opacity:0});
+    const gPerp= mk('line',{x1:S(Cpt.x,Cpt.y).x,y1:S(Cpt.x,Cpt.y).y,x2:S(L.x,L.y).x,y2:S(L.y? L.y:L.y,L.y).y,stroke:'#37474f','stroke-width':2,opacity:0});
+    gPerp.setAttribute('y2', S(L.x,L.y).y); gPerp.setAttribute('x2', S(L.x,L.y).x);
+    const gRA = mk('polygon',{points:pts(RA),fill:'#5b5bee',opacity:0});
+    const gRB = mk('polygon',{points:pts(RB),fill:'#f16a7a',opacity:0});
+    const gY1 = mk('g',{}); mk('polygon',{points:pts(Y1),fill:'#f16a7a',stroke:'#b02ab0','stroke-width':2,opacity:.9},gY1);
+    const gY2 = mk('g',{}); mk('polygon',{points:pts(Y2),fill:'#5b5bee',stroke:'#0d47a1','stroke-width':2,opacity:.9},gY2);
+    function lab(x,y,t,col,sz){const e=mk('text',{x:S(x,y).x,y:S(x,y).y,'text-anchor':'middle',fill:col,'font-size':sz||15,'font-weight':'bold',opacity:0});e.textContent=t;return e;}
+    const labs=[ lab(a/2,-a/2,'a²=9','#c62828'), lab(-b/2,b/2,'b²=16','#2e7d32'),
+        lab((Apt.x+Bpt.x+P2.x+P3.x)/4+0.6,(Apt.y+Bpt.y+P2.y+P3.y)/4+0.6,'c²=25','#1565c0'),
+        lab((F.x+Bpt.x+P2.x+L.x)/4,(F.y+Bpt.y+P2.y+L.y)/4,'= a²','#802020',13),
+        lab((Apt.x+F.x+L.x+P3.x)/4,(Apt.y+F.y+L.y+P3.y)/4,'= b²','#203080',13) ];
+
+    /* ================= timeline ================= */
+    const tweens=[]; const TOTAL=6000;
+    const addTween=(t0,t1,fn)=>{const tw={t0,t1,fn,last:-1};tweens.push(tw);return tw;};
+    const fade=(el,t0,d,to,from=0)=>addTween(t0,t0+d,p=>el.setAttribute('opacity',from+(to-from)*p));
+    const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+    const sB=S(Bpt.x,Bpt.y), sA=S(Apt.x,Apt.y);
+    function buildTimeline(){
+        tweens.length=0;
+        fade(gTri,0,400,1); fade(gSqA,200,300,1); fade(gSqB,350,300,1); fade(gSqC,500,300,1);
+        labs.slice(0,3).forEach((l,i)=>fade(l,600+i*100,300,1));
+        const LP=Math.hypot(S(L.x,L.y).x-S(0,0).x, S(L.x,L.y).y-S(0,0).y);
+        gPerp.setAttribute('stroke-dasharray',LP); gPerp.setAttribute('stroke-dashoffset',LP);
+        fade(gPerp,1000,100,1);
+        addTween(1000,1600,p=>gPerp.setAttribute('stroke-dashoffset',LP*(1-p)));
+        fade(gY1,1600,300,1);
+        addTween(1900,2700,p=>{const e=ease(p); gY1.setAttribute('transform',`rotate(${90*e} ${sB.x} ${sB.y})`);});
+        fade(gRB,2700,400,.45); fade(labs[3],2800,300,1);
+        fade(gY2,3100,300,1);
+        addTween(3400,4200,p=>{const e=ease(p); gY2.setAttribute('transform',`rotate(${-90*e} ${sA.x} ${sA.y})`);});
+        fade(gRA,4200,400,.45); fade(labs[4],4300,300,1);
+        addTween(5200,5600,p=>{svg.style.transform=`scale(${1+0.03*Math.sin(Math.PI*p)})`;});
+    }
+    buildTimeline();
+
+    let vt=0,playing=false,speed=1,lastTs=null;
+    const stepTimes=[[0,1],[1000,2],[1900,3],[3400,4],[5200,5]];
+    function frame(ts){
+        if(lastTs===null)lastTs=ts; const dt=Math.min(50,ts-lastTs); lastTs=ts;
+        if(playing) vt=Math.min(TOTAL,vt+dt*speed);
+        for(const tw of tweens){const p=Math.max(0,Math.min(1,(vt-tw.t0)/(tw-tw.t0? tw.t1-tw.t0:1)));
+            if(p!==tw.last){tw.fn(p);tw.last=p;}}
+        const pct=Math.round(vt/TOTAL*100);
+        document.getElementById('ptext').textContent='Progres: '+pct+'%';
+        document.getElementById('pfill').style.width=pct+'%';
+        let n=0; for(const [t,s] of stepTimes) if(vt>=t) n=s;
+        document.querySelectorAll('.formula-step').forEach(el=>el.classList.remove('active'));
+        const el=document.getElementById('step'+n); if(el) el.classList.add('active');
+        if(playing&&vt>=TOTAL){playing=false;
+            const b=document.getElementById('btnStart');
+            b.textContent='▶ Ulangi'; b.style.display='inline-block';
+            document.getElementById('btnPause').style.display='none';}
+        requestAnimationFrame(frame);
+    }
+    function resetState(){vt=0;playing=false;svg.style.transform='none';
+        for(const tw of tweens)tw.last=-1; buildTimeline();
+        const b=document.getElementById('btnStart');
+        b.textContent='▶ Mulai'; b.style.display='inline-block';
+        document.getElementById('btnPause').style.display='none';}
+    document.getElementById('btnStart').addEventListener('click',()=>{if(vt>=TOTAL)resetState();
+        playing=true;document.getElementById('btnStart').style.display='none';
+        document.getElementById('btnPause').style.display='inline-block';});
+    document.getElementById('btnPause').addEventListener('click',()=>{playing=false;
+        const b=document.getElementById('btnStart');b.textContent='▶ Lanjut';
+        b.style.display='inline-block';document.getElementById('btnPause').style.display='none';});
+    document.getElementById('btnSkip').addEventListener('click',()=>{vt=TOTAL;playing=false;
+        for(const tw of tweens){tw.fn(1);tw.last=1;}});
+    document.getElementById('btnReset').addEventListener('click',resetState);
+    document.getElementById('speedSlider').addEventListener('input',e=>{
+        speed=parseFloat(e.target.value);document.getElementById('speedValue').textContent=speed+'×';});
+
+    /* ================= gambar statis sheet ================= */
+    function euclidScene(state,w){
+        const sp=a+2*b? (a+b)-(-b):0;
+        const x0=-b,x1=a+b,y0=-a,y1=a+b;
+        const u=(w-16)/(x1-x0); const ox=8-x0*u; const oy=8+y1*u;
+        const s=(x,y)=>({x:ox+x*u,y:oy-y*u});
+        const P=poly=>poly.map(p=>{const q=s(p.x,p.y);return q.x.toFixed(1)+','+q.y.toFixed(1);}).join(' ');
+        const hh=Math.round(w*0.93);
+        let o=`<svg viewBox="0 0 ${w} ${hh}" width="${w}" height="${hh}" style="display:block;margin:auto;">`;
+        o+=`<polygon points="${P([Cpt,Apt,Bpt])}" fill="rgba(144,164,174,.5)" stroke="#37474f" stroke-width="1.5"/>`;
+        o+=`<polygon points="${P([Cpt,Bpt,Bp,Cp])}" fill="#fdecea" stroke="#c62828" stroke-width="1.5"/>`;
+        o+=`<polygon points="${P([Cpt,Apt,Ap,Cpp])}" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.5"/>`;
+        o+=`<polygon points="${P([Apt,Bpt,P2,P3])}" fill="#eef4fb" stroke="#2f7bd9" stroke-width="1.5"/>`;
+        o+=`<line x1="${s(0,0).x}" y1="${s(0,0).y}" x2="${s(L.x,L.y).x}" y2="${s(L.x,L.y).y}" stroke="#37474f" stroke-width="1.5"/>`;
+        if(state==='initial'){
+            o+=`<polygon points="${P(Y1)}" fill="#f16a7a" stroke="#b02ab0" stroke-width="1.5"/>`;
+            o+=`<polygon points="${P(Y2)}" fill="#5b5bee" stroke="#0d47a1" stroke-width="1.5"/>`;
+        } else {
+            o+=`<polygon points="${P(RB)}" fill="#f16a7a" opacity=".45"/>`;
+            o+=`<polygon points="${P(RA)}" fill="#5b5bee" opacity=".45"/>`;
+            o+=`<polygon points="${P(X1)}" fill="#f16a7a" stroke="#b02ab0" stroke-width="1.5"/>`;
+            o+=`<polygon points="${P(X2)}" fill="#5b5bee" stroke="#0d47a1" stroke-width="1.5"/>`;
+            o+=`<text x="${s((F.x+Bpt.x+P2.x+L.x)/4,(F.y+Bpt.y+P2.y+L.y)/4).x}" y="${s((F.x+Bpt.x+P2.x+L.x)/4,(F.y+Bpt.y+P2.y+L.y)/4).y}" text-anchor="middle" font-size="11" font-weight="bold" fill="#802020">= a²</text>`;
+            o+=`<text x="${s((Apt.x+F.x+L.x+P3.x)/4,(Apt.y+F.y+L.y+P3.y)/4).x}" y="${s((Apt.x+F.x+L.x+P3.x)/4,(Apt.y+F.y+L.y+P3.y)/4).y}" text-anchor="middle" font-size="11" font-weight="bold" fill="#203080">= b²</text>`;
+        }
+        return o+`</svg>`;
+    }
+    document.getElementById('figInitial').innerHTML=euclidScene('initial',260);
+    document.getElementById('figFinal').innerHTML=euclidScene('final',260);
+
+    /* ================= sheet/kalender/QR ================= */
+    function fitSheet(){const vp=document.getElementById('a4Viewport');
+        const sh=document.querySelector('.a4-sheet');if(!vp||!sh)return;
+        const s=Math.min(1,vp.clientWidth/794);
+        sh.style.transform=`scale(${s})`;sh.style.transformOrigin='top left';
+        vp.style.height=(1123*s)+'px';}
+    window.fitSheet=fitSheet;window.addEventListener('resize',fitSheet);
+    window.togglePreview=function(){const col=document.getElementById('previewCollapse');
+        col.classList.toggle('collapsed');
+        document.getElementById('btnPreview').textContent=col.classList.contains('collapsed')
+            ?'👁 Tampilkan Pratinjau PDF (1 halaman)':'🙈 Sembunyikan Pratinjau PDF';
+        if(!col.classList.contains('collapsed'))setTimeout(fitSheet,60);};
+    renderCalendar(document.getElementById('calBlock'),10);
+    try{new QRCode(document.getElementById('qrcode'),{text:window.location.href,
+        width:84,height:84,correctLevel:QRCode.CorrectLevel.M});}
+    catch(e){document.getElementById('qrcode').textContent=window.location.href;}
+    fitSheet();
+    requestAnimationFrame(frame);
+    </script>
+</body>
+</html>
