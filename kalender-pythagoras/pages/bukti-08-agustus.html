@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bukti #8: Diagram Tali Zhao Shuang (5-12-13) - Kalender Pythagoras 2027</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/proof.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <header class="proof-header no-print">
+        <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
+        <div class="proof-info">
+            <h1>Bukti #8: Diagram Tali Zhao Shuang (5-12-13)</h1>
+            <div class="proof-meta">
+                <span class="meta-item">📅 Agustus 2027</span>
+                <span class="meta-item">👥 Kelompok 6</span>
+                <span class="meta-item">🎯 Level: Dasar</span>
+            </div>
+        </div>
+        <div class="export-buttons">
+            <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 Download PDF (1 hal)</button>
+            <button class="btn-print" onclick="printPDF()">🖨 Print / Save as PDF</button>
+        </div>
+    </header>
+
+    <nav class="proof-nav no-print">
+        <a href="bukti-03-maret.html" class="prev-btn">← Maret (Bukti #3)</a>
+        <span class="nav-indicator">8 / 12</span>
+        <a href="#" class="next-btn disabled" onclick="alert('September masih pengembangan (Apr–Jul ditunda)');return false;">September (Bukti #9) →</a>
+    </nav>
+
+    <main class="proof-content" id="proofContent">
+
+        <section class="section introduction no-print">
+            <h2>📖 Pengenalan</h2>
+            <p class="intro-text">
+                <strong>Diagram Tali (Xian Tu)</strong> dari <strong>Zhao Shuang</strong> (Tiongkok, ± abad ke-3 M,
+                komentator <em>Zhou Bi Suan Jing</em>): persegi sisi <strong>c</strong> diisi tepat oleh
+                <strong>4 segitiga siku-siku</strong> (kaki a & b) sehingga rongga di tengahnya adalah
+                persegi kecil sisi <strong>(b − a)</strong>. Seribu tahun kemudian Bhaskara II cukup berkata
+                <em>"Behold!"</em> — sebab satu gambar ini memuat seluruh pembuktian:
+                <strong>c² = 4·(½ab) + (b−a)² = a² + b²</strong>.
+            </p>
+            <div class="historical-note">
+                <strong> Mengapa rongga = (b−a)?</strong> Setiap kaki-panjang b berimpit dengan
+                kaki-pendek a segitiga tetangga ditambah sisa (b−a) — sisi rongga tengah.
+                Untuk 5-12-13: rongga = (12−5)² = <strong>49</strong>, dan
+                169 = 4·30 + 49 = 120 + 49 ✓.
+            </div>
+        </section>
+
+        <!-- ============ ANIMASI ============ -->
+        <section class="section animation no-print">
+            <h2>🎬 Animasi Interaktif</h2>
+            <div class="animation-wrapper">
+                <div class="stage-wrap" style="position:relative;width:100%;background:#f4f6fb;border:3px solid #e0e0e0;border-radius:15px;overflow:hidden;">
+                    <svg id="stageSvg" viewBox="0 0 560 520" style="display:block;width:100%;height:auto;"></svg>
+                </div>
+                <div class="animation-controls">
+                    <button class="btn-start" id="btnStart">▶ Mulai</button>
+                    <button class="btn-pause" id="btnPause" style="display:none">⏸ Pause</button>
+                    <button class="btn-skip" id="btnSkip">⏭ Selesai</button>
+                    <button class="btn-reset" id="btnReset">↺ Reset</button>
+                    <div class="speed-control">
+                        <label for="speedSlider">⚡ Kecepatan:</label>
+                        <input type="range" id="speedSlider" min="0.5" max="3" step="0.5" value="1">
+                        <span class="speed-value" id="speedValue">1×</span>
+                    </div>
+                </div>
+                <div class="progress-box">
+                    <div class="pbar"><div class="pfill" id="pfill"></div></div>
+                    <div class="ptext" id="ptext">Progres: 0%</div>
+                </div>
+                <div class="formula-display" style="margin-top:15px;">
+                    <div class="formula-step active" id="step0">Siap memulai… tekan ▶ Mulai</div>
+                    <div class="formula-step" id="step1">Persegi besar: sisi c = 13 → luas c² = 169</div>
+                    <div class="formula-step" id="step2">4 segitiga siku-siku (kaki 5 & 12): masing-masing ½·5·12 = 30</div>
+                    <div class="formula-step" id="step3">Rongga tengah: (b−a)² = (12−5)² = 49</div>
+                    <div class="formula-step" id="step4">169 = 4·30 + 49 = 120 + 49 ✓</div>
+                    <div class="formula-step" id="step5">c² = 4·(½ab) + (b−a)² = a² + b² → 169 = 25 + 144 ✓</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ GEOGEBRA / RUJUKAN ============ -->
+        <section class="section external-resources no-print">
+            <h2>🔗 Rujukan Interaktif</h2>
+            <div class="embed-container" style="text-align:center;padding:24px;">
+                <div style="font-size:40px;">🧵</div>
+                <p style="margin:10px 0;color:#555;">Applet GeoGebra <strong>"Zhao Shuang String Diagram"</strong>
+                   (gambar tali / xian tu) — geser sisi a & b untuk melihat rongga (b−a)² berubah.</p>
+                <a class="external-link" target="_blank" rel="noopener"
+                   href="https://www.geogebra.org/search?query=zhao%20shuang%20string%20diagram"
+                   style="display:inline-block;background:#667eea;color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;text-decoration:none;">
+                   🔗 Cari Applet GeoGebra: Zhao Shuang</a>
+            </div>
+        </section>
+
+        <!-- ============ AREA EXPORT (sheet A4) ============ -->
+        <section class="section export-section no-print-screen">
+            <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">
+                👁 Tampilkan Pratinjau PDF (1 halaman)</button>
+            <div class="preview-collapse collapsed" id="previewCollapse">
+              <div class="a4-viewport" id="a4Viewport">
+                <div id="exportArea" class="a4-sheet">
+                    <div class="export-header">
+                        <h2>Bukti #8: Diagram Tali Zhao Shuang</h2>
+                        <p>Kalender Pythagoras 2027 • Agustus • Kelompok 6 • Level: Dasar</p>
+                    </div>
+                    <div id="calBlock" class="cal-block"></div>
+                    <hr class="cal-divider">
+                    <div class="proof-figures">
+                        <figure class="proof-figure"><span class="state-badge initial">AWAL</span>
+                            <div class="scene" id="figInitial"></div>
+                            <figcaption><strong>Gbr 1:</strong> persegi c² kosong; 4 segitiga menunggu di luar.</figcaption></figure>
+                        <figure class="proof-figure"><span class="state-badge final">AKHIR</span>
+                            <div class="scene" id="figFinal"></div>
+                            <figcaption><strong>Gbr 2:</strong> c² terisi 4 segitiga; rongga tengah = (b−a)².</figcaption></figure>
+                    </div>
+                    <div class="export-explain">
+                        <p><strong>Penjelasan:</strong> Persegi sisi c memuat tepat 4 segitiga siku-siku
+                           (kaki a, b; hipotenusa = sisi persegi) dan satu rongga persegi sisi (b−a).
+                           Maka c² = 4·(½ab) + (b−a)² = 2ab + b² − 2ab + a² = a² + b².</p>
+                        <div class="export-formula">c² = 4·(½ab) + (b−a)² → 169 = 120 + 49 → 169 = 25 + 144 ✓</div>
+                    </div>
+                    <div class="export-conclusion">
+                        <div class="export-conclusion-text">KESIMPULAN:<br>a² + b² = c²</div>
+                        <div><div class="qr-box" id="qrcode">[QR]</div>
+                        <div class="qr-caption">Scan untuk animasi</div></div>
+                    </div>
+                </div>
+              </div>
+            </div>
+        </section>
+    </main>
+
+    <nav class="proof-nav bottom no-print">
+        <a href="bukti-03-maret.html" class="prev-btn">← Sebelumnya</a>
+        <a href="../index.html" class="home-btn">🏠 Kalender</a>
+        <a href="#" class="next-btn disabled" onclick="alert('September masih pengembangan (Apr–Jul ditunda)');return false;">Selanjutnya →</a>
+    </nav>
+
+    <footer class="no-print">
+        <p><strong>Kelompok 6</strong> - Pembuktian #8</p>
+        <p>Projek Kalender Pythagoras 2027</p>
+    </footer>
+
+    <script src="../assets/js/calendar-template.js?v=3"></script>
+    <script src="../assets/js/pdf-export.js?v=31"></script>
+    <script>
+    /* ================= GEOMETRI EKSAK ZHAO SHUANG ================= */
+    const A = 5, B = 12, C = 13;
+    const D = 0.15 * C;                       // jarak "parkir" segitiga di luar
+    const V1 = { x: B*B/C, y: A*B/C };                       // (144/13, 60/13)
+    const rot90 = p => ({ x: C - p.y, y: p.x });             // rotasi 90° thd pusat (c/2,c/2)
+    const V2 = rot90(V1), V3 = rot90(V2), V4 = rot90(V3);
+    const TRIS = [
+        { poly: [{x:0,y:0},{x:C,y:0},V1],          out: {x:0, y:-D} },
+        { poly: [{x:C,y:0},{x:C,y:C},V2],          out: {x:D, y:0}  },
+        { poly: [{x:C,y:C},{x:0,y:C},V3],          out: {x:0, y:D}  },
+        { poly: [{x:0,y:C},{x:0,y:0},V4],          out: {x:-D,y:0}  }
+    ];
+    const INNER = [V1, V2, V3, V4];
+
+    /* SELF-TEST luas: 4·(½ab) + (b−a)² == c² */
+    (function(){
+        const lhs = 4*(A*B/2) + (B-A)*(B-A);
+        if (Math.abs(lhs - C*C) < 1e-9) console.log('✅ LUAS OK (Zhao Shuang ' + A + ',' + B + ',' + C + ')');
+        else console.warn('⚠️ LUAS GAGAL', { lhs, c2: C*C });
+    })();
+
+    /* ================= pemetaan layar ================= */
+    const VW = 560, VH = 520, PAD = 24;
+    const span = C + 2*D;
+    const U = Math.min((VW-2*PAD)/span, (VH-2*PAD)/span);
+    const OX = PAD + D*U + ((VW-2*PAD) - span*U)/2;
+    const OY = PAD + (C+D)*U + ((VH-2*PAD) - span*U)/2;
+    const S = (x,y) => ({ x: OX + x*U, y: OY - y*U });
+    const pts = poly => poly.map(p => { const q = S(p.x,p.y); return q.x.toFixed(1)+','+q.y.toFixed(1); }).join(' ');
+
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.getElementById('stageSvg');
+    const mk = (t,at,pa)=>{ const e=document.createElementNS(NS,t); for(const k in at) e.setAttribute(k,at[k]); (pa||svg).appendChild(e); return e; };
+    const COL = ['#f16a7a','#5b5bee','#5bf17a','#f1d95b'];
+
+    /* elemen stage */
+    const gSq   = mk('polygon', { points: pts([{x:0,y:0},{x:C,y:0},{x:C,y:C},{x:0,y:C}]),
+        fill:'#eef4fb', stroke:'#2f7bd9', 'stroke-width':2.5, opacity:0 });
+    const gInner = mk('polygon', { points: pts(INNER), fill:'#ee55ee', stroke:'#b02ab0',
+        'stroke-width':2, opacity:0 });
+    const triGs = TRIS.map((t,i)=>{ const g = mk('g', {});
+        mk('polygon', { points: pts(t.poly), fill: COL[i], stroke:'rgba(0,0,0,.35)', 'stroke-width':1.5 }, g);
+        return g; });
+    const ghostGs = TRIS.map((t,i)=> mk('polygon', { points: pts(t.poly.map(p=>({x:p.x+t.out.x,y:p.y+t.out.y}))),
+        fill:'none', stroke: COL[i], 'stroke-width':2, 'stroke-dasharray':'6 5', opacity:0 }));
+    const labC = mk('text', { x:S(C/2, C+0.9).x, y:S(C/2, C+0.9).y, 'text-anchor':'middle',
+        fill:'#1565c0', 'font-size':16, 'font-weight':'bold', opacity:0 }); labC.textContent = 'c = 13';
+    const labGap = mk('text', { x:S(C/2,C/2).x, y:S(C/2,C/2).y+5, 'text-anchor':'middle',
+        fill:'#ffffff', 'font-size':15, 'font-weight':'bold', opacity:0 }); labGap.textContent = '(b−a)² = 49';
+
+    /* ================= timeline ================= */
+    const tweens = []; const TOTAL = 5000;
+    const addTween=(t0,t1,fn)=>{ const tw={t0,t1,fn,last:-1}; tweens.push(tw); return tw; };
+    const fade=(el,t0,d,to,from=0)=>addTween(t0,t0+d,p=>el.setAttribute('opacity', from+(to-from)*p));
+    const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+    const offScreen = o => ({ x: o.x*U, y: -o.y*U });
+
+    function buildTimeline(){
+        tweens.length=0;
+        fade(gSq,0,400,1); fade(labC,200,400,1);
+        triGs.forEach((g,i)=>{ const o=offScreen(TRIS[i].out);
+            g.setAttribute('transform',`translate(${o.x},${o.y})`);
+            g.setAttribute('opacity',0);
+            fade(g,400+i*150,300,1); });
+        triGs.forEach((g,i)=>{ const o=offScreen(TRIS[i].out);
+            addTween(1400+i*250, 2200+i*250, p=>{ const e=ease(p);
+                g.setAttribute('transform',`translate(${o.x*(1-e)},${o.y*(1-e)})`); }); });
+        fade(gInner,2600,400,1); fade(labGap,2800,400,1);
+        ghostGs.forEach((g,i)=>fade(g,3000+i*100,400,1));
+        addTween(4400,4800,p=>{ svg.style.transform=`scale(${1+0.03*Math.sin(Math.PI*p)})`; });
+    }
+    buildTimeline();
+
+    let vt=0, playing=false, speed=1, lastTs=null;
+    const stepTimes=[[0,1],[400,2],[2600,3],[3000,4],[4400,5]];
+    function frame(ts){
+        if(lastTs===null)lastTs=ts; const dt=Math.min(50,ts-lastTs); lastTs=ts;
+        if(playing) vt=Math.min(TOTAL,vt+dt*speed);
+        for(const tw of tweens){ const p=Math.max(0,Math.min(1,(vt-tw.t0)/(tw.t1-tw.t0)));
+            if(p!==tw.last){ tw.fn(p); tw.last=p; } }
+        const pct=Math.round(vt/TOTAL*100);
+        document.getElementById('ptext').textContent='Progres: '+pct+'%';
+        document.getElementById('pfill').style.width=pct+'%';
+        let n=0; for(const [t,s] of stepTimes) if(vt>=t) n=s;
+        document.querySelectorAll('.formula-step').forEach(el=>el.classList.remove('active'));
+        const el=document.getElementById('step'+n); if(el) el.classList.add('active');
+        if(playing&&vt>=TOTAL){ playing=false;
+            const b=document.getElementById('btnStart');
+            b.textContent='▶ Ulangi'; b.style.display='inline-block';
+            document.getElementById('btnPause').style.display='none'; }
+        requestAnimationFrame(frame);
+    }
+    function resetState(){ vt=0; playing=false; svg.style.transform='none';
+        for(const tw of tweens) tw.last=-1; buildTimeline();
+        const b=document.getElementById('btnStart');
+        b.textContent='▶ Mulai'; b.style.display='inline-block';
+        document.getElementById('btnPause').style.display='none'; }
+    document.getElementById('btnStart').addEventListener('click',()=>{ if(vt>=TOTAL)resetState();
+        playing=true; document.getElementById('btnStart').style.display='none';
+        document.getElementById('btnPause').style.display='inline-block'; });
+    document.getElementById('btnPause').addEventListener('click',()=>{ playing=false;
+        const b=document.getElementById('btnStart'); b.textContent='▶ Lanjut';
+        b.style.display='inline-block'; document.getElementById('btnPause').style.display='none'; });
+    document.getElementById('btnSkip').addEventListener('click',()=>{ vt=TOTAL; playing=false;
+        for(const tw of tweens){ tw.fn(1); tw.last=1; } });
+    document.getElementById('btnReset').addEventListener('click',resetState);
+    document.getElementById('speedSlider').addEventListener('input',e=>{
+        speed=parseFloat(e.target.value); document.getElementById('speedValue').textContent=speed+'×'; });
+
+    /* ================= gambar statis sheet A4 ================= */
+    function zhaoScene(state, w){
+        const sp = C + 2*D;
+        const u = (w - 20) / sp;
+        const ox = 10 + D*u, oy = 10 + (C+D)*u;
+        const s = (x,y)=>({ x: ox + x*u, y: oy - y*u });
+        const P = poly => poly.map(p=>{ const q=s(p.x,p.y); return q.x.toFixed(1)+','+q.y.toFixed(1); }).join(' ');
+        const hh = Math.round(w * 0.93);
+        let out = `<svg viewBox="0 0 ${w} ${hh}" width="${w}" height="${hh}" style="display:block;margin:auto;">`;
+        out += `<polygon points="${P([{x:0,y:0},{x:C,y:0},{x:C,y:C},{x:0,y:C}])}" fill="#eef4fb" stroke="#2f7bd9" stroke-width="2"/>`;
+        if(state==='initial'){
+            TRIS.forEach((t,i)=> out += `<polygon points="${P(t.poly.map(p=>({x:p.x+t.out.x,y:p.y+t.out.y})))}" fill="${COL[i]}" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/>`);
+        } else {
+            TRIS.forEach((t,i)=> out += `<polygon points="${P(t.poly)}" fill="${COL[i]}" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/>`);
+            out += `<polygon points="${P(INNER)}" fill="#ee55ee" stroke="#b02ab0" stroke-width="2"/>`;
+            out += `<text x="${s(C/2,C/2).x}" y="${s(C/2,C/2).y+4}" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">(b−a)²=49</text>`;
+            TRIS.forEach((t,i)=> out += `<polygon points="${P(t.poly.map(p=>({x:p.x+t.out.x,y:p.y+t.out.y})))}" fill="none" stroke="${COL[i]}" stroke-width="1.5" stroke-dasharray="5 4"/>`);
+        }
+        out += `<text x="${s(C/2,C+0.9).x}" y="${s(C/2,C+0.9).y}" text-anchor="middle" font-size="13" font-weight="bold" fill="#1565c0">c = 13</text>`;
+        return out + `</svg>`;
+    }
+    document.getElementById('figInitial').innerHTML = zhaoScene('initial', 260);
+    document.getElementById('figFinal').innerHTML   = zhaoScene('final', 260);
+
+    /* ================= sheet / kalender / QR ================= */
+    function fitSheet(){ const vp=document.getElementById('a4Viewport');
+        const sh=document.querySelector('.a4-sheet'); if(!vp||!sh)return;
+        const s=Math.min(1, vp.clientWidth/794);
+        sh.style.transform=`scale(${s})`; sh.style.transformOrigin='top left';
+        vp.style.height=(1123*s)+'px'; }
+    window.fitSheet=fitSheet; window.addEventListener('resize',fitSheet);
+    window.togglePreview=function(){ const col=document.getElementById('previewCollapse');
+        col.classList.toggle('collapsed');
+        document.getElementById('btnPreview').textContent = col.classList.contains('collapsed')
+            ? '👁 Tampilkan Pratinjau PDF (1 halaman)' : '🙈 Sembunyikan Pratinjau PDF';
+        if(!col.classList.contains('collapsed')) setTimeout(fitSheet,60); };
+    renderCalendar(document.getElementById('calBlock'), 8);
+    try{ new QRCode(document.getElementById('qrcode'), { text: window.location.href,
+        width:84, height:84, correctLevel: QRCode.CorrectLevel.M }); }
+    catch(e){ document.getElementById('qrcode').textContent = window.location.href; }
+    fitSheet();
+    requestAnimationFrame(frame);
+    </script>
+</body>
+</html>
