@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bukti #2: Rearrangement 4 Segitiga - Kalender Pythagoras 2027</title>
+    <title>Bukti #2: Perigal Klasik (3-4-5) - Kalender Pythagoras 2027</title>
     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="../assets/css/proof.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -14,7 +14,7 @@
     <header class="proof-header no-print">
         <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
         <div class="proof-info">
-            <h1>Bukti #2: Rearrangement 4 Segitiga</h1>
+            <h1>Bukti #2: Perigal Klasik (3-4-5)</h1>
             <div class="proof-meta">
                 <span class="meta-item">📅 Februari 2027</span>
                 <span class="meta-item">👨‍🏫 Contoh Guru</span>
@@ -34,34 +34,23 @@
     </nav>
 
     <main class="proof-content" id="proofContent">
-
         <section class="section introduction no-print">
-            <h2>📖 Pengenalan</h2>
+            <h2>📖 Pengenalan (Contoh Guru #2)</h2>
             <p class="intro-text">
-                Empat segitiga siku-siku identik disusun di dalam persegi besar sisi (a+b).
-                <strong>Susunan 1:</strong> rongga tengah = c².
-                <strong>Susunan 2:</strong> segitiga dipasangkan menjadi 2 persegi panjang,
-                rongga = a² + b². Karena luas total & luas segitiga tidak berubah, sisanya sama.
+                <strong>Diseksi Perigal (1830):</strong> persegi b² dipotong dua garis
+                (sejajar & tegak-lurus hipotenusa) melalui pusatnya menjadi <strong>4 slice</strong>.
+                Keempat slice + persegi a² <strong>hanya digeser (tanpa rotasi)</strong> hingga menutup
+                persegi c² sempurna. Perhatikan: tidak ada putaran, tidak ada skala — hanya geser.
             </p>
+            <div class="historical-note"><strong>📜 Sejarah:</strong> Henry Perigal, aktuaris London;
+                bukti ini terukir di batu nisannya. Versi "slice fleksibel" dapat dicoba di GeoGebra.</div>
         </section>
 
         <section class="section animation no-print">
             <h2>🎬 Animasi Interaktif</h2>
             <div class="animation-wrapper">
-                <div class="stage-wrap r2-wrap" id="stageWrap">
-                    <div class="stage r2-stage" id="stage">
-                        <div class="r2-outline" id="r2Outline"></div>
-                        <div class="r2-pink r2-pink1" id="pink1"></div>
-                        <div class="r2-pinkbox" id="pink2a"></div>
-                        <div class="r2-pinkbox r2-b2" id="pink2b"></div>
-                        <div class="r2-dashlabel" id="labC2">c²</div>
-                        <div class="r2-dashlabel" id="labA2" style="left:252px;top:92px;">a²</div>
-                        <div class="r2-dashlabel" id="labB2" style="left:112px;top:232px;">b²</div>
-                        <span class="r2-sidelab" style="left:105px;top:30px;">a</span>
-                        <span class="r2-sidelab" style="left:245px;top:30px;">b</span>
-                        <span class="r2-sidelab" style="left:348px;top:95px;">a</span>
-                        <span class="r2-sidelab" style="left:348px;top:240px;">b</span>
-                    </div>
+                <div class="stage-wrap" style="position:relative;width:100%;background:#f4f6fb;border:3px solid #e0e0e0;border-radius:15px;overflow:hidden;">
+                    <svg id="stageSvg" viewBox="0 0 460 430" style="display:block;width:100%;height:auto;"></svg>
                 </div>
                 <div class="animation-controls">
                     <button class="btn-start" id="btnStart">▶ Mulai</button>
@@ -80,56 +69,55 @@
                 </div>
                 <div class="formula-display" style="margin-top:15px;">
                     <div class="formula-step active" id="step0">Siap memulai… tekan ▶ Mulai</div>
-                    <div class="formula-step" id="step1">Persegi besar sisi (a+b): luas = (a+b)²</div>
-                    <div class="formula-step" id="step2">Susunan 1: (a+b)² = 4·(½ab) + c²</div>
-                    <div class="formula-step" id="step3">Susunan 2: (a+b)² = 4·(½ab) + a² + b²</div>
-                    <div class="formula-step" id="step4">∴ c² = a² + b² → 25 = 9 + 16 ✓</div>
+                    <div class="formula-step" id="step1">Segitiga siku-siku: a = 3, b = 4, c = 5</div>
+                    <div class="formula-step" id="step2">a² = 9 • b² = 16 • c² = 25</div>
+                    <div class="formula-step" id="step3">b² dipotong 4 slice (∥ & ⊥ hipotenusa)</div>
+                    <div class="formula-step" id="step4">4 slice + a² digeser (tanpa rotasi) ke c²</div>
+                    <div class="formula-step" id="step5">c² tertutup sempurna → c² = a² + b² ✓</div>
                 </div>
             </div>
         </section>
 
-        <!-- ============ AREA EXPORT (sheet A4) ============ -->
+        <section class="section external-resources no-print">
+            <h2>🔗 Applet GeoGebra (Slice Tetap)</h2>
+            <div class="embed-container" style="text-align:center;padding:24px;">
+                <div style="font-size:40px;">📐</div>
+                <p style="margin:10px 0;color:#555;">Applet <strong>"Pembuktian Pythagoras 3 — Slice Tetap"</strong>.</p>
+                <a class="external-link" target="_blank" rel="noopener" href="https://www.geogebra.org/calculator/rrcce76q"
+                   style="display:inline-block;background:#667eea;color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;text-decoration:none;">
+                   🔗 Buka Applet GeoGebra rrcce76q</a>
+            </div>
+        </section>
+
         <section class="section export-section no-print-screen">
             <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">
-                👁 Tampilkan Pratinjau PDF (1 halaman)
-            </button>
+                👁 Tampilkan Pratinjau PDF (1 halaman)</button>
             <div class="preview-collapse collapsed" id="previewCollapse">
               <div class="a4-viewport" id="a4Viewport">
                 <div id="exportArea" class="a4-sheet">
                     <div class="export-header">
-                        <h2>Bukti #2: Rearrangement 4 Segitiga</h2>
+                        <h2>Bukti #2: Perigal Klasik (3-4-5)</h2>
                         <p>Kalender Pythagoras 2027 • Februari • Contoh Guru • Level: Dasar</p>
                     </div>
-
                     <div id="calBlock" class="cal-block"></div>
                     <hr class="cal-divider">
-
                     <div class="proof-figures">
-                        <figure class="proof-figure">
-                            <span class="state-badge initial">AWAL</span>
+                        <figure class="proof-figure"><span class="state-badge initial">AWAL</span>
                             <div class="scene" id="figInitial"></div>
-                            <figcaption><strong>Gbr 1:</strong> 4 segitiga di sudut; rongga = c².</figcaption>
-                        </figure>
-                        <figure class="proof-figure">
-                            <span class="state-badge final">AKHIR</span>
+                            <figcaption><strong>Gbr 1:</strong> b² terpotong 4 slice; a² utuh; c² kosong.</figcaption></figure>
+                        <figure class="proof-figure"><span class="state-badge final">AKHIR</span>
                             <div class="scene" id="figFinal"></div>
-                            <figcaption><strong>Gbr 2:</strong> Segitiga dipasangkan; rongga = a²+b².</figcaption>
-                        </figure>
+                            <figcaption><strong>Gbr 2:</strong> 4 slice + a² mengisi c²; sumber kosong.</figcaption></figure>
                     </div>
-
                     <div class="export-explain">
-                        <p><strong>Penjelasan:</strong> Persegi besar sisi (a+b) berisi 4 segitiga siku-siku.
-                           Susunan 1 meninggalkan rongga c²; susunan 2 meninggalkan rongga a²+b².
-                           Karena luas persegi besar dan luas 4 segitiga sama, sisanya sama.</p>
+                        <p><strong>Penjelasan:</strong> dua garis potong melalui pusat b² membaginya menjadi
+                           4 slice; bersama persegi a², semuanya hanya <em>digeser</em> hingga menutup c².</p>
                         <div class="export-formula">c² = a² + b² → 5² = 3² + 4² → 25 = 9 + 16 ✓</div>
                     </div>
-
                     <div class="export-conclusion">
                         <div class="export-conclusion-text">KESIMPULAN:<br>a² + b² = c²</div>
-                        <div>
-                            <div class="qr-box" id="qrcode">[QR]</div>
-                            <div class="qr-caption">Scan untuk animasi</div>
-                        </div>
+                        <div><div class="qr-box" id="qrcode">[QR]</div>
+                        <div class="qr-caption">Scan untuk animasi</div></div>
                     </div>
                 </div>
               </div>
@@ -137,157 +125,142 @@
         </section>
     </main>
 
-    <footer class="no-print">
-        <p><strong>Contoh Guru</strong> - Pembuktian #2</p>
-        <p>Projek Kalender Pythagoras 2027</p>
-    </footer>
+    <nav class="proof-nav bottom no-print">
+        <a href="bukti-01-januari.html" class="prev-btn">← Sebelumnya</a>
+        <a href="../index.html" class="home-btn">🏠 Kalender</a>
+        <a href="bukti-03-maret.html" class="next-btn">Selanjutnya →</a>
+    </nav>
+    <footer class="no-print"><p><strong>Contoh Guru</strong> - Pembuktian #2</p><p>Projek Kalender Pythagoras 2027</p></footer>
 
-    <style>
-        .r2-wrap{position:relative;width:100%;overflow:hidden;background:#f4f6fb;border:3px solid #e0e0e0;border-radius:15px}
-        .r2-stage{position:absolute;top:0;left:0;width:420px;height:400px;transform-origin:0 0}
-        .r2-outline{position:absolute;left:60px;top:50px;width:280px;height:280px;border:3px solid #444;opacity:0;z-index:1}
-        .r2-pink{position:absolute;left:0;top:0;width:420px;height:400px;background:#f9c9de;opacity:0;z-index:2;
-                 clip-path:polygon(180px 50px,340px 170px,220px 330px,60px 210px)}
-        .r2-pinkbox{position:absolute;left:220px;top:50px;width:120px;height:120px;background:#f9c9de;opacity:0;z-index:2}
-        .r2-b2{left:60px;top:170px;width:160px;height:160px}
-        .r2-dashlabel{position:absolute;left:182px;top:172px;width:56px;height:36px;border:2px dashed #c2185b;
-                      border-radius:6px;color:#c2185b;font-weight:bold;display:flex;align-items:center;
-                      justify-content:center;opacity:0;z-index:6;background:rgba(255,255,255,.75)}
-        .r2-sidelab{position:absolute;font-weight:bold;color:#37474f;font-size:15px;opacity:0;z-index:6}
-        .r2-tri{position:absolute;left:0;top:0;width:120px;height:160px;background:#5b9bd5;
-                clip-path:polygon(0 0,100% 0,0 100%);transform-origin:0 0;opacity:0;z-index:4;will-change:transform}
-    </style>
-
+    <script src="../assets/js/perigal-classic.js?v=1"></script>
     <script src="../assets/js/calendar-template.js?v=3"></script>
     <script src="../assets/js/pdf-export.js?v=31"></script>
     <script>
-    /* Sheet A4 scaling */
-    function fitSheet() {
-        const viewport = document.getElementById('a4Viewport');
-        const sheet = document.querySelector('.a4-sheet');
-        if (!viewport || !sheet) return;
-        const s = Math.min(1, viewport.clientWidth / 794);
-        sheet.style.transform = `scale(${s})`;
-        sheet.style.transformOrigin = 'top left';
-        viewport.style.height = (1123 * s) + 'px';
-    }
-    window.fitSheet = fitSheet;
-    window.addEventListener('resize', fitSheet);
-    function togglePreview() {
-        const col = document.getElementById('previewCollapse');
-        col.classList.toggle('collapsed');
-        document.getElementById('btnPreview').textContent = col.classList.contains('collapsed')
-            ? '👁 Tampilkan Pratinjau PDF (1 halaman)' : '🙈 Sembunyikan Pratinjau PDF';
-        if (!col.classList.contains('collapsed')) setTimeout(fitSheet, 60);
-    }
-    window.togglePreview = togglePreview;
+    const GEO = perigalClassic(3, 4, 460, 430, 24);
+    const NS='http://www.w3.org/2000/svg';
+    const svg=document.getElementById('stageSvg');
+    const pts=poly=>poly.map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
+    const COL=['#f16a7a','#5b5bee','#5bf17a','#f1d95b'];
+    const mk=(t,at,pa)=>{const e=document.createElementNS(NS,t);for(const k in at)e.setAttribute(k,at[k]);(pa||svg).appendChild(e);return e;};
+    const defs=mk('defs',{}); const cp=mk('clipPath',{id:'clipB'},defs);
+    mk('polygon',{points:pts(GEO.sqB)},cp);
+    const gTri=mk('polygon',{points:pts(GEO.tri),fill:'rgba(144,164,174,.45)',opacity:0});
+    const gSqC=mk('polygon',{points:pts(GEO.sqC),fill:'#eef4fb',stroke:'#2f7bd9','stroke-width':2.5,opacity:0});
+    const gSqB=mk('polygon',{points:pts(GEO.sqB),fill:'#ffffff',stroke:'#2f7bd9','stroke-width':2,opacity:0});
+    const gGhostB=mk('polygon',{points:pts(GEO.sqB),fill:'none',stroke:'#2f7bd9','stroke-width':2,'stroke-dasharray':'6 5',opacity:0});
+    const gGhostA=mk('polygon',{points:pts(GEO.sqA),fill:'none',stroke:'#b02ab0','stroke-width':2,'stroke-dasharray':'6 5',opacity:0});
+    const gCutG=mk('g',{'clip-path':'url(#clipB)',opacity:0});
+    const cut1=mk('line',{x1:GEO.cut1[0].x,y1:GEO.cut1[0].y,x2:GEO.cut1[1].x,y2:GEO.cut1[1].y,stroke:'#37474f','stroke-width':2.5},gCutG);
+    const cut2=mk('line',{x1:GEO.cut2[0].x,y1:GEO.cut2[0].y,x2:GEO.cut2[1].x,y2:GEO.cut2[1].y,stroke:'#37474f','stroke-width':2.5},gCutG);
+    const gInner=mk('polygon',{points:pts(GEO.inner),fill:'none',stroke:'#b02ab0','stroke-width':2,'stroke-dasharray':'6 5',opacity:0});
+    const gA=mk('g',{transform:'translate(0,0)',opacity:0});
+    mk('polygon',{points:pts(GEO.sqA),fill:'#ee55ee',stroke:'#b02ab0','stroke-width':2},gA);
+    const sliceEls=GEO.pieces.map((pc,i)=>{const g=mk('g',{transform:'translate(0,0)'});
+        mk('polygon',{points:pts(pc.poly),fill:COL[i],stroke:'rgba(0,0,0,.35)','stroke-width':1.5,opacity:0},g);return g;});
+    function lab(p,t,col,sz){const e=mk('text',{x:p.x,y:p.y,fill:col,'font-size':sz||15,'font-weight':'bold',opacity:0,'text-anchor':'middle'});e.textContent=t;return e;}
+    const labs=[lab(GEO.labels.a,'a = 3','#c62828'),lab(GEO.labels.b,'b = 4','#2e7d32'),
+        lab(GEO.labels.c,'c = 5','#1565c0'),lab(GEO.labels.b2,'16','#1565c0',18),
+        lab(GEO.labels.a2,'9','#b02ab0',18),lab(GEO.labels.c2,'25','#1565c0',20)];
 
-    /* ========== ANIMASI (rearrangement) ========== */
-    const TOTAL = 4500;
-    const stage = document.getElementById('stage'), wrap = document.getElementById('stageWrap');
-    const BASE_W = 420, BASE_H = 400;
-    function fitStage(){ const s=Math.min(1,wrap.clientWidth/BASE_W);
-        stage.style.transform=`scale(${s})`; wrap.style.height=(BASE_H*s)+'px'; }
-    window.addEventListener('resize', fitStage);
-    const lerp=(a,b,t)=>a+(b-a)*t;const clamp01=t=>Math.max(0,Math.min(1,t));
-    const easeInOutCubic=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
-    const easeOutBack=t=>{const c=1.70158;return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2);};
-    const P1=[{x:60,y:50,r:0},{x:340,y:50,r:90},{x:340,y:330,r:180},{x:60,y:330,r:270}];
-    const P2=[{x:220,y:170,r:0},{x:220,y:50,r:90},{x:340,y:330,r:180},{x:60,y:170,r:270}];
-    const tris=[];
-    for(let i=0;i<4;i++){ const d=document.createElement('div'); d.className='r2-tri';
-        d.style.transform=`translate(${P1[i].x}px,${P1[i].y}px) rotate(${P1[i].r}deg) scale(0)`;
-        stage.appendChild(d); tris.push(d); }
-    const tweens=[];
-    function addTween(t0,t1,update){ const tw={t0,t1,update,last:-1}; tweens.push(tw); return tw; }
-    function fade(el,t0,dur,to,from=0){ addTween(t0,t0+dur,p=>{ el.style.opacity=from+(to-from)*p; }); }
-    fade(document.getElementById('r2Outline'),0,400,1);
-    document.querySelectorAll('.r2-sidelab').forEach((el,i)=>fade(el,100+i*80,300,1));
-    tris.forEach((el,i)=> addTween(500+i*150, 760+i*150, p=>{ const e=easeOutBack(p);
-        el.style.opacity=Math.min(1,p*2.5);
-        el.style.transform=`translate(${P1[i].x}px,${P1[i].y}px) rotate(${P1[i].r}deg) scale(${Math.max(0,e)})`;
-    }));
-    fade(document.getElementById('pink1'),1400,400,1);
-    fade(document.getElementById('labC2'),1500,400,1);
-    tris.forEach((el,i)=> addTween(2200+i*200, 3100+i*200, p=>{ const e=easeInOutCubic(p);
-        const x=lerp(P1[i].x,P2[i].x,e), y=lerp(P1[i].y,P2[i].y,e);
-        el.style.transform=`translate(${x}px,${y}px) rotate(${P1[i].r}deg)`;
-    }));
-    fade(document.getElementById('pink1'),2600,600,0,1);
-    fade(document.getElementById('labC2'),2600,400,0,1);
-    fade(document.getElementById('pink2a'),2600,600,1);
-    fade(document.getElementById('pink2b'),2600,600,1);
-    fade(document.getElementById('labA2'),2800,400,1);
-    fade(document.getElementById('labB2'),2800,400,1);
-    let vt=0, playing=false, speed=1, lastTs=null;
-    const stepTimes=[[0,1],[400,2],[2200,3],[3600,4]];
-    function updateStep(){ let n=0; for(const [t,s] of stepTimes) if(vt>=t) n=s;
-        document.querySelectorAll('.formula-step').forEach(el=>el.classList.remove('active'));
-        const el=document.getElementById('step'+n); if(el) el.classList.add('active'); }
-    function updateProgress(){ const pct=Math.round(vt/TOTAL*100);
+    const tweens=[]; const TOTAL=5000;
+    const addTween=(t0,t1,fn)=>{const tw={t0,t1,fn,last:-1};tweens.push(tw);return tw;};
+    const fade=(el,t0,d,to,from=0)=>addTween(t0,t0+d,p=>el.setAttribute('opacity',from+(to-from)*p));
+    const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+    function buildTimeline(){
+        tweens.length=0;
+        fade(gTri,0,400,1); labs.slice(0,3).forEach((l,i)=>fade(l,100+i*90,300,1));
+        fade(gA,400,300,1); fade(labs[4],500,300,1);
+        fade(gSqB,700,300,1); fade(labs[3],800,300,1);
+        fade(gSqC,1000,300,1); fade(labs[5],1100,300,1);
+        const L1=Math.hypot(GEO.cut1[1].x-GEO.cut1[0].x,GEO.cut1[1].y-GEO.cut1[0].y);
+        const L2=Math.hypot(GEO.cut2[1].x-GEO.cut2[0].x,GEO.cut2[1].y-GEO.cut2[0].y);
+        fade(gCutG,1400,100,1);
+        [cut1,cut2].forEach((ln,i)=>{const L=i?L2:L1;ln.setAttribute('stroke-dasharray',L);ln.setAttribute('stroke-dashoffset',L);
+            addTween(1400+i*250,1900+i*250,p=>ln.setAttribute('stroke-dashoffset',L*(1-p)));});
+        sliceEls.forEach((g,i)=>fade(g.firstChild,2000+i*120,300,1));
+        fade(gInner,2600,300,1);
+        addTween(2800,3500,p=>{const e=ease(p);gA.setAttribute('transform',`translate(${GEO.tA.x*e},${GEO.tA.y*e})`);});
+        fade(gGhostA,2900,400,1);
+        GEO.pieces.forEach((pc,i)=>addTween(3300+i*220,4000+i*220,p=>{const e=ease(p);
+            sliceEls[i].setAttribute('transform',`translate(${pc.t.x*e},${pc.t.y*e})`);}));
+        fade(gSqB,3300,500,0,1); fade(gGhostB,3300,500,1);
+        addTween(4400,4800,p=>{svg.style.transform=`scale(${1+0.03*Math.sin(Math.PI*p)})`;});
+    }
+    buildTimeline();
+    let vt=0,playing=false,speed=1,lastTs=null;
+    const stepTimes=[[0,1],[400,2],[1400,3],[2800,4],[4400,5]];
+    function frame(ts){if(lastTs===null)lastTs=ts;const dt=Math.min(50,ts-lastTs);lastTs=ts;
+        if(playing)vt=Math.min(TOTAL,vt+dt*speed);
+        for(const tw of tweens){const p=Math.max(0,Math.min(1,(vt-tw.t0)/(tw.t1-tw.t0)));
+            if(p!==tw.last){tw.fn(p);tw.last=p;}}
+        const pct=Math.round(vt/TOTAL*100);
         document.getElementById('ptext').textContent='Progres: '+pct+'%';
-        document.getElementById('pfill').style.width=pct+'%'; }
-    function frame(ts){ if(lastTs===null)lastTs=ts; const dt=Math.min(50,ts-lastTs); lastTs=ts;
-        if(playing) vt=Math.min(TOTAL,vt+dt*speed);
-        for(const tw of tweens){ const p=clamp01((vt-tw.t0)/(tw.t1-tw.t0));
-            if(p!==tw.last){ tw.update(p); tw.last=p; } }
-        updateProgress(); updateStep();
-        if(playing&&vt>=TOTAL){ playing=false; onEnd(); }
-        requestAnimationFrame(frame); }
-    const btnStart=document.getElementById('btnStart'), btnPause=document.getElementById('btnPause');
-    function onEnd(){ btnStart.textContent='▶ Ulangi'; btnStart.style.display='inline-block'; btnPause.style.display='none'; }
-    function resetState(){ vt=0; playing=false; for(const tw of tweens) tw.last=-1;
-        btnStart.textContent='▶ Mulai'; btnStart.style.display='inline-block'; btnPause.style.display='none'; }
-    btnStart.addEventListener('click',()=>{ if(vt>=TOTAL)resetState(); playing=true;
-        btnStart.style.display='none'; btnPause.style.display='inline-block'; });
-    btnPause.addEventListener('click',()=>{ playing=false; btnStart.textContent='▶ Lanjut';
-        btnStart.style.display='inline-block'; btnPause.style.display='none'; });
-    document.getElementById('btnSkip').addEventListener('click',()=>{ vt=TOTAL; playing=false; onEnd(); });
+        document.getElementById('pfill').style.width=pct+'%';
+        let n=0;for(const[t,s]of stepTimes)if(vt>=t)n=s;
+        document.querySelectorAll('.formula-step').forEach(el=>el.classList.remove('active'));
+        const el=document.getElementById('step'+n);if(el)el.classList.add('active');
+        if(playing&&vt>=TOTAL){playing=false;const b=document.getElementById('btnStart');
+            b.textContent='▶ Ulangi';b.style.display='inline-block';
+            document.getElementById('btnPause').style.display='none';}
+        requestAnimationFrame(frame);}
+    function resetState(){vt=0;playing=false;svg.style.transform='none';
+        for(const tw of tweens)tw.last=-1;
+        const b=document.getElementById('btnStart');b.textContent='▶ Mulai';
+        b.style.display='inline-block';document.getElementById('btnPause').style.display='none';}
+    document.getElementById('btnStart').addEventListener('click',()=>{if(vt>=TOTAL)resetState();
+        playing=true;document.getElementById('btnStart').style.display='none';
+        document.getElementById('btnPause').style.display='inline-block';});
+    document.getElementById('btnPause').addEventListener('click',()=>{playing=false;
+        const b=document.getElementById('btnStart');b.textContent='▶ Lanjut';
+        b.style.display='inline-block';document.getElementById('btnPause').style.display='none';});
+    document.getElementById('btnSkip').addEventListener('click',()=>{vt=TOTAL;playing=false;
+        for(const tw of tweens){tw.fn(1);tw.last=1;}});
     document.getElementById('btnReset').addEventListener('click',resetState);
     document.getElementById('speedSlider').addEventListener('input',e=>{
-        speed=parseFloat(e.target.value); document.getElementById('speedValue').textContent=speed+'×'; });
+        speed=parseFloat(e.target.value);document.getElementById('speedValue').textContent=speed+'×';});
 
-    /* Gambar statis (SVG) */
-    function rearrangeSVG(state){
-        const TRI='fill="#5b9bd5" stroke="#2e6da4" stroke-width="1.5"';
-        const PINK='fill="#f9c9de" stroke="#e39bb8" stroke-width="1.5"';
-        const DASH='fill="none" stroke="#c2185b" stroke-width="2" stroke-dasharray="5 4"';
-        let inner='';
+    function perigalScene(state,w){
+        const g=perigalClassic(3,4,w,Math.round(w*0.93),14);
+        const P=poly=>poly.map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
+        const C4=['#f16a7a','#5b5bee','#5bf17a','#f1d95b'];
+        const hh=Math.round(w*0.93);
+        let s=`<svg viewBox="0 0 ${w} ${hh}" width="${w}" height="${hh}" style="display:block;margin:auto;">`;
+        s+=`<defs><clipPath id="cb_${state}"><polygon points="${P(g.sqB)}"/></clipPath></defs>`;
+        s+=`<polygon points="${P(g.tri)}" fill="rgba(144,164,174,.45)"/>`;
+        s+=`<polygon points="${P(g.sqC)}" fill="#eef4fb" stroke="#2f7bd9" stroke-width="2"/>`;
         if(state==='initial'){
-            inner=`<polygon points="0,0 120,0 0,160" ${TRI}/>
-                   <polygon points="120,0 280,0 280,120" ${TRI}/>
-                   <polygon points="280,120 280,280 160,280" ${TRI}/>
-                   <polygon points="160,280 0,280 0,160" ${TRI}/>
-                   <polygon points="120,0 280,120 160,280 0,160" ${PINK}/>
-                   <rect x="112" y="120" width="56" height="38" ${DASH}/>
-                   <text x="140" y="145" text-anchor="middle" font-size="20" font-weight="bold" fill="#c2185b">c²</text>`;
+            s+=`<polygon points="${P(g.sqB)}" fill="#ffffff" stroke="#2f7bd9" stroke-width="2"/>`;
+            g.pieces.forEach((pc,i)=>s+=`<polygon points="${P(pc.poly)}" fill="${C4[i]}" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/>`);
+            s+=`<g clip-path="url(#cb_${state})"><line x1="${g.cut1[0].x}" y1="${g.cut1[0].y}" x2="${g.cut1[1].x}" y2="${g.cut1[1].y}" stroke="#37474f" stroke-width="2"/>`+
+               `<line x1="${g.cut2[0].x}" y1="${g.cut2[0].y}" x2="${g.cut2[1].x}" y2="${g.cut2[1].y}" stroke="#37474f" stroke-width="2"/></g>`;
+            s+=`<polygon points="${P(g.sqA)}" fill="#ee55ee" stroke="#b02ab0" stroke-width="2"/>`;
         } else {
-            inner=`<polygon points="160,0 160,120 0,0" ${TRI}/>
-                   <polygon points="0,0 160,120 0,120" ${TRI}/>
-                   <polygon points="160,120 280,120 160,280" ${TRI}/>
-                   <polygon points="280,120 280,280 160,280" ${TRI}/>
-                   <rect x="160" y="0" width="120" height="120" ${PINK}/>
-                   <rect x="0" y="120" width="160" height="160" ${PINK}/>
-                   <rect x="192" y="42" width="56" height="38" ${DASH}/>
-                   <text x="220" y="67" text-anchor="middle" font-size="20" font-weight="bold" fill="#c2185b">a²</text>
-                   <rect x="52" y="180" width="56" height="38" ${DASH}/>
-                   <text x="80" y="205" text-anchor="middle" font-size="20" font-weight="bold" fill="#c2185b">b²</text>`;
+            g.pieces.forEach((pc,i)=>s+=`<polygon points="${P(pc.poly.map(p=>({x:p.x+pc.t.x,y:p.y+pc.t.y})))}" fill="${C4[i]}" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/>`);
+            s+=`<polygon points="${P(g.sqA.map(p=>({x:p.x+g.tA.x,y:p.y+g.tA.y})))}" fill="#ee55ee" stroke="#b02ab0" stroke-width="2"/>`;
+            s+=`<polygon points="${P(g.sqB)}" fill="none" stroke="#2f7bd9" stroke-width="2" stroke-dasharray="6 5"/>`;
+            s+=`<polygon points="${P(g.sqA)}" fill="none" stroke="#b02ab0" stroke-width="2" stroke-dasharray="6 5"/>`;
         }
-        return `<svg viewBox="0 0 280 280" width="230" height="230" style="display:block;margin:auto;">
-                  <rect x="1" y="1" width="278" height="278" fill="#ffffff" stroke="#444" stroke-width="2"/>
-                  ${inner}
-                  <text x="60" y="16" text-anchor="middle" font-size="15" font-weight="bold" fill="#37474f">${state==='initial'?'a':'b'}</text>
-                  <text x="200" y="16" text-anchor="middle" font-size="15" font-weight="bold" fill="#37474f">${state==='initial'?'b':'a'}</text>
-                </svg>`;
+        return s+`</svg>`;
     }
-    document.getElementById('figInitial').innerHTML = rearrangeSVG('initial');
-    document.getElementById('figFinal').innerHTML   = rearrangeSVG('final');
+    document.getElementById('figInitial').innerHTML=perigalScene('initial',260);
+    document.getElementById('figFinal').innerHTML=perigalScene('final',260);
 
-    renderCalendar(document.getElementById('calBlock'), 2);
-    try { new QRCode(document.getElementById('qrcode'), { text: window.location.href, width:84, height:84, correctLevel: QRCode.CorrectLevel.M }); }
-    catch(e){ document.getElementById('qrcode').textContent = window.location.href; }
-
-    fitStage(); fitSheet(); requestAnimationFrame(frame);
+    function fitSheet(){const vp=document.getElementById('a4Viewport');
+        const sh=document.querySelector('.a4-sheet');if(!vp||!sh)return;
+        const s=Math.min(1,vp.clientWidth/794);
+        sh.style.transform=`scale(${s})`;sh.style.transformOrigin='top left';
+        vp.style.height=(1123*s)+'px';}
+    window.fitSheet=fitSheet;window.addEventListener('resize',fitSheet);
+    window.togglePreview=function(){const col=document.getElementById('previewCollapse');
+        col.classList.toggle('collapsed');
+        document.getElementById('btnPreview').textContent=col.classList.contains('collapsed')
+            ?'👁 Tampilkan Pratinjau PDF (1 halaman)':'🙈 Sembunyikan Pratinjau PDF';
+        if(!col.classList.contains('collapsed'))setTimeout(fitSheet,60);};
+    renderCalendar(document.getElementById('calBlock'),2);
+    try{new QRCode(document.getElementById('qrcode'),{text:window.location.href,
+        width:84,height:84,correctLevel:QRCode.CorrectLevel.M});}
+    catch(e){document.getElementById('qrcode').textContent=window.location.href;}
+    fitSheet();requestAnimationFrame(frame);
     </script>
 </body>
 </html>
