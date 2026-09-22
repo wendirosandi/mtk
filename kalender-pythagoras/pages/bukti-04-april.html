@@ -3,29 +3,155 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bukti #4: Perigal 4 Posisi a² (Gunting-Tempel) - Kalender Pythagoras 2027</title>
+<title>Bukti #4: Perigal 4 Opsi Posisi a² - Kalender Pythagoras 2027</title>
 <link rel="stylesheet" href="../assets/css/main.css">
 <link rel="stylesheet" href="../assets/css/proof.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
-  .optcard{background:#fff;border:2px solid #667eea;border-radius:12px;padding:12px;}
-  .optcard h3{font-size:16px;color:#333;margin-bottom:4px;}
-  .optcard p{font-size:12px;color:#666;margin-bottom:8px;}
-  .pair{display:flex;gap:8px;}
-  .pair figure{flex:1;margin:0;}
-  .pair img{width:100%;border-radius:8px;border:2px solid #e0e0e0;display:block;}
-  .pair figcaption{font-size:11px;color:#555;text-align:center;margin-top:4px;font-weight:700;}
-  .ph{border:2px dashed #bdbdbd;border-radius:8px;display:flex;align-items:center;justify-content:center;
-      color:#757575;font-size:12px;min-height:170px;background:#fafafa;text-align:center;padding:8px;}
+  .anim-stage {
+    background: #f8f9fa;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .img-container {
+    width: 100%;
+    max-width: 460px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #fff;
+  }
+  .img-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    transition: opacity 0.4s ease-in-out;
+  }
+  .img-layer.hidden {
+    opacity: 0;
+  }
+  .img-layer.visible {
+    opacity: 1;
+  }
+  .controls-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  select {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 2px solid #cbd5e0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #4a5568;
+    background: #fff;
+  }
+  .pbar {
+    background: #e2e8f0;
+    height: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .pfill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #48bb78, #4299e1);
+    border-radius: 6px;
+    transition: width 0.1s;
+  }
+  .ptxt {
+    text-align: center;
+    font-weight: 700;
+    color: #4a5568;
+    font-size: 15px;
+  }
+  .stxt {
+    text-align: center;
+    color: #718096;
+    font-size: 14px;
+    min-height: 1.3em;
+    margin-bottom: 10px;
+  }
+  input[type=range] {
+    width: min(200px, 48vw);
+    height: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #e2e8f0;
+    border-radius: 4px;
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #4299e1;
+    cursor: pointer;
+  }
+  .spd {
+    font-weight: 700;
+    color: #5a67d8;
+    min-width: 2.6em;
+  }
+  label {
+    font-weight: 700;
+    color: #4a5568;
+  }
+  .controls-row button {
+    border: none;
+    border-radius: 10px;
+    padding: 13px 20px;
+    min-height: 46px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  #btnFlip { background: #ed8936; }
+  #btnPlay { background: #48bb78; }
+  #btnPlay.on { background: #ed8936; }
+  #btnFinish { background: #4299e1; }
+  #btnReset { background: #f56565; }
+  .status-bar {
+    text-align: center;
+    font-weight: 700;
+    color: #2f855a;
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  .eq {
+    text-align: center;
+    font-weight: 800;
+    color: #2f855a;
+    font-size: 20px;
+    opacity: 0;
+    transition: opacity 0.4s;
+    margin-bottom: 8px;
+  }
 </style>
 </head>
 <body>
 <header class="proof-header no-print">
     <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
     <div class="proof-info">
-        <h1>Bukti #4: Perigal 4 Posisi a² (Gunting-Tempel)</h1>
+        <h1>Bukti #4: Perigal 4 Opsi Posisi a²</h1>
         <div class="proof-meta">
             <span class="meta-item">📅 April 2027</span>
             <span class="meta-item">👥 Kelompok 2</span>
@@ -34,7 +160,7 @@
     </div>
     <div class="export-buttons">
         <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 Download PDF (1 hal)</button>
-        <button class="btn-print" onclick="printPDF()">🖨 Print / Save as PDF</button>
+        <button class="btn-print" onclick="printPDF()"> Print / Save as PDF</button>
     </div>
 </header>
 
@@ -57,40 +183,37 @@
            "mengapa luas total tidak berubah walau lubang berpindah?"</div>
     </section>
 
-    <section class="section no-print">
-        <h2>🃏 Galeri 4 Opsi Posisi a² (sebelum ↔ sesudah)</h2>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;">
-          <div class="optcard">
-            <h3>Opsi 1 — a² di ATAS</h3>
-            <p>Triple 8-15-17 • titik potong geser ke arah sisi atas c²</p>
-            <div class="pair">
-              <figure><img src="../assets/images/april/opsi1-awal.png" alt="Opsi 1 awal"><figcaption>AWAL</figcaption></figure>
-              <figure><img src="../assets/images/april/opsi1-akhir.png" alt="Opsi 1 akhir"><figcaption>AKHIR</figcaption></figure>
-            </div>
+    <section class="section animation no-print">
+        <h2>🎬 Animasi Interaktif (4 Opsi Posisi a²)</h2>
+        <div class="anim-stage">
+          <div class="controls-row">
+            <label for="opsiSelect">Opsi:</label>
+            <select id="opsiSelect">
+              <option value="1" selected>Opsi 1 — a² di ATAS (8-15-17)</option>
+              <option value="2">Opsi 2 — a² di KANAN (8-15-17)</option>
+              <option value="3">Opsi 3 — a² di KIRI (8-15-17)</option>
+              <option value="4">Opsi 4 — a² di BAWAH (8-15-17)</option>
+            </select>
           </div>
-          <div class="optcard">
-            <h3>Opsi 2 — a² di KIRI</h3>
-            <p>Triple 8-15-17 • titik potong geser ke arah sisi kiri c²</p>
-            <div class="pair">
-              <figure><img src="../assets/images/april/opsi2-awal.png" alt="Opsi 2 awal"><figcaption>AWAL</figcaption></figure>
-              <figure><img src="../assets/images/april/opsi2-akhir.png" alt="Opsi 2 akhir"><figcaption>AKHIR</figcaption></figure>
-            </div>
+          <div class="img-container" id="imgContainer">
+            <img id="imgAwal" class="img-layer visible" src="" alt="AWAL">
+            <img id="imgAkhir" class="img-layer hidden" src="" alt="AKHIR">
           </div>
-          <div class="optcard">
-            <h3>Opsi 3 — a² di KANAN</h3>
-            <p>Triple 8-15-17 • titik potong geser ke arah sisi kanan c²</p>
-            <div class="pair">
-              <figure><img src="../assets/images/april/opsi3-awal.png" alt="Opsi 3 awal"><figcaption>AWAL</figcaption></figure>
-              <figure><img src="../assets/images/april/opsi3-akhir.png" alt="Opsi 3 akhir"><figcaption>AKHIR</figcaption></figure>
-            </div>
+          <div class="status-bar" id="statusBar">Opsi 1 • Tampilan: AWAL</div>
+          <div class="eq" id="eq">225 + 64 = 289 → a² + b² = c² ✔ TERBUKTI</div>
+          <div class="pbar"><div class="pfill" id="bar"></div></div>
+          <div class="ptxt" id="ptxt">Progres: 0%</div>
+          <div class="stxt" id="stxt">Siap memulai… tekan ▶ Mulai</div>
+          <div class="controls-row">
+            <button id="btnFlip">🔄 Balik</button>
+            <button id="btnPlay">▶ Mulai</button>
+            <button id="btnFinish">⏭ Selesai</button>
+            <button id="btnReset">↺ Reset</button>
           </div>
-          <div class="optcard">
-            <h3>Opsi 4 — a² di BAWAH</h3>
-            <p>Triple 8-15-17 • menunggu 2 screenshot menyusul</p>
-            <div class="pair">
-              <figure><div class="ph">📷 Screenshot AWAL<br>menyusul</div><figcaption>AWAL</figcaption></figure>
-              <figure><div class="ph">📷 Screenshot AKHIR<br>menyusul</div><figcaption>AKHIR</figcaption></figure>
-            </div>
+          <div class="controls-row">
+            <label for="speed">⚡ Kecepatan:</label>
+            <input type="range" id="speed" min="0.25" max="2" step="0.25" value="1">
+            <span class="spd" id="spdVal">1×</span>
           </div>
         </div>
     </section>
@@ -98,7 +221,7 @@
     <section class="section external-resources no-print">
         <h2>🔗 Eksplorasi Mandiri (Applet)</h2>
         <div class="embed-container" style="text-align:center;padding:24px;">
-            <div style="font-size:40px;">🎛️</div>
+            <div style="font-size:40px;">️</div>
             <p style="margin:10px 0;color:#555;">Geser titik <strong>O & M</strong> pada applet untuk
                menghasilkan sendiri keempat posisi (dan posisi lain di antaranya).</p>
             <a class="external-link" target="_blank" rel="noopener" href="https://www.geogebra.org/calculator/rrcce76q"
@@ -114,26 +237,24 @@
           <div class="a4-viewport" id="a4Viewport">
             <div id="exportArea" class="a4-sheet">
                 <div class="export-header">
-                    <h2>Bukti #4: Perigal 4 Posisi a² (Gunting-Tempel)</h2>
+                    <h2>Bukti #4: Perigal 4 Opsi Posisi a²</h2>
                     <p>Kalender Pythagoras 2027 • April • Kelompok 2 • Level: Dasar</p>
                 </div>
                 <div id="calBlock" class="cal-block"></div>
                 <hr class="cal-divider">
                 <div class="proof-figures">
                     <figure class="proof-figure"><span class="state-badge initial">AWAL</span>
-                        <div class="scene"><img src="../assets/images/april/opsi1-awal.png"
-                             alt="Gbr 1" style="width:100%;border-radius:6px;"></div>
+                        <div class="scene" id="figInitial"></div>
                         <figcaption><strong>Gbr 1 (potong ini):</strong> 4 irisan + a² magenta.</figcaption></figure>
                     <figure class="proof-figure"><span class="state-badge final">AKHIR</span>
-                        <div class="scene"><img src="../assets/images/april/opsi1-akhir.png"
-                             alt="Gbr 2" style="width:100%;border-radius:6px;"></div>
-                        <figcaption><strong>Gbr 2 (tempel di sini):</strong> c² tertutup, a² di atas.</figcaption></figure>
+                        <div class="scene" id="figFinal"></div>
+                        <figcaption><strong>Gbr 2 (tempel di sini):</strong> c² tertutup, a² di posisi terpilih.</figcaption></figure>
                 </div>
                 <div class="export-explain">
                     <p><strong>Penjelasan:</strong> di mana pun posisi lubang a² di dalam c²
                        (atas/kiri/kanan/bawah), keempat irisan b² bersama a² selalu menutup c²
                        tanpa celah → luas tetap: b² + a² = c².</p>
-                    <div class="export-formula">8-15-17: 225 + 64 = 289 ✓ • 7-24-25: 576 + 49 = 625 ✓</div>
+                    <div class="export-formula">8-15-17: 225 + 64 = 289 ✓</div>
                 </div>
                 <div class="export-conclusion">
                     <div class="export-conclusion-text">KESIMPULAN:<br>a² + b² = c²</div>
@@ -157,30 +278,252 @@
 <script src="../assets/js/pdf-export.js?v=31"></script>
 <script>
 (function(){
-  /* self-test numerik sederhana (tanpa solver tiling) */
-  [[8,15],[7,24],[3,4],[5,12]].forEach(([a,b])=>{
-    const c=Math.hypot(a,b);
-    console.log(Math.abs(a*a+b*b-c*c)<1e-9
-      ? ('✅ NUMERIK OK ('+a+','+b+','+c+')')
-      : ('⚠️ NUMERIK GAGAL ('+a+','+b+')'));
-  });
+"use strict";
 
-  function fitSheet(){const vp=document.getElementById('a4Viewport');
-    const sh=document.querySelector('.a4-sheet');if(!vp||!sh)return;
-    const s=Math.min(1,vp.clientWidth/794);
-    sh.style.transform=`scale(${s})`;sh.style.transformOrigin='top left';
-    vp.style.height=(1123*s)+'px';}
-  window.fitSheet=fitSheet;window.addEventListener('resize',fitSheet);
-  window.togglePreview=function(){const col=document.getElementById('previewCollapse');
-    col.classList.toggle('collapsed');
-    document.getElementById('btnPreview').textContent=col.classList.contains('collapsed')
-      ?'👁 Tampilkan Pratinjau PDF (1 halaman)':'🙈 Sembunyikan Pratinjau PDF';
-    if(!col.classList.contains('collapsed'))setTimeout(fitSheet,60);};
-  renderCalendar(document.getElementById('calBlock'),4);
-  try{new QRCode(document.getElementById('qrcode'),{text:window.location.href,
-    width:84,height:84,correctLevel:QRCode.CorrectLevel.M});}
-  catch(e){document.getElementById('qrcode').textContent=window.location.href;}
-  fitSheet();
+/* Self-test numerik */
+const a=8, b=15, c=17;
+console.log(Math.abs(a*a+b*b-c*c)<1e-9 ? '✅ NUMERIK OK (8,15,17)' : '⚠️ NUMERIK GAGAL');
+
+/* State */
+let currentOpsi = 1;
+let currentState = 'awal';
+let playing = false;
+let elapsed = 0;
+let speed = 1;
+const DUR = 6000;
+
+/* Image paths */
+const imgPaths = {
+  1: { awal: '../assets/images/april/opsi1-awal.png', akhir: '../assets/images/april/opsi1-akhir.png' },
+  2: { awal: '../assets/images/april/opsi2-awal.png', akhir: '../assets/images/april/opsi2-akhir.png' },
+  3: { awal: '../assets/images/april/opsi3-awal.png', akhir: '../assets/images/april/opsi3-akhir.png' },
+  4: { awal: '../assets/images/april/opsi4-awal.png', akhir: '../assets/images/april/opsi4-akhir.png' }
+};
+
+/* DOM elements */
+const $ = id => document.getElementById(id);
+const imgAwal = $('imgAwal');
+const imgAkhir = $('imgAkhir');
+const statusBar = $('statusBar');
+const eq = $('eq');
+const bar = $('bar');
+const ptxt = $('ptxt');
+const stxt = $('stxt');
+const btnFlip = $('btnFlip');
+const btnPlay = $('btnPlay');
+const btnFinish = $('btnFinish');
+const btnReset = $('btnReset');
+const opsiSelect = $('opsiSelect');
+const speedSlider = $('speed');
+const spdVal = $('spdVal');
+
+/* Render gambar aktif */
+function renderImages() {
+  const paths = imgPaths[currentOpsi];
+  imgAwal.src = paths.awal;
+  imgAkhir.src = paths.akhir;
+  updateVisibility();
+  updateStatus();
+}
+
+/* Update visibility berdasarkan state */
+function updateVisibility() {
+  if (currentState === 'awal') {
+    imgAwal.classList.remove('hidden');
+    imgAwal.classList.add('visible');
+    imgAkhir.classList.remove('visible');
+    imgAkhir.classList.add('hidden');
+  } else {
+    imgAkhir.classList.remove('hidden');
+    imgAkhir.classList.add('visible');
+    imgAwal.classList.remove('visible');
+    imgAwal.classList.add('hidden');
+  }
+}
+
+/* Update status bar */
+function updateStatus() {
+  const posisi = ['', 'ATAS', 'KANAN', 'KIRI', 'BAWAH'][currentOpsi];
+  statusBar.textContent = `Opsi ${currentOpsi} • Tampilan: ${currentState.toUpperCase()}`;
+}
+
+/* Timeline render (6 detik) */
+function render(t) {
+  /* 0%–10%: hold AWAL, 10%–30%: fade ke AKHIR, 30%–90%: hold AKHIR, 90%–100%: fade balik AWAL */
+  const holdAwal = 0.10;
+  const fadeToAkhir = 0.30;
+  const holdAkhir = 0.90;
+  
+  let newState = currentState;
+  if (t < holdAwal) {
+    newState = 'awal';
+  } else if (t < fadeToAkhir) {
+    newState = 'akhir';
+  } else if (t < holdAkhir) {
+    newState = 'akhir';
+  } else {
+    newState = 'awal';
+  }
+  
+  if (newState !== currentState) {
+    currentState = newState;
+    updateVisibility();
+  }
+  
+  bar.style.width = (t * 100).toFixed(1) + '%';
+  ptxt.textContent = 'Progres: ' + Math.round(t * 100) + '%';
+  
+  stxt.textContent =
+    t <= 0 ? 'Siap memulai… tekan ▶ Mulai' :
+    t < holdAwal ? 'Tampilan: AWAL (4 irisan + a² magenta)' :
+    t < fadeToAkhir ? 'Transisi: AWAL → AKHIR' :
+    t < holdAkhir ? 'Tampilan: AKHIR (c² tertutup sempurna)' :
+    t < 1 ? 'Transisi: AKHIR → AWAL' :
+    '✔ Terbukti: a² + b² = c²';
+  
+  eq.style.opacity = t >= 0.95 ? 1 : 0;
+}
+
+/* Mesin waktu */
+let lastTs = null;
+let raf = null;
+
+function frame(ts) {
+  if (lastTs !== null && playing) {
+    elapsed += (ts - lastTs) * speed;
+    if (elapsed >= DUR) {
+      elapsed = DUR;
+      playing = false;
+      syncBtn();
+    }
+  }
+  lastTs = ts;
+  render(elapsed / DUR);
+  raf = playing ? requestAnimationFrame(frame) : null;
+  if (!playing) lastTs = null;
+}
+
+function loop() {
+  if (raf === null) {
+    lastTs = null;
+    raf = requestAnimationFrame(frame);
+  }
+}
+
+function syncBtn() {
+  btnPlay.textContent = playing ? '⏸ Pause' : (elapsed >= DUR ? '▶ Ulangi' : (elapsed > 0 ? '▶ Lanjut' : '▶ Mulai'));
+  btnPlay.classList.toggle('on', playing);
+}
+
+/* Event listeners */
+btnFlip.onclick = () => {
+  currentState = currentState === 'awal' ? 'akhir' : 'awal';
+  updateVisibility();
+  updateStatus();
+};
+
+btnPlay.onclick = () => {
+  if (playing) {
+    playing = false;
+    syncBtn();
+    return;
+  }
+  if (elapsed >= DUR) elapsed = 0;
+  playing = true;
+  syncBtn();
+  loop();
+};
+
+btnFinish.onclick = () => {
+  playing = false;
+  elapsed = DUR;
+  render(1);
+  syncBtn();
+};
+
+btnReset.onclick = () => {
+  playing = false;
+  elapsed = 0;
+  currentState = 'awal';
+  render(0);
+  updateVisibility();
+  updateStatus();
+  syncBtn();
+};
+
+opsiSelect.onchange = e => {
+  currentOpsi = parseInt(e.target.value);
+  renderImages();
+  playing = false;
+  elapsed = 0;
+  render(0);
+  syncBtn();
+};
+
+speedSlider.oninput = e => {
+  speed = parseFloat(e.target.value);
+  spdVal.textContent = speed + '×';
+};
+
+/* Inisialisasi */
+renderImages();
+render(0);
+syncBtn();
+
+/* Integrasi projek: sheet, QR, snapshot */
+function snap() {
+  const container = $('imgContainer');
+  const clone = container.cloneNode(true);
+  clone.style.width = '250px';
+  clone.style.height = 'auto';
+  clone.removeAttribute('style');
+  return clone.outerHTML;
+}
+
+function refreshSheet() {
+  $('figInitial').innerHTML = `<img src="${imgPaths[currentOpsi].awal}" style="width:100%;border-radius:6px;">`;
+  $('figFinal').innerHTML = `<img src="${imgPaths[currentOpsi].akhir}" style="width:100%;border-radius:6px;">`;
+}
+
+window.__afterOpsiChange = refreshSheet;
+
+function fitSheet() {
+  const vp = $('a4Viewport');
+  const sh = document.querySelector('.a4-sheet');
+  if (!vp || !sh) return;
+  const s = Math.min(1, vp.clientWidth / 794);
+  sh.style.transform = `scale(${s})`;
+  sh.style.transformOrigin = 'top left';
+  vp.style.height = (1123 * s) + 'px';
+}
+
+window.fitSheet = fitSheet;
+window.addEventListener('resize', fitSheet);
+
+window.togglePreview = function() {
+  const col = $('previewCollapse');
+  col.classList.toggle('collapsed');
+  $('btnPreview').textContent = col.classList.contains('collapsed')
+    ? ' Tampilkan Pratinjau PDF (1 halaman)' : '🙈 Sembunyikan Pratinjau PDF';
+  if (!col.classList.contains('collapsed')) {
+    refreshSheet();
+    setTimeout(fitSheet, 60);
+  }
+};
+
+if (typeof renderCalendar === 'function') renderCalendar($('calBlock'), 4);
+try {
+  new QRCode($('qrcode'), {
+    text: window.location.href,
+    width: 84,
+    height: 84,
+    correctLevel: QRCode.CorrectLevel.M
+  });
+} catch (e) {
+  $('qrcode').textContent = window.location.href;
+}
+
+fitSheet();
 })();
 </script>
 </body>
