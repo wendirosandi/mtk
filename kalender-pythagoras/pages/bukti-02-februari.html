@@ -1,266 +1,362 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bukti #2: Perigal Klasik (3-4-5) - Kalender Pythagoras 2027</title>
-    <link rel="stylesheet" href="../assets/css/main.css">
-    <link rel="stylesheet" href="../assets/css/proof.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bukti #2: Perigal Klasik (Engine v5) - Kalender Pythagoras 2027</title>
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/proof.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  .stage{background:#f8f9fa;border:1px solid #e2e8f0;border-radius:14px;padding:6px;margin-bottom:12px}
+  .stage svg{width:100%;height:auto;display:block}
+  .row{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  select{padding:10px 12px;border-radius:8px;border:2px solid #cbd5e0;font-size:15px;font-weight:700;color:#4a5568;background:#fff}
+  .pbar{background:#e2e8f0;height:12px;border-radius:6px;overflow:hidden;margin-bottom:6px}
+  .pfill{height:100%;width:0%;background:linear-gradient(90deg,#48bb78,#4299e1);border-radius:6px}
+  .ptxt{text-align:center;font-weight:700;color:#4a5568;font-size:15px}
+  .stxt{text-align:center;color:#718096;font-size:14px;min-height:1.3em;margin-bottom:10px}
+  .eq{text-align:center;font-weight:800;color:#2f855a;font-size:20px;opacity:0;transition:opacity .4s;margin-bottom:8px}
+  input[type=range]{width:min(200px,48vw);height:8px;-webkit-appearance:none;appearance:none;background:#e2e8f0;border-radius:4px;outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#4299e1;cursor:pointer}
+  .spd{font-weight:700;color:#5a67d8;min-width:2.6em}
+  label{font-weight:700;color:#4a5568}
+  .row button{border:none;border-radius:10px;padding:13px 20px;min-height:46px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;gap:7px}
+  #btnPlay{background:#48bb78} #btnPlay.on{background:#ed8936}
+  #btnFinish{background:#4299e1} #btnReset{background:#f56565}
+  .test{background:#1e293b;color:#a7f3d0;border-radius:10px;padding:12px;margin-top:14px;
+        font-family:ui-monospace,Consolas,monospace;font-size:13px;white-space:pre-wrap;line-height:1.5}
+  .test .warn{color:#fcd34d}
+  .tri{fill:#cbd5e0;stroke:#4a5568;stroke-width:2}
+  .sqAf{fill:#d946ef;stroke:#a21caf;stroke-width:2}
+  .sqBf{fill:#bee3f8;stroke:#2b6cb0;stroke-width:2}
+  .sqCo{fill:none;stroke:#3182ce;stroke-width:3;stroke-dasharray:7 5}
+  .dash{fill:none;stroke-width:2;stroke-dasharray:6 4}
+  .dB{stroke:#3182ce}.dA{stroke:#a21caf}.dI{stroke:#a21caf;stroke-dasharray:4 4}
+  .cut{stroke:#e53e3e;stroke-width:2.5;fill:none}
+  .p0{fill:#f6e05e;stroke:#d69e2e;stroke-width:2}
+  .p1{fill:#68d391;stroke:#2f855a;stroke-width:2}
+  .p2{fill:#63b3ed;stroke:#2b6cb0;stroke-width:2}
+  .p3{fill:#fc8181;stroke:#c53030;stroke-width:2}
+  .stage text{font-family:'Segoe UI',sans-serif;font-weight:700}
+</style>
 </head>
 <body>
-    <header class="proof-header no-print">
-        <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
-        <div class="proof-info">
-            <h1>Bukti #2: Perigal Klasik (3-4-5)</h1>
-            <div class="proof-meta">
-                <span class="meta-item">📅 Februari 2027</span>
-                <span class="meta-item">👨‍🏫 Contoh Guru</span>
-                <span class="meta-item">🎯 Level: Dasar</span>
-            </div>
+<header class="proof-header no-print">
+    <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
+    <div class="proof-info">
+        <h1>Bukti #2: Perigal Klasik (Engine v5)</h1>
+        <div class="proof-meta">
+            <span class="meta-item">📅 Februari 2027</span>
+            <span class="meta-item">👨‍ Contoh Guru</span>
+            <span class="meta-item">🎯 Level: Dasar</span>
         </div>
-        <div class="export-buttons">
-            <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 Download PDF (1 hal)</button>
-            <button class="btn-print" onclick="printPDF()">🖨 Print / Save as PDF</button>
+    </div>
+    <div class="export-buttons">
+        <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 Download PDF (1 hal)</button>
+        <button class="btn-print" onclick="printPDF()">🖨 Print / Save as PDF</button>
+    </div>
+</header>
+
+<nav class="proof-nav no-print">
+    <a href="bukti-01-januari.html" class="prev-btn">← Januari (Bukti #1)</a>
+    <span class="nav-indicator">2 / 12</span>
+    <a href="bukti-03-maret.html" class="next-btn">Maret (Bukti #3) →</a>
+</nav>
+
+<main class="proof-content" id="proofContent">
+    <section class="section introduction no-print">
+        <h2>📖 Pengenalan (Contoh Guru #2)</h2>
+        <p class="intro-text"><b>📐 Pembuktian Perigal:</b> persegi b² dipotong <b>dua garis lewat
+           pusatnya</b> (sejajar & tegak lurus hipotenusa) menjadi 4 irisan. Keempat irisan itu
+           <b>cukup digeser tanpa rotasi</b>, bersama persegi a², untuk menutup persegi c²
+           <b>tanpa celah & tanpa tumpang-tindih</b> → terbukti a² + b² = c². Engine memverifikasi
+           tiling otomatis (panel uji di bawah animasi).</p>
+    </section>
+
+    <section class="section animation no-print">
+        <h2>🎬 Animasi Interaktif (Engine v5)</h2>
+        <div class="stage">
+          <svg id="svg" viewBox="0 0 720 640" preserveAspectRatio="xMidYMid meet">
+            <defs><clipPath id="clipB"><polygon id="clipBpoly" points=""/></clipPath></defs>
+            <polygon id="sqB"  class="sqBf" points="" opacity="0"/>
+            <polygon id="dashB" class="dash dB" points="" opacity="0"/>
+            <polygon id="dashA" class="dash dA" points="" opacity="0"/>
+            <polygon id="sqC"  class="sqCo" points="" opacity="0"/>
+            <polygon id="innerD" class="dash dI" points="" opacity="0"/>
+            <polygon id="tri"  class="tri" points="" opacity="0"/>
+            <polygon id="sqA"  class="sqAf" points="" opacity="0"/>
+            <g clip-path="url(#clipB)">
+              <line id="cut1" class="cut" opacity="0"/>
+              <line id="cut2" class="cut" opacity="0"/>
+            </g>
+            <polygon id="pc0" class="p0" points="" opacity="0"/>
+            <polygon id="pc1" class="p1" points="" opacity="0"/>
+            <polygon id="pc2" class="p2" points="" opacity="0"/>
+            <polygon id="pc3" class="p3" points="" opacity="0"/>
+            <text id="la"  font-size="16" fill="#c53030" opacity="0"></text>
+            <text id="lb"  font-size="16" fill="#2f855a" opacity="0"></text>
+            <text id="lc"  font-size="16" fill="#2b6cb0" opacity="0"></text>
+            <text id="la2" font-size="20" fill="#a21caf" text-anchor="middle" opacity="0"></text>
+            <text id="lb2" font-size="20" fill="#2b6cb0" text-anchor="middle" opacity="0"></text>
+            <text id="lc2" font-size="20" fill="#2b6cb0" text-anchor="middle" opacity="0"></text>
+          </svg>
         </div>
-    </header>
+        <div class="eq" id="eq"></div>
+        <div class="pbar"><div class="pfill" id="bar"></div></div>
+        <div class="ptxt" id="ptxt">Progres: 0%</div>
+        <div class="stxt" id="stxt">Siap memulai… tekan ▶ Mulai</div>
+        <div class="row">
+          <label for="triplet">Segitiga:</label>
+          <select id="triplet">
+            <option value="3,4" selected>a=3, b=4 (c=5)</option>
+            <option value="5,12">a=5, b=12 (c=13)</option>
+            <option value="6,8">a=6, b=8 (c=10)</option>
+            <option value="8,15">a=8, b=15 (c=17)</option>
+            <option value="7,24">a=7, b=24 (c=25)</option>
+          </select>
+        </div>
+        <div class="row">
+          <label for="speed">⚡ Kecepatan:</label>
+          <input type="range" id="speed" min="0.25" max="2" step="0.25" value="1">
+          <span class="spd" id="spdVal">1×</span>
+        </div>
+        <div class="row">
+          <button id="btnPlay">▶ Mulai</button>
+          <button id="btnFinish">⏭ Selesai</button>
+          <button id="btnReset">↺ Reset</button>
+        </div>
+        <div class="test" id="test">— panel uji —</div>
+    </section>
 
-    <nav class="proof-nav no-print">
-        <a href="bukti-01-januari.html" class="prev-btn">← Januari (Bukti #1)</a>
-        <span class="nav-indicator">2 / 12</span>
-        <a href="bukti-03-maret.html" class="next-btn">Maret (Bukti #3) →</a>
-    </nav>
+    <section class="section external-resources no-print">
+        <h2>🔗 Applet GeoGebra (Slice Tetap)</h2>
+        <div class="embed-container" style="text-align:center;padding:24px;">
+            <div style="font-size:40px;">📐</div>
+            <a class="external-link" target="_blank" rel="noopener" href="https://www.geogebra.org/calculator/rrcce76q"
+               style="display:inline-block;background:#667eea;color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;text-decoration:none;">
+               🔗 Buka Applet GeoGebra rrcce76q</a>
+        </div>
+    </section>
 
-    <main class="proof-content" id="proofContent">
-        <section class="section introduction no-print">
-            <h2>📖 Pengenalan (Contoh Guru #2)</h2>
-            <p class="intro-text">
-                <strong>Diseksi Perigal (1830):</strong> persegi b² dipotong dua garis
-                (sejajar & tegak-lurus hipotenusa) melalui pusatnya menjadi <strong>4 slice</strong>.
-                Keempat slice + persegi a² <strong>hanya digeser (tanpa rotasi)</strong> hingga menutup
-                persegi c² sempurna. Perhatikan: tidak ada putaran, tidak ada skala — hanya geser.
-            </p>
-            <div class="historical-note"><strong>📜 Sejarah:</strong> Henry Perigal, aktuaris London;
-                bukti ini terukir di batu nisannya. Versi "slice fleksibel" dapat dicoba di GeoGebra.</div>
-        </section>
-
-        <section class="section animation no-print">
-            <h2>🎬 Animasi Interaktif</h2>
-            <div class="animation-wrapper">
-                <div class="stage-wrap" style="position:relative;width:100%;background:#f4f6fb;border:3px solid #e0e0e0;border-radius:15px;overflow:hidden;">
-                    <svg id="stageSvg" viewBox="0 0 460 430" style="display:block;width:100%;height:auto;"></svg>
+    <section class="section export-section no-print-screen">
+        <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">
+            👁 Tampilkan Pratinjau PDF (1 halaman)</button>
+        <div class="preview-collapse collapsed" id="previewCollapse">
+          <div class="a4-viewport" id="a4Viewport">
+            <div id="exportArea" class="a4-sheet">
+                <div class="export-header">
+                    <h2>Bukti #2: Perigal Klasik (Engine v5)</h2>
+                    <p>Kalender Pythagoras 2027 • Februari • Contoh Guru • Level: Dasar</p>
                 </div>
-                <div class="animation-controls">
-                    <button class="btn-start" id="btnStart">▶ Mulai</button>
-                    <button class="btn-pause" id="btnPause" style="display:none">⏸ Pause</button>
-                    <button class="btn-skip" id="btnSkip">⏭ Selesai</button>
-                    <button class="btn-reset" id="btnReset">↺ Reset</button>
-                    <div class="speed-control">
-                        <label for="speedSlider">⚡ Kecepatan:</label>
-                        <input type="range" id="speedSlider" min="0.5" max="3" step="0.5" value="1">
-                        <span class="speed-value" id="speedValue">1×</span>
-                    </div>
+                <div id="calBlock" class="cal-block"></div>
+                <hr class="cal-divider">
+                <div class="proof-figures">
+                    <figure class="proof-figure"><span class="state-badge initial">AWAL</span>
+                        <div class="scene" id="figInitial"></div>
+                        <figcaption><strong>Gbr 1:</strong> b² terpotong 4 irisan; a² utuh; c² kosong.</figcaption></figure>
+                    <figure class="proof-figure"><span class="state-badge final">AKHIR</span>
+                        <div class="scene" id="figFinal"></div>
+                        <figcaption><strong>Gbr 2:</strong> 4 irisan + a² menutup c²; sumber kosong.</figcaption></figure>
                 </div>
-                <div class="progress-box">
-                    <div class="pbar"><div class="pfill" id="pfill"></div></div>
-                    <div class="ptext" id="ptext">Progres: 0%</div>
+                <div class="export-explain">
+                    <p><strong>Penjelasan:</strong> dua garis potong melalui pusat b² menghasilkan 4 irisan
+                       yang bersama a² menutup c² hanya dengan translasi (tanpa rotasi).
+                       Panel uji di halaman memverifikasi Σ irisan = b² dan Σ + a² = c².</p>
+                    <div class="export-formula">a² + b² = c² (terverifikasi engine untuk setiap triplet)</div>
                 </div>
-                <div class="formula-display" style="margin-top:15px;">
-                    <div class="formula-step active" id="step0">Siap memulai… tekan ▶ Mulai</div>
-                    <div class="formula-step" id="step1">Segitiga siku-siku: a = 3, b = 4, c = 5</div>
-                    <div class="formula-step" id="step2">a² = 9 • b² = 16 • c² = 25</div>
-                    <div class="formula-step" id="step3">b² dipotong 4 slice (∥ & ⊥ hipotenusa)</div>
-                    <div class="formula-step" id="step4">4 slice + a² digeser (tanpa rotasi) ke c²</div>
-                    <div class="formula-step" id="step5">c² tertutup sempurna → c² = a² + b² ✓</div>
+                <div class="export-conclusion">
+                    <div class="export-conclusion-text">KESIMPULAN:<br>a² + b² = c²</div>
+                    <div><div class="qr-box" id="qrcode">[QR]</div>
+                    <div class="qr-caption">Scan untuk animasi</div></div>
                 </div>
             </div>
-        </section>
+          </div>
+        </div>
+    </section>
+</main>
 
-        <section class="section external-resources no-print">
-            <h2>🔗 Applet GeoGebra (Slice Tetap)</h2>
-            <div class="embed-container" style="text-align:center;padding:24px;">
-                <div style="font-size:40px;">📐</div>
-                <p style="margin:10px 0;color:#555;">Applet <strong>"Pembuktian Pythagoras 3 — Slice Tetap"</strong>.</p>
-                <a class="external-link" target="_blank" rel="noopener" href="https://www.geogebra.org/calculator/rrcce76q"
-                   style="display:inline-block;background:#667eea;color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;text-decoration:none;">
-                   🔗 Buka Applet GeoGebra rrcce76q</a>
-            </div>
-        </section>
+<nav class="proof-nav bottom no-print">
+    <a href="bukti-01-januari.html" class="prev-btn">← Sebelumnya</a>
+    <a href="../index.html" class="home-btn">🏠 Kalender</a>
+    <a href="bukti-03-maret.html" class="next-btn">Selanjutnya →</a>
+</nav>
+<footer class="no-print"><p><strong>Contoh Guru</strong> - Pembuktian #2</p><p>Projek Kalender Pythagoras 2027</p></footer>
 
-        <section class="section export-section no-print-screen">
-            <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">
-                👁 Tampilkan Pratinjau PDF (1 halaman)</button>
-            <div class="preview-collapse collapsed" id="previewCollapse">
-              <div class="a4-viewport" id="a4Viewport">
-                <div id="exportArea" class="a4-sheet">
-                    <div class="export-header">
-                        <h2>Bukti #2: Perigal Klasik (3-4-5)</h2>
-                        <p>Kalender Pythagoras 2027 • Februari • Contoh Guru • Level: Dasar</p>
-                    </div>
-                    <div id="calBlock" class="cal-block"></div>
-                    <hr class="cal-divider">
-                    <div class="proof-figures">
-                        <figure class="proof-figure"><span class="state-badge initial">AWAL</span>
-                            <div class="scene" id="figInitial"></div>
-                            <figcaption><strong>Gbr 1:</strong> b² terpotong 4 slice; a² utuh; c² kosong.</figcaption></figure>
-                        <figure class="proof-figure"><span class="state-badge final">AKHIR</span>
-                            <div class="scene" id="figFinal"></div>
-                            <figcaption><strong>Gbr 2:</strong> 4 slice + a² mengisi c²; sumber kosong.</figcaption></figure>
-                    </div>
-                    <div class="export-explain">
-                        <p><strong>Penjelasan:</strong> dua garis potong melalui pusat b² membaginya menjadi
-                           4 slice; bersama persegi a², semuanya hanya <em>digeser</em> hingga menutup c².</p>
-                        <div class="export-formula">c² = a² + b² → 5² = 3² + 4² → 25 = 9 + 16 ✓</div>
-                    </div>
-                    <div class="export-conclusion">
-                        <div class="export-conclusion-text">KESIMPULAN:<br>a² + b² = c²</div>
-                        <div><div class="qr-box" id="qrcode">[QR]</div>
-                        <div class="qr-caption">Scan untuk animasi</div></div>
-                    </div>
-                </div>
-              </div>
-            </div>
-        </section>
-    </main>
+<script src="../assets/js/perigal-engine-v5.js?v=1"></script>
+<script src="../assets/js/calendar-template.js?v=3"></script>
+<script src="../assets/js/pdf-export.js?v=31"></script>
 
-    <nav class="proof-nav bottom no-print">
-        <a href="bukti-01-januari.html" class="prev-btn">← Sebelumnya</a>
-        <a href="../index.html" class="home-btn">🏠 Kalender</a>
-        <a href="bukti-03-maret.html" class="next-btn">Selanjutnya →</a>
-    </nav>
-    <footer class="no-print"><p><strong>Contoh Guru</strong> - Pembuktian #2</p><p>Projek Kalender Pythagoras 2027</p></footer>
+<!-- ============ HARNESS v5 (verbatim) + 2 baris hook ============ -->
+<script>
+(function(){
+"use strict";
+const VW=720, VH=640, PAD=24, DUR=12000;
+const $=id=>document.getElementById(id);
+const el={sqB:$('sqB'),dashB:$('dashB'),dashA:$('dashA'),sqC:$('sqC'),innerD:$('innerD'),tri:$('tri'),
+  sqA:$('sqA'),cut1:$('cut1'),cut2:$('cut2'),clipBpoly:$('clipBpoly'),
+  pc:[$('pc0'),$('pc1'),$('pc2'),$('pc3')],
+  la:$('la'),lb:$('lb'),lc:$('lc'),la2:$('la2'),lb2:$('lb2'),lc2:$('lc2'),
+  eq:$('eq'),bar:$('bar'),ptxt:$('ptxt'),stxt:$('stxt'),test:$('test'),
+  btnPlay:$('btnPlay'),btnFinish:$('btnFinish'),btnReset:$('btnReset'),
+  speed:$('speed'),spdVal:$('spdVal'),triplet:$('triplet')};
 
-    <script src="../assets/js/perigal-classic.js?v=1"></script>
-    <script src="../assets/js/calendar-template.js?v=3"></script>
-    <script src="../assets/js/pdf-export.js?v=31"></script>
-    <script>
-    const GEO = perigalClassic(3, 4, 460, 430, 24);
-    const NS='http://www.w3.org/2000/svg';
-    const svg=document.getElementById('stageSvg');
-    const pts=poly=>poly.map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
-    const COL=['#f16a7a','#5b5bee','#5bf17a','#f1d95b'];
-    const mk=(t,at,pa)=>{const e=document.createElementNS(NS,t);for(const k in at)e.setAttribute(k,at[k]);(pa||svg).appendChild(e);return e;};
-    const defs=mk('defs',{}); const cp=mk('clipPath',{id:'clipB'},defs);
-    mk('polygon',{points:pts(GEO.sqB)},cp);
-    const gTri=mk('polygon',{points:pts(GEO.tri),fill:'rgba(144,164,174,.45)',opacity:0});
-    const gSqC=mk('polygon',{points:pts(GEO.sqC),fill:'#eef4fb',stroke:'#2f7bd9','stroke-width':2.5,opacity:0});
-    const gSqB=mk('polygon',{points:pts(GEO.sqB),fill:'#ffffff',stroke:'#2f7bd9','stroke-width':2,opacity:0});
-    const gGhostB=mk('polygon',{points:pts(GEO.sqB),fill:'none',stroke:'#2f7bd9','stroke-width':2,'stroke-dasharray':'6 5',opacity:0});
-    const gGhostA=mk('polygon',{points:pts(GEO.sqA),fill:'none',stroke:'#b02ab0','stroke-width':2,'stroke-dasharray':'6 5',opacity:0});
-    const gCutG=mk('g',{'clip-path':'url(#clipB)',opacity:0});
-    const cut1=mk('line',{x1:GEO.cut1[0].x,y1:GEO.cut1[0].y,x2:GEO.cut1[1].x,y2:GEO.cut1[1].y,stroke:'#37474f','stroke-width':2.5},gCutG);
-    const cut2=mk('line',{x1:GEO.cut2[0].x,y1:GEO.cut2[0].y,x2:GEO.cut2[1].x,y2:GEO.cut2[1].y,stroke:'#37474f','stroke-width':2.5},gCutG);
-    const gInner=mk('polygon',{points:pts(GEO.inner),fill:'none',stroke:'#b02ab0','stroke-width':2,'stroke-dasharray':'6 5',opacity:0});
-    const gA=mk('g',{transform:'translate(0,0)',opacity:0});
-    mk('polygon',{points:pts(GEO.sqA),fill:'#ee55ee',stroke:'#b02ab0','stroke-width':2},gA);
-    const sliceEls=GEO.pieces.map((pc,i)=>{const g=mk('g',{transform:'translate(0,0)'});
-        mk('polygon',{points:pts(pc.poly),fill:COL[i],stroke:'rgba(0,0,0,.35)','stroke-width':1.5,opacity:0},g);return g;});
-    function lab(p,t,col,sz){const e=mk('text',{x:p.x,y:p.y,fill:col,'font-size':sz||15,'font-weight':'bold',opacity:0,'text-anchor':'middle'});e.textContent=t;return e;}
-    const labs=[lab(GEO.labels.a,'a = 3','#c62828'),lab(GEO.labels.b,'b = 4','#2e7d32'),
-        lab(GEO.labels.c,'c = 5','#1565c0'),lab(GEO.labels.b2,'16','#1565c0',18),
-        lab(GEO.labels.a2,'9','#b02ab0',18),lab(GEO.labels.c2,'25','#1565c0',20)];
+let G=null, logs=[];
+const pts=poly=>poly.map(p=>p.x.toFixed(2)+','+p.y.toFixed(2)).join(' ');
+const setLine=(l,p)=>{l.setAttribute('x1',p[0].x);l.setAttribute('y1',p[0].y);
+                      l.setAttribute('x2',p[1].x);l.setAttribute('y2',p[1].y);};
+const lineLen=p=>Math.hypot(p[1].x-p[0].x,p[1].y-p[0].y);
+const clamp01=v=>v<0?0:v>1?1:v;
+const ph=(t,a,b)=>clamp01((t-a)/(b-a));
+const ease=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const shoal=p=>{let s=0;for(let i=0,j=p.length-1;i<p.length;j=i++)
+  s+=p[j].x*p[i].y-p[i].x*p[j].y;return Math.abs(s/2);};
 
-    const tweens=[]; const TOTAL=5000;
-    const addTween=(t0,t1,fn)=>{const tw={t0,t1,fn,last:-1};tweens.push(tw);return tw;};
-    const fade=(el,t0,d,to,from=0)=>addTween(t0,t0+d,p=>el.setAttribute('opacity',from+(to-from)*p));
-    const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
-    function buildTimeline(){
-        tweens.length=0;
-        fade(gTri,0,400,1); labs.slice(0,3).forEach((l,i)=>fade(l,100+i*90,300,1));
-        fade(gA,400,300,1); fade(labs[4],500,300,1);
-        fade(gSqB,700,300,1); fade(labs[3],800,300,1);
-        fade(gSqC,1000,300,1); fade(labs[5],1100,300,1);
-        const L1=Math.hypot(GEO.cut1[1].x-GEO.cut1[0].x,GEO.cut1[1].y-GEO.cut1[0].y);
-        const L2=Math.hypot(GEO.cut2[1].x-GEO.cut2[0].x,GEO.cut2[1].y-GEO.cut2[0].y);
-        fade(gCutG,1400,100,1);
-        [cut1,cut2].forEach((ln,i)=>{const L=i?L2:L1;ln.setAttribute('stroke-dasharray',L);ln.setAttribute('stroke-dashoffset',L);
-            addTween(1400+i*250,1900+i*250,p=>ln.setAttribute('stroke-dashoffset',L*(1-p)));});
-        sliceEls.forEach((g,i)=>fade(g.firstChild,2000+i*120,300,1));
-        fade(gInner,2600,300,1);
-        addTween(2800,3500,p=>{const e=ease(p);gA.setAttribute('transform',`translate(${GEO.tA.x*e},${GEO.tA.y*e})`);});
-        fade(gGhostA,2900,400,1);
-        GEO.pieces.forEach((pc,i)=>addTween(3300+i*220,4000+i*220,p=>{const e=ease(p);
-            sliceEls[i].setAttribute('transform',`translate(${pc.t.x*e},${pc.t.y*e})`);}));
-        fade(gSqB,3300,500,0,1); fade(gGhostB,3300,500,1);
-        addTween(4400,4800,p=>{svg.style.transform=`scale(${1+0.03*Math.sin(Math.PI*p)})`;});
-    }
-    buildTimeline();
-    let vt=0,playing=false,speed=1,lastTs=null;
-    const stepTimes=[[0,1],[400,2],[1400,3],[2800,4],[4400,5]];
-    function frame(ts){if(lastTs===null)lastTs=ts;const dt=Math.min(50,ts-lastTs);lastTs=ts;
-        if(playing)vt=Math.min(TOTAL,vt+dt*speed);
-        for(const tw of tweens){const p=Math.max(0,Math.min(1,(vt-tw.t0)/(tw.t1-tw.t0)));
-            if(p!==tw.last){tw.fn(p);tw.last=p;}}
-        const pct=Math.round(vt/TOTAL*100);
-        document.getElementById('ptext').textContent='Progres: '+pct+'%';
-        document.getElementById('pfill').style.width=pct+'%';
-        let n=0;for(const[t,s]of stepTimes)if(vt>=t)n=s;
-        document.querySelectorAll('.formula-step').forEach(el=>el.classList.remove('active'));
-        const el=document.getElementById('step'+n);if(el)el.classList.add('active');
-        if(playing&&vt>=TOTAL){playing=false;const b=document.getElementById('btnStart');
-            b.textContent='▶ Ulangi';b.style.display='inline-block';
-            document.getElementById('btnPause').style.display='none';}
-        requestAnimationFrame(frame);}
-    function resetState(){vt=0;playing=false;svg.style.transform='none';
-        for(const tw of tweens)tw.last=-1;
-        const b=document.getElementById('btnStart');b.textContent='▶ Mulai';
-        b.style.display='inline-block';document.getElementById('btnPause').style.display='none';}
-    document.getElementById('btnStart').addEventListener('click',()=>{if(vt>=TOTAL)resetState();
-        playing=true;document.getElementById('btnStart').style.display='none';
-        document.getElementById('btnPause').style.display='inline-block';});
-    document.getElementById('btnPause').addEventListener('click',()=>{playing=false;
-        const b=document.getElementById('btnStart');b.textContent='▶ Lanjut';
-        b.style.display='inline-block';document.getElementById('btnPause').style.display='none';});
-    document.getElementById('btnSkip').addEventListener('click',()=>{vt=TOTAL;playing=false;
-        for(const tw of tweens){tw.fn(1);tw.last=1;}});
-    document.getElementById('btnReset').addEventListener('click',resetState);
-    document.getElementById('speedSlider').addEventListener('input',e=>{
-        speed=parseFloat(e.target.value);document.getElementById('speedValue').textContent=speed+'×';});
+function build(a,b){
+  logs=[];
+  const ol=console.log, ow=console.warn;
+  console.log=(...r)=>{logs.push(r.join(' '));ol.apply(console,r);};
+  console.warn=(...r)=>{logs.push('WARN '+r.join(' '));ow.apply(console,r);};
+  G=perigalGeometry(a,b,null,VW,VH,PAD);
+  console.log=ol; console.warn=ow;
 
-    function perigalScene(state,w){
-        const g=perigalClassic(3,4,w,Math.round(w*0.93),14);
-        const P=poly=>poly.map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
-        const C4=['#f16a7a','#5b5bee','#5bf17a','#f1d95b'];
-        const hh=Math.round(w*0.93);
-        let s=`<svg viewBox="0 0 ${w} ${hh}" width="${w}" height="${hh}" style="display:block;margin:auto;">`;
-        s+=`<defs><clipPath id="cb_${state}"><polygon points="${P(g.sqB)}"/></clipPath></defs>`;
-        s+=`<polygon points="${P(g.tri)}" fill="rgba(144,164,174,.45)"/>`;
-        s+=`<polygon points="${P(g.sqC)}" fill="#eef4fb" stroke="#2f7bd9" stroke-width="2"/>`;
-        if(state==='initial'){
-            s+=`<polygon points="${P(g.sqB)}" fill="#ffffff" stroke="#2f7bd9" stroke-width="2"/>`;
-            g.pieces.forEach((pc,i)=>s+=`<polygon points="${P(pc.poly)}" fill="${C4[i]}" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/>`);
-            s+=`<g clip-path="url(#cb_${state})"><line x1="${g.cut1[0].x}" y1="${g.cut1[0].y}" x2="${g.cut1[1].x}" y2="${g.cut1[1].y}" stroke="#37474f" stroke-width="2"/>`+
-               `<line x1="${g.cut2[0].x}" y1="${g.cut2[0].y}" x2="${g.cut2[1].x}" y2="${g.cut2[1].y}" stroke="#37474f" stroke-width="2"/></g>`;
-            s+=`<polygon points="${P(g.sqA)}" fill="#ee55ee" stroke="#b02ab0" stroke-width="2"/>`;
-        } else {
-            g.pieces.forEach((pc,i)=>s+=`<polygon points="${P(pc.poly.map(p=>({x:p.x+pc.t.x,y:p.y+pc.t.y})))}" fill="${C4[i]}" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/>`);
-            s+=`<polygon points="${P(g.sqA.map(p=>({x:p.x+g.tA.x,y:p.y+g.tA.y})))}" fill="#ee55ee" stroke="#b02ab0" stroke-width="2"/>`;
-            s+=`<polygon points="${P(g.sqB)}" fill="none" stroke="#2f7bd9" stroke-width="2" stroke-dasharray="6 5"/>`;
-            s+=`<polygon points="${P(g.sqA)}" fill="none" stroke="#b02ab0" stroke-width="2" stroke-dasharray="6 5"/>`;
-        }
-        return s+`</svg>`;
-    }
-    document.getElementById('figInitial').innerHTML=perigalScene('initial',260);
-    document.getElementById('figFinal').innerHTML=perigalScene('final',260);
+  el.clipBpoly.setAttribute('points',pts(G.sqB));
+  el.sqB.setAttribute('points',pts(G.sqB));
+  el.dashB.setAttribute('points',pts(G.sqB));
+  el.dashA.setAttribute('points',pts(G.sqA));
+  el.sqC.setAttribute('points',pts(G.sqC));
+  el.innerD.setAttribute('points',pts(G.inner));
+  el.tri.setAttribute('points',pts(G.tri));
+  el.sqA.setAttribute('points',pts(G.sqA));
+  G.pieces.forEach((pc,i)=>{el.pc[i].setAttribute('points',pts(pc.poly));
+                            el.pc[i].removeAttribute('transform');});
+  setLine(el.cut1,G.cut1); setLine(el.cut2,G.cut2);
+  [el.cut1,el.cut2].forEach((l,i)=>{const L=lineLen(i?G.cut2:G.cut1);
+    l.setAttribute('stroke-dasharray',L); l.dataset.len=L; l.setAttribute('stroke-dashoffset',L);});
 
-    function fitSheet(){const vp=document.getElementById('a4Viewport');
-        const sh=document.querySelector('.a4-sheet');if(!vp||!sh)return;
-        const s=Math.min(1,vp.clientWidth/794);
-        sh.style.transform=`scale(${s})`;sh.style.transformOrigin='top left';
-        vp.style.height=(1123*s)+'px';}
-    window.fitSheet=fitSheet;window.addEventListener('resize',fitSheet);
-    window.togglePreview=function(){const col=document.getElementById('previewCollapse');
-        col.classList.toggle('collapsed');
-        document.getElementById('btnPreview').textContent=col.classList.contains('collapsed')
-            ?'👁 Tampilkan Pratinjau PDF (1 halaman)':'🙈 Sembunyikan Pratinjau PDF';
-        if(!col.classList.contains('collapsed'))setTimeout(fitSheet,60);};
-    renderCalendar(document.getElementById('calBlock'),2);
-    try{new QRCode(document.getElementById('qrcode'),{text:window.location.href,
-        width:84,height:84,correctLevel:QRCode.CorrectLevel.M});}
-    catch(e){document.getElementById('qrcode').textContent=window.location.href;}
-    fitSheet();requestAnimationFrame(frame);
-    </script>
+  const rt=Math.sqrt(a*a+b*b), cTxt=Number.isInteger(rt)?('c = '+rt):('c = √'+(a*a+b*b));
+  el.la.textContent='a = '+a; el.lb.textContent='b = '+b; el.lc.textContent=cTxt;
+  el.la2.textContent=a*a; el.lb2.textContent=b*b; el.lc2.textContent=a*a+b*b;
+  const put=(t,p)=>{t.setAttribute('x',p.x);t.setAttribute('y',p.y);};
+  put(el.la,G.labels.a); put(el.lb,G.labels.b); put(el.lc,G.labels.c);
+  put(el.la2,G.labels.a2); put(el.lb2,G.labels.b2); put(el.lc2,G.labels.c2);
+  el.eq.innerHTML=(a*a)+' + '+(b*b)+' = '+(a*a+b*b)+' &nbsp;→&nbsp; a² + b² = c² &nbsp;✔ TERBUKTI';
+
+  const u2=G.u*G.u;
+  const sumP=G.pieces.reduce((s,pc)=>s+shoal(pc.poly)/u2,0);
+  const okArea=Math.abs(sumP-b*b)<1e-6 && Math.abs(sumP+a*a-(a*a+b*b))<1e-6;
+  el.test.innerHTML=
+    logs.map(s=>s.startsWith('WARN')?'<span class="warn">'+s+'</span>':s).join('\n')+
+    '\nℹ potongan: '+G.pieces.length+' | luas tiap irisan = '+(b*b/4).toFixed(2)+
+    '\nℹ Σ irisan ('+sumP.toFixed(2)+') = b² ✔ | Σ + a² = c² ✔ : '+okArea+
+    '\nℹ skala u = '+G.u.toFixed(2)+' px/unit';
+  if(window.__afterBuild) window.__afterBuild();   /* HOOK 1 */
+}
+
+function render(t){
+  const fTri=ease(ph(t,0,.10)), fA=ease(ph(t,.10,.20)), fB=ease(ph(t,.20,.30)),
+        fC=ease(ph(t,.30,.40)), fCut=ease(ph(t,.40,.52)),
+        mA=ease(ph(t,.52,.88)), fEnd=ph(t,.92,1);
+  el.tri.setAttribute('opacity',fTri);
+  el.la.setAttribute('opacity',fTri); el.lb.setAttribute('opacity',fTri); el.lc.setAttribute('opacity',fTri);
+  el.sqA.setAttribute('opacity',fA);
+  el.sqA.setAttribute('transform','translate('+(G.tA.x*mA).toFixed(2)+','+(G.tA.y*mA).toFixed(2)+')');
+  el.la2.setAttribute('opacity',fA);
+  el.dashA.setAttribute('opacity',mA*.9);
+  el.sqB.setAttribute('opacity',fB*(1-fCut));
+  el.lb2.setAttribute('opacity',fB);
+  el.dashB.setAttribute('opacity',fCut*.9);
+  el.sqC.setAttribute('opacity',fC);
+  el.lc2.setAttribute('opacity',fC);
+
+  const fDraw=fCut, fCutGone=ease(ph(t,.56,.64));
+  [el.cut1,el.cut2].forEach(l=>{
+    l.setAttribute('opacity',fDraw*(1-fCutGone));
+    l.setAttribute('stroke-dashoffset',(l.dataset.len*(1-fDraw)).toFixed(2));});
+
+  G.pieces.forEach((pc,i)=>{
+    const m=ease(ph(t,.52+.04*i,.88+.04*i));
+    el.pc[i].setAttribute('opacity',fCut);
+    el.pc[i].setAttribute('transform','translate('+(pc.t.x*m).toFixed(2)+','+(pc.t.y*m).toFixed(2)+')');});
+  el.innerD.setAttribute('opacity',ease(ph(t,.46,.54))*(1-ease(ph(t,.86,.94))));
+  el.eq.style.opacity=fEnd;
+
+  el.bar.style.width=(t*100).toFixed(1)+'%';
+  el.ptxt.textContent='Progres: '+Math.round(t*100)+'%';
+  el.stxt.textContent=
+    t<=0?'Siap memulai… tekan ▶ Mulai':
+    t<.10?'Fase 1: segitiga siku-siku':
+    t<.20?'Fase 2: persegi a² = '+(G.a*G.a):
+    t<.30?'Fase 3: persegi b² = '+(G.b*G.b):
+    t<.40?'Fase 4: persegi c² = '+(G.a*G.a+G.b*G.b):
+    t<.52?'Fase 5: dua garis Perigal memotong b² jadi 4 irisan':
+    t<.92?'Fase 6: irisan digeser (tanpa rotasi) menutup c²…':
+    t<1?'Hampir selesai…':'✔ Terbukti: a² + b² = c²';
+}
+window.__render=render;   /* HOOK 2 */
+
+let elapsed=0,lastTs=null,playing=false,raf=null,speed=1;
+function frame(ts){
+  if(lastTs!==null&&playing){elapsed+=(ts-lastTs)*speed;
+    if(elapsed>=DUR){elapsed=DUR;playing=false;syncBtn();}}
+  lastTs=ts; render(elapsed/DUR);
+  raf=playing?requestAnimationFrame(frame):null;
+  if(!playing)lastTs=null;
+}
+function loop(){if(raf===null){lastTs=null;raf=requestAnimationFrame(frame);}}
+function syncBtn(){el.btnPlay.textContent=playing?'⏸ Pause':
+  (elapsed>=DUR?'▶ Ulangi':(elapsed>0?'▶ Lanjut':'▶ Mulai'));
+  el.btnPlay.classList.toggle('on',playing);}
+
+el.btnPlay.onclick=()=>{if(playing){playing=false;syncBtn();return;}
+  if(elapsed>=DUR)elapsed=0; playing=true;syncBtn();loop();};
+el.btnFinish.onclick=()=>{playing=false;elapsed=DUR;render(1);syncBtn();};
+el.btnReset.onclick=()=>{playing=false;elapsed=0;render(0);syncBtn();};
+el.speed.oninput=e=>{speed=parseFloat(e.target.value);el.spdVal.textContent=speed+'×';};
+el.triplet.onchange=e=>{const[a,b]=e.target.value.split(',').map(Number);
+  build(a,b); playing=false; elapsed=0; render(0); syncBtn();};
+
+build(3,4); render(0); syncBtn();
+})();
+</script>
+
+<!-- ============ INTEGRASI PROJEK: sheet, QR, snapshot ============ -->
+<script>
+(function(){
+  function snap(t){
+    window.__render(t);
+    const s=document.getElementById('svg').cloneNode(true);
+    s.setAttribute('width','250'); s.setAttribute('height','222');
+    s.removeAttribute('style');
+    return s.outerHTML;
+  }
+  function refreshSheet(){
+    document.getElementById('figInitial').innerHTML=snap(0);
+    document.getElementById('figFinal').innerHTML=snap(1);
+    window.__render(0);
+  }
+  window.__afterBuild=refreshSheet;
+  refreshSheet();
+
+  function fitSheet(){const vp=document.getElementById('a4Viewport');
+    const sh=document.querySelector('.a4-sheet');if(!vp||!sh)return;
+    const s=Math.min(1,vp.clientWidth/794);
+    sh.style.transform=`scale(${s})`;sh.style.transformOrigin='top left';
+    vp.style.height=(1123*s)+'px';}
+  window.fitSheet=fitSheet;window.addEventListener('resize',fitSheet);
+  window.togglePreview=function(){const col=document.getElementById('previewCollapse');
+    col.classList.toggle('collapsed');
+    document.getElementById('btnPreview').textContent=col.classList.contains('collapsed')
+      ?'👁 Tampilkan Pratinjau PDF (1 halaman)':'🙈 Sembunyikan Pratinjau PDF';
+    if(!col.classList.contains('collapsed'))setTimeout(fitSheet,60);};
+  renderCalendar(document.getElementById('calBlock'),2);
+  try{new QRCode(document.getElementById('qrcode'),{text:window.location.href,
+    width:84,height:84,correctLevel:QRCode.CorrectLevel.M});}
+  catch(e){document.getElementById('qrcode').textContent=window.location.href;}
+  fitSheet();
+})();
+</script>
 </body>
 </html>
