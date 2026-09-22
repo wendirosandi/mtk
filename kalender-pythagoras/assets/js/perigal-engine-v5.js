@@ -1,4 +1,4 @@
-/* perigal-engine-v5.1.js — perbaikan: lubang a² MIRING sejajar c² */
+/* perigal-engine-v5.js — Perigal klasik dengan grid sampling rapat */
 function perigalGeometry(a, b, off, viewW, viewH, pad) {
     off = off || { p: 0, q: 0 };
     pad = pad || 20;
@@ -42,7 +42,7 @@ function perigalGeometry(a, b, off, viewW, viewH, pad) {
             const cr = (xj - xi) * (p.y - yi) - (yj - yi) * (p.x - xi);
             if (Math.abs(cr) / len <= eps && p.x >= Math.min(xi, xj) - eps &&
                 p.x <= Math.max(xi, xj) + eps && p.y >= Math.min(yi, yj) - eps &&
-                p.y <= Math.max(yi, yj) + eps) return true;
+                p.y >= Math.max(yi, yj) + eps) return true;
         }
         let ins = false;
         for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
@@ -66,16 +66,13 @@ function perigalGeometry(a, b, off, viewW, viewH, pad) {
             s += poly[j].x * poly[i].y - poly[i].x * poly[j].y; return s / 2; }
     const move = (poly, t) => poly.map(p => ({ x: p.x + t.x, y: p.y + t.y }));
 
-    /* === PERBAIKAN: lubang a² MIRING (sejajar sisi c²) === */
-    const q = a / 2;
+    /* inner SEARAH SUMBU (Perigal klasik) */
     const inner = [
-        { x: W.x + q * (h.x + n.x),  y: W.y + q * (h.y + n.y) },
-        { x: W.x + q * (-h.x + n.x), y: W.y + q * (-h.y + n.y) },
-        { x: W.x + q * (-h.x - n.x), y: W.y + q * (-h.y - n.y) },
-        { x: W.x + q * (h.x - n.x),  y: W.y + q * (h.y - n.y) }];
-    const mids = [0, 1, 2, 3].map(i => ({
-        x: (inner[i].x + inner[(i + 1) % 4].x) / 2,
-        y: (inner[i].y + inner[(i + 1) % 4].y) / 2 }));
+        { x: W.x - a / 2, y: W.y - a / 2 }, { x: W.x + a / 2, y: W.y - a / 2 },
+        { x: W.x + a / 2, y: W.y + a / 2 }, { x: W.x - a / 2, y: W.y + a / 2 }];
+    const mids = [
+        { x: W.x, y: W.y - a / 2 }, { x: W.x + a / 2, y: W.y },
+        { x: W.x, y: W.y + a / 2 }, { x: W.x - a / 2, y: W.y }];
     const targets = inner.concat(mids, [W]);
 
     const signs = [[1, 1], [-1, 1], [-1, -1], [1, -1]];
@@ -87,9 +84,10 @@ function perigalGeometry(a, b, off, viewW, viewH, pad) {
         pieces.push({ poly, t: null });
     });
 
-    const tol = 0.02 * c;
+    /* PERBAIKAN: grid sampling lebih rapat */
+    const tol = 0.015 * c;
     const samples = [];
-    const step = c / 22;
+    const step = c / 44;  /* diperhalus dari c/22 */
     for (let x = minX; x <= maxX; x += step)
         for (let y = minY; y <= maxY; y += step) {
             const p = { x, y };
@@ -109,9 +107,9 @@ function perigalGeometry(a, b, off, viewW, viewH, pad) {
     function noOverlap(mNew, placed) {
         const probe = mNew.concat([
             { x: (mNew[0].x + mNew[2].x) / 2, y: (mNew[0].y + mNew[2].y) / 2 }]);
-        for (const q2 of probe)
+        for (const q of probe)
             for (const m of placed)
-                if (pip(m, q2, -1e-9) && distPoly(m, q2) > 1e-7) return false;
+                if (pip(m, q, -1e-9) && distPoly(m, q) > 1e-7) return false;
         return true;
     }
 
@@ -140,12 +138,11 @@ function perigalGeometry(a, b, off, viewW, viewH, pad) {
     })(0, [], []);
 
     if (!solution) {
-        console.warn('⚠️ solver Perigal: fallback tanda-sumbu');
+        console.warn('️ solver Perigal: fallback tanda-sumbu');
         pieces.forEach(pc => {
             const K = sqB.find(P2 => pip(pc.poly, P2, 1e-7 * b));
             const sx = Math.sign(K.x - G.x), sy = Math.sign(K.y - G.y);
-            pc.t = { x: W.x + q * (sx * h.x + sy * n.x) - K.x,
-                     y: W.y + q * (sx * h.y + sy * n.y) - K.y };
+            pc.t = { x: W.x + (a / 2) * sx - K.x, y: W.y + (a / 2) * sy - K.y };
         });
     } else {
         pieces.forEach((pc, i) => pc.t = solution[i]);
@@ -156,20 +153,21 @@ function perigalGeometry(a, b, off, viewW, viewH, pad) {
     if (okCover) console.log('✅ TILING OK (Perigal ' + a + ',' + b + ')');
     else console.warn('⚠️ TILING GAGAL', { okCover });
 
+    const tA = { x: W.x - a / 2, y: W.y + a / 2 };
     const map = poly => poly.map(P => S(P.x, P.y));
     return {
         a, b, c, u, S,
         tri: map([B, A, C]),
-        sqA: map(sqA), sqB: map(sqB), sqC: map(sqC),
-        inner: map(inner),                      /* lubang miring = target a² */
+        sqA: map(sqA), sqB: map(sqB), sqC: map(sqC), inner: map(inner),
         pieces: pieces.map(pc => ({ poly: map(pc.poly), t: { x: pc.t.x * u, y: -pc.t.y * u } })),
+        tA: { x: tA.x * u, y: -tA.y * u },
         cut1: [S(G.x - h.x * b * 2, G.y - h.y * b * 2), S(G.x + h.x * b * 2, G.y + h.y * b * 2)],
         cut2: [S(G.x - n.x * b * 2, G.y - n.y * b * 2), S(G.x + n.x * b * 2, G.y + n.y * b * 2)],
         G: S(G.x, G.y), W: S(W.x, W.y),
         labels: {
             a: S(a / 2, 0.6), b: S(-0.9, b / 2),
             c: S(a / 2 + n.x * 0.8, b / 2 + n.y * 0.8),
-            b2: S(-b / 2, b / 2), a2: S(W.x, W.y),
+            b2: S(-b / 2, b / 2), a2: S(a / 2, -a / 2),
             c2: S(Wc.x + n.x * 1.2, Wc.y + n.y * 1.2)
         }
     };
