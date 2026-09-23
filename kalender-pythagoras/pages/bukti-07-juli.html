@@ -1,24 +1,385 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bukti #7: Perigal Preset O+ M− (7-24-25) - Kalender Pythagoras 2027</title>
-    <script>window.PCFG = { month: 7, a: 7, b: 24, preset: 4, group: 'Kelompok 5', level: 'Lanjut' };</script>
-    <link rel="stylesheet" href="../assets/css/main.css">
-    <link rel="stylesheet" href="../assets/css/proof.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bukti #7: Garis Tinggi & Segitiga Sebangun (6-8-10) - Kalender Pythagoras 2027</title>
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/proof.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  .ai-prompt-box {
+    background: #f0f4ff; border: 2px solid #5a67d8; border-radius: 10px; padding: 16px; margin: 20px 0;
+  }
+  .ai-prompt-box h4 { margin: 0 0 10px 0; color: #5a67d8; font-size: 16px; }
+  .prompt-text {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px;
+    font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.6; color: #2d3748;
+    margin: 10px 0; white-space: pre-wrap;
+  }
+  .btn-copy {
+    background: #5a67d8; color: #fff; border: none; border-radius: 6px;
+    padding: 8px 16px; font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+  .btn-copy.copied { background: #48bb78; }
+  .stage{background:#f8f9fa;border:1px solid #e2e8f0;border-radius:14px;padding:6px;margin-bottom:12px}
+  .stage svg{width:100%;height:auto;display:block}
+  .row{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  input[type=range]{width:min(200px,48vw);height:8px;-webkit-appearance:none;appearance:none;background:#e2e8f0;border-radius:4px;outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#4299e1;cursor:pointer}
+  .spd{font-weight:700;color:#5a67d8;min-width:2.6em}
+  label{font-weight:700;color:#4a5568}
+  .row button{border:none;border-radius:10px;padding:13px 20px;min-height:46px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;gap:7px}
+  #btnPlay{background:#48bb78} #btnPlay.on{background:#ed8936}
+  #btnFinish{background:#4299e1} #btnReset{background:#f56565}
+  .pbar{background:#e2e8f0;height:12px;border-radius:6px;overflow:hidden;margin-bottom:6px}
+  .pfill{height:100%;width:0%;background:linear-gradient(90deg,#48bb78,#4299e1);border-radius:6px}
+  .ptxt{text-align:center;font-weight:700;color:#4a5568;font-size:15px}
+  .stxt{text-align:center;color:#718096;font-size:14px;min-height:1.3em;margin-bottom:10px}
+</style>
 </head>
 <body>
-    <div id="app"></div>
-    <script>window.PCFG = { month: 4, a: 5, b: 12, preset: 1, group: 'Kelompok 2', level: 'Menengah' };</script>
+<header class="proof-header no-print">
+    <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
+    <div class="proof-info">
+        <h1>Bukti #7: Garis Tinggi & Segitiga Sebangun (6-8-10)</h1>
+        <div class="proof-meta">
+            <span class="meta-item">📅 Juli 2027</span>
+            <span class="meta-item">👥 Kelompok 5</span>
+            <span class="meta-item">🎯 Level: Pengayaan</span>
+        </div>
+    </div>
+    <div class="export-buttons">
+        <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 Download PDF (1 hal)</button>
+        <button class="btn-print" onclick="printPDF()">🖨 Print / Save as PDF</button>
+    </div>
+</header>
 
-    <script src="../assets/js/perigal-engine.js?v=82"></script>
-    <script src="../assets/js/calendar-template.js?v=3"></script>
-    <script src="../assets/js/pdf-export.js?v=31"></script>
-    <script src="../assets/js/perigal-page.js?v=3"></script>
-    
+<nav class="proof-nav no-print">
+    <a href="bukti-06-juni.html" class="prev-btn">← Juni (Bukti #6)</a>
+    <span class="nav-indicator">7 / 12</span>
+    <a href="bukti-08-agustus.html" class="next-btn">Agustus (Bukti #8) →</a>
+</nav>
+
+<main class="proof-content" id="proofContent">
+    <section class="section introduction no-print">
+        <h2>📖 Pengenalan: Proyeksi di Hipotenusa</h2>
+        <p class="intro-text">Jatuhkan <strong>garis tinggi CF</strong> dari sudut siku-siku: hipotenusa terbagi menjadi <strong>x = BF</strong> dan <strong>y = FA</strong>. Karena <strong>ΔCBF ∼ ΔABC</strong> dan <strong>ΔCAF ∼ ΔABC</strong>, diperoleh <strong>a² = c·x</strong> dan <strong>b² = c·y</strong>. Jumlahkan dan pakai x + y = c: <strong>a² + b² = c·(x+y) = c²</strong>. Untuk 6-8-10: x = 3,6 dan y = 6,4.</p>
+        <div class="historical-note"><strong>⚠️ Catatan kurikulum:</strong> ini adalah materi kesebangunan kelas 9, disajikan sebagai pengayaan penutup semester dengan angka satu-desimal yang ramah hitungan.</div>
+    </section>
+
+    <section class="section animation no-print">
+        <h2>🎬 Animasi Interaktif</h2>
+        <div class="stage">
+          <svg id="stageSvg" viewBox="0 0 560 460" style="display:block;width:100%;height:auto;">
+            <polygon id="tri" points="" fill="rgba(144,164,174,.35)" stroke="#37474f" stroke-width="2.5" opacity="0"/>
+            <line id="alt" stroke="#8e24aa" stroke-width="2.5" opacity="0"/>
+            <circle id="dotF" r="4" fill="#8e24aa" opacity="0"/>
+            <line id="lineX" stroke="#e53935" stroke-width="5" stroke-linecap="round" opacity="0"/>
+            <line id="lineY" stroke="#43a047" stroke-width="5" stroke-linecap="round" opacity="0"/>
+            <polygon id="d1" fill="#f16a7a" opacity="0"/>
+            <polygon id="d2" fill="#5bf17a" opacity="0"/>
+            <text id="la" font-size="16" fill="#c62828" font-weight="bold" opacity="0"></text>
+            <text id="lb" font-size="16" fill="#2e7d32" font-weight="bold" opacity="0"></text>
+            <text id="lc" font-size="16" fill="#1565c0" font-weight="bold" opacity="0"></text>
+            <text id="lx" font-size="13" fill="#b71c1c" font-weight="bold" opacity="0"></text>
+            <text id="ly" font-size="13" fill="#1b5e20" font-weight="bold" opacity="0"></text>
+          </svg>
+        </div>
+        <div class="pbar"><div class="pfill" id="bar"></div></div>
+        <div class="ptxt" id="ptxt">Progres: 0%</div>
+        <div class="stxt" id="stxt">Siap memulai… tekan ▶ Mulai</div>
+        <div class="row">
+          <label for="speed">⚡ Kecepatan:</label>
+          <input type="range" id="speed" min="0.25" max="2" step="0.25" value="1">
+          <span class="spd" id="spdVal">1×</span>
+        </div>
+        <div class="row">
+          <button id="btnPlay">▶ Mulai</button>
+          <button id="btnFinish">⏭ Selesai</button>
+          <button id="btnReset">↺ Reset</button>
+        </div>
+    </section>
+
+    <section class="section no-print">
+        <div class="ai-prompt-box">
+            <h4>💡 Panduan Presentasi</h4>
+            <p style="margin:0 0 12px 0;font-size:14px;line-height:1.6;color:#4a5568;">
+              Jika kamu kesulitan menyiapkan presentasi, gunakan contoh prompt AI berikut. 
+              Sertakan <strong>screenshot</strong> atau <strong>upload PDF</strong> halaman ini saat bertanya ke AI.
+            </p>
+            <div class="prompt-text" id="promptText">"Saya seorang siswa SMP akan mempresentasikan Pembuktian Teorema Pythagoras [NAMA BUKTI] mulai dari Pendahuluan, Penjelasan Visual/Animasi, Contoh, hingga Kesimpulan dalam waktu 3-4 menit. Bantu saya menyusun naskah presentasi yang mudah dipahami, menarik, dan sesuai untuk audiens teman sekelas."</div>
+            <button class="btn-copy" id="btnCopyPrompt">📋 Copy Teks</button>
+            <p style="font-size:12px;color:#718096;margin:8px 0 0 0;">⏱️ Durasi 3-4 menit sudah memperhitungkan jeda.</p>
+        </div>
+    </section>
+
+    <section class="section export-section no-print-screen">
+        <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">👁 Tampilkan Pratinjau PDF (1 halaman)</button>
+        <div class="preview-collapse collapsed" id="previewCollapse">
+          <div class="a4-viewport" id="a4Viewport">
+            <div id="exportArea" class="a4-sheet">
+                <div class="export-header">
+                    <h2>Bukti #7: Garis Tinggi & Segitiga Sebangun</h2>
+                    <p>Kalender Pythagoras 2027 • Juli • Kelompok 5 • Level: Pengayaan</p>
+                </div>
+                <div id="calBlock" class="cal-block"></div>
+                <hr class="cal-divider">
+                <div class="proof-figures">
+                    <figure class="proof-figure"><span class="state-badge initial">AWAL</span>
+                        <div class="scene" id="figInitial"></div>
+                        <figcaption><strong>Gbr 1:</strong> garis tinggi CF; x = BF, y = FA.</figcaption></figure>
+                    <figure class="proof-figure"><span class="state-badge final">AKHIR</span>
+                        <div class="scene" id="figFinal"></div>
+                        <figcaption><strong>Gbr 2:</strong> a² = c·x dan b² = c·y; jumlah = c².</figcaption></figure>
+                </div>
+                <div class="export-explain">
+                    <p><strong>Penjelasan:</strong> dua segitiga kecil sebangun dengan segitiga asal, sehingga a² = c·x dan b² = c·y. Karena x + y = c, maka a² + b² = c·(x+y) = c².</p>
+                    <div class="export-formula">36 + 64 = 10·(3,6+6,4) = 10·10 = 100 ✓</div>
+                </div>
+                <div class="export-conclusion" style="margin-bottom:0;">
+                    <div class="export-conclusion-text">KESIMPULAN:<br>a² + b² = c²</div>
+                </div>
+                <div class="group-info-compact">
+                    <div class="group-names-col">
+                        <strong>Nama Anggota Kelompok:</strong>
+                        <div class="name-grid">
+                            <div class="name-line">1. .......................................</div>
+                            <div class="name-line">3. .......................................</div>
+                            <div class="name-line">2. .......................................</div>
+                            <div class="name-line">4. .......................................</div>
+                            <div class="name-line">5. .......................................</div>
+                        </div>
+                    </div>
+                    <div class="qr-col">
+                        <div class="qr-box" id="qrcode"></div>
+                        <div class="qr-caption">Scan untuk animasi</div>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+    </section>
+</main>
+
+<nav class="proof-nav bottom no-print">
+    <a href="bukti-06-juni.html" class="prev-btn">← Sebelumnya</a>
+    <a href="../index.html" class="home-btn">🏠 Kalender</a>
+    <a href="bukti-08-agustus.html" class="next-btn">Selanjutnya →</a>
+</nav>
+<footer class="no-print"><p><strong>Kelompok 5</strong> - Pembuktian #7</p><p>Projek Kalender Pythagoras 2027</p></footer>
+
+<!-- ============ MODAL KONFIRMASI DOWNLOAD ============ -->
+<div class="modal-overlay" id="downloadModal">
+  <div class="modal-content">
+    <h3>📄 Konfirmasi Download PDF</h3>
+    <p>Sebelum mengunduh PDF, pastikan Anda sudah memahami petunjuk proyek dan checklist persiapan.</p>
+    <div class="modal-warning" id="modalWarning"></div>
+    <label class="ack-checkbox" for="modalAck">
+      <input type="checkbox" id="modalAck">
+      <span>Saya sudah paham petunjuk dan checklist semua Persiapan.</span>
+    </label>
+    <div class="modal-actions">
+      <button id="btnModalDownload" disabled>📄 Download PDF</button>
+      <button id="btnModalCancel">Batal</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/calendar-template.js?v=3"></script>
+<script src="../assets/js/pdf-export.js?v=34"></script>
+<script>
+(function(){
+"use strict";
+window.PROOF_NAME = "Garis Tinggi & Segitiga Sebangun (6-8-10)";
+
+const a=6, b=8, c=10;
+const C={x:0,y:0}, B={x:a,y:0}, A={x:0,y:b};
+const F={x:a*b*b/(c*c), y:a*a*b/(c*c)}; // (3.84, 2.88)
+
+const $ = id => document.getElementById(id);
+const svg = $('stageSvg');
+const NS = 'http://www.w3.org/2000/svg';
+const mk = (t,at,pa) => { const e=document.createElementNS(NS,t); for(const k in at) e.setAttribute(k,at[k]); (pa||svg).appendChild(e); return e; };
+
+const x0=-1, x1=a+1, y0=-1, y1=b+1;
+const U=Math.min(360/(x1-x0), 320/(y1-y0));
+const OX=20-x0*U, OY=20+y1*U;
+const S = (x,y) => ({x:OX+x*U, y:OY-y*U});
+const pts = poly => poly.map(p => { const q=S(p.x,p.y); return q.x.toFixed(1)+','+q.y.toFixed(1); }).join(' ');
+
+// Init SVG elements
+$('tri').setAttribute('points', pts([C,B,A]));
+$('alt').setAttribute('x1', S(0,0).x); $('alt').setAttribute('y1', S(0,0).y);
+$('alt').setAttribute('x2', S(F.x,F.y).x); $('alt').setAttribute('y2', S(F.x,F.y).y);
+$('dotF').setAttribute('cx', S(F.x,F.y).x); $('dotF').setAttribute('cy', S(F.x,F.y).y);
+$('lineX').setAttribute('x1', S(B.x,B.y).x); $('lineX').setAttribute('y1', S(B.x,B.y).y);
+$('lineX').setAttribute('x2', S(F.x,F.y).x); $('lineY').setAttribute('y2', S(F.x,F.y).y);
+$('lineY').setAttribute('x1', S(F.x,F.y).x); $('lineY').setAttribute('y1', S(F.x,F.y).y);
+$('lineY').setAttribute('x2', S(A.x,A.y).x); $('lineY').setAttribute('y2', S(A.x,A.y).y);
+$('d1').setAttribute('points', pts([C,B,F]));
+$('d2').setAttribute('points', pts([C,A,F]));
+
+$('la').setAttribute('x', S(a/2,-0.6).x); $('la').setAttribute('y', S(a/2,-0.6).y); $('la').textContent = 'a = 6';
+$('lb').setAttribute('x', S(-0.8,b/2).x); $('lb').setAttribute('y', S(-0.8,b/2).y); $('lb').textContent = 'b = 8';
+$('lc').setAttribute('x', S(a/2+1,b/2+0.8).x); $('lc').setAttribute('y', S(a/2+1,b/2+0.8).y); $('lc').textContent = 'c = 10';
+$('lx').setAttribute('x', (S(B.x,B.y).x+S(F.x,F.y).x)/2+14); $('lx').setAttribute('y', (S(B.x,B.y).y+S(F.x,F.y).y)/2+14); $('lx').textContent = 'x = 3,6';
+$('ly').setAttribute('x', (S(F.x,F.y).x+S(A.x,A.y).x)/2-16); $('ly').setAttribute('y', (S(F.x,F.y).y+S(A.x,A.y).y)/2-10); $('ly').textContent = 'y = 6,4';
+
+/* Animation Logic */
+const DUR = 5000;
+let elapsed = 0, playing = false, speed = 1, lastTs = null, raf = null;
+const ease = t => t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
+const ph = (t,a,b) => Math.max(0, Math.min(1, (t-a)/(b-a)));
+const fade = (el, t0, d, to, from=0) => {
+  const tw = { el, t0, d, to, from, last: -1 };
+  return tw;
+};
+
+const tweens = [];
+function addTween(t0, t1, fn) { tweens.push({t0, t1, fn, last: -1}); }
+
+function buildTimeline() {
+  tweens.length = 0;
+  addTween(0, 400, p => $('tri').setAttribute('opacity', p));
+  addTween(150, 450, p => $('la').setAttribute('opacity', p));
+  addTween(250, 550, p => $('lb').setAttribute('opacity', p));
+  addTween(350, 650, p => $('lc').setAttribute('opacity', p));
+  
+  const AL = Math.hypot(S(F.x,F.y).x-S(0,0).x, S(F.x,F.y).y-S(0,0).y);
+  $('alt').setAttribute('stroke-dasharray', AL);
+  $('alt').setAttribute('stroke-dashoffset', AL);
+  addTween(500, 600, p => $('alt').setAttribute('opacity', p));
+  addTween(600, 800, p => $('dotF').setAttribute('opacity', p));
+  addTween(500, 1100, p => $('alt').setAttribute('stroke-dashoffset', AL*(1-p)));
+  
+  addTween(1200, 1600, p => $('lineX').setAttribute('opacity', p));
+  addTween(1400, 1700, p => $('lx').setAttribute('opacity', p));
+  addTween(1800, 2200, p => $('lineY').setAttribute('opacity', p));
+  addTween(2000, 2300, p => $('ly').setAttribute('opacity', p));
+  
+  addTween(2600, 3000, p => $('d1').setAttribute('opacity', 0.5 * p));
+  addTween(3000, 3400, p => $('d2').setAttribute('opacity', 0.5 * p));
+  addTween(4600, 4900, p => svg.style.transform = `scale(${1+0.02*Math.sin(Math.PI*p)})`);
+}
+
+function render(t) {
+  for (const tw of tweens) {
+    const p = Math.max(0, Math.min(1, (t - tw.t0) / (tw.t1 - tw.t0)));
+    if (p !== tw.last && p >= 0 && p <= 1) {
+      tw.fn(p);
+      tw.last = p;
+    }
+  }
+  $('bar').style.width = (t * 100).toFixed(1) + '%';
+  $('ptxt').textContent = 'Progres: ' + Math.round(t * 100) + '%';
+  $('stxt').textContent = t <= 0 ? 'Siap memulai… tekan ▶ Mulai' :
+    t < 0.1 ? 'Fase 1: Segitiga siku-siku 6-8-10' :
+    t < 0.2 ? 'Fase 2: Garis tinggi CF diturunkan' :
+    t < 0.4 ? 'Fase 3: Proyeksi x = 3,6 dan y = 6,4' :
+    t < 0.9 ? 'Fase 4: Segitiga sebangun (ΔCBF ∼ ΔABC)' :
+    t < 1 ? 'Hampir selesai…' : '✔ Terbukti: a² + b² = c²';
+}
+
+function frame(ts) {
+  if (lastTs !== null && playing) {
+    elapsed += (ts - lastTs) * speed;
+    if (elapsed >= DUR) { elapsed = DUR; playing = false; syncBtn(); }
+  }
+  lastTs = ts;
+  render(elapsed / DUR);
+  raf = playing ? requestAnimationFrame(frame) : null;
+  if (!playing) lastTs = null;
+}
+
+function syncBtn() {
+  $('btnPlay').textContent = playing ? '⏸ Pause' : (elapsed >= DUR ? '▶ Ulangi' : (elapsed > 0 ? '▶ Lanjut' : '▶ Mulai'));
+  $('btnPlay').classList.toggle('on', playing);
+}
+
+$('btnPlay').onclick = () => {
+  if (playing) { playing = false; syncBtn(); return; }
+  if (elapsed >= DUR) elapsed = 0;
+  playing = true; syncBtn();
+  if (raf === null) { lastTs = null; raf = requestAnimationFrame(frame); }
+};
+$('btnFinish').onclick = () => { playing = false; elapsed = DUR; render(1); syncBtn(); };
+$('btnReset').onclick = () => {
+  playing = false; elapsed = 0;
+  tweens.forEach(tw => tw.last = -1);
+  svg.style.transform = 'none';
+  render(0); syncBtn();
+};
+$('speed').oninput = e => { speed = parseFloat(e.target.value); $('spdVal').textContent = speed + '×'; };
+
+buildTimeline();
+render(0);
+syncBtn();
+
+/* AI Prompt Copy */
+const btnCopyPrompt = $('btnCopyPrompt');
+const promptText = $('promptText');
+const rawPrompt = promptText.textContent.replace('[NAMA BUKTI]', window.PROOF_NAME);
+promptText.textContent = rawPrompt;
+btnCopyPrompt.onclick = async () => {
+  try {
+    await navigator.clipboard.writeText(rawPrompt);
+    btnCopyPrompt.textContent = '✅ Tersalin!';
+    btnCopyPrompt.classList.add('copied');
+    setTimeout(() => { btnCopyPrompt.textContent = '📋 Copy Teks'; btnCopyPrompt.classList.remove('copied'); }, 2000);
+  } catch (e) { alert('❌ Gagal menyalin: ' + e.message); }
+};
+
+/* PDF & QR Init */
+function snap(t) {
+  render(t);
+  const s = svg.cloneNode(true);
+  s.setAttribute('width', '250'); s.setAttribute('height', '222');
+  s.removeAttribute('style');
+  return s.outerHTML;
+}
+function refreshSheet() {
+  $('figInitial').innerHTML = snap(0);
+  $('figFinal').innerHTML = snap(1);
+  render(0);
+}
+
+function fitSheet() {
+  const vp = $('a4Viewport');
+  const sh = document.querySelector('.a4-sheet');
+  if (!vp || !sh) return;
+  const s = Math.min(1, vp.clientWidth / 794);
+  sh.style.transform = `scale(${s})`;
+  sh.style.transformOrigin = 'top left';
+  vp.style.height = (1123 * s) + 'px';
+}
+window.fitSheet = fitSheet;
+window.addEventListener('resize', fitSheet);
+
+window.togglePreview = function() {
+  const col = $('previewCollapse');
+  col.classList.toggle('collapsed');
+  $('btnPreview').textContent = col.classList.contains('collapsed')
+    ? '👁 Tampilkan Pratinjau PDF (1 halaman)' : '🙈 Sembunyikan Pratinjau PDF';
+  if (!col.classList.contains('collapsed')) { refreshSheet(); setTimeout(fitSheet, 60); }
+};
+
+if (typeof renderCalendar === 'function') renderCalendar($('calBlock'), 7);
+try {
+  const qrContainer = $('qrcode');
+  qrContainer.innerHTML = '';
+  new QRCode(qrContainer, {
+    text: window.location.href, width: 84, height: 84,
+    correctLevel: QRCode.CorrectLevel.M, colorDark: "#1a202c", colorLight: "#ffffff"
+  });
+} catch (e) {
+  $('qrcode').innerHTML = '<div style="font-size:10px;color:#666;text-align:center;">QR Error</div>';
+}
+
+fitSheet();
+})();
+</script>
 </body>
 </html>
