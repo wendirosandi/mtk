@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bukti #2: Perigal Klasik (Engine v5) - Kalender Pythagoras 2027</title>
+<title>Bukti #2: Perigal Klasik (Engine Baru) - Kalender Pythagoras 2027</title>
 <link rel="stylesheet" href="../assets/css/main.css">
 <link rel="stylesheet" href="../assets/css/proof.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -26,8 +26,7 @@
   .row button{border:none;border-radius:10px;padding:13px 20px;min-height:46px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;gap:7px}
   #btnPlay{background:#48bb78} #btnPlay.on{background:#ed8936}
   #btnFinish{background:#4299e1} #btnReset{background:#f56565}
-  .test{background:#1e293b;color:#a7f3d0;border-radius:10px;padding:12px;margin-top:14px;
-        font-family:ui-monospace,Consolas,monospace;font-size:13px;white-space:pre-wrap;line-height:1.5}
+  .test{background:#1e293b;color:#a7f3d0;border-radius:10px;padding:12px;margin-top:14px;font-family:ui-monospace,Consolas,monospace;font-size:13px;white-space:pre-wrap;line-height:1.5}
   .test .warn{color:#fcd34d}
   .tri{fill:#cbd5e0;stroke:#4a5568;stroke-width:2}
   .sqAf{fill:#d946ef;stroke:#a21caf;stroke-width:2}
@@ -47,11 +46,11 @@
 <header class="proof-header no-print">
     <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
     <div class="proof-info">
-        <h1>Bukti #2: Perigal Klasik (Engine v5)</h1>
+        <h1>Bukti #2: Perigal Klasik (Engine Baru)</h1>
         <div class="proof-meta">
             <span class="meta-item">📅 Februari 2027</span>
             <span class="meta-item">👨‍🏫 Contoh Guru</span>
-            <span class="meta-item"> Level: Dasar</span>
+            <span class="meta-item">🎯 Level: Dasar</span>
         </div>
     </div>
     <div class="export-buttons">
@@ -69,18 +68,12 @@
 <main class="proof-content" id="proofContent">
     <section class="section introduction no-print">
         <h2>📖 Pengenalan (Contoh Guru #2)</h2>
-        <p class="intro-text"><b> Pembuktian Perigal:</b> persegi b² dipotong <b>dua garis lewat
-           pusatnya</b> (sejajar & tegak lurus hipotenusa) menjadi 4 irisan. Keempat irisan itu
-           <b>cukup digeser tanpa rotasi</b>, bersama persegi a², untuk menutup persegi c²
-           <b>tanpa celah & tanpa tumpang-tindih</b> → terbukti a² + b² = c². Engine memverifikasi
-           tiling otomatis (panel uji di bawah animasi).</p>
-        <div class="historical-note"><strong>📜 Sejarah:</strong> Henry Perigal, aktuaris London (1830);
-           bukti ini terukir di batu nisannya. Lubang a² di dalam c² berbentuk persegi searah sumbu
-           (bukan miring) karena potongan melalui <em>pusat</em> b².</div>
+        <p class="intro-text"><b>📐 Pembuktian Perigal:</b> persegi b² dipotong <b>dua garis lewat pusatnya</b> (sejajar & tegak lurus hipotenusa) menjadi 4 irisan. Keempat irisan itu <b>cukup digeser tanpa rotasi</b>, bersama persegi a², untuk menutup persegi c² <b>tanpa celah & tanpa tumpang-tindih</b> → terbukti a² + b² = c². Engine baru memverifikasi tiling secara otomatis (panel uji di bawah animasi).</p>
+        <div class="historical-note"><strong>📜 Sejarah:</strong> Henry Perigal, aktuaris London (1830); bukti ini terukir di batu nisannya.</div>
     </section>
 
     <section class="section animation no-print">
-        <h2>🎬 Animasi Interaktif (Engine v5)</h2>
+        <h2>🎬 Animasi Interaktif (Engine Baru)</h2>
         <div class="stage">
           <svg id="svg" viewBox="0 0 720 640" preserveAspectRatio="xMidYMid meet">
             <defs><clipPath id="clipB"><polygon id="clipBpoly" points=""/></clipPath></defs>
@@ -91,7 +84,6 @@
             <polygon id="innerD" class="dash dI" points="" opacity="0"/>
             <polygon id="tri"  class="tri" points="" opacity="0"/>
             <polygon id="sqA"  class="sqAf" points="" opacity="0"/>
-            <polygon id="sqAfill" class="sqAf" points="" opacity="0"/>
             <g clip-path="url(#clipB)">
               <line id="cut1" class="cut" opacity="0"/>
               <line id="cut2" class="cut" opacity="0"/>
@@ -130,30 +122,27 @@
         <div class="row">
           <button id="btnPlay">▶ Mulai</button>
           <button id="btnFinish">⏭ Selesai</button>
-          <button id="btnReset"> Reset</button>
+          <button id="btnReset">↺ Reset</button>
         </div>
         <div class="test" id="test">— panel uji —</div>
     </section>
 
     <section class="section external-resources no-print">
-        <h2>🔗 Applet GeoGebra (Slice Tetap)</h2>
+        <h2> Applet GeoGebra (Slice Tetap)</h2>
         <div class="embed-container" style="text-align:center;padding:24px;">
-            <div style="font-size:40px;">📐</div>
+            <div style="font-size:40px;"></div>
             <p style="margin:10px 0;color:#555;">Applet <strong>"Pembuktian Pythagoras 3 — Slice Tetap"</strong> untuk eksplorasi mandiri.</p>
-            <a class="external-link" target="_blank" rel="noopener" href="https://www.geogebra.org/calculator/rrcce76q"
-               style="display:inline-block;background:#667eea;color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;text-decoration:none;">
-               🔗 Buka Applet GeoGebra rrcce76q</a>
+            <a class="external-link" target="_blank" rel="noopener" href="https://www.geogebra.org/calculator/rrcce76q" style="display:inline-block;background:#667eea;color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;text-decoration:none;">🔗 Buka Applet GeoGebra rrcce76q</a>
         </div>
     </section>
 
     <section class="section export-section no-print-screen">
-        <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">
-            👁 Tampilkan Pratinjau PDF (1 halaman)</button>
+        <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">👁 Tampilkan Pratinjau PDF (1 halaman)</button>
         <div class="preview-collapse collapsed" id="previewCollapse">
           <div class="a4-viewport" id="a4Viewport">
             <div id="exportArea" class="a4-sheet">
                 <div class="export-header">
-                    <h2>Bukti #2: Perigal Klasik (Engine v5)</h2>
+                    <h2>Bukti #2: Perigal Klasik</h2>
                     <p>Kalender Pythagoras 2027 • Februari • Contoh Guru • Level: Dasar</p>
                 </div>
                 <div id="calBlock" class="cal-block"></div>
@@ -164,18 +153,30 @@
                         <figcaption><strong>Gbr 1:</strong> b² terpotong 4 irisan; a² utuh; c² kosong.</figcaption></figure>
                     <figure class="proof-figure"><span class="state-badge final">AKHIR</span>
                         <div class="scene" id="figFinal"></div>
-                        <figcaption><strong>Gbr 2:</strong> 4 irisan + lubang a² menutup c²; sumber kosong.</figcaption></figure>
+                        <figcaption><strong>Gbr 2:</strong> 4 irisan + lubang a² menutup c².</figcaption></figure>
                 </div>
                 <div class="export-explain">
-                    <p><strong>Penjelasan:</strong> dua garis potong melalui pusat b² menghasilkan 4 irisan
-                       yang bersama a² menutup c² hanya dengan translasi (tanpa rotasi).
-                       Panel uji di halaman memverifikasi Σ irisan = b² dan Σ + a² = c².</p>
+                    <p><strong>Penjelasan:</strong> dua garis potong melalui pusat b² menghasilkan 4 irisan yang bersama a² menutup c² hanya dengan translasi (tanpa rotasi).</p>
                     <div class="export-formula">a² + b² = c² (terverifikasi engine untuk setiap triplet)</div>
                 </div>
-                <div class="export-conclusion">
+                <div class="export-conclusion" style="margin-bottom:0;">
                     <div class="export-conclusion-text">KESIMPULAN:<br>a² + b² = c²</div>
-                    <div><div class="qr-box" id="qrcode">[QR]</div>
-                    <div class="qr-caption">Scan untuk animasi</div></div>
+                </div>
+                <div class="group-info-compact">
+                    <div class="group-names-col">
+                        <strong>Nama Anggota Kelompok:</strong>
+                        <div class="name-grid">
+                            <div class="name-line">1. .......................................</div>
+                            <div class="name-line">3. .......................................</div>
+                            <div class="name-line">2. .......................................</div>
+                            <div class="name-line">4. .......................................</div>
+                            <div class="name-line">5. .......................................</div>
+                        </div>
+                    </div>
+                    <div class="qr-col">
+                        <div class="qr-box" id="qrcode"></div>
+                        <div class="qr-caption">Scan untuk animasi</div>
+                    </div>
                 </div>
             </div>
           </div>
@@ -190,192 +191,35 @@
 </nav>
 <footer class="no-print"><p><strong>Contoh Guru</strong> - Pembuktian #2</p><p>Projek Kalender Pythagoras 2027</p></footer>
 
-<!-- ============ ENGINE V5 (GRID SAMPLING RAPAT + INNER SEARAH SUMBU) ============ -->
-<script>
-function perigalGeometry(a, b, off, viewW, viewH, pad) {
-    off = off || { p: 0, q: 0 };
-    pad = pad || 20;
-    const c = Math.hypot(a, b);
-    const h = { x: a / c, y: -b / c };
-    const n = { x: b / c, y: a / c };
-    const o = { x: off.p * h.x + off.q * n.x, y: off.p * h.y + off.q * n.y };
+<!-- ============ MODAL KONFIRMASI DOWNLOAD ============ -->
+<div class="modal-overlay" id="downloadModal">
+  <div class="modal-content">
+    <h3>📄 Konfirmasi Download PDF</h3>
+    <p>Sebelum mengunduh PDF, pastikan Anda sudah memahami petunjuk proyek dan checklist persiapan.</p>
+    <div class="modal-warning" id="modalWarning"></div>
+    <label class="ack-checkbox" for="modalAck">
+      <input type="checkbox" id="modalAck">
+      <span>Saya sudah paham petunjuk dan checklist semua Persiapan.</span>
+    </label>
+    <div class="modal-actions">
+      <button id="btnModalDownload" disabled>📄 Download PDF</button>
+      <button id="btnModalCancel">Batal</button>
+    </div>
+  </div>
+</div>
 
-    const minX = -b, maxX = a + b, minY = -a, maxY = a + b;
-    const u = Math.min((viewW - 2 * pad) / (maxX - minX), (viewH - 2 * pad) / (maxY - minY));
-    const ox = pad + ((viewW - 2 * pad) - (maxX - minX) * u) / 2 - minX * u;
-    const oy = pad + ((viewH - 2 * pad) - (maxY - minY) * u) / 2 + maxY * u;
-    const S = (x, y) => ({ x: ox + x * u, y: oy - y * u });
+<script src="../assets/js/perigal-engine-new.js?v=10"></script>
+<script src="../assets/js/calendar-template.js?v=3"></script>
+<script src="../assets/js/pdf-export.js?v=34"></script>
 
-    const B = { x: 0, y: 0 }, A = { x: a, y: 0 }, C = { x: 0, y: b };
-    const sqA = [{ x: 0, y: 0 }, { x: a, y: 0 }, { x: a, y: -a }, { x: 0, y: -a }];
-    const sqB = [{ x: -b, y: 0 }, { x: 0, y: 0 }, { x: 0, y: b }, { x: -b, y: b }];
-    const sqC = [C, A, { x: A.x + n.x * c, y: A.y + n.y * c }, { x: C.x + n.x * c, y: C.y + n.y * c }];
-    const Wc = { x: (C.x + sqC[2].x) / 2, y: (C.y + sqC[2].y) / 2 };
-    const W = { x: Wc.x + o.x, y: Wc.y + o.y };
-    const Gc = { x: -b / 2, y: b / 2 };
-    const G = { x: Gc.x + o.x, y: Gc.y + o.y };
-
-    function clip(poly, P, m, s) {
-        const out = [], v = q => m.x * (q.x - P.x) + m.y * (q.y - P.y);
-        for (let i = 0; i < poly.length; i++) {
-            const cur = poly[i], nxt = poly[(i + 1) % poly.length];
-            const vc = v(cur), vn = v(nxt);
-            const fc = vc === 0 || Math.sign(vc) === s, fn = vn === 0 || Math.sign(vn) === s;
-            if (fc) out.push(cur);
-            if (fc !== fn) { const t = vc / (vc - vn);
-                out.push({ x: cur.x + (nxt.x - cur.x) * t, y: cur.y + (nxt.y - cur.y) * t }); }
-        }
-        return out;
-    }
-    function pip(poly, p, eps) {
-        eps = eps || 0;
-        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-            const xi = poly[i].x, yi = poly[i].y, xj = poly[j].x, yj = poly[j].y;
-            const len = Math.hypot(xj - xi, yj - yi) || 1;
-            const cr = (xj - xi) * (p.y - yi) - (yj - yi) * (p.x - xi);
-            if (Math.abs(cr) / len <= eps && p.x >= Math.min(xi, xj) - eps &&
-                p.x <= Math.max(xi, xj) + eps && p.y >= Math.min(yi, yj) - eps &&
-                p.y >= Math.max(yi, yj) + eps) return true;
-        }
-        let ins = false;
-        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-            const xi = poly[i].x, yi = poly[i].y, xj = poly[j].x, yj = poly[j].y;
-            if ((yi > p.y) !== (yj > p.y) && p.x < (xj - xi) * (p.y - yi) / (yj - yi) + xi) ins = !ins;
-        }
-        return ins;
-    }
-    function distPoly(poly, p) {
-        let d = Infinity;
-        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-            const xi = poly[i].x, yi = poly[i].y, xj = poly[j].x, yj = poly[j].y;
-            const dx = xj - xi, dy = yj - yi;
-            const t = Math.max(0, Math.min(1, ((p.x - xi) * dx + (p.y - yi) * dy) / (dx * dx + dy * dy || 1)));
-            d = Math.min(d, Math.hypot(p.x - (xi + dx * t), p.y - (yi + dy * t)));
-        }
-        return d;
-    }
-    function area(poly) { let s = 0;
-        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++)
-            s += poly[j].x * poly[i].y - poly[i].x * poly[j].y; return s / 2; }
-    const move = (poly, t) => poly.map(p => ({ x: p.x + t.x, y: p.y + t.y }));
-
-    /* === INNER SEARAH SUMBU (Perigal klasik) === */
-    const inner = [
-        { x: W.x - a / 2, y: W.y - a / 2 }, { x: W.x + a / 2, y: W.y - a / 2 },
-        { x: W.x + a / 2, y: W.y + a / 2 }, { x: W.x - a / 2, y: W.y + a / 2 }];
-    const mids = [
-        { x: W.x, y: W.y - a / 2 }, { x: W.x + a / 2, y: W.y },
-        { x: W.x, y: W.y + a / 2 }, { x: W.x - a / 2, y: W.y }];
-    const targets = inner.concat(mids, [W]);
-
-    const signs = [[1, 1], [-1, 1], [-1, -1], [1, -1]];
-    const pieces = [];
-    signs.forEach(([sH, sN]) => {
-        let poly = clip(sqB.slice(), G, h, sH);
-        poly = clip(poly, G, n, sN);
-        if (poly.length < 3 || Math.abs(area(poly)) < 1e-9) return;
-        pieces.push({ poly, t: null });
-    });
-
-    /* === GRID SAMPLING RAPAT (c/44) === */
-    const tol = 0.015 * c;
-    const samples = [];
-    const step = c / 44;
-    for (let x = minX; x <= maxX; x += step)
-        for (let y = minY; y <= maxY; y += step) {
-            const p = { x, y };
-            if (!pip(sqC, p, 0) || pip(inner, p, 0)) continue;
-            if (distPoly(sqC, p) < tol || distPoly(inner, p) < tol) continue;
-            samples.push(p);
-        }
-
-    function coveredOnce(moved) {
-        for (const p of samples) {
-            let cnt = 0;
-            for (const m of moved) if (pip(m, p, 0)) cnt++;
-            if (cnt !== 1) return false;
-        }
-        return true;
-    }
-    function noOverlap(mNew, placed) {
-        const probe = mNew.concat([
-            { x: (mNew[0].x + mNew[2].x) / 2, y: (mNew[0].y + mNew[2].y) / 2 }]);
-        for (const q of probe)
-            for (const m of placed)
-                if (pip(m, q, -1e-9) && distPoly(m, q) > 1e-7) return false;
-        return true;
-    }
-
-    const cands = pieces.map(pc => {
-        const list = [];
-        for (const V of pc.poly) for (const Q of targets)
-            list.push({ x: Q.x - V.x, y: Q.y - V.y });
-        return list;
-    });
-    let solution = null;
-    (function dfs(i, placed, ts) {
-        if (solution) return;
-        if (i === pieces.length) {
-            if (coveredOnce(placed)) { solution = ts.slice(); }
-            return;
-        }
-        for (const t of cands[i]) {
-            const m = move(pieces[i].poly, t);
-            if (!m.every(p => pip(sqC, p, 1e-7))) continue;
-            if (!noOverlap(m, placed)) continue;
-            ts.push(t); placed.push(m);
-            dfs(i + 1, placed, ts);
-            ts.pop(); placed.pop();
-            if (solution) return;
-        }
-    })(0, [], []);
-
-    if (!solution) {
-        console.warn('⚠️ solver Perigal: fallback tanda-sumbu');
-        pieces.forEach(pc => {
-            const K = sqB.find(P2 => pip(pc.poly, P2, 1e-7 * b));
-            const sx = Math.sign(K.x - G.x), sy = Math.sign(K.y - G.y);
-            pc.t = { x: W.x + (a / 2) * sx - K.x, y: W.y + (a / 2) * sy - K.y };
-        });
-    } else {
-        pieces.forEach((pc, i) => pc.t = solution[i]);
-    }
-
-    const moved = pieces.map(pc => move(pc.poly, pc.t));
-    const okCover = coveredOnce(moved);
-    if (okCover) console.log('✅ TILING OK (Perigal ' + a + ',' + b + ')');
-    else console.warn('⚠️ TILING GAGAL', { okCover });
-
-    const tA = { x: W.x - a / 2, y: W.y + a / 2 };
-    const map = poly => poly.map(P => S(P.x, P.y));
-    return {
-        a, b, c, u, S,
-        tri: map([B, A, C]),
-        sqA: map(sqA), sqB: map(sqB), sqC: map(sqC), inner: map(inner),
-        pieces: pieces.map(pc => ({ poly: map(pc.poly), t: { x: pc.t.x * u, y: -pc.t.y * u } })),
-        tA: { x: tA.x * u, y: -tA.y * u },
-        cut1: [S(G.x - h.x * b * 2, G.y - h.y * b * 2), S(G.x + h.x * b * 2, G.y + h.y * b * 2)],
-        cut2: [S(G.x - n.x * b * 2, G.y - n.y * b * 2), S(G.x + n.x * b * 2, G.y + n.y * b * 2)],
-        G: S(G.x, G.y), W: S(W.x, W.y),
-        labels: {
-            a: S(a / 2, 0.6), b: S(-0.9, b / 2),
-            c: S(a / 2 + n.x * 0.8, b / 2 + n.y * 0.8),
-            b2: S(-b / 2, b / 2), a2: S(W.x, W.y),
-            c2: S(Wc.x + n.x * 1.2, Wc.y + n.y * 1.2)
-        }
-    };
-}
-window.perigalGeometry = perigalGeometry;
-</script>
-
-<!-- ============ HARNESS + INTEGRASI PROJEK ============ -->
+<!-- ============ HARNESS ENGINE BARU ============ -->
 <script>
 (function(){
 "use strict";
 const VW=720, VH=640, PAD=24, DUR=12000;
 const $=id=>document.getElementById(id);
 const el={sqB:$('sqB'),dashB:$('dashB'),dashA:$('dashA'),sqC:$('sqC'),innerD:$('innerD'),tri:$('tri'),
-  sqA:$('sqA'),sqAfill:$('sqAfill'),cut1:$('cut1'),cut2:$('cut2'),clipBpoly:$('clipBpoly'),
+  sqA:$('sqA'),cut1:$('cut1'),cut2:$('cut2'),clipBpoly:$('clipBpoly'),
   pc:[$('pc0'),$('pc1'),$('pc2'),$('pc3')],
   la:$('la'),lb:$('lb'),lc:$('lc'),la2:$('la2'),lb2:$('lb2'),lc2:$('lc2'),
   eq:$('eq'),bar:$('bar'),ptxt:$('ptxt'),stxt:$('stxt'),test:$('test'),
@@ -384,21 +228,19 @@ const el={sqB:$('sqB'),dashB:$('dashB'),dashA:$('dashA'),sqC:$('sqC'),innerD:$('
 
 let G=null, logs=[];
 const pts=poly=>poly.map(p=>p.x.toFixed(2)+','+p.y.toFixed(2)).join(' ');
-const setLine=(l,p)=>{l.setAttribute('x1',p[0].x);l.setAttribute('y1',p[0].y);
-                      l.setAttribute('x2',p[1].x);l.setAttribute('y2',p[1].y);};
+const setLine=(l,p)=>{l.setAttribute('x1',p[0].x);l.setAttribute('y1',p[0].y);l.setAttribute('x2',p[1].x);l.setAttribute('y2',p[1].y);};
 const lineLen=p=>Math.hypot(p[1].x-p[0].x,p[1].y-p[0].y);
 const clamp01=v=>v<0?0:v>1?1:v;
 const ph=(t,a,b)=>clamp01((t-a)/(b-a));
 const ease=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
-const shoal=p=>{let s=0;for(let i=0,j=p.length-1;i<p.length;j=i++)
-  s+=p[j].x*p[i].y-p[i].x*p[j].y;return Math.abs(s)/2;};
+const shoal=p=>{let s=0;for(let i=0,j=p.length-1;i<p.length;j=i++)s+=p[j].x*p[i].y-p[i].x*p[j].y;return Math.abs(s)/2;};
 
 function build(a,b){
   logs=[];
   const ol=console.log, ow=console.warn;
   console.log=(...r)=>{logs.push(r.join(' '));ol.apply(console,r);};
   console.warn=(...r)=>{logs.push('WARN '+r.join(' '));ow.apply(console,r);};
-  G=perigalGeometry(a,b,null,VW,VH,PAD);
+  G=perigalClassic(a,b,VW,VH,PAD);
   console.log=ol; console.warn=ow;
 
   el.clipBpoly.setAttribute('points',pts(G.sqB));
@@ -409,12 +251,9 @@ function build(a,b){
   el.innerD.setAttribute('points',pts(G.inner));
   el.tri.setAttribute('points',pts(G.tri));
   el.sqA.setAttribute('points',pts(G.sqA));
-  el.sqAfill.setAttribute('points',pts(G.inner));   /* lubang searah sumbu */
-  G.pieces.forEach((pc,i)=>{el.pc[i].setAttribute('points',pts(pc.poly));
-                            el.pc[i].removeAttribute('transform');});
+  G.pieces.forEach((pc,i)=>{el.pc[i].setAttribute('points',pts(pc.poly));el.pc[i].removeAttribute('transform');});
   setLine(el.cut1,G.cut1); setLine(el.cut2,G.cut2);
-  [el.cut1,el.cut2].forEach((l,i)=>{const L=lineLen(i?G.cut2:G.cut1);
-    l.setAttribute('stroke-dasharray',L); l.dataset.len=L; l.setAttribute('stroke-dashoffset',L);});
+  [el.cut1,el.cut2].forEach((l,i)=>{const L=lineLen(i?G.cut2:G.cut1);l.setAttribute('stroke-dasharray',L);l.dataset.len=L;l.setAttribute('stroke-dashoffset',L);});
 
   const rt=Math.sqrt(a*a+b*b), cTxt=Number.isInteger(rt)?('c = '+rt):('c = √'+(a*a+b*b));
   el.la.textContent='a = '+a; el.lb.textContent='b = '+b; el.lc.textContent=cTxt;
@@ -441,7 +280,6 @@ function render(t){
         mA=ease(ph(t,.52,.88)), fEnd=ph(t,.92,1);
   el.tri.setAttribute('opacity',fTri);
   el.la.setAttribute('opacity',fTri); el.lb.setAttribute('opacity',fTri); el.lc.setAttribute('opacity',fTri);
-  /* PERBAIKAN: sqA (rumah) fade-out, sqAfill (lubang di c²) fade-in */
   el.sqA.setAttribute('opacity', fA * (1 - mA));
   el.sqA.removeAttribute('transform');
   el.sqAfill.setAttribute('opacity', mA);
@@ -505,7 +343,7 @@ el.triplet.onchange = e => { const [a, b] = e.target.value.split(',').map(Number
 build(3, 4); render(0); syncBtn();
 })();
 
-/* ============ INTEGRASI PROJEK: sheet, QR, snapshot ============ */
+/* ============ INTEGRASI PROJEK ============ */
 (function(){
   function snap(t) {
     if (window.__render) window.__render(t);
@@ -531,12 +369,22 @@ build(3, 4); render(0); syncBtn();
   window.togglePreview = function() { const col = document.getElementById('previewCollapse');
     col.classList.toggle('collapsed');
     document.getElementById('btnPreview').textContent = col.classList.contains('collapsed')
-      ? ' Tampilkan Pratinjau PDF (1 halaman)' : '🙈 Sembunyikan Pratinjau PDF';
-    if (!col.classList.contains('collapsed')) setTimeout(fitSheet, 60); };
+      ? '👁 Tampilkan Pratinjau PDF (1 halaman)' : '🙈 Sembunyikan Pratinjau PDF';
+    if (!col.classList.contains('collapsed')) { refreshSheet(); setTimeout(fitSheet, 60); } };
   if (typeof renderCalendar === 'function') renderCalendar(document.getElementById('calBlock'), 2);
-  try { new QRCode(document.getElementById('qrcode'), { text: window.location.href,
-    width: 84, height: 84, correctLevel: QRCode.CorrectLevel.M }); }
-  catch (e) { document.getElementById('qrcode').textContent = window.location.href; }
+  try {
+    const qrContainer = document.getElementById('qrcode');
+    qrContainer.innerHTML = '';
+    new QRCode(qrContainer, {
+      text: window.location.href,
+      width: 84, height: 84,
+      correctLevel: QRCode.CorrectLevel.M,
+      colorDark: "#1a202c",
+      colorLight: "#ffffff"
+    });
+  } catch (e) {
+    document.getElementById('qrcode').innerHTML = '<div style="font-size:10px;color:#666;text-align:center;">QR Error</div>';
+  }
   fitSheet();
 })();
 </script>
