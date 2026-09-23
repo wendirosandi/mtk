@@ -662,3 +662,217 @@ input[type=range] {
     .a4-viewport { background: transparent !important; box-shadow: none !important; overflow: visible !important; }
     .a4-sheet { box-shadow: none !important; padding: 18mm !important; }
 }
+
+
+/* ============ COMPACT GROUP INFO + QR (3 kolom) ============ */
+.group-info-compact {
+  display: grid;
+  grid-template-columns: 1fr 1fr 120px;
+  gap: 12px;
+  align-items: start;
+  background: #f7fafc;
+  border: 1px dashed #cbd5e0;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 10px 0;
+  page-break-inside: avoid;
+}
+
+.group-names-col {
+  grid-column: 1 / 3;
+}
+
+.group-names-col strong {
+  display: block;
+  font-size: 13px;
+  color: #2d3748;
+  margin-bottom: 6px;
+}
+
+.name-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 16px;
+}
+
+.name-line {
+  font-size: 12px;
+  color: #4a5568;
+  border-bottom: 1px dotted #999;
+  padding-bottom: 3px;
+  min-height: 18px;
+}
+
+.name-line:nth-child(5) {
+  grid-column: 1; /* No. 5 di kolom kiri */
+}
+
+.qr-col {
+  grid-column: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.qr-box canvas,
+.qr-box img {
+  width: 84px !important;
+  height: 84px !important;
+  display: block;
+}
+
+.qr-caption {
+  font-size: 10px;
+  color: #718096;
+  text-align: center;
+  margin-top: 4px;
+}
+
+/* ============ MODAL KONFIRMASI DOWNLOAD ============ */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  animation: modalIn 0.3s ease;
+}
+
+@keyframes modalIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-content h3 {
+  color: #5a67d8;
+  margin: 0 0 12px 0;
+  font-size: 20px;
+}
+
+.modal-content p {
+  color: #4a5568;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 0 16px 0;
+}
+
+.ack-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  background: #f0f4ff;
+  border-radius: 8px;
+  border: 2px solid #e0e7ff;
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+
+.ack-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.ack-checkbox span {
+  font-size: 14px;
+  color: #2d3748;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.modal-warning {
+  background: #fff5f5;
+  border: 1px solid #feb2b2;
+  color: #c53030;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  display: none;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-actions button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#btnModalDownload {
+  background: #48bb78;
+  color: #fff;
+}
+
+#btnModalDownload:disabled {
+  background: #cbd5e0;
+  color: #718096;
+  cursor: not-allowed;
+}
+
+#btnModalDownload:not(:disabled):hover {
+  background: #38a169;
+  transform: translateY(-1px);
+}
+
+#btnModalCancel {
+  background: #f56565;
+  color: #fff;
+}
+
+#btnModalCancel:hover {
+  background: #e53e3e;
+}
+
+/* ============ PRINT: Compact group info tetap terlihat ============ */
+@media print {
+  .group-info-compact {
+    background: #f7fafc !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .name-line {
+    border-bottom-color: #999 !important;
+  }
+}
