@@ -50,6 +50,79 @@
         </div>
     </section>
 
+    <!-- ============ PETUNJUK PROYEK ============ -->
+<section class="project-guide no-print" style="background:#fff;border-radius:16px;padding:20px;margin-bottom:20px;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+  <h2 style="color:#5a67d8;margin-bottom:15px;">📋 Petunjuk Proyek Kalender Pythagoras 2027</h2>
+  
+  <div class="guide-content" style="font-size:14px;line-height:1.8;color:#2d3748;">
+    <ol style="margin-left:20px;">
+      <li><strong>Tujuan:</strong> Membuat kalender 2027 dengan 12 pembuktian Teorema Pythagoras.</li>
+      <li><strong>Kelompok:</strong> 4-5 siswa per kelompok (10 kelompok total).</li>
+      <li><strong>Bulan 1-2 (Jan-Feb):</strong> Contoh dari guru (tidak dikerjakan siswa).</li>
+      <li><strong>Bulan 3-12 (Mar-Des):</strong> Dikerjakan dan dimodifikasi oleh siswa.</li>
+      <li><strong>Waktu:</strong> 2 minggu + 2 pertemuan (Pembahasan & Presentasi).</li>
+      <li><strong>Konsultasi:</strong> Diskusi dengan guru diperbolehkan di luar jam projek, maksimal 2x pertemuan.</li>
+    </ol>
+    
+    <h3 style="margin-top:15px;color:#5a67d8;">📊 Kriteria Penilaian (Total: 100)</h3>
+    <ul style="margin-left:20px;">
+      <li><strong>a. Kerumitan Pembuktian</strong> (maks 20) — tingkat kesulitan metode yang dipilih</li>
+      <li><strong>b. Hasil Modifikasi Kalender</strong> (maks 30):
+        <ul style="margin-left:20px;">
+          <li>Karya cetak/gambar manual (A4/A3)</li>
+          <li>Meta Info terisi (ulang tahun, kegiatan, catatan)</li>
+          <li>Hiasan menarik & kreatif</li>
+          <li>Keterangan tambahan yang relevan</li>
+        </ul>
+      </li>
+      <li><strong>c. Presentasi</strong> (maks 40):
+        <ul style="margin-left:20px;">
+          <li>Penjelasan mudah dipahami</li>
+          <li>Lengkap: animasi, pembuktian, GeoGebra (jika ada), referensi</li>
+          <li>Efisiensi waktu: 4-5 menit per kelompok</li>
+        </ul>
+      </li>
+      <li><strong>d. Kerjasama Kelompok</strong> (maks 10):
+        <ul style="margin-left:20px;">
+          <li>Pembagian tugas jelas: moderator, operator, presenter (boleh 2)</li>
+          <li>Semua anggota aktif berkontribusi</li>
+        </ul>
+      </li>
+    </ul>
+    
+    <h3 style="margin-top:15px;color:#5a67d8;">👥 Penilaian Antar Kelompok</h3>
+    <p style="margin-left:20px;">Setiap kelompok menilai 2 kelompok lain dengan skala:</p>
+    <ul style="margin-left:40px;">
+      <li>⭐⭐⭐⭐⭐ <strong>Sangat Baik</strong> (90-100)</li>
+      <li>⭐⭐⭐⭐ <strong>Baik</strong> (75-89)</li>
+      <li>⭐⭐⭐ <strong>Cukup</strong> (60-74)</li>
+      <li>⭐⭐ <strong>Kurang</strong> (<60)</li>
+    </ul>
+    <p style="margin-left:20px;font-style:italic;">Nilai antar kelompok = 10% dari nilai akhir (saran, tidak mengikat).</p>
+  </div>
+  
+  <!-- CHECKLIST -->
+  <div style="margin-top:20px;padding:15px;background:#f0f4ff;border-radius:10px;border-left:4px solid #5a67d8;">
+    <h3 style="color:#5a67d8;margin-bottom:10px;">✅ Checklist Persiapan (Wajib sebelum download PDF)</h3>
+    <div id="checklistContainer"></div>
+    <div id="downloadStatus" style="margin-top:10px;font-weight:700;color:#718096;"></div>
+  </div>
+</section>
+
+<!-- MODAL PENILAIAN ANTAR KELOMPOK -->
+<div id="peerReviewModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center;">
+  <div style="background:#fff;border-radius:12px;padding:24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;">
+    <h3 style="color:#5a67d8;margin-bottom:15px;">👥 Penilaian Antar Kelompok</h3>
+    <div id="peerReviewForm"></div>
+    <div style="display:flex;gap:10px;margin-top:20px;">
+      <button id="btnSavePeerReview" style="flex:1;padding:10px;background:#48bb78;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;">💾 Simpan</button>
+      <button id="btnClosePeerReview" style="flex:1;padding:10px;background:#f56565;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<button id="btnPeerReview" style="position:fixed;bottom:20px;right:20px;padding:12px 20px;background:#5a67d8;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:100;">👥 Nilai Kelompok Lain</button>
+    
     <section class="calendar-section">
         <h2>Kalender Pembuktian 2027</h2>
         <div class="calendar-grid" id="calendarGrid"></div>
