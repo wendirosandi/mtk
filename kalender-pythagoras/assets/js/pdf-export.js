@@ -1,3 +1,9 @@
+/* Validasi checklist proyek */
+if (typeof window.canDownloadPDF === 'function' && !window.canDownloadPDF()) {
+  alert('⚠️ Checklist proyek belum lengkap!\n\nSilakan buka halaman utama (index.html), centang semua item di "Checklist Persiapan", lalu coba download lagi.');
+  return;
+}
+
 /* =====================================================
    pdf-export.js  v3.1
    Target: .a4-sheet (fixed 794 px). Capture dengan
