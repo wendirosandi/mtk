@@ -1,8 +1,14 @@
-/* project-checklist.js — Checklist, LocalStorage, Validasi Download */
+/* =====================================================
+   project-checklist.js  v2.0
+   - 9 item checklist (tambah 2 item baru)
+   - Panduan Presentasi dengan Prompt AI (auto-replace)
+   - Fitur peer review DINONAKTIFKAN (untuk versi 2)
+   ===================================================== */
+
 (function(){
 "use strict";
 
-/* Checklist items */
+/* ============ CHECKLIST ITEMS (9 TOTAL) ============ */
 const CHECKLIST_ITEMS = [
   { id: 'understand_goal', label: 'Saya memahami tujuan proyek (kalender + 12 pembuktian)' },
   { id: 'group_formed', label: 'Kelompok saya sudah terbentuk (4-5 siswa)' },
@@ -10,11 +16,12 @@ const CHECKLIST_ITEMS = [
   { id: 'studied_example', label: 'Saya sudah mempelajari contoh guru (Januari & Februari)' },
   { id: 'read_rubric', label: 'Saya sudah membaca kriteria penilaian (100 poin)' },
   { id: 'role_divided', label: 'Pembagian tugas sudah jelas (moderator, operator, presenter)' },
-  { id: 'timeline_understood', label: 'Saya paham timeline: 2 minggu + 2 pertemuan' }
+  { id: 'timeline_understood', label: 'Saya paham timeline: 2 minggu + 2 pertemuan' },
+  { id: 'ready_to_modify', label: 'Saya siap memodifikasi PDF (misal dengan Canva) agar lebih menarik dan siap dicetak sebagai Kalender Pythagoras 2027' },
+  { id: 'ready_to_present', label: 'Saya siap mempresentasikan hasil kerja dalam waktu 3-4 menit sesuai jadwal' }
 ];
 
 const STORAGE_KEY = 'pythagoras_project_checklist';
-const PEER_REVIEW_KEY = 'pythagoras_peer_reviews';
 
 /* DOM elements */
 const $ = id => document.getElementById(id);
@@ -36,12 +43,14 @@ function saveState(state) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (e) {
-    console.warn('️ Tidak bisa simpan ke localStorage:', e);
+    console.warn('⚠️ Tidak bisa simpan ke localStorage:', e);
   }
 }
 
 /* Render checklist */
 function renderChecklist() {
+  if (!checklistContainer) return;
+  
   const state = loadState();
   checklistContainer.innerHTML = '';
   
@@ -84,6 +93,8 @@ function renderChecklist() {
 
 /* Update download status message */
 function updateDownloadStatus() {
+  if (!downloadStatus) return;
+  
   const state = loadState();
   const checkedCount = CHECKLIST_ITEMS.filter(item => state[item.id]).length;
   const totalCount = CHECKLIST_ITEMS.length;
@@ -92,115 +103,90 @@ function updateDownloadStatus() {
   if (allChecked) {
     downloadStatus.innerHTML = '<span style="color:#2f855a;">✅ Semua checklist lengkap — Anda bisa download PDF dari halaman bulan manapun!</span>';
   } else {
-    downloadStatus.innerHTML = `<span style="color:#c53030;">️ ${checkedCount}/${totalCount} checklist selesai — lengkapi semua untuk mengaktifkan download PDF.</span>`;
+    downloadStatus.innerHTML = `<span style="color:#c53030;">⚠️ ${checkedCount}/${totalCount} checklist selesai — lengkapi semua untuk mengaktifkan download PDF.</span>`;
   }
   
   /* Expose function for PDF validation */
   window.__projectChecklistComplete = allChecked;
+  window.canDownloadPDF = () => allChecked;
 }
 
-/* Check if can download */
-window.canDownloadPDF = function() {
-  const state = loadState();
-  return CHECKLIST_ITEMS.every(item => state[item.id]);
-};
-
-/* Peer Review System */
-const GROUPS = [
-  'Kelompok 1', 'Kelompok 2', 'Kelompok 3', 'Kelompok 4', 'Kelompok 5',
-  'Kelompok 6', 'Kelompok 7', 'Kelompok 8', 'Kelompok 9', 'Kelompok 10'
-];
-
-function renderPeerReviewForm() {
-  const form = $('peerReviewForm');
-  form.innerHTML = '';
+/* ============ PANDUAN PRESENTASI DENGAN PROMPT AI ============ */
+function renderPanduanPresentasi() {
+  const container = $('panduanPresentasiContainer');
+  if (!container) return;
   
-  const savedReviews = loadPeerReviews();
+  /* Ambil nama bukti dari halaman (jika ada) */
+  const proofName = window.PROOF_NAME || 'Teorema Pythagoras';
   
-  GROUPS.forEach(group => {
-    const row = document.createElement('div');
-    row.style.cssText = 'margin-bottom:12px;padding:10px;background:#f7fafc;border-radius:6px;';
-    
-    const title = document.createElement('div');
-    title.style.cssText = 'font-weight:700;margin-bottom:6px;color:#2d3748;';
-    title.textContent = group;
-    row.appendChild(title);
-    
-    const ratingSelect = document.createElement('select');
-    ratingSelect.style.cssText = 'width:100%;padding:6px;border:1px solid #cbd5e0;border-radius:4px;margin-bottom:6px;';
-    ratingSelect.innerHTML = `
-      <option value="">-- Pilih penilaian --</option>
-      <option value="5">⭐⭐⭐⭐⭐ Sangat Baik (90-100)</option>
-      <option value="4">⭐⭐⭐⭐ Baik (75-89)</option>
-      <option value="3">⭐⭐⭐ Cukup (60-74)</option>
-      <option value="2">⭐⭐ Kurang (<60)</option>
-    `;
-    
-    const saved = savedReviews[group];
-    if (saved) {
-      ratingSelect.value = saved.rating;
-    }
-    
-    ratingSelect.onchange = () => {
-      savedReviews[group] = savedReviews[group] || {};
-      savedReviews[group].rating = ratingSelect.value;
-      savePeerReviews(savedReviews);
+  const rawPrompt = `"Saya seorang siswa SMP akan mempresentasikan Pembuktian Teorema Pythagoras [NAMA BUKTI] mulai dari Pendahuluan, Penjelasan Visual/Animasi, Contoh, hingga Kesimpulan dalam waktu 3-4 menit. Bantu saya menyusun naskah presentasi yang mudah dipahami, menarik, dan sesuai untuk audiens teman sekelas."`;
+  
+  const finalPrompt = rawPrompt.replace('[NAMA BUKTI]', proofName);
+  
+  container.innerHTML = `
+    <div style="background:#f0f4ff;border:2px solid #5a67d8;border-radius:10px;padding:16px;margin:15px 0;">
+      <h4 style="margin:0 0 10px 0;color:#5a67d8;font-size:16px;">💡 Panduan Presentasi</h4>
+      <p style="margin:0 0 12px 0;font-size:14px;line-height:1.6;color:#4a5568;">
+        Jika kamu kesulitan memahami pembuktian atau menyiapkan presentasi, gunakan contoh prompt AI berikut sebagai bantuan. 
+        Sertakan <strong>screenshot halaman pembuktian</strong> atau <strong>upload PDF</strong> saat berinteraksi dengan AI.
+      </p>
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:12px;font-family:'Courier New',monospace;font-size:13px;line-height:1.6;color:#2d3748;margin:10px 0;white-space:pre-wrap;" id="promptText">${finalPrompt}</div>
+      <button id="btnCopyPrompt" style="background:#5a67d8;color:#fff;border:none;border-radius:6px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;">📋 Copy Teks</button>
+      <p style="font-size:12px;color:#718096;margin:8px 0 0 0;">⏱️ Durasi 3-4 menit sudah memperhitungkan jeda dan kemungkinan keterlambatan siswa.</p>
+    </div>
+  `;
+  
+  /* Copy button handler */
+  const btnCopy = $('btnCopyPrompt');
+  if (btnCopy) {
+    btnCopy.onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(finalPrompt);
+        btnCopy.textContent = '✅ Tersalin!';
+        btnCopy.style.background = '#48bb78';
+        setTimeout(() => {
+          btnCopy.textContent = '📋 Copy Teks';
+          btnCopy.style.background = '#5a67d8';
+        }, 2000);
+      } catch (e) {
+        alert('❌ Gagal menyalin: ' + e.message);
+      }
     };
-    
-    row.appendChild(ratingSelect);
-    
-    const comment = document.createElement('textarea');
-    comment.placeholder = 'Komentar (opsional)...';
-    comment.style.cssText = 'width:100%;padding:6px;border:1px solid #cbd5e0;border-radius:4px;font-size:13px;';
-    comment.rows = 2;
-    
-    if (saved && saved.comment) {
-      comment.value = saved.comment;
-    }
-    
-    comment.oninput = () => {
-      savedReviews[group] = savedReviews[group] || {};
-      savedReviews[group].comment = comment.value;
-      savePeerReviews(savedReviews);
-    };
-    
-    row.appendChild(comment);
-    form.appendChild(row);
-  });
-}
-
-function loadPeerReviews() {
-  try {
-    const saved = localStorage.getItem(PEER_REVIEW_KEY);
-    return saved ? JSON.parse(saved) : {};
-  } catch (e) {
-    return {};
   }
 }
 
-function savePeerReviews(reviews) {
-  try {
-    localStorage.setItem(PEER_REVIEW_KEY, JSON.stringify(reviews));
-  } catch (e) {
-    console.warn('⚠️ Tidak bisa simpan peer review:', e);
-  }
+/* ============ PEER REVIEW (DINONAKTIFKAN) ============ */
+/* 
+  TODO: Peer review system akan dibuat di versi 2 dengan pendekatan berbeda.
+  Untuk saat ini, fitur ini dinonaktifkan.
+  
+  const PEER_REVIEW_KEY = 'pythagoras_peer_reviews';
+  const GROUPS = ['Kelompok 1', ..., 'Kelompok 10'];
+  
+  function renderPeerReviewForm() { ... }
+  function loadPeerReviews() { ... }
+  function savePeerReviews(reviews) { ... }
+*/
+
+/* ============ INISIALISASI ============ */
+document.addEventListener('DOMContentLoaded', () => {
+  renderChecklist();
+  renderPanduanPresentasi();
+  
+  /* Expose functions */
+  window.canDownloadPDF = () => {
+    const state = loadState();
+    return CHECKLIST_ITEMS.every(item => state[item.id]);
+  };
+});
+
+/* Juga jalankan jika DOM sudah ready */
+if (document.readyState !== 'loading') {
+  renderChecklist();
+  renderPanduanPresentasi();
+  window.canDownloadPDF = () => {
+    const state = loadState();
+    return CHECKLIST_ITEMS.every(item => state[item.id]);
+  };
 }
-
-/* Modal handlers */
-$('btnPeerReview').onclick = () => {
-  renderPeerReviewForm();
-  $('peerReviewModal').style.display = 'flex';
-};
-
-$('btnClosePeerReview').onclick = () => {
-  $('peerReviewModal').style.display = 'none';
-};
-
-$('btnSavePeerReview').onclick = () => {
-  alert('✅ Penilaian antar kelompok disimpan!');
-  $('peerReviewModal').style.display = 'none';
-};
-
-/* Initialize */
-renderChecklist();
 })();
