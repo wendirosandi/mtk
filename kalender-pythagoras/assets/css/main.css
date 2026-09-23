@@ -3,7 +3,27 @@
     padding: 0;
     box-sizing: border-box;
 }
+/* Smooth scroll untuk navigasi internal */
+html {
+  scroll-behavior: smooth;
+}
 
+/* Offset untuk fixed header (jika ada) */
+#panduan,
+#tentang {
+  scroll-margin-top: 80px; /* Sesuaikan dengan tinggi header */
+}
+
+/* Highlight saat di-scroll ke section */
+#panduan:target,
+#tentang:target {
+  animation: highlightSection 1.5s ease;
+}
+
+@keyframes highlightSection {
+  0% { background-color: #fefcbf; }
+  100% { background-color: transparent; }
+}
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
