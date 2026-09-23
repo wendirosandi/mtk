@@ -1,87 +1,126 @@
-/* Validasi checklist proyek */
-if (typeof window.canDownloadPDF === 'function' && !window.canDownloadPDF()) {
-  alert('⚠️ Checklist proyek belum lengkap!\n\nSilakan buka halaman utama (index.html), centang semua item di "Checklist Persiapan", lalu coba download lagi.');
-  return;
-}
-
 /* =====================================================
-   pdf-export.js  v3.1
-   Target: .a4-sheet (fixed 794 px). Capture dengan
-   sheet pada ukuran asli (tanpa scale).
-   Print/Save-as-PDF: scale ~0.886 → vektor 1 halaman.
+   pdf-export.js  v3.2
+   - exportToPDF() & printPDF() di global scope
+   - Validasi checklist proyek
+   - Export 1 halaman A4 (794×1123 px)
    ===================================================== */
-function __pdfFooter(pdf) {
-    pdf.setFontSize(9); pdf.setTextColor(150);
-    pdf.text('Kalender Pythagoras 2027 - Projek SMP Kelas 8', 105, 292, { align: 'center' });
-}
 
+/* ---------- Export PDF 1 halaman A4 ---------- */
 async function exportToPDF() {
-    const btn = document.getElementById('btnDownloadPDF');
-    const old = btn ? btn.innerHTML : '';
-    if (btn) { btn.innerHTML = '⏳ Membuat PDF 1 halaman...'; btn.disabled = true; }
+  /* 1. Validasi checklist proyek (jika ada) */
+  if (typeof window.canDownloadPDF === 'function' && !window.canDownloadPDF()) {
+    alert('️ Checklist proyek belum lengkap!\n\nSilakan buka halaman utama (index.html), centang semua item di "Checklist Persiapan", lalu coba download lagi.');
+    return;
+  }
 
-    const sheet    = document.querySelector('.a4-sheet') || document.getElementById('exportArea');
-    const viewport = sheet?.closest('.a4-viewport');
-    const collapse = document.getElementById('previewCollapse');
-    const wasCollapsed = collapse && collapse.classList.contains('collapsed');
+  /* 2. Pastikan preview terbuka */
+  const previewCollapse = document.getElementById('previewCollapse');
+  if (previewCollapse && previewCollapse.classList.contains('collapsed')) {
+    previewCollapse.classList.remove('collapsed');
+    await new Promise(resolve => setTimeout(resolve, 200));
+  }
+  if (typeof window.fitSheet === 'function') window.fitSheet();
+  await new Promise(resolve => setTimeout(resolve, 300));
 
-    /* buka collapse & lepas scale sementara */
-    if (wasCollapsed) collapse.classList.remove('collapsed');
-    const origSheetTransform = sheet.style.transform;
-    const origViewportH = viewport?.style.height || '';
-    const origViewportOv = viewport?.style.overflow || '';
-    sheet.style.transform = 'none';
-    if (viewport) { viewport.style.height = 'auto'; viewport.style.overflow = 'visible'; }
-    await new Promise(r => setTimeout(r, 120));
+  /* 3. Ambil area export */
+  const sheet = document.querySelector('.a4-sheet') || document.getElementById('exportArea');
+  if (!sheet) {
+    alert('️ Area export tidak ditemukan!');
+    return;
+  }
 
-    try {
-        const canvas = await html2canvas(sheet, {
-            scale: 2, width: 794, windowWidth: 794,
-            useCORS: true, logging: false, backgroundColor: '#ffffff'
-        });
+  /* 4. Simpan state transform asli, lalu reset ke ukuran asli */
+  const originalTransform = sheet.style.transform;
+  const originalTransformOrigin = sheet.style.transformOrigin;
+  const viewport = sheet.closest('.a4-viewport');
+  const originalViewportH = viewport ? viewport.style.height : '';
+  const originalViewportOv = viewport ? viewport.style.overflow : '';
 
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const availW = 190, availH = 268;
-        let imgW = availW, imgH = canvas.height * imgW / canvas.width, px = 10;
-        if (imgH > availH) { imgH = availH; imgW = canvas.width * imgH / canvas.height; px = (210 - imgW) / 2; }
-        const py = 10 + (availH - imgH) / 2;
-        pdf.addImage(canvas, 'PNG', px, py, imgW, imgH);
-        __pdfFooter(pdf);
+  sheet.style.transform = 'none';
+  sheet.style.transformOrigin = 'top left';
+  if (viewport) {
+    viewport.style.height = 'auto';
+    viewport.style.overflow = 'visible';
+  }
 
-        const title = (document.querySelector('.proof-info h1') || {}).textContent || 'Pembuktian';
-        pdf.save(title.replace(/[^a-z0-9]/gi, '_') + '_1hal.pdf');
-    } catch (err) {
-        console.error('Gagal export PDF:', err);
-        alert('Gagal membuat PDF. Silakan coba lagi.');
-    } finally {
-        sheet.style.transform = origSheetTransform;
-        if (viewport) { viewport.style.height = origViewportH; viewport.style.overflow = origViewportOv; }
-        if (wasCollapsed) collapse.classList.add('collapsed');
-        if (btn) { btn.innerHTML = old; btn.disabled = false; }
+  /* Tunggu render ulang */
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+  try {
+    /* 5. Capture dengan html2canvas */
+    const canvas = await html2canvas(sheet, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff',
+      width: 794,
+      height: 1123,
+      windowWidth: 794,
+      windowHeight: 1123
+    });
+
+    /* 6. Buat PDF A4 portrait */
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();   // 210 mm
+    const pdfHeight = pdf.internal.pageSize.getHeight(); // 297 mm
+
+    /* 7. Fit image ke A4 (maintain aspect ratio) */
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+    const finalWidth = imgWidth * ratio;
+    const finalHeight = imgHeight * ratio;
+    const offsetX = (pdfWidth - finalWidth) / 2;
+    const offsetY = (pdfHeight - finalHeight) / 2;
+
+    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', offsetX, offsetY, finalWidth, finalHeight);
+
+    /* 8. Footer kecil */
+    pdf.setFontSize(8);
+    pdf.setTextColor(150);
+    pdf.text('Kalender Pythagoras 2027 - SMPN 2 Karawang Barat', pdfWidth / 2, pdfHeight - 5, { align: 'center' });
+
+    /* 9. Download */
+    const title = (document.querySelector('.proof-info h1') || {}).textContent || 'Bukti-Pythagoras';
+    const safeName = title.replace(/[^a-z0-9]/gi, '_').replace(/_+/g, '_').substring(0, 50);
+    pdf.save(`${safeName}.pdf`);
+
+  } catch (error) {
+    console.error('❌ Error export PDF:', error);
+    alert('❌ Gagal export PDF: ' + error.message);
+  } finally {
+    /* 10. Restore state */
+    sheet.style.transform = originalTransform;
+    sheet.style.transformOrigin = originalTransformOrigin;
+    if (viewport) {
+      viewport.style.height = originalViewportH;
+      viewport.style.overflow = originalViewportOv;
     }
+    if (typeof window.fitSheet === 'function') window.fitSheet();
+  }
 }
 
-function printPDF() { window.print(); }
+/* ---------- Print / Save as PDF (browser dialog) ---------- */
+function printPDF() {
+  /* Buka preview dulu */
+  const previewCollapse = document.getElementById('previewCollapse');
+  if (previewCollapse && previewCollapse.classList.contains('collapsed')) {
+    previewCollapse.classList.remove('collapsed');
+    setTimeout(() => {
+      if (typeof window.fitSheet === 'function') window.fitSheet();
+      window.print();
+    }, 200);
+  } else {
+    window.print();
+  }
+}
 
-/* Print vektor 1 halaman: scale sheet ke ~0.886 */
-window.addEventListener('beforeprint', () => {
-    const collapse = document.getElementById('previewCollapse');
-    if (collapse) collapse.classList.remove('collapsed');
-    const sheet = document.querySelector('.a4-sheet');
-    const viewport = sheet?.closest('.a4-viewport');
-    if (!sheet) return;
-    const s = 0.886;                               // 210mm / ~238mm viewport efektif
-    sheet.style.transform = `scale(${s})`;
-    sheet.style.transformOrigin = 'top left';
-    if (viewport) {
-        viewport.style.height = (1123 * s) + 'px';
-        viewport.style.overflow = 'visible';
-    }
-});
-window.addEventListener('afterprint', () => {
-    if (typeof window.fitSheet === 'function') window.fitSheet();
-});
-
+/* ---------- Expose ke global scope ---------- */
 window.exportToPDF = exportToPDF;
 window.printPDF = printPDF;
