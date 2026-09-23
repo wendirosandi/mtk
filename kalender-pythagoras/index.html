@@ -89,39 +89,18 @@
         </ul>
       </li>
     </ul>
-    
-    <h3 style="margin-top:15px;color:#5a67d8;">👥 Penilaian Antar Kelompok</h3>
-    <p style="margin-left:20px;">Setiap kelompok menilai 2 kelompok lain dengan skala:</p>
-    <ul style="margin-left:40px;">
-      <li>⭐⭐⭐⭐⭐ <strong>Sangat Baik</strong> (90-100)</li>
-      <li>⭐⭐⭐⭐ <strong>Baik</strong> (75-89)</li>
-      <li>⭐⭐⭐ <strong>Cukup</strong> (60-74)</li>
-      <li>⭐⭐ <strong>Kurang</strong> (<60)</li>
-    </ul>
-    <p style="margin-left:20px;font-style:italic;">Nilai antar kelompok = 10% dari nilai akhir (saran, tidak mengikat).</p>
   </div>
   
-  <!-- CHECKLIST -->
+  <!-- CHECKLIST 9 ITEM -->
   <div style="margin-top:20px;padding:15px;background:#f0f4ff;border-radius:10px;border-left:4px solid #5a67d8;">
     <h3 style="color:#5a67d8;margin-bottom:10px;">✅ Checklist Persiapan (Wajib sebelum download PDF)</h3>
     <div id="checklistContainer"></div>
     <div id="downloadStatus" style="margin-top:10px;font-weight:700;color:#718096;"></div>
   </div>
+  
+  <!-- PANDUAN PRESENTASI -->
+  <div id="panduanPresentasiContainer"></div>
 </section>
-
-<!-- MODAL PENILAIAN ANTAR KELOMPOK -->
-<div id="peerReviewModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center;">
-  <div style="background:#fff;border-radius:12px;padding:24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;">
-    <h3 style="color:#5a67d8;margin-bottom:15px;">👥 Penilaian Antar Kelompok</h3>
-    <div id="peerReviewForm"></div>
-    <div style="display:flex;gap:10px;margin-top:20px;">
-      <button id="btnSavePeerReview" style="flex:1;padding:10px;background:#48bb78;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;">💾 Simpan</button>
-      <button id="btnClosePeerReview" style="flex:1;padding:10px;background:#f56565;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;">Tutup</button>
-    </div>
-  </div>
-</div>
-
-<button id="btnPeerReview" style="position:fixed;bottom:20px;right:20px;padding:12px 20px;background:#5a67d8;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:100;">👥 Nilai Kelompok Lain</button>
     
     <section class="calendar-section">
         <h2>Kalender Pembuktian 2027</h2>
@@ -223,7 +202,7 @@
         <p>SMP [Nama Sekolah] - Dibimbing oleh [Nama Guru]</p>
         <p>© 2026 | <a href="https://github.com/username/kalender-pythagoras" target="_blank">View on GitHub</a></p>
     </footer>
-<script src="assets/js/project-checklist.js?v=1"></script>
+<script src="assets/js/project-checklist.js?v=20"></script>
     <script src="assets/js/kalender.js"></script>
 </body>
 </html>
