@@ -237,5 +237,24 @@
 
     fitStage(); fitSheet(); requestAnimationFrame(frame);
     </script>
+    <!-- ============ MODAL KONFIRMASI DOWNLOAD ============ -->
+<div class="modal-overlay" id="downloadModal">
+  <div class="modal-content">
+    <h3>📄 Konfirmasi Download PDF</h3>
+    <p>Sebelum mengunduh PDF, pastikan Anda sudah memahami petunjuk proyek dan checklist persiapan.</p>
+    
+    <div class="modal-warning" id="modalWarning"></div>
+    
+    <label class="ack-checkbox" for="modalAck">
+      <input type="checkbox" id="modalAck">
+      <span>Saya sudah paham petunjuk dan checklist semua Persiapan.</span>
+    </label>
+    
+    <div class="modal-actions">
+      <button id="btnModalDownload" disabled>📄 Download PDF</button>
+      <button id="btnModalCancel">Batal</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
