@@ -1,8 +1,9 @@
 /* =====================================================
-   pdf-export.js  v3.3
-   - Modal konfirmasi SELALU muncul saat klik Download
-   - Checkbox WAJIB dicentang untuk enable tombol
-   - Export 1 halaman A4 (794×1123 px)
+   pdf-export.js  v3.4
+   - Auto-detect tinggi sheet (tidak fixed 1123px)
+   - Modal konfirmasi SELALU muncul
+   - Checkbox WAJIB untuk enable tombol
+   - Export 1 halaman A4 dengan aspect ratio
    ===================================================== */
 
 /* ---------- Tampilkan Modal Konfirmasi ---------- */
@@ -24,21 +25,19 @@ function showDownloadModal() {
   // Cek checklist proyek
   const checklistComplete = (typeof window.canDownloadPDF === 'function')
     ? window.canDownloadPDF()
-    : true; // Jika tidak ada checklist, anggap lengkap
+    : true;
 
-  if (checklistComplete) {
-    warning.style.display = 'none';
-    // Tetap wajib centang checkbox di modal
-  } else {
+  if (!checklistComplete) {
     warning.style.display = 'block';
-    warning.textContent = '⚠️ Checklist proyek belum lengkap. Silakan centang semua item di halaman utama terlebih dahulu, lalu centang box di bawah untuk melanjutkan.';
+    warning.textContent = '️ Checklist proyek belum lengkap. Silakan centang semua item di halaman utama, lalu centang box di bawah untuk melanjutkan.';
+  } else {
+    warning.style.display = 'none';
   }
 
   // Checkbox handler
   checkbox.onchange = () => {
     if (checkbox.checked) {
       btnDownload.disabled = false;
-      // Simpan ke localStorage
       try {
         localStorage.setItem('pythagoras_modal_ack', JSON.stringify({
           acknowledged: true,
@@ -53,7 +52,6 @@ function showDownloadModal() {
     }
   };
 
-  // Tampilkan modal
   modal.classList.add('show');
 }
 
@@ -97,16 +95,13 @@ async function doExportPDF() {
   await new Promise(resolve => setTimeout(resolve, 100));
 
   try {
-    /* 4. Capture dengan html2canvas */
+    /* 4. Capture dengan html2canvas (AUTO-DETECT tinggi) */
     const canvas = await html2canvas(sheet, {
       scale: 2,
       useCORS: true,
       logging: false,
-      backgroundColor: '#ffffff',
-      width: 794,
-      height: 1123,
-      windowWidth: 794,
-      windowHeight: 1123
+      backgroundColor: '#ffffff'
+      // TIDAK ADA: width, height, windowWidth, windowHeight
     });
 
     /* 5. Buat PDF A4 portrait */
@@ -117,10 +112,10 @@ async function doExportPDF() {
       format: 'a4'
     });
 
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const pdfWidth = pdf.internal.pageSize.getWidth();   // 210 mm
+    const pdfHeight = pdf.internal.pageSize.getHeight(); // 297 mm
 
-    /* 6. Fit image ke A4 */
+    /* 6. Fit image ke A4 dengan aspect ratio */
     const imgWidth = canvas.width;
     const imgHeight = canvas.height;
     const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
@@ -142,7 +137,7 @@ async function doExportPDF() {
     pdf.save(`${safeName}.pdf`);
 
   } catch (error) {
-    console.error(' Error export PDF:', error);
+    console.error('❌ Error export PDF:', error);
     alert('❌ Gagal export PDF: ' + error.message);
   } finally {
     /* 9. Restore state */
