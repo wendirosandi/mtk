@@ -161,7 +161,7 @@
 
     <script src="../assets/js/static-scenes.js?v=3"></script>
     <script src="../assets/js/calendar-template.js?v=3"></script>
-    <script src="../assets/js/pdf-export.js?v=31"></script>
+    <script src="../assets/js/pdf-export.js?v=33"></script>
     <script>
     /* Sheet A4 scaling */
     function fitSheet() {
@@ -245,9 +245,22 @@
     renderStaticScene(document.getElementById('figInitial'), 'initial', 0.6);
     renderStaticScene(document.getElementById('figFinal'),   'final',   0.6);
     renderCalendar(document.getElementById('calBlock'), 1);
-    try { new QRCode(document.getElementById('qrcode'), { text: window.location.href, width:84, height:84, correctLevel: QRCode.CorrectLevel.M }); }
-    catch(e){ document.getElementById('qrcode').textContent = window.location.href; }
-
+try {
+  const qrContainer = document.getElementById('qrcode');
+  qrContainer.innerHTML = ''; // Hapus konten lama
+  new QRCode(qrContainer, {
+    text: window.location.href,
+    width: 84,
+    height: 84,
+    correctLevel: QRCode.CorrectLevel.M,
+    colorDark: "#1a202c",
+    colorLight: "#ffffff"
+  });
+} catch (e) {
+  const qrContainer = document.getElementById('qrcode');
+  qrContainer.innerHTML = '<div style="font-size:10px;color:#666;text-align:center;">QR Error</div>';
+}
+        
     fitStage(); fitSheet(); requestAnimationFrame(frame);
     </script>
     <!-- ============ MODAL KONFIRMASI DOWNLOAD ============ -->
