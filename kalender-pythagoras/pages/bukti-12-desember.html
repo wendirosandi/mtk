@@ -3,194 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bukti #12: Puzzle Tessellation Pythagoras - Kalender Pythagoras 2027</title>
+<title>Bukti #12: Animasi Klasik Pythagoras - Kalender Pythagoras 2027</title>
 <link rel="stylesheet" href="../assets/css/main.css">
 <link rel="stylesheet" href="../assets/css/proof.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
-  .puzzle-stage {
-    background: #f8f9fa;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    padding: 12px;
-    margin-bottom: 12px;
-  }
-  .puzzle-container {
-    position: relative;
-    width: 100%;
+  .wiki-anim-container {
     max-width: 500px;
     margin: 0 auto;
     background: #fff;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  .puzzle-area {
-    position: relative;
-    width: 100%;
-    height: 250px;
-    border: 2px dashed #cbd5e0;
-    margin: 10px 0;
-    background: #f0f4ff;
-  }
-  .puzzle-area.target {
-    background: #e0f2fe;
-    border-color: #3b82f6;
-  }
-  .puzzle-area-label {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    font-weight: 700;
-    font-size: 14px;
-    color: #4a5568;
-    background: rgba(255,255,255,0.9);
-    padding: 4px 8px;
-    border-radius: 4px;
-  }
-  .piece {
-    position: absolute;
-    cursor: grab;
-    transition: transform 0.2s, box-shadow 0.2s;
-    user-select: none;
-    touch-action: none;
-  }
-  .piece:active {
-    cursor: grabbing;
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    z-index: 100;
-  }
-  .piece.placed {
-    cursor: default;
-    border: 3px solid #22c55e !important;
-    box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
-    animation: snapPulse 0.5s ease-out;
-  }
-  @keyframes snapPulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-  }
-  .piece svg {
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
-  .target-zone {
-    position: absolute;
-    border: 2px dashed #94a3b8;
-    background: rgba(148, 163, 184, 0.1);
-    transition: all 0.3s;
-  }
-  .target-zone.highlight {
-    border-color: #3b82f6;
-    background: rgba(59, 130, 246, 0.2);
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
-  }
-  .progress-container {
-    margin: 15px 0;
-    padding: 12px;
-    background: #f0f4ff;
-    border-radius: 10px;
-  }
-  .progress-bar {
-    height: 20px;
-    background: #e2e8f0;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 8px;
-  }
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #48bb78, #4299e1);
-    border-radius: 10px;
-    transition: width 0.4s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-weight: 700;
-    font-size: 12px;
-  }
-  .progress-text {
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     text-align: center;
-    font-weight: 700;
-    color: #2f855a;
-    font-size: 16px;
   }
-  .controls {
+  .wiki-anim-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    transition: opacity 0.3s;
+  }
+  .wiki-controls {
     display: flex;
     gap: 10px;
     justify-content: center;
-    flex-wrap: wrap;
     margin-top: 15px;
   }
-  .controls button {
+  .wiki-controls button {
+    padding: 10px 20px;
     border: none;
-    border-radius: 10px;
-    padding: 12px 20px;
-    font-size: 15px;
-    font-weight: 700;
+    border-radius: 8px;
+    background: #5a67d8;
     color: #fff;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
   }
-  .controls button:hover {
+  .wiki-controls button:hover {
+    background: #4c51bf;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   }
-  #btnReset { background: #f56565; }
-  #btnHint { background: #ed8936; }
-  .success-message {
-    text-align: center;
-    font-size: 24px;
-    font-weight: 800;
-    color: #2f855a;
-    margin: 20px 0;
-    opacity: 0;
-    transition: opacity 0.5s;
-  }
-  .success-message.show {
-    opacity: 1;
-    animation: bounce 0.6s ease;
-  }
-  @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-  }
-  .legend {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-top: 15px;
-  }
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+  .anim-caption {
+    margin-top: 12px;
     font-size: 14px;
-    font-weight: 600;
+    color: #4a5568;
+    line-height: 1.6;
   }
-  .legend-color {
-    width: 20px;
-    height: 20px;
-    border-radius: 4px;
-    border: 2px solid #374151;
+  /* AI Prompt Box */
+  .ai-prompt-box {
+    background: #f0f4ff;
+    border: 2px solid #5a67d8;
+    border-radius: 10px;
+    padding: 16px;
+    margin: 20px auto;
+    max-width: 600px;
   }
+  .ai-prompt-box h4 { margin: 0 0 10px 0; color: #5a67d8; font-size: 16px; }
+  .prompt-text {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 6px;
+    padding: 12px; font-family: 'Courier New', monospace; font-size: 13px;
+    line-height: 1.6; color: #2d3748; margin: 10px 0; white-space: pre-wrap;
+  }
+  .btn-copy {
+    background: #5a67d8; color: #fff; border: none; border-radius: 6px;
+    padding: 8px 16px; font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+  .btn-copy.copied { background: #48bb78; }
 </style>
 </head>
 <body>
 <header class="proof-header no-print">
     <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
     <div class="proof-info">
-        <h1>Bukti #12: Puzzle Tessellation Pythagoras</h1>
+        <h1>Bukti #12: Animasi Klasik Pythagoras</h1>
         <div class="proof-meta">
             <span class="meta-item">📅 Desember 2027</span>
             <span class="meta-item">👥 Kelompok 10</span>
-            <span class="meta-item">🎯 Level: Menengah</span>
+            <span class="meta-item">🎯 Level: Penutup Tahun</span>
         </div>
     </div>
     <div class="export-buttons">
@@ -207,107 +99,83 @@
 
 <main class="proof-content" id="proofContent">
     <section class="section introduction no-print">
-        <h2>📖 Pengenalan: Puzzle Penutup Tahun</h2>
-        <p class="intro-text">Bukti ini menggunakan <strong>penataan ulang</strong> (tessellation) — 
-           susun 6 potongan dari a² + b² menjadi c²! <strong>Drag & drop</strong> setiap potongan 
-           ke posisi yang benar. Ketika semua potongan tersusun sempurna, kamu telah membuktikan 
-           <strong>a² + b² = c²</strong> secara visual!</p>
-        <div class="historical-note"><strong> Cara bermain:</strong> geser potongan dari area atas 
-           ke area bawah. Potongan akan "snap" ke posisi benar ketika dekat. Selesaikan puzzle untuk 
-           melihat bukti lengkap!</div>
+        <h2>📖 Pengenalan: Penutup Tahun yang Ikonik</h2>
+        <p class="intro-text">Sebagai penutup tahun, kita kembali ke visualisasi paling ikonik dari Teorema Pythagoras. 
+           Animasi klasik ini menunjukkan bagaimana persegi pada sisi-sisi segitiga siku-siku saling berhubungan. 
+           Meskipun sederhana, animasi ini telah membantu jutaan siswa di seluruh dunia memahami bahwa <strong>a² + b² = c²</strong>.</p>
     </section>
 
     <section class="section animation no-print">
-        <h2>🧩 Puzzle Interaktif (Drag & Drop)</h2>
-        <div class="puzzle-stage">
-          <div class="puzzle-container">
-            <!-- Area Sumber (Konfigurasi 1: a² + b²) -->
-            <div class="puzzle-area" id="sourceArea">
-              <div class="puzzle-area-label">📦 KONFIGURASI 1: a² + b² = 25 + 144 = 169</div>
-              <!-- Pieces akan di-generate oleh JavaScript -->
-            </div>
-            
-            <!-- Area Target (Konfigurasi 2: c²) -->
-            <div class="puzzle-area target" id="targetArea">
-              <div class="puzzle-area-label">🎯 KONFIGURASI 2: c² = 169</div>
-              <!-- Target zones akan di-generate oleh JavaScript -->
-            </div>
-          </div>
+        <h2>🎬 Animasi Klasik</h2>
+        <div class="wiki-anim-container">
+          <!-- Ganti src dengan '../assets/images/pythagoras-proof.gif' jika sudah didownload lokal -->
+          <img id="wikiAnim" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Pythagoras-2a.gif/500px-Pythagoras-2a.gif" alt="Pythagoras Proof Animation">
           
-          <div class="progress-container">
-            <div class="progress-bar">
-              <div class="progress-fill" id="progressFill" style="width: 0%;">0/6</div>
-            </div>
-            <div class="progress-text" id="progressText">Susun 6 potongan untuk membuktikan a² + b² = c²</div>
+          <div class="wiki-controls">
+            <button id="btnReplay">↺ Putar Ulang (Replay)</button>
           </div>
-          
-          <div class="success-message" id="successMessage">
-            🎉 SELESAI! a² + b² = c² TERBUKTI! 🎉
-          </div>
-          
-          <div class="controls">
-            <button id="btnReset"> Reset Puzzle</button>
-            <button id="btnHint">💡 Petunjuk</button>
-          </div>
-          
-          <div class="legend">
-            <div class="legend-item">
-              <div class="legend-color" style="background:#22c55e;"></div>
-              <span>a² = 25 (5×5)</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color" style="background:#3b82f6;"></div>
-              <span>b² = 144 (12×12)</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color" style="background:#fbbf24;"></div>
-              <span>Pengisi</span>
-            </div>
+          <div class="anim-caption">
+            <strong>Catatan:</strong> Karena format GIF, tombol "Putar Ulang" akan memuat ulang animasi dari awal. 
+            Amati bagaimana luas persegi pada sisi a dan b secara visual "mengisi" persegi pada sisi c.
           </div>
         </div>
     </section>
 
-    <section class="section external-resources no-print">
-        <h2>🔗 Referensi</h2>
-        <div class="embed-container" style="text-align:center;padding:24px;">
-            <div style="font-size:40px;"></div>
-            <p style="margin:10px 0;color:#555;">Bukti ini terinspirasi dari <strong>Wikipedia ID</strong> —
-               "Bukti dengan berpotongan dan penataan ulang" yang menunjukkan keindahan tessellation.</p>
-            <a class="external-link" target="_blank" rel="noopener" href="https://id.wikipedia.org/wiki/Teorema_Pythagoras"
-               style="display:inline-block;background:#667eea;color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;text-decoration:none;">
-               🔗 Wikipedia: Teorema Pythagoras</a>
+    <section class="section no-print">
+        <div class="ai-prompt-box">
+            <h4>💡 Panduan Presentasi</h4>
+            <p style="margin:0 0 12px 0;font-size:14px;line-height:1.6;color:#4a5568;">
+              Jika kamu kesulitan menyiapkan presentasi, gunakan contoh prompt AI berikut. 
+              Sertakan <strong>screenshot</strong> atau <strong>upload PDF</strong> halaman ini saat bertanya ke AI.
+            </p>
+            <div class="prompt-text" id="promptText">"Saya seorang siswa SMP akan mempresentasikan Pembuktian Teorema Pythagoras [NAMA BUKTI] mulai dari Pendahuluan, Penjelasan Visual/Animasi, Contoh, hingga Kesimpulan dalam waktu 3-4 menit. Bantu saya menyusun naskah presentasi yang mudah dipahami, menarik, dan sesuai untuk audiens teman sekelas."</div>
+            <button class="btn-copy" id="btnCopyPrompt">📋 Copy Teks</button>
+            <p style="font-size:12px;color:#718096;margin:8px 0 0 0;">⏱️ Durasi 3-4 menit sudah memperhitungkan jeda.</p>
         </div>
     </section>
 
     <section class="section export-section no-print-screen">
-        <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">
-            👁 Tampilkan Pratinjau PDF (1 halaman)</button>
+        <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">👁 Tampilkan Pratinjau PDF (1 halaman)</button>
         <div class="preview-collapse collapsed" id="previewCollapse">
           <div class="a4-viewport" id="a4Viewport">
             <div id="exportArea" class="a4-sheet">
                 <div class="export-header">
-                    <h2>Bukti #12: Puzzle Tessellation Pythagoras</h2>
-                    <p>Kalender Pythagoras 2027 • Desember • Kelompok 10 • Level: Menengah</p>
+                    <h2>Bukti #12: Animasi Klasik Pythagoras</h2>
+                    <p>Kalender Pythagoras 2027 • Desember • Kelompok 10 • Level: Penutup Tahun</p>
                 </div>
                 <div id="calBlock" class="cal-block"></div>
                 <hr class="cal-divider">
                 <div class="proof-figures">
-                    <figure class="proof-figure"><span class="state-badge initial">KONFIG 1</span>
-                        <div class="scene" id="figInitial"></div>
-                        <figcaption><strong>Gbr 1:</strong> 6 potongan dari a² + b².</figcaption></figure>
-                    <figure class="proof-figure"><span class="state-badge final">KONFIG 2</span>
-                        <div class="scene" id="figFinal"></div>
-                        <figcaption><strong>Gbr 2:</strong> potongan tersusun jadi c².</figcaption></figure>
+                    <figure class="proof-figure" style="flex:1;">
+                        <span class="state-badge initial">ANIMASI</span>
+                        <div class="scene">
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Pythagoras-2a.gif/500px-Pythagoras-2a.gif" style="max-width:100%;border-radius:6px;">
+                        </div>
+                        <figcaption><strong>Gbr:</strong> Visualisasi klasik hubungan luas a², b², dan c².</figcaption>
+                    </figure>
                 </div>
                 <div class="export-explain">
-                    <p><strong>Penjelasan:</strong> susun 6 potongan dari a² + b² menjadi c².
-                       Karena luas total tidak berubah saat ditata ulang, maka a² + b² = c².</p>
-                    <div class="export-formula">25 + 144 = 169 → 5² + 12² = 13² ✓</div>
+                    <p><strong>Penjelasan:</strong> Animasi ini menunjukkan bahwa jumlah luas persegi pada kedua kaki segitiga siku-siku (a² + b²) sama dengan luas persegi pada sisi miring (c²).</p>
+                    <div class="export-formula">a² + b² = c²</div>
                 </div>
-                <div class="export-conclusion">
+                <div class="export-conclusion" style="margin-bottom:0;">
                     <div class="export-conclusion-text">KESIMPULAN:<br>a² + b² = c²</div>
-                    <div><div class="qr-box" id="qrcode">[QR]</div>
-                    <div class="qr-caption">Scan untuk animasi</div></div>
+                </div>
+                <div class="group-info-compact">
+                    <div class="group-names-col">
+                        <strong>Nama Anggota Kelompok:</strong>
+                        <div class="name-grid">
+                            <div class="name-line">1. .......................................</div>
+                            <div class="name-line">3. .......................................</div>
+                            <div class="name-line">2. .......................................</div>
+                            <div class="name-line">4. .......................................</div>
+                            <div class="name-line">5. .......................................</div>
+                        </div>
+                    </div>
+                    <div class="qr-col">
+                        <div class="qr-box" id="qrcode"></div>
+                        <div class="qr-caption">Scan untuk animasi</div>
+                    </div>
                 </div>
             </div>
           </div>
@@ -318,319 +186,74 @@
 <nav class="proof-nav bottom no-print">
     <a href="bukti-11-november.html" class="prev-btn">← Sebelumnya</a>
     <a href="../index.html" class="home-btn">🏁 Kalender 2027</a>
-    <a href="../index.html" class="next-btn">Selanjutnya →</a>
 </nav>
 <footer class="no-print"><p><strong>Kelompok 10</strong> - Pembuktian #12 — Penutup Tahun</p><p>Projek Kalender Pythagoras 2027</p></footer>
 
+<!-- ============ MODAL KONFIRMASI DOWNLOAD ============ -->
+<div class="modal-overlay" id="downloadModal">
+  <div class="modal-content">
+    <h3>📄 Konfirmasi Download PDF</h3>
+    <p>Sebelum mengunduh PDF, pastikan Anda sudah memahami petunjuk proyek dan checklist persiapan.</p>
+    <div class="modal-warning" id="modalWarning"></div>
+    <label class="ack-checkbox" for="modalAck">
+      <input type="checkbox" id="modalAck">
+      <span>Saya sudah paham petunjuk dan checklist semua Persiapan.</span>
+    </label>
+    <div class="modal-actions">
+      <button id="btnModalDownload" disabled>📄 Download PDF</button>
+      <button id="btnModalCancel">Batal</button>
+    </div>
+  </div>
+</div>
+
 <script src="../assets/js/calendar-template.js?v=3"></script>
-<script src="../assets/js/pdf-export.js?v=31"></script>
+<script src="../assets/js/pdf-export.js?v=34"></script>
 <script>
 (function(){
 "use strict";
 
-/* Self-test numerik */
-const a=5, b=12, c=13;
-console.log(Math.abs(a*a+b*b-c*c)<1e-9 ? '✅ PUZZLE OK (5,12,13)' : '⚠️ PUZZLE GAGAL');
+window.PROOF_NAME = "Animasi Klasik Pythagoras";
 
-/* Konstanta puzzle */
-const SNAP_THRESHOLD = 40; // px
-const PIECE_SIZE = 60; // px
+/* GIF Replay Logic */
+const wikiAnim = document.getElementById('wikiAnim');
+const btnReplay = document.getElementById('btnReplay');
 
-/* Definisi 6 pieces */
-const pieces = [
-  {
-    id: 'A',
-    type: 'square',
-    size: 50, // 5×5 = a²
-    color: '#22c55e',
-    label: 'a²/2',
-    sourceX: 20,
-    sourceY: 60,
-    targetX: 50,
-    targetY: 280,
-    placed: false
-  },
-  {
-    id: 'B',
-    type: 'square',
-    size: 50,
-    color: '#4ade80',
-    label: 'a²/2',
-    sourceX: 90,
-    sourceY: 60,
-    targetX: 110,
-    targetY: 280,
-    placed: false
-  },
-  {
-    id: 'C',
-    type: 'rect',
-    width: 120,
-    height: 40,
-    color: '#3b82f6',
-    label: 'b²/3',
-    sourceX: 20,
-    sourceY: 130,
-    targetX: 50,
-    targetY: 340,
-    placed: false
-  },
-  {
-    id: 'D',
-    type: 'rect',
-    width: 120,
-    height: 40,
-    color: '#60a5fa',
-    label: 'b²/3',
-    sourceX: 160,
-    sourceY: 130,
-    targetX: 180,
-    targetY: 340,
-    placed: false
-  },
-  {
-    id: 'E',
-    type: 'rect',
-    width: 120,
-    height: 40,
-    color: '#93c5fd',
-    label: 'b²/3',
-    sourceX: 20,
-    sourceY: 190,
-    targetX: 310,
-    targetY: 340,
-    placed: false
-  },
-  {
-    id: 'F',
-    type: 'triangle',
-    size: 40,
-    color: '#fbbf24',
-    label: 'fill',
-    sourceX: 160,
-    sourceY: 190,
-    targetX: 230,
-    targetY: 380,
-    placed: false
-  }
-];
-
-/* DOM elements */
-const $ = id => document.getElementById(id);
-const sourceArea = $('sourceArea');
-const targetArea = $('targetArea');
-const progressFill = $('progressFill');
-const progressText = $('progressText');
-const successMessage = $('successMessage');
-const btnReset = $('btnReset');
-const btnHint = $('btnHint');
-
-/* State */
-let draggedPiece = null;
-let dragOffsetX = 0;
-let dragOffsetY = 0;
-let placedCount = 0;
-
-/* Render pieces */
-function renderPieces() {
-  pieces.forEach(piece => {
-    const el = document.createElement('div');
-    el.className = 'piece';
-    el.id = `piece-${piece.id}`;
-    el.style.width = piece.type === 'rect' ? piece.width + 'px' : piece.size + 'px';
-    el.style.height = piece.type === 'rect' ? piece.height + 'px' : piece.size + 'px';
-    el.style.left = piece.sourceX + 'px';
-    el.style.top = piece.sourceY + 'px';
-    el.style.background = piece.color;
-    el.style.border = '2px solid #1e293b';
-    el.style.borderRadius = '6px';
-    el.style.display = 'flex';
-    el.style.alignItems = 'center';
-    el.style.justifyContent = 'center';
-    el.style.fontWeight = '700';
-    el.style.color = '#fff';
-    el.style.fontSize = '12px';
-    el.textContent = piece.label;
-    
-    // Event listeners untuk drag
-    el.addEventListener('mousedown', startDrag);
-    el.addEventListener('touchstart', startDrag, { passive: false });
-    
-    sourceArea.appendChild(el);
-  });
-}
-
-/* Render target zones */
-function renderTargets() {
-  pieces.forEach(piece => {
-    const zone = document.createElement('div');
-    zone.className = 'target-zone';
-    zone.id = `target-${piece.id}`;
-    zone.style.width = piece.type === 'rect' ? piece.width + 'px' : piece.size + 'px';
-    zone.style.height = piece.type === 'rect' ? piece.height + 'px' : piece.size + 'px';
-    zone.style.left = piece.targetX + 'px';
-    zone.style.top = piece.targetY + 'px';
-    targetArea.appendChild(zone);
-  });
-}
-
-/* Drag handlers */
-function startDrag(e) {
-  e.preventDefault();
-  const piece = e.currentTarget;
-  if (piece.classList.contains('placed')) return;
-  
-  draggedPiece = piece;
-  const rect = piece.getBoundingClientRect();
-  const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-  const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-  dragOffsetX = clientX - rect.left;
-  dragOffsetY = clientY - rect.top;
-  
-  document.addEventListener('mousemove', drag);
-  document.addEventListener('mouseup', endDrag);
-  document.addEventListener('touchmove', drag, { passive: false });
-  document.addEventListener('touchend', endDrag);
-}
-
-function drag(e) {
-  if (!draggedPiece) return;
-  e.preventDefault();
-  
-  const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-  const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-  
-  const containerRect = sourceArea.parentElement.getBoundingClientRect();
-  const x = clientX - containerRect.left - dragOffsetX;
-  const y = clientY - containerRect.top - dragOffsetY;
-  
-  draggedPiece.style.left = x + 'px';
-  draggedPiece.style.top = y + 'px';
-  
-  // Highlight target zone jika dekat
-  highlightNearTarget(draggedPiece);
-}
-
-function endDrag(e) {
-  if (!draggedPiece) return;
-  
-  document.removeEventListener('mousemove', drag);
-  document.removeEventListener('mouseup', endDrag);
-  document.removeEventListener('touchmove', drag);
-  document.removeEventListener('touchend', endDrag);
-  
-  // Check snap
-  const pieceId = draggedPiece.id.replace('piece-', '');
-  const piece = pieces.find(p => p.id === pieceId);
-  const targetZone = $(`target-${pieceId}`);
-  
-  const pieceRect = draggedPiece.getBoundingClientRect();
-  const targetRect = targetZone.getBoundingClientRect();
-  
-  const distance = Math.hypot(
-    pieceRect.left - targetRect.left,
-    pieceRect.top - targetRect.top
-  );
-  
-  if (distance < SNAP_THRESHOLD) {
-    // Snap!
-    draggedPiece.style.left = piece.targetX + 'px';
-    draggedPiece.style.top = piece.targetY + 'px';
-    draggedPiece.classList.add('placed');
-    piece.placed = true;
-    placedCount++;
-    updateProgress();
-    
-    // Pindahkan ke target area
-    targetArea.appendChild(draggedPiece);
-  } else {
-    // Kembali ke posisi awal
-    draggedPiece.style.left = piece.sourceX + 'px';
-    draggedPiece.style.top = piece.sourceY + 'px';
-  }
-  
-  // Remove highlight
-  document.querySelectorAll('.target-zone').forEach(z => z.classList.remove('highlight'));
-  
-  draggedPiece = null;
-}
-
-function highlightNearTarget(piece) {
-  const pieceRect = piece.getBoundingClientRect();
-  document.querySelectorAll('.target-zone').forEach(zone => {
-    const zoneRect = zone.getBoundingClientRect();
-    const distance = Math.hypot(
-      pieceRect.left - zoneRect.left,
-      pieceRect.top - zoneRect.top
-    );
-    if (distance < SNAP_THRESHOLD * 1.5) {
-      zone.classList.add('highlight');
-    } else {
-      zone.classList.remove('highlight');
-    }
-  });
-}
-
-function updateProgress() {
-  const percentage = (placedCount / pieces.length) * 100;
-  progressFill.style.width = percentage + '%';
-  progressFill.textContent = `${placedCount}/6`;
-  progressText.textContent = `${placedCount} dari 6 potongan tersusun`;
-  
-  if (placedCount === pieces.length) {
-    successMessage.classList.add('show');
-    progressText.textContent = '🎉 SELESAI! a² + b² = c² TERBUKTI!';
-  }
-}
-
-/* Reset */
-btnReset.onclick = () => {
-  pieces.forEach(piece => {
-    piece.placed = false;
-    const el = $(`piece-${piece.id}`);
-    el.classList.remove('placed');
-    el.style.left = piece.sourceX + 'px';
-    el.style.top = piece.sourceY + 'px';
-    sourceArea.appendChild(el);
-  });
-  placedCount = 0;
-  updateProgress();
-  successMessage.classList.remove('show');
+btnReplay.onclick = () => {
+  // Fade out
+  wikiAnim.style.opacity = '0';
+  setTimeout(() => {
+    // Cache buster untuk memaksa reload GIF dari awal
+    const baseUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Pythagoras-2a.gif/500px-Pythagoras-2a.gif";
+    wikiAnim.src = baseUrl + '?t=' + Date.now();
+    wikiAnim.onload = () => {
+      wikiAnim.style.opacity = '1';
+    };
+  }, 300);
 };
 
-/* Hint */
-btnHint.onclick = () => {
-  pieces.forEach(piece => {
-    if (!piece.placed) {
-      const el = $(`piece-${piece.id}`);
-      el.style.transition = 'all 0.5s';
-      el.style.left = piece.targetX + 'px';
-      el.style.top = piece.targetY + 'px';
-      setTimeout(() => {
-        el.style.left = piece.sourceX + 'px';
-        el.style.top = piece.sourceY + 'px';
-      }, 1500);
-    }
-  });
+/* AI Prompt Copy */
+const btnCopyPrompt = document.getElementById('btnCopyPrompt');
+const promptText = document.getElementById('promptText');
+const rawPrompt = promptText.textContent.replace('[NAMA BUKTI]', window.PROOF_NAME);
+promptText.textContent = rawPrompt;
+
+btnCopyPrompt.onclick = async () => {
+  try {
+    await navigator.clipboard.writeText(rawPrompt);
+    btnCopyPrompt.textContent = '✅ Tersalin!';
+    btnCopyPrompt.classList.add('copied');
+    setTimeout(() => {
+      btnCopyPrompt.textContent = '📋 Copy Teks';
+      btnCopyPrompt.classList.remove('copied');
+    }, 2000);
+  } catch (e) {
+    alert('❌ Gagal menyalin: ' + e.message);
+  }
 };
 
-/* Inisialisasi */
-renderPieces();
-renderTargets();
-updateProgress();
-
-/* Integrasi projek: sheet, QR */
-function refreshSheet() {
-  $('figInitial').innerHTML = `<div style="background:#f0f4ff;padding:20px;border-radius:8px;text-align:center;">
-    <strong>KONFIGURASI 1</strong><br>6 potongan dari a² + b²
-  </div>`;
-  $('figFinal').innerHTML = `<div style="background:#e0f2fe;padding:20px;border-radius:8px;text-align:center;">
-    <strong>KONFIGURASI 2</strong><br>Potongan tersusun jadi c²
-  </div>`;
-}
-
+/* PDF & QR Init */
 function fitSheet() {
-  const vp = $('a4Viewport');
+  const vp = document.getElementById('a4Viewport');
   const sh = document.querySelector('.a4-sheet');
   if (!vp || !sh) return;
   const s = Math.min(1, vp.clientWidth / 794);
@@ -638,33 +261,30 @@ function fitSheet() {
   sh.style.transformOrigin = 'top left';
   vp.style.height = (1123 * s) + 'px';
 }
-
 window.fitSheet = fitSheet;
 window.addEventListener('resize', fitSheet);
 
 window.togglePreview = function() {
-  const col = $('previewCollapse');
+  const col = document.getElementById('previewCollapse');
   col.classList.toggle('collapsed');
-  $('btnPreview').textContent = col.classList.contains('collapsed')
+  document.getElementById('btnPreview').textContent = col.classList.contains('collapsed')
     ? '👁 Tampilkan Pratinjau PDF (1 halaman)' : '🙈 Sembunyikan Pratinjau PDF';
-  if (!col.classList.contains('collapsed')) {
-    refreshSheet();
-    setTimeout(fitSheet, 60);
-  }
+  if (!col.classList.contains('collapsed')) setTimeout(fitSheet, 60);
 };
 
-if (typeof renderCalendar === 'function') renderCalendar($('calBlock'), 12);
+if (typeof renderCalendar === 'function') renderCalendar(document.getElementById('calBlock'), 12);
 try {
-  new QRCode($('qrcode'), {
+  const qrContainer = document.getElementById('qrcode');
+  qrContainer.innerHTML = '';
+  new QRCode(qrContainer, {
     text: window.location.href,
-    width: 84,
-    height: 84,
-    correctLevel: QRCode.CorrectLevel.M
+    width: 84, height: 84,
+    correctLevel: QRCode.CorrectLevel.M,
+    colorDark: "#1a202c", colorLight: "#ffffff"
   });
 } catch (e) {
-  $('qrcode').textContent = window.location.href;
+  document.getElementById('qrcode').innerHTML = '<div style="font-size:10px;color:#666;text-align:center;">QR Error</div>';
 }
-
 fitSheet();
 })();
 </script>
