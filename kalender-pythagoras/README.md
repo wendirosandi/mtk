@@ -24,7 +24,7 @@ Setiap bulan menampilkan satu metode pembuktian berbeda, dibuat oleh 10 kelompok
 | 1 | Januari | Sel Terbang Pythagoras (3-4-5) | 👨‍🏫 Guru | ✅ |
 | 2 | Februari | Perigal Klasik (3-4-5) | 👨‍ Guru | ✅ |
 | 3 | Maret | Rearrangement 4 Segitiga (3-4-5) | 👥 Kel. 1 | ✅ |
-| 4 | April | Perigal 4 Posisi a² (Gunting-Tempel) |  Kel. 2 | ✅ |
+| 4 | April | Perigal 4 Posisi a² (Gunting-Tempel) | 👥  Kel. 2 | ✅ |
 | 5 | Mei | Aljabar Murni dari (a+b)² | 👥 Kel. 3 | ✅ |
 | 6 | Juni | Diseksi Einstein (3-4-5) | 👥 Kel. 4 | ✅ |
 | 7 | Juli | Garis Tinggi & Segitiga Sebangun (6-8-10) | 👥 Kel. 5 | ✅ |
