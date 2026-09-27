@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animasi Pembuktian Pythagoras — Bukti #2 (Diseksi Berengsel)</title>
+<style>
+  :root{
+    --bg:#f6f8fb; --ink:#1e293b; --card:#ffffff; --acc:#7c3aed;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;}
+  .wrap{max-width:960px;margin:0 auto;padding:18px 16px 40px}
+  h1{font-size:1.35rem;margin:6px 0 2px}
+  .sub{color:#64748b;font-size:.92rem;margin:0 0 14px}
+  .card{background:var(--card);border:1px solid #e2e8f0;border-radius:14px;
+        padding:14px 16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  ol.steps{margin:6px 0 2px;padding-left:22px;line-height:1.5;font-size:.95rem}
+  canvas{width:100%;height:470px;display:block;border-radius:10px;
+         background:#fdfdfb;border:1px solid #e2e8f0}
+  #caption{min-height:44px;margin-top:10px;font-size:.95rem;line-height:1.45;
+           background:#eef2ff;border-left:4px solid var(--acc);
+           padding:8px 12px;border-radius:6px}
+  .controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin-top:12px}
+  button{cursor:pointer;border:1px solid #cbd5e1;background:#fff;border-radius:8px;
+         padding:7px 12px;font-size:.9rem}
+  button:hover{background:#f1f5f9}
+  button.primary{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+  button.primary:hover{filter:brightness(1.08)}
+  .ctl{display:flex;align-items:center;gap:6px;font-size:.88rem;color:#475569}
+  input[type=range]{width:150px;accent-color:var(--acc)}
+  #scrub{flex:1;min-width:180px;accent-color:var(--acc)}
+  #formula{margin-top:10px;font-size:1.02rem;font-weight:600;color:#0f172a}
+  #formula .hl{color:var(--acc)}
+  .hud{font-variant-numeric:tabular-nums;color:#475569;font-size:.88rem}
+  details{font-size:.93rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Animasi Pembuktian Teorema Pythagoras</h1>
+  <p class="sub">Bukti #2 — diseksi berengsel (hinged dissection), varian Thâbit ibn Qurra</p>
+
+  <div class="card">
+    <details open>
+      <summary><b>Penjelasan bukti (klik untuk lipat/buka)</b></summary>
+      <ol class="steps">
+        <li><b>Dua persegi</b> sisi <i>a</i> dan <i>b</i> berdampingan → luas total <b>a² + b²</b>.</li>
+        <li><b>Dua potongan miring</b> dibuat: segitiga siku-siku (sisi <i>a</i>, <i>b</i>, hipotenusa <i>c</i>); segmen persekutuan kedua persegi dibuang.</li>
+        <li><b>Rotasi 90°:</b> segitiga kiri berlawanan jarum jam (engsel titik puncak kiri-atas), segitiga kanan searah jarum jam (engsel titik puncak kanan).</li>
+        <li><b>Hasil:</b> persegi bersisi <i>c</i> → luas <b>c²</b>. Luas kekal ⇒ <b>a² + b² = c²</b>. ∎</li>
+      </ol>
+    </details>
+  </div>
+
+  <div class="card">
+    <canvas id="cv"></canvas>
+    <div id="caption"></div>
+    <div id="formula"></div>
+
+    <div class="controls">
+      <button id="btnStart" title="Ke awal">⏮</button>
+      <button id="btnPrev"  title="Langkah mundur">◀</button>
+      <button id="btnPlay"  class="primary">▶ Putar</button>
+      <button id="btnNext"  title="Langkah maju">▶❙</button>
+      <button id="btnEnd"   title="Ke akhir">⏭</button>
+      <input type="range" id="scrub" min="0" max="1000" value="0" title="Slider waktu">
+      <span class="hud" id="hud">θ = 0°</span>
+    </div>
+    <div class="controls">
+      <label class="ctl">a = <input type="range" id="rngA" min="2" max="8" step="1" value="4"><span id="valA">4</span></label>
+      <label class="ctl">b = <input type="range" id="rngB" min="2" max="8" step="1" value="3"><span id="valB">3</span></label>
+      <label class="ctl"><input type="checkbox" id="chkLoop"> Ulangi</label>
+      <label class="ctl"><input type="checkbox" id="chkLabels" checked> Label</label>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const capEl = document.getElementById('caption'), formEl = document.getElementById('formula');
+const hudEl = document.getElementById('hud'), scrub = document.getElementById('scrub');
+const btnPlay = document.getElementById('btnPlay');
+
+let A = 4, B = 3;                      // sisi persegi (satuan)
+const phases = [
+  {d:1.4, txt:"Langkah 1 — Dua persegi (sisi a dan b) berdampingan. Luas total = a² + b²."},
+  {d:1.8, txt:"Langkah 2 — Dua potongan miring dibuat: dua segitiga siku-siku (sisi a, b; hipotenusa c). Segmen persekutuan kedua persegi dihilangkan."},
+  {d:1.0, txt:"Tersisa dua segitiga (biru & oranye) dan satu segi lima “aneh”. Luas total belum berubah."},
+  {d:3.4, txt:"Langkah 3 — Segitiga KIRI diputar 90° berlawanan jarum jam, segitiga KANAN 90° searah jarum jam, masing-masing mengelilingi titik puncaknya."},
+  {d:2.4, txt:"Hasil akhir — persegi bersisi c, luas c². Karena luas kekal:  a² + b² = c².  ∎"}
+];
+const starts = []; let TOTAL = 0;
+phases.forEach(p => { starts.push(TOTAL); TOTAL += p.d; });
+
+let t = 0, playing = false, lastTs = null, scrubbing = false;
+
+/* ---------- util ---------- */
+const ease = x => x<0?0:x>1?1:x*x*(3-2*x);
+const lerp = (p,q,u) => [p[0]+(q[0]-p[0])*u, p[1]+(q[1]-p[1])*u];
+const rot  = (p,c,deg) => { const r=deg*Math.PI/180, co=Math.cos(r), si=Math.sin(r),
+                            dx=p[0]-c[0], dy=p[1]-c[1];
+                            return [c[0]+dx*co-dy*si, c[1]+dx*si+dy*co]; };
+
+/* ---------- geometri (koordinat dunia, y ke atas) ---------- */
+function geom(){
+  const C = Math.hypot(A,B);
+  return {
+    C,
+    sq1:[[0,0],[A,0],[A,A],[0,A]],
+    sq2:[[A,0],[A+B,0],[A+B,B],[A,B]],
+    shared:[[A,0],[A,B]],
+    pent:[[B,0],[A+B,B],[A,B],[A,A],[0,A]],
+    T1:[[0,0],[B,0],[0,A]],          // segitiga kiri
+    T2:[[B,0],[A+B,0],[A+B,B]],      // segitiga kanan
+    cut1:[[0,A],[B,0]], cut2:[[B,0],[A+B,B]],
+    hinge1:[0,A], hinge2:[A+B,B],
+    square:[[0,A],[B,0],[A+B,B],[A,A+B]]
+  };
+}
+
+/* ---------- gambar ---------- */
+function resize(){
+  const dpr = window.devicePixelRatio||1;
+  const w = cv.clientWidth, h = cv.clientHeight;
+  cv.width = w*dpr; cv.height = h*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+window.addEventListener('resize', resize); resize();
+
+function draw(){
+  const w = cv.clientWidth, h = cv.clientHeight;
+  ctx.clearRect(0,0,w,h);
+  const g = geom();
+  const s  = Math.min(w,h)*0.66/(A+B);
+  const ox = (w-(A+B)*s)/2, oy = (h+(A+B)*s)/2;
+  const P  = (x,y) => [ox+x*s, oy-y*s];
+
+  // fase & progres lokal
+  let idx = phases.length-1, p = 1;
+  for(let i=0;i<phases.length;i++){
+    if(t < starts[i]+phases[i].d || i===phases.length-1){ idx=i; p=Math.min(1,Math.max(0,(t-starts[i])/phases[i].d)); break; }
+  }
+  const ep = ease(p);
+  const theta   = idx<3 ? 0 : idx===3 ? ep*90 : 90;
+  const aSq     = idx===0 ? 1 : idx===1 ? 1-ep : 0;
+  const aPiece  = idx===0 ? 0 : idx===1 ? ep : 1;
+  const cutProg = idx===1 ? ep : idx>1 ? 1 : 0;
+  const aShare  = idx===0 ? 1 : idx===1 ? 1-ep : 0;
+  const aFinal  = idx===4 ? ep : 0;
+  const aMovC   = Math.min(1, theta/25);           // label c yg ikut berputar
+
+  const poly = (pts,fill,stroke,lw,alpha,move) => {
+    if(alpha<=0) return;
+    ctx.save(); ctx.globalAlpha = alpha; ctx.beginPath();
+    pts.forEach((pt,i)=>{ const q = move? rot(pt,move.c,move.deg):pt;
+                          const [x,y]=P(q[0],q[1]); i? ctx.lineTo(x,y):ctx.moveTo(x,y); });
+    ctx.closePath();
+    if(fill){ ctx.fillStyle=fill; ctx.fill(); }
+    if(stroke){ ctx.strokeStyle=stroke; ctx.lineWidth=lw||1.5; ctx.lineJoin='round'; ctx.stroke(); }
+    ctx.restore();
+  };
+  const line = (a,b,alpha,color,lw,dash,prog) => {
+    if(alpha<=0) return; prog = prog==null?1:prog;
+    const q = lerp(a,b,prog);
+    ctx.save(); ctx.globalAlpha=alpha; ctx.strokeStyle=color; ctx.lineWidth=lw;
+    if(dash) ctx.setLineDash(dash);
+    const [x1,y1]=P(a[0],a[1]), [x2,y2]=P(q[0],q[1]);
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); ctx.restore();
+  };
+  const label = (txt,pt,alpha,opt) => {
+    if(alpha<=0 || !labelsOn) return;
+    opt = opt||{};
+    const [x,y]=P(pt[0],pt[1]);
+    ctx.save(); ctx.globalAlpha=alpha;
+    ctx.fillStyle=opt.color||'#0f172a';
+    ctx.font=(opt.bold?'bold ':'')+'italic '+(opt.size||16)+'px Georgia, serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(txt, x+(opt.dx||0), y+(opt.dy||0));
+    ctx.restore();
+  };
+
+  /* Fase 0: dua persegi */
+  poly(g.sq1,'rgba(59,130,246,.22)','#2563eb',1.6,aSq);
+  poly(g.sq2,'rgba(16,185,129,.22)','#059669',1.6,aSq);
+  line(g.shared[0],g.shared[1],aShare,'#334155',1.6,[5,4]);
+  label('a',[ -0.35, A/2 ],aSq,{color:'#1d4ed8'});
+  label('b',[ A+B/2, -0.4 ],aSq,{color:'#047857'});
+
+  /* Kepingan: segi lima + 2 segitiga (diputar theta) */
+  poly(g.pent,'rgba(148,163,184,.16)','#64748b',1.5,aPiece);
+  const m1 = {c:g.hinge1, deg: theta}, m2 = {c:g.hinge2, deg:-theta};
+  poly(g.T1,'rgba(37,99,235,.35)','#1d4ed8',1.7,aPiece,m1);
+  poly(g.T2,'rgba(234,88,12,.35)','#c2410c',1.7,aPiece,m2);
+
+  /* garis potong animasi */
+  line(g.cut1[0],g.cut1[1], idx===1?1:0,'#dc2626',2.2,null,cutProg);
+  line(g.cut2[0],g.cut2[1], idx===1?1:0,'#dc2626',2.2,null,cutProg);
+
+  /* titik engsel */
+  if(aPiece>0){
+    [g.hinge1,g.hinge2].forEach(hp=>{
+      const [x,y]=P(hp[0],hp[1]);
+      ctx.save(); ctx.globalAlpha=aPiece; ctx.fillStyle='#111827';
+      ctx.beginPath(); ctx.arc(x,y,3.4,0,7); ctx.fill(); ctx.restore();
+    });
+  }
+
+  /* label c statis (pada potongan) */
+  const n1=[A/g.C, B/g.C], n2=[-B/g.C, A/g.C], k=0.42;
+  label('c',[B/2+n1[0]*k, A/2+n1[1]*k],aPiece,{color:'#b91c1c'});
+  label('c',[(A+2*B)/2+n2[0]*k, B/2+n2[1]*k],aPiece,{color:'#b91c1c'});
+
+  /* label yg ikut berputar bersama segitiga */
+  const L1 = { a:[-0.38,A/2], b:[B/2,-0.4], c:[B/2+n1[0]*k, A/2+n1[1]*k] };
+  const L2 = { a:[(A+2*B)/2,-0.4], b:[A+B+0.38,B/2], c:[(A+2*B)/2+n2[0]*k, B/2+n2[1]*k] };
+  const mv = (pt,m)=>rot(pt,m.c,m.deg);
+  label('a',mv(L1.a,m1),aPiece,{color:'#1d4ed8'});
+  label('b',mv(L1.b,m1),aPiece,{color:'#1d4ed8'});
+  label('c',mv(L1.c,m1),aMovC,{color:'#1d4ed8'});
+  label('a',mv(L2.a,m2),aPiece,{color:'#c2410c'});
+  label('b',mv(L2.b,m2),aPiece,{color:'#c2410c'});
+  label('c',mv(L2.c,m2),aMovC,{color:'#c2410c'});
+
+  /* Fase akhir: persegi c */
+  if(aFinal>0){
+    const Q=g.square, per=4, seg=aFinal*per;
+    ctx.save(); ctx.strokeStyle='#7c3aed'; ctx.lineWidth=3.2; ctx.lineCap='round';
+    for(let i=0;i<4;i++){
+      const u=Math.min(1,Math.max(0,seg-i)); if(u<=0) break;
+      const a=Q[i], b=lerp(Q[i],Q[(i+1)%4],u);
+      const [x1,y1]=P(a[0],a[1]), [x2,y2]=P(b[0],b[1]);
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    }
+    ctx.restore();
+    label('c²',[(A+B)/2,(A+B)/2],aFinal,{color:'#7c3aed',bold:true,size:22});
+  }
+
+  /* HUD + caption + rumus */
+  hudEl.textContent = 'θ = ' + Math.round(theta) + '°';
+  const txt = phases[idx].txt;
+  if(capEl.textContent!==txt) capEl.textContent = txt;
+  const c2 = A*A+B*B, cV = Math.sqrt(c2);
+  const cStr = Number.isInteger(cV)? cV : cV.toFixed(3);
+  formEl.innerHTML = idx===4
+    ? `Luas kekal: <span class="hl">${A}² + ${B}² = ${A*A} + ${B*B} = ${c2} = c²</span>  (c = ${cStr})`
+    : `a² + b² = ${A*A} + ${B*B} = ${c2} &nbsp;→&nbsp; c = ${cStr}`;
+}
+
+/* ---------- loop waktu ---------- */
+function frame(ts){
+  if(lastTs==null) lastTs=ts;
+  const dt=(ts-lastTs)/1000; lastTs=ts;
+  if(playing){
+    t+=dt;
+    if(t>=TOTAL){ if(loopChk.checked) t=0; else { t=TOTAL; setPlay(false); } }
+  }
+  if(!scrubbing) scrub.value = Math.round(t/TOTAL*1000);
+  draw();
+  requestAnimationFrame(frame);
+}
+function setPlay(v){ playing=v; btnPlay.textContent = v? '⏸ Jeda':'▶ Putar'; }
+
+/* ---------- kontrol ---------- */
+const loopChk=document.getElementById('chkLoop');
+let labelsOn=true;
+document.getElementById('chkLabels').addEventListener('change',e=>labelsOn=e.target.checked);
+btnPlay.addEventListener('click',()=>{ if(!playing && t>=TOTAL) t=0; setPlay(!playing); });
+document.getElementById('btnStart').addEventListener('click',()=>{t=0;});
+document.getElementById('btnEnd').addEventListener('click',()=>{t=TOTAL; setPlay(false);});
+document.getElementById('btnNext').addEventListener('click',()=>{
+  for(let i=0;i<starts.length;i++) if(starts[i]>t+1e-6){ t=starts[i]; return; } t=TOTAL; setPlay(false);
+});
+document.getElementById('btnPrev').addEventListener('click',()=>{
+  let cur=0; for(let i=0;i<starts.length;i++) if(starts[i]<=t+1e-6) cur=i;
+  t = (t-starts[cur] > phases[cur].d*0.25)? starts[cur] : starts[Math.max(0,cur-1)];
+});
+scrub.addEventListener('pointerdown',()=>scrubbing=true);
+window.addEventListener('pointerup',()=>scrubbing=false);
+scrub.addEventListener('input',()=>{ t=scrub.value/1000*TOTAL; setPlay(false); });
+const rngA=document.getElementById('rngA'), rngB=document.getElementById('rngB');
+rngA.addEventListener('input',()=>{A=+rngA.value; document.getElementById('valA').textContent=A;});
+rngB.addEventListener('input',()=>{B=+rngB.value; document.getElementById('valB').textContent=B;});
+window.addEventListener('keydown',e=>{ if(e.code==='Space'){e.preventDefault(); btnPlay.click();} });
+
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

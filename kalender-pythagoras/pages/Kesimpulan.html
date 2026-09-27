@@ -1,0 +1,102 @@
+<div class="pythagoras-container">
+    <div class="pythagoras-header">
+        <span class="pythagoras-label">KESIMPULAN:</span>
+        <!-- Menggunakan tag sup agar pangkat 2 aman dari error encoding -->
+        <span class="pythagoras-rumus" id="py-rumus">a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup></span>
+    </div>
+    <div class="pythagoras-body">
+        <span class="pythagoras-teks" id="py-kesimpulan">" Jumlah kuadrat sisi siku-siku sama dengan kuadrat sisi miring "</span>
+        <!-- Icon Refresh SVG -->
+        <button class="pythagoras-refresh-btn" onclick="acakKesimpulanPythagoras()" title="Acak Kesimpulan">
+            <svg viewBox="0 0 24 24">
+                <path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+            </svg>
+        </button>
+    </div>
+</div>
+
+<style>
+    .pythagoras-container {
+        background: linear-gradient(90deg, #3b5ce1, #8430cf);
+        padding: 18px 25px;
+        border-radius: 8px;
+        color: white;
+        font-family: sans-serif;
+        max-width: 800px;
+        margin: 10px auto;
+    }
+    .pythagoras-header {
+        font-size: 1.15rem;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .pythagoras-label {
+        font-weight: normal; /* KESIMPULAN tidak tebal */
+    }
+    .pythagoras-rumus {
+        font-weight: 900; /* Hanya RUMUS yang tebal */
+        font-size: 1.6rem; 
+        letter-spacing: 0.5px;
+    }
+    .pythagoras-body {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+    }
+    .pythagoras-teks {
+        font-size: 1.1rem;
+        font-weight: normal; /* Kalimat penjelasan tidak tebal */
+        line-height: 1.4;
+    }
+    .pythagoras-refresh-btn {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: transform 0.2s;
+        flex-shrink: 0;
+    }
+    .pythagoras-refresh-btn:hover {
+        transform: rotate(45deg);
+    }
+    .pythagoras-refresh-btn svg {
+        width: 20px;
+        height: 20px;
+        fill: white;
+    }
+</style>
+
+<script>
+    // Menyimpan struktur HTML untuk pangkat agar terhindar dari karakter aneh (Â²)
+    const daftarKesimpulanPythagoras = [
+        { rumus: "a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks: '" Jumlah kuadrat sisi siku-siku sama dengan kuadrat sisi miring "' },
+        { rumus: "a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks: '" Jumlah kuadrat sisi tegak sama dengan kuadrat sisi miring "' },
+        { rumus: "a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks: '" Jumlah kuadrat sisi siku-siku sama dengan kuadrat sisi miring (hipotenusa) "' },
+        { rumus: "a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks: '" Jumlah kuadrat sisi tegak sama dengan kuadrat sisi miring (sisi terpanjang) "' },
+        { rumus: "c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks: '" Kuadrat sisi miring sama dengan jumlah kuadrat sisi tegaknya "' },
+        { rumus: "c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks: '" Kuadrat sisi miring sama dengan jumlah kuadrat sisi siku-sikunya "' },
+        { rumus: "c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks: '" Kuadrat sisi miring (hipotenusa) sama dengan jumlah kuadrat sisi tegaknya "' },
+        { rumus: "c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks: '" Kuadrat sisi miring (sisi terpanjang) sama dengan jumlah kuadrat sisi siku-sikunya "' },
+        { rumus: "c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks: '" Pada segitiga siku-siku, kuadrat panjang sisi miring sama dengan jumlah kuadrat panjang sisi-sisi lainnya "' }
+    ];
+
+    function acakKesimpulanPythagoras() {
+        const indexAcak = Math.floor(Math.random() * daftarKesimpulanPythagoras.length);
+        // Menggunakan innerHTML karena terdapat tag <sup>
+        document.getElementById("py-rumus").innerHTML = daftarKesimpulanPythagoras[indexAcak].rumus;
+        document.getElementById("py-kesimpulan").innerText = daftarKesimpulanPythagoras[indexAcak].teks;
+    }
+
+    if (window.addEventListener) {
+        window.addEventListener('load', acakKesimpulanPythagoras);
+    } else if (window.attachEvent) {
+        window.attachEvent('onload', acakKesimpulanPythagoras);
+    }
+</script>

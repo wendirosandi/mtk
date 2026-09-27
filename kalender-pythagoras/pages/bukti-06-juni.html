@@ -1,307 +1,343 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bukti #6: Diseksi Einstein (3-4-5) - Kalender Pythagoras 2027</title>
-    <link rel="stylesheet" href="../assets/css/main.css">
-    <link rel="stylesheet" href="../assets/css/proof.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bukti #6: Perigal - Posisi a² di Kiri (6-8-10) - Kalender Pythagoras 2027</title>
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/proof.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  .ggb-wrap{background:#f8f9fa;border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin-bottom:12px;}
+  .info-box{background:#e8f4f8;border-left:5px solid #3498db;color:#2980b9;padding:14px;border-radius:6px;margin:12px 0;font-size:15px;font-weight:500;line-height:1.5;transition:opacity .3s;}
+  .progress-container{width:100%;background:#e0e0e0;border-radius:8px;margin:10px 0;height:14px;overflow:hidden;}
+  .progress-bar{height:100%;background:#27ae60;width:0%;transition:width .4s;}
+  .status-text{text-align:center;font-size:13px;color:#7f8c8d;margin-bottom:14px;font-style:italic;}
+  #ggb-element{width:100%;min-height:320px;display:flex;justify-content:center;align-items:center;border:1px solid #b0bec5;border-radius:8px;overflow:hidden;background:#fff;position:relative;}
+  #ggbLoading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.9);font-weight:700;color:#5a67d8;z-index:5;font-size:15px;}
+  .section-box{margin-top:16px;padding:16px;background:#eef3f8;border-radius:8px;}
+  .section-box h3{margin:0 0 12px 0;font-size:16px;text-align:center;color:#2c3e50;}
+  .speed-control{text-align:center;margin:14px 0;background:#e8f4f8;padding:14px;border-radius:8px;}
+  .speed-control label{font-weight:600;font-size:15px;display:block;margin-bottom:8px;color:#2c3e50;}
+  .speed-control input[type=range]{width:100%;max-width:400px;cursor:pointer;height:8px;}
+  .speed-value{display:block;margin-top:6px;font-size:17px;font-weight:bold;color:#e74c3c;}
+  .speed-hint{display:block;margin-top:4px;font-size:12px;color:#7f8c8d;font-style:italic;}
+  .config-list{margin:0 0 12px 0;padding-left:20px;font-size:14px;line-height:1.7;color:#2c3e50;}
+  .config-list strong{color:#2980b9;}
+  .triple-note{margin-top:10px;padding:10px;background:#fff;border-radius:6px;border-left:4px solid #e67e22;font-size:13px;font-style:italic;color:#7f8c8d;text-align:center;}
+  .triple-note a{color:#2980b9;font-weight:700;font-style:normal;}
+  .a4-sheet .proof-figures .proof-figure .scene{min-height:170px;}
+  .a4-sheet .proof-figures .proof-figure .scene img{width:100%;height:100%;object-fit:contain;display:block;}
+  @media(max-width:768px){.ggb-wrap{padding:10px;}}
+</style>
 </head>
 <body>
-    <header class="proof-header no-print">
-        <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
-        <div class="proof-info">
-            <h1>Bukti #6: Diseksi Einstein (3-4-5)</h1>
-            <div class="proof-meta">
-                <span class="meta-item">📅 Juni 2027</span>
-                <span class="meta-item">👥 Kelompok 4</span>
-                <span class="meta-item">🎯 Level: Pengayaan (cerita)</span>
-            </div>
-        </div>
-        <div class="export-buttons">
-            <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 Download PDF (1 hal)</button>
-            <button class="btn-print" onclick="printPDF()">🖨 Print / Save as PDF</button>
-        </div>
-    </header>
-
-    <nav class="proof-nav no-print">
-        <a href="bukti-05-mei.html" class="prev-btn">← Mei (Bukti #5)</a>
-        <span class="nav-indicator">6 / 12</span>
-        <a href="bukti-07-juli.html" class="next-btn">Juli (Bukti #7) →</a>
-    </nav>
-
-    <main class="proof-content" id="proofContent">
-        <section class="section introduction no-print">
-            <h2>📖 Pengenalan: Bukti yang Ditemukan Einstein Kecil</h2>
-            <p class="intro-text">
-                Konon <strong>Albert Einstein</strong> menemukan bukti ini saat masih anak-anak:
-                <strong>tanpa memindahkan potongan apa pun</strong>. Cukup jatuhkan
-                <strong>garis tinggi dari sudut siku-siku</strong> — segitiga terbelah menjadi
-                <strong>dua segitiga yang sebangun dengan segitiga asal</strong>. Karena luas bangun
-                sebangun berbanding sebagai <em>kuadrat sisi miringnya</em>, maka
-                [Δ₁]+[Δ₂] = [Δ] langsung memberi <strong>a² + b² = c²</strong>.
-            </p>
-            <div class="historical-note"><strong>⚠️ Catatan kurikulum:</strong> kesebangunan resmi
-                dipelajari di kelas 9 — bulan ini disajikan sebagai <em>cerita & intuisi</em>;
-                pembuktian lengkapnya dapat kalian ulangi tahun depan.</div>
-        </section>
-
-        <section class="section animation no-print">
-            <h2>🎬 Animasi Interaktif</h2>
-            <div class="animation-wrapper">
-                <div class="stage-wrap" style="position:relative;width:100%;background:#f4f6fb;border:3px solid #e0e0e0;border-radius:15px;overflow:hidden;">
-                    <svg id="stageSvg" viewBox="0 0 560 420" style="display:block;width:100%;height:auto;"></svg>
-                </div>
-                <div class="animation-controls">
-                    <button class="btn-start" id="btnStart">▶ Mulai</button>
-                    <button class="btn-pause" id="btnPause" style="display:none">⏸ Pause</button>
-                    <button class="btn-skip" id="btnSkip">⏭ Selesai</button>
-                    <button class="btn-reset" id="btnReset">↺ Reset</button>
-                    <div class="speed-control">
-                        <label for="speedSlider">⚡ Kecepatan:</label>
-                        <input type="range" id="speedSlider" min="0.5" max="3" step="0.5" value="1">
-                        <span class="speed-value" id="speedValue">1×</span>
-                    </div>
-                </div>
-                <div class="progress-box">
-                    <div class="pbar"><div class="pfill" id="pfill"></div></div>
-                    <div class="ptext" id="ptext">Progres: 0%</div>
-                </div>
-                <div class="formula-display" style="margin-top:15px;">
-                    <div class="formula-step active" id="step0">Siap memulai… tekan ▶ Mulai</div>
-                    <div class="formula-step" id="step1">Garis tinggi CF membelah ΔABC → Δ1 (miring a) + Δ2 (miring b)</div>
-                    <div class="formula-step" id="step2">Δ1 ∼ ΔABC dan Δ2 ∼ ΔABC (sudut-sudutnya sama)</div>
-                    <div class="formula-step" id="step3">Luas sebangun ∝ kuadrat miring: [Δ1]/[Δ] = a²/c² = 9/25; [Δ2]/[Δ] = 16/25</div>
-                    <div class="formula-step" id="step4">[Δ1] + [Δ2] = [Δ] ⇒ (a²+b²)/c² = 1</div>
-                    <div class="formula-step" id="step5">⇒ a² + b² = c² → 9 + 16 = 25 ✓</div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section external-resources no-print">
-            <h2>🔗 Rujukan</h2>
-            <div class="embed-container" style="text-align:center;padding:24px;">
-                <div style="font-size:40px;">🧠</div>
-                <p style="margin:10px 0;color:#555;">Wikipedia ID: <strong>"Bukti Einstein dengan diseksi
-                   tanpa penataan ulang"</strong> — sumber utama bulan ini.</p>
-                <a class="external-link" target="_blank" rel="noopener" href="https://id.wikipedia.org/wiki/Teorema_Pythagoras"
-                   style="display:inline-block;background:#667eea;color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;text-decoration:none;">
-                   🔗 Wikipedia: Teorema Pythagoras</a>
-            </div>
-        </section>
-
-        <section class="section export-section no-print-screen">
-            <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">
-                👁 Tampilkan Pratinjau PDF (1 halaman)</button>
-            <div class="preview-collapse collapsed" id="previewCollapse">
-              <div class="a4-viewport" id="a4Viewport">
-                <div id="exportArea" class="a4-sheet">
-                    <div class="export-header">
-                        <h2>Bukti #6: Diseksi Einstein</h2>
-                        <p>Kalender Pythagoras 2027 • Juni • Kelompok 4 • Level: Pengayaan</p>
-                    </div>
-                    <div id="calBlock" class="cal-block"></div>
-                    <hr class="cal-divider">
-                    <div class="proof-figures">
-                        <figure class="proof-figure"><span class="state-badge initial">AWAL</span>
-                            <div class="scene" id="figInitial"></div>
-                            <figcaption><strong>Gbr 1:</strong> garis tinggi CF; Δ1 merah, Δ2 hijau.</figcaption></figure>
-                        <figure class="proof-figure"><span class="state-badge final">AKHIR</span>
-                            <div class="scene" id="figFinal"></div>
-                            <figcaption><strong>Gbr 2:</strong> tiga segitiga sebangun; rasio luas = 9/25 + 16/25 = 1.</figcaption></figure>
-                    </div>
-                    <div class="export-explain">
-                        <p><strong>Penjelasan:</strong> garis tinggi dari sudut siku-siku membelah segitiga
-                           menjadi dua segitiga yang masing-masing sebangun dengan segitiga asal.
-                           Luas bangun sebangun berbanding sebagai kuadrat sisi miring, sehingga
-                           a²/c² + b²/c² = 1 ⇒ a² + b² = c².</p>
-                        <div class="export-formula">9/25 + 16/25 = 25/25 ⇒ 9 + 16 = 25 ✓</div>
-                    </div>
-<div class="export-conclusion" style="margin-bottom:0;">
-    <div class="export-conclusion-text">KESIMPULAN:<br>a² + b² = c²</div>
-</div>
-
-<div class="group-info-compact">
-    <div class="group-names-col">
-        <strong>Nama Anggota Kelompok:</strong>
-        <div class="name-grid">
-            <div class="name-line">1. .......................................</div>
-            <div class="name-line">3. .......................................</div>
-            <div class="name-line">2. .......................................</div>
-            <div class="name-line">4. .......................................</div>
-            <div class="name-line">5. .......................................</div>
+<header class="proof-header no-print">
+    <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
+    <div class="proof-info">
+        <h1>Bukti #6: Perigal - Posisi a² di Kiri (6-8-10)</h1>
+        <div class="proof-meta">
+            <span class="meta-item"> Juni 2027</span>
+            <span class="meta-item">👥 Kelompok 3</span>
+            <span class="meta-item">🎯 Level: Dasar</span>
         </div>
     </div>
-    <div class="qr-col">
-        <div class="qr-box" id="qrcode"></div>
-        <div class="qr-caption">Scan untuk animasi</div>
+    <div class="export-buttons">
+        <button class="export-pdf-btn" id="btnDownloadPDF">📄 PDF Gambar (Print/Arsip)</button>
+        <button class="btn-print">🖨 Print / Save as PDF</button>
     </div>
-</div>
-                </div>
-              </div>
+</header>
+
+<nav class="proof-nav no-print">
+    <a href="#" class="prev-btn disabled" onclick="alert('Mei masih dalam pengembangan');return false;">← Mei (Bukti #5)</a>
+    <span class="nav-indicator">6 / 12</span>
+    <a href="#" class="next-btn disabled" onclick="alert('Juli masih dalam pengembangan');return false;">Juli (Bukti #7) →</a>
+</nav>
+
+<main class="proof-content" id="proofContent">
+    <section class="section introduction no-print">
+        <h2>📖 Pengenalan: Lubang yang Berpindah, Luas yang Tetap</h2>
+        <p class="intro-text">Pada pembuktian Perigal, titik potong dua garis <b>tidak harus di pusat</b> b².
+           Bulan ini kita mengamati <b>satu kasus khas</b>: dengan titik potong terkunci pada
+           <b>Horizontal Bawah + Vertikal Kanan</b>, keempat irisan b² bersama a² tetap menutup c²
+           tanpa celah — dan persegi a² berakhir <b>di kiri</b> c². Luas total tidak berubah:
+           <b>a² + b² = c²</b>.</p>
+        <div class="historical-note"><strong>📜 Sejarah:</strong> Henry Perigal, aktuaris London (1830);
+           bukti ini terukir di batu nisannya.</div>
+    </section>
+
+    <section class="section animation no-print">
+        <h2>🎬 Animasi Interaktif (Konfigurasi Terkunci)</h2>
+        <div class="ggb-wrap">
+
+          <div class="ggb-controls-top">
+            <button id="btnPlay"  class="btn-play">▶ Play</button>
+            <button id="btnPause" class="btn-pause" disabled>⏸️ Jeda</button>
+            <button id="btnEnd"   class="btn-end">⏭️ Akhir</button>
+            <button id="btnReset" class="btn-reset" title="Mengulang animasi DAN memuat ulang triple 6-8-10 serta posisi Bawah/Kanan">🔄 Reset (Konfigurasi Juni)</button>
+          </div>
+
+          <div class="info-box" id="infoBox">Langkah 0: Kondisi Awal. Segitiga siku-siku 6-8-10 dengan sisi a, b, dan c (sisi miring).</div>
+          <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+          <div class="status-text" id="statusText">Siap dimulai - Klik Play untuk Langkah 1</div>
+
+          <div id="ggb-element"><div id="ggbLoading"> Memuat GeoGebra Applet… mohon tunggu</div></div>
+
+          <div class="section-box">
+            <h3 class="icon-only-title" title="Kontrol Tampilan">🛠️<span class="sr-only">Kontrol Tampilan</span></h3>
+            <div class="icon-row">
+              <button id="btnZoomIn"    class="icon-btn" title="Perbesar" aria-label="Perbesar">🔍+</button>
+              <button id="btnZoomOut"   class="icon-btn" title="Perkecil" aria-label="Perkecil">🔍−</button>
+              <button id="btnResetView" class="icon-btn" title="Reset View (kembali ke tampilan penuh)" aria-label="Reset View">🏠</button>
+              <button id="btnFullscreen" class="icon-btn" title="Layar Penuh (Esc untuk keluar)" aria-label="Layar Penuh">️</button>
             </div>
-        </section>
-    </main>
+            <div class="pan-grid">
+              <span></span>
+              <button id="btnPanUp" class="icon-btn pan" title="Geser objek ke atas" aria-label="Geser objek ke atas">↑</button>
+              <span></span>
+              <button id="btnPanLeft" class="icon-btn pan" title="Geser objek ke kiri" aria-label="Geser objek ke kiri">←</button>
+              <button id="btnPanDown" class="icon-btn pan" title="Geser objek ke bawah" aria-label="Geser objek ke bawah">↓</button>
+              <button id="btnPanRight" class="icon-btn pan" title="Geser objek ke kanan" aria-label="Geser objek ke kanan">→</button>
+            </div>
+          </div>
 
-    <nav class="proof-nav bottom no-print">
-        <a href="bukti-05-mei.html" class="prev-btn">← Sebelumnya</a>
-        <a href="../index.html" class="home-btn">🏠 Kalender</a>
-        <a href="bukti-07-juli.html" class="next-btn">Selanjutnya →</a>
-    </nav>
-    <footer class="no-print"><p><strong>Kelompok 4</strong> - Pembuktian #6</p><p>Projek Kalender Pythagoras 2027</p></footer>
+          <div class="speed-control">
+            <label for="speedSlider">⚡ Kecepatan Animasi:</label>
+            <input type="range" id="speedSlider" min="1" max="4" step="1" value="4">
+            <span class="speed-value" id="speedValue">4x (Normal)</span>
+            <span class="speed-hint">1 = Paling Lambat | 4 = Normal</span>
+          </div>
 
-    <script src="../assets/js/calendar-template.js?v=3"></script>
-    <script src="../assets/js/pdf-export.js?v=33"></script>
-    <script>
-    const a=3,b=4,c=5;
-    const C={x:0,y:0},B={x:a,y:0},A={x:0,y:b};
-    const F={x:a*b*b/(c*c), y:a*a*b/(c*c)};
-    (function(){ const onAB=Math.abs(F.x/a+F.y/b-1)<1e-9;
-        const ar=p=>{let s=0;for(let i=0,j=p.length-1;i<p.length;j=i++)s+=p[j].x*p[i].y-p[i].x*p[j].y;return Math.abs(s/2);};
-        const ok=Math.abs(ar([C,B,F])+ar([C,A,F])-ar([C,B,A]))<1e-9;
-        console.log((onAB&&ok)?'✅ EINSTEIN OK (3,4,5)':'⚠️ EINSTEIN GAGAL'); })();
-    const NS='http://www.w3.org/2000/svg';
-    const svg=document.getElementById('stageSvg');
-    const mk=(t,at,pa)=>{const e=document.createElementNS(NS,t);for(const k in at)e.setAttribute(k,at[k]);(pa||svg).appendChild(e);return e;};
-    const x0=-1,x1=a+1,y0=-1,y1=b+6;
-    const U=Math.min(340/(x1-x0),300/(y1-y0));
-    const OX=20-x0*U, OY=20+y1*U;
-    const S=(x,y)=>({x:OX+x*U,y:OY-y*U});
-    const pts=poly=>poly.map(p=>{const q=S(p.x,p.y);return q.x.toFixed(1)+','+q.y.toFixed(1);}).join(' ');
-    const gTri=mk('polygon',{points:pts([C,B,A]),fill:'rgba(144,164,174,.35)',stroke:'#37474f','stroke-width':2.5,opacity:0});
-    const gAlt=mk('line',{x1:S(C.x,C.y).x,y1:S(C.x,C.y).y,x2:S(F.x,F.y).x,y2:S(F.y?F.y:F.y,F.y).y,stroke:'#8e24aa','stroke-width':2.5,opacity:0});
-    gAlt.setAttribute('x2',S(F.x,F.y).x); gAlt.setAttribute('y2',S(F.x,F.y).y);
-    const gF=mk('circle',{cx:S(F.x,F.y).x,cy:S(F.x,F.y).y,r:4,fill:'#8e24aa',opacity:0});
-    const gD1=mk('polygon',{points:pts([C,B,F]),fill:'#f16a7a',opacity:0});
-    const gD2=mk('polygon',{points:pts([C,A,F]),fill:'#5bf17a',opacity:0});
-    function lab(x,y,t,col,sz){const e=mk('text',{x:S(x,y).x,y:S(x,y).y,'text-anchor':'middle',fill:col,'font-size':sz||15,'font-weight':'bold',opacity:0});e.textContent=t;return e;}
-    const labs=[lab(a/2,-0.6,'a = 3','#c62828'),lab(-0.7,b/2,'b = 4','#2e7d32'),
-        lab(a/2+0.8,b/2+0.6,'c = 5','#1565c0'),lab(F.x+0.5,F.y+0.5,'F','#8e24aa',13)];
-    /* baris mini: Δ1, Δ2, Δ pada skala sama */
-    const mini=[{poly:[C,B,F],col:'#f16a7a',dx:0,t:'Δ1 = 9/25 · Δ'},{poly:[C,A,F],col:'#5bf17a',dx:4.2,t:'Δ2 = 16/25 · Δ'},{poly:[C,B,A],col:'#90a4ae',dx:7.4,t:'Δ = 25/25 · Δ'}];
-    const miniEls=mini.map(m=>{const g=mk('g',{opacity:0});
-        mk('polygon',{points:m.poly.map(p=>{const q=S(p.x+m.dx,p.y- 0);return q.x.toFixed(1)+','+(q.y+150).toFixed(1);}).join(' '),fill:m.col,stroke:'rgba(0,0,0,.3)','stroke-width':1.5},g);
-        const e=mk('text',{x:S(m.dx+1.5,0).x,y:S(0,0).y+185,'text-anchor':'middle',fill:'#37474f','font-size':13,'font-weight':'bold'},g);
-        e.textContent=m.t; return g;});
+          <!-- INFO KONFIGURASI STATIS -->
+          <div class="section-box">
+            <h3>🔒 Info Konfigurasi (Terkunci)</h3>
+            <ul class="config-list">
+              <li><strong>Triple terkunci:</strong> 6, 8, 10</li>
+              <li><strong>Posisi perpotongan terkunci:</strong> Horizontal Bawah + Vertikal Kanan</li>
+              <li><strong>Akibat:</strong> karena posisi perpotongan dikunci pada Horizontal Bawah + Vertikal Kanan,
+                  posisi akhir persegi a² berada <strong>di kiri</strong> persegi c².</li>
+            </ul>
+            <div class="triple-note">💡 Untuk eksplorasi bebas, geser langsung <strong>Titik A</strong> dan
+               <strong>Titik C</strong> pada applet; klik <strong>🔄 Reset</strong> untuk kembali ke konfigurasi Juni.</div>
+            <div class="triple-note" style="border-left-color:#3498db;">🔗 Untuk mengeksplorasi lebih banyak pilihan
+               (triple dan posisi perpotongan lain), silakan buka
+               <a href="bukti-02-februari.html">Pembuktian Bulan Februari</a>.</div>
+          </div>
+        </div>
+    </section>
 
-    const tweens=[]; const TOTAL=5000;
-    const addTween=(t0,t1,fn)=>{const tw={t0,t1,fn,last:-1};tweens.push(tw);return tw;};
-    const fade=(el,t0,d,to,from=0)=>addTween(t0,t0+d,p=>el.setAttribute('opacity',from+(to-from)*p));
-    function buildTimeline(){
-        tweens.length=0;
-        fade(gTri,0,400,1); labs.slice(0,3).forEach((l,i)=>fade(l,150+i*100,300,1));
-        const AL=Math.hypot(S(F.x,F.y).x-S(0,0).x,S(F.x,F.y).y-S(0,0).y);
-        gAlt.setAttribute('stroke-dasharray',AL); gAlt.setAttribute('stroke-dashoffset',AL);
-        fade(gAlt,500,100,1); fade(gF,600,200,1); fade(labs[3],700,200,1);
-        addTween(500,1100,p=>gAlt.setAttribute('stroke-dashoffset',AL*(1-p)));
-        fade(gD1,1200,400,.55); fade(gD2,1800,400,.55);
-        miniEls.forEach((g,i)=>fade(g,2600+i*300,400,1));
-        addTween(4600,4900,p=>{svg.style.transform=`scale(${1+.02*Math.sin(Math.PI*p)})`;});
-    }
-    buildTimeline();
-    let vt=0,playing=false,speed=1,lastTs=null;
-    const stepTimes=[[0,1],[1200,2],[2600,3],[3600,4],[4600,5]];
-    function frame(ts){if(lastTs===null)lastTs=ts;const dt=Math.min(50,ts-lastTs);lastTs=ts;
-        if(playing)vt=Math.min(TOTAL,vt+dt*speed);
-        for(const tw of tweens){const p=Math.max(0,Math.min(1,(vt-tw.t0)/(tw.t1-tw.t0)));
-            if(p!==tw.last){tw.fn(p);tw.last=p;}}
-        const pct=Math.round(vt/TOTAL*100);
-        document.getElementById('ptext').textContent='Progres: '+pct+'%';
-        document.getElementById('pfill').style.width=pct+'%';
-        let n=0;for(const[t,s2]of stepTimes)if(vt>=t)n=s2;
-        document.querySelectorAll('.formula-step').forEach(el=>el.classList.remove('active'));
-        const el=document.getElementById('step'+n);if(el)el.classList.add('active');
-        if(playing&&vt>=TOTAL){playing=false;const b2=document.getElementById('btnStart');
-            b2.textContent='▶ Ulangi';b2.style.display='inline-block';
-            document.getElementById('btnPause').style.display='none';}
-        requestAnimationFrame(frame);}
-    function resetState(){vt=0;playing=false;svg.style.transform='none';
-        for(const tw of tweens)tw.last=-1;
-        const b2=document.getElementById('btnStart');b2.textContent='▶ Mulai';
-        b2.style.display='inline-block';document.getElementById('btnPause').style.display='none';}
-    document.getElementById('btnStart').addEventListener('click',()=>{if(vt>=TOTAL)resetState();
-        playing=true;document.getElementById('btnStart').style.display='none';
-        document.getElementById('btnPause').style.display='inline-block';});
-    document.getElementById('btnPause').addEventListener('click',()=>{playing=false;
-        const b2=document.getElementById('btnStart');b2.textContent='▶ Lanjut';
-        b2.style.display='inline-block';document.getElementById('btnPause').style.display='none';});
-    document.getElementById('btnSkip').addEventListener('click',()=>{vt=TOTAL;playing=false;
-        for(const tw of tweens){tw.fn(1);tw.last=1;}});
-    document.getElementById('btnReset').addEventListener('click',resetState);
-    document.getElementById('speedSlider').addEventListener('input',e=>{
-        speed=parseFloat(e.target.value);document.getElementById('speedValue').textContent=speed+'×';});
+    <section class="section no-print">
+        <div class="ai-prompt-box collapsed" id="aiPromptBox">
+            <button class="ai-prompt-toggle" onclick="document.getElementById('aiPromptBox').classList.toggle('collapsed')">
+                <span>💡 Panduan Presentasi</span>
+                <span class="chevron">▼</span>
+            </button>
+            <div class="ai-prompt-content">
+                <p style="margin:0 0 12px 0;font-size:14px;line-height:1.6;color:#4a5568;">
+                  Jika kamu kesulitan menyiapkan presentasi, gunakan contoh prompt AI berikut.
+                  Sertakan <strong>screenshot</strong> atau <strong>upload PDF</strong> halaman ini saat bertanya ke AI.
+                </p>
+                <div class="prompt-text" id="promptText">"Saya seorang siswa SMP akan mempresentasikan Pembuktian Teorema Pythagoras [NAMA BUKTI] mulai dari Pendahuluan, Penjelasan Visual/Animasi, Contoh, hingga Kesimpulan dalam waktu 3-4 menit. Bantu saya menyusun naskah presentasi yang mudah dipahami, menarik, dan sesuai untuk audiens teman sekelas."</div>
+                <button class="btn-copy" id="btnCopyPrompt">📋 Copy Teks</button>
+                <p style="font-size:12px;color:#718096;margin:8px 0 0 0;">⏱️ Durasi 3-4 menit sudah memperhitungkan jeda.</p>
+            </div>
+        </div>
+    </section>
 
-    function einsteinScene(state,w){
-        const X0=-1,X1=a+1,Y0=-1,Y1=b+1;
-        const u=(w-16)/(X1-X0); const ox=8-X0*u; const oy=8+Y1*u;
-        const s=(x,y)=>({x:ox+x*u,y:oy-y*u});
-        const P=poly=>poly.map(p=>{const q=s(p.x,p.y);return q.x.toFixed(1)+','+q.y.toFixed(1);}).join(' ');
-        const hh=Math.round(w*0.93);
-        let o=`<svg viewBox="0 0 ${w} ${hh}" width="${w}" height="${hh}" style="display:block;margin:auto;">`;
-        o+=`<polygon points="${P([C,B,A])}" fill="rgba(144,164,174,.35)" stroke="#37474f" stroke-width="2"/>`;
-        o+=`<polygon points="${P([C,B,F])}" fill="#f16a7a" opacity=".6"/>`;
-        o+=`<polygon points="${P([C,A,F])}" fill="#5bf17a" opacity=".6"/>`;
-        o+=`<line x1="${s(C.x,C.y).x}" y1="${s(C.x,C.y).y}" x2="${s(F.x,F.y).x}" y2="${s(F.x,F.y).y}" stroke="#8e24aa" stroke-width="2"/>`;
-        o+=`<circle cx="${s(F.x,F.y).x}" cy="${s(F.x,F.y).y}" r="3" fill="#8e24aa"/>`;
-        if(state==='final'){
-            o+=`<text x="${s(a/2,-0.6).x}" y="${s(a/2,-0.6).y}" text-anchor="middle" font-size="12" font-weight="bold" fill="#c62828">9/25</text>`;
-            o+=`<text x="${s(-0.7,b/2).x}" y="${s(-0.7,b/2).y}" text-anchor="middle" font-size="12" font-weight="bold" fill="#2e7d32">16/25</text>`;
-        }
-        return o+`</svg>`;
-    }
-    document.getElementById('figInitial').innerHTML=einsteinScene('initial',260);
-    document.getElementById('figFinal').innerHTML=einsteinScene('final',260);
+    <section class="section external-resources no-print">
+        <h2>🔗 Referensi</h2>
+        <div class="embed-container" style="text-align:center;padding:24px;">
+            <div style="font-size:40px;">📐</div>
+            <p style="margin:10px 0;color:#555;">Applet GeoGebra <strong>"Perigal Slice"</strong> (material fwwhu8yb) —
+               mode terkunci. Mode eksplorasi penuh tersedia di Bulan Februari.</p>
+            <a class="external-link" target="_blank" rel="noopener" href="https://www.geogebra.org/m/fwwhu8yb"
+               style="display:inline-block;background:#667eea;color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;text-decoration:none;">
+               🔗 Buka Applet di GeoGebra</a>
+        </div>
+    </section>
 
-    function fitSheet(){const vp=document.getElementById('a4Viewport');
-        const sh=document.querySelector('.a4-sheet');if(!vp||!sh)return;
-        const s=Math.min(1,vp.clientWidth/794);
-        sh.style.transform=`scale(${s})`;sh.style.transformOrigin='top left';
-        vp.style.height=(1123*s)+'px';}
-    window.fitSheet=fitSheet;window.addEventListener('resize',fitSheet);
-    window.togglePreview=function(){const col=document.getElementById('previewCollapse');
-        col.classList.toggle('collapsed');
-        document.getElementById('btnPreview').textContent=col.classList.contains('collapsed')
-            ?'👁 Tampilkan Pratinjau PDF (1 halaman)':'🙈 Sembunyikan Pratinjau PDF';
-        if(!col.classList.contains('collapsed'))setTimeout(fitSheet,60);};
-    renderCalendar(document.getElementById('calBlock'),6);
-try {
-  const qrContainer = document.getElementById('qrcode');
-  qrContainer.innerHTML = ''; // Hapus konten lama
-  new QRCode(qrContainer, {
-    text: window.location.href,
-    width: 84,
-    height: 84,
-    correctLevel: QRCode.CorrectLevel.M,
-    colorDark: "#1a202c",
-    colorLight: "#ffffff"
-  });
-} catch (e) {
-  const qrContainer = document.getElementById('qrcode');
-  qrContainer.innerHTML = '<div style="font-size:10px;color:#666;text-align:center;">QR Error</div>';
-}
-    fitSheet();requestAnimationFrame(frame);
-    </script>
-    <!-- ============ MODAL KONFIRMASI DOWNLOAD ============ -->
+    <section class="section export-section no-print-screen">
+        <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">👁 Tampilkan Pratinjau PDF (1 halaman)</button>
+        <label class="capture-mode-label no-print" title="Jika dicentang, gambar di sheet memakai zoom/pan yang sedang aktif. Jika tidak, gambar selalu di-reset ke tampilan penuh (konsisten untuk cetak).">
+          <input type="checkbox" id="chkCaptureCurrent"> 📸 Capture sesuai tampilan saat ini
+        </label>
+        <div class="preview-collapse collapsed" id="previewCollapse">
+          <div class="a4-viewport" id="a4Viewport">
+            <div id="exportArea" class="a4-sheet">
+                <div class="export-header">
+                    <h2>Bukti #6: Perigal - Posisi a² di Kiri (6-8-10)</h2>
+                    <p>Kalender Pythagoras 2027 • Juni • Kelompok 3 • Level: Dasar</p>
+                </div>
+                <div id="calBlock" class="cal-block"></div>
+                <hr class="cal-divider">
+                <div class="proof-figures">
+                    <figure class="proof-figure"><span class="state-badge initial">AWAL</span>
+                        <div class="scene" id="figAwal"></div>
+                        <figcaption><strong>Gambar Awal:</strong> b² dipotong jadi 4 irisan berwarna di posisi asal (konfigurasi terkunci).</figcaption></figure>
+                    <figure class="proof-figure"><span class="state-badge final">AKHIR</span>
+                        <div class="scene" id="figAkhir"></div>
+                        <figcaption><strong>Gambar Akhir:</strong> irisan + a² menutup c²; a² berakhir di kiri c².</figcaption></figure>
+                </div>
+                <div class="export-explain">
+                    <p><strong>Penjelasan:</strong> dengan titik potong terkunci pada Horizontal Bawah + Vertikal Kanan,
+                       dua garis potong melalui b² menghasilkan 4 irisan yang bersama a² menutup c² hanya dengan
+                       translasi (tanpa rotasi). Posisi akhir a² berada di kiri c².</p>
+                    <div class="export-formula">
+                      <span class="formula-calc">6² + 8² = 36 + 64 = 100 = 10²</span>
+                      <span class="formula-verified">✓ TERBUKTI!</span>
+                    </div>
+                </div>
+                <div class="pythagoras-container">
+                    <span class="pythagoras-label">KESIMPULAN:</span>
+                    <span class="pythagoras-rumus" id="py-rumus">a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup></span>
+                    <span class="pythagoras-sep">│</span>
+                    <span class="pythagoras-teks" id="py-kesimpulan">"Kuadrat sisi miring sama dengan jumlah kuadrat sisi siku-sikunya"</span>
+                    <button class="pythagoras-refresh-btn" onclick="acakKesimpulanPythagoras()" title="Acak Kesimpulan">
+                        <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                    </button>
+                </div>
+                <div class="group-info-compact">
+                    <div class="group-names-col">
+                        <strong>Nama Anggota Kelompok:</strong>
+                        <div class="name-grid">
+                            <div class="name-line">1. .......................................</div>
+                            <div class="name-line">3. .......................................</div>
+                            <div class="name-line">2. .......................................</div>
+                            <div class="name-line">4. .......................................</div>
+                            <div class="name-line">5. .......................................</div>
+                        </div>
+                    </div>
+                    <div class="qr-col">
+                        <div class="qr-box" id="qrcode"></div>
+                        <div class="qr-caption">Scan untuk animasi</div>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+    </section>
+</main>
+
+<nav class="proof-nav bottom no-print">
+    <a href="#" class="prev-btn disabled" onclick="alert('Mei masih dalam pengembangan');return false;">← Sebelumnya</a>
+    <a href="../index.html" class="home-btn">🏠 Kalender</a>
+    <a href="#" class="next-btn disabled" onclick="alert('Juli masih dalam pengembangan');return false;">Selanjutnya →</a>
+</nav>
+<footer class="no-print"><p><strong>Kelompok 3</strong> - Pembuktian #6</p><p>Projek Kalender Pythagoras 2027</p></footer>
+
 <div class="modal-overlay" id="downloadModal">
   <div class="modal-content">
     <h3>📄 Konfirmasi Download PDF</h3>
     <p>Sebelum mengunduh PDF, pastikan Anda sudah memahami petunjuk proyek dan checklist persiapan.</p>
-    
     <div class="modal-warning" id="modalWarning"></div>
-    
     <label class="ack-checkbox" for="modalAck">
       <input type="checkbox" id="modalAck">
       <span>Saya sudah paham petunjuk dan checklist semua Persiapan.</span>
     </label>
-    
     <div class="modal-actions">
       <button id="btnModalDownload" disabled>📄 Download PDF</button>
       <button id="btnModalCancel">Batal</button>
     </div>
   </div>
 </div>
+
+<script>
+window.PROOF_NAME='Perigal Posisi a² di Kiri (6-8-10)';
+window.PERIGAL_CONFIG={
+  locked:true,
+  material_id:'fwwhu8yb', width:'100%', height:480,
+  defaultTriple:'6810',
+  defaultPosisi:{horizontal:'bawah',vertikal:'kanan'},
+  defaultSpeed:4,
+  stepsInfo:[
+    "Langkah 0: Kondisi Awal. Segitiga siku-siku 6-8-10 dengan sisi a, b, dan c (sisi miring).",
+    "Langkah 1: Membuat persegi pada masing-masing sisi: a²=36, b²=64, c²=100.",
+    "Langkah 2: Memotong persegi b² menjadi 4 bagian dengan dua garis lewat titik potong terkunci (Bawah/Kanan).",
+    "Langkah 3: Menampilkan 4 potongan berwarna agar mudah dibedakan.",
+    "Langkah 4: Memindahkan a² dan 4 potongan ke dalam c² — a² berakhir di kiri c².",
+    "✅ Selesai! 36 + 64 = 100 → a² + b² = c². Inilah Teorema Pythagoras!"
+  ]
+};
+
+function fitSheet(){
+  var vp=document.getElementById('a4Viewport'); var sh=document.querySelector('.a4-sheet');
+  if(!vp||!sh) return;
+  var s=Math.min(1, vp.clientWidth/794);
+  sh.style.transform='scale('+s+')'; sh.style.transformOrigin='top left';
+  vp.style.height=(1123*s)+'px';
+}
+window.fitSheet=fitSheet; window.addEventListener('resize',fitSheet);
+window.togglePreview=function(){
+  var col=document.getElementById('previewCollapse');
+  col.classList.toggle('collapsed');
+  document.getElementById('btnPreview').textContent = col.classList.contains('collapsed')
+    ? '👁 Tampilkan Pratinjau PDF (1 halaman)' : ' Sembunyikan Pratinjau PDF';
+  if(!col.classList.contains('collapsed')) setTimeout(fitSheet,60);
+};
+
+var daftarKesimpulanPythagoras = [
+  { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi siku-siku sama dengan kuadrat sisi miring" },
+  { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi tegak sama dengan kuadrat sisi miring" },
+  { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi siku-siku sama dengan kuadrat sisi miring (hipotenusa)" },
+  { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi tegak sama dengan kuadrat sisi miring (sisi terpanjang)" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring sama dengan jumlah kuadrat sisi tegaknya" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring sama dengan jumlah kuadrat sisi siku-sikunya" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring (hipotenusa) sama dengan jumlah kuadrat sisi tegaknya" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring (sisi terpanjang) sama dengan jumlah kuadrat sisi siku-sikunya" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Pada segitiga siku-siku, kuadrat panjang sisi miring sama dengan jumlah kuadrat panjang sisi-sisi lainnya" }
+];
+var BULAN_KE = 6;
+var indexKesimpulan = (BULAN_KE - 1) % daftarKesimpulanPythagoras.length;
+function acakKesimpulanPythagoras(){
+  indexKesimpulan = (indexKesimpulan + 1) % daftarKesimpulanPythagoras.length;
+  document.getElementById("py-rumus").innerHTML = daftarKesimpulanPythagoras[indexKesimpulan].rumus;
+  document.getElementById("py-kesimpulan").innerText = '"' + daftarKesimpulanPythagoras[indexKesimpulan].teks + '"';
+}
+window.addEventListener('load', function(){
+  var i=(BULAN_KE - 1) % daftarKesimpulanPythagoras.length;
+  document.getElementById("py-rumus").innerHTML = daftarKesimpulanPythagoras[i].rumus;
+  document.getElementById("py-kesimpulan").innerText = '"' + daftarKesimpulanPythagoras[i].teks + '"';
+  indexKesimpulan = i;
+});
+</script>
+
+<script src="../assets/js/calendar-template.js?v=3"></script>
+<script src="../assets/js/pdf-export.js?v=42"></script>
+<script src="../assets/js/geogebra-perigal-mesin.js?v=18"></script>
+<script src="../assets/js/geogebra-perigal-page.js?v=151"></script>
+
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id);};
+
+var poll=setInterval(function(){
+  if(window.PerigalEngine && window.PerigalEngine.isReady){
+    clearInterval(poll);
+    var l=$('ggbLoading'); if(l) l.style.display='none';
+  }
+},200);
+
+var btnCopy=$('btnCopyPrompt'), pt=$('promptText');
+var raw=pt.textContent.replace('[NAMA BUKTI]', window.PROOF_NAME);
+pt.textContent=raw;
+btnCopy.onclick=async function(){
+  try{
+    await navigator.clipboard.writeText(raw);
+    btnCopy.textContent='✅ Tersalin!'; btnCopy.classList.add('copied');
+    setTimeout(function(){ btnCopy.textContent='📋 Copy Teks'; btnCopy.classList.remove('copied'); },2000);
+  }catch(e){ alert('Gagal: '+e.message); }
+};
+
+if(typeof renderCalendar==='function') renderCalendar($('calBlock'),6);
+try{
+  var qc=$('qrcode'); qc.innerHTML='';
+  new QRCode(qc,{text:window.location.href,width:84,height:84,correctLevel:QRCode.CorrectLevel.M,colorDark:"#1a202c",colorLight:"#ffffff"});
+}catch(e){ $('qrcode').innerHTML='<div style="font-size:10px;color:#666;text-align:center;">QR Error</div>'; }
+fitSheet();
+})();
+</script>
 </body>
 </html>

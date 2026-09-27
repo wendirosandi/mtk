@@ -540,8 +540,8 @@ input[type=range] {
 
 /* =====================================================
    SHEET A4 FIXED 794 × 1123 px  (rasio 1:1.414)
-   Preview: scale menyesuaikan viewport.
-   Export: selalu ukuran asli 794 px.
+   [REVISI MARGIN] print: atas 3mm / kiri-kanan 4mm / bawah 4mm
+   layar: padding kecil + distribusi flex → tidak ada rongga
    ===================================================== */
 .a4-viewport {
     width: 100%;
@@ -553,8 +553,9 @@ input[type=range] {
 }
 .a4-sheet {
     width: 794px;
+    height: 1123px;               /* tinggi tetap agar distribusi flex konsisten */
     min-height: 1123px;
-    padding: 28px 32px;
+    padding: 10px 12px 12px 12px; /* [UBAH] padding layar minimal */
     background: #ffffff;
     box-shadow: 0 4px 18px rgba(0,0,0,.18);
     transform-origin: top left;
@@ -563,25 +564,24 @@ input[type=range] {
     box-sizing: border-box;
 }
 
-/* --- header sheet --- */
+/* --- header sheet (atas rapat) --- */
 .a4-sheet .export-header {
     text-align: center;
     border-bottom: 3px double #667eea;
-    padding-bottom: 8px;
-    margin-bottom: 10px;
+    padding-bottom: 6px;
+    margin: 0 0 6px 0;
 }
-.a4-sheet .export-header h2 { color: #333; font-size: 22px; margin-bottom: 4px; }
-.a4-sheet .export-header p  { color: #666; font-size: 12px; }
+.a4-sheet .export-header h2 { color: #333; font-size: 21px; margin: 0 0 2px 0; line-height: 1.15; }
+.a4-sheet .export-header p  { color: #666; font-size: 11px; margin: 0; }
 
-/* --- Blok 1: kalender ≤ 40% (±440 px) --- */
+/* --- Blok 1: kalender (TIDAK dipotong) --- */
 .a4-sheet .cal-block {
     border: 1.5px solid #667eea;
     border-radius: 6px;
     padding: 8px;
     margin-bottom: 6px;
     background: #fff;
-    max-height: 430px;
-    overflow: hidden;
+    /* max-height & overflow:hidden DIHAPUS → 6 baris (Jan/Juli) tampil penuh */
 }
 .a4-sheet .cal-title { display: flex; justify-content: space-between; margin-bottom: 4px; }
 .a4-sheet .cal-month, .a4-sheet .cal-year { font-size: 18px; font-weight: 800; }
@@ -598,17 +598,24 @@ input[type=range] {
                        padding: 6px 10px; background: #fcfcfc; }
 .a4-sheet .cal-meta-title { font-weight: 700; font-size: 11px; color: #546e7a; margin-bottom: 3px; }
 .a4-sheet .cal-meta-line  { font-size: 11px; color: #78909c; margin: 2px 0; }
-.a4-sheet .cal-divider    { border: none; border-top: 2px double #667eea; margin: 10px 0; }
+.a4-sheet .cal-divider    { border: none; border-top: 2px double #667eea; margin: 8px 0; }
 
-/* --- Blok 2: pembuktian (60%) --- */
+/* --- Blok 2: pembuktian (menyerap sisa ruang) --- */
 .a4-sheet .proof-figures {
-    display: flex; gap: 14px; justify-content: center;
-    margin-bottom: 10px;
+    display: flex; gap: 12px; justify-content: center;
+    margin-bottom: 6px;
+    flex: 1 1 auto;      /* [UBAH] mengisi rongga vertikal */
+    min-height: 0;
 }
 .a4-sheet .proof-figure {
     position: relative; flex: 1 1 45%;
     background: #fff; border: 1.5px solid #e0e0e0; border-radius: 8px;
-    padding: 10px; margin: 0; break-inside: avoid;
+    padding: 8px; margin: 0; break-inside: avoid;
+    display: flex; flex-direction: column;   /* [UBAH] */
+}
+.a4-sheet .proof-figure .scene {
+    flex: 1 1 auto; min-height: 150px;       /* [TAMBAH] gambar membesar mengisi ruang */
+    display: flex; align-items: center; justify-content: center;
 }
 .a4-sheet .proof-figure figcaption { margin-top: 6px; font-size: 11px; color: #555; text-align: center; }
 .a4-sheet .state-badge {
@@ -619,17 +626,19 @@ input[type=range] {
 .a4-sheet .state-badge.initial { background: #ff9800; }
 .a4-sheet .state-badge.final   { background: #4CAF50; }
 .a4-sheet .scene svg { max-width: 100%; height: auto; }
+.a4-sheet .scene img { max-width: 100%; height: auto; }
 
-.a4-sheet .export-explain { font-size: 12px; color: #444; line-height: 1.55; margin-bottom: 10px; }
+.a4-sheet .export-explain { font-size: 12px; color: #444; line-height: 1.5; margin-bottom: 6px; }
 .a4-sheet .export-formula {
     background: #fff3cd; border-left: 3px solid #ffc107; border-radius: 4px;
-    padding: 6px 10px; text-align: center; font-size: 16px; font-weight: bold; margin-top: 8px;
+    padding: 6px 10px; text-align: center; font-size: 16px; font-weight: bold; margin-top: 6px;
 }
 .a4-sheet .export-conclusion {
     display: flex; justify-content: space-between; align-items: center;
     gap: 14px;
     background: linear-gradient(135deg, #667eea, #764ba2);
-    color: #fff; border-radius: 8px; padding: 12px;
+    color: #fff; border-radius: 8px; padding: 10px 12px;
+    margin-top: auto;    /* [UBAH] pin ke bawah → rongga bawah hilang */
 }
 .a4-sheet .export-conclusion-text { font-size: 17px; font-weight: bold; flex: 1; }
 .a4-sheet .qr-box {
@@ -649,8 +658,9 @@ input[type=range] {
 .preview-collapse { transition: max-height .45s ease; overflow: hidden; max-height: 5000px; }
 .preview-collapse.collapsed { max-height: 0; }
 
-/* --- Print: paksa buka + scale A4 --- */
+/* --- Print: margin minimal + kunci A4 --- */
 @media print {
+    @page { size: A4 portrait; margin: 0; }
     body { background: #fff !important; }
     .no-print, .preview-toggle,
     .section:not(.export-section) { display: none !important; }
@@ -659,8 +669,15 @@ input[type=range] {
         padding: 0 !important; margin: 0 !important; background: transparent !important;
     }
     .preview-collapse { max-height: none !important; overflow: visible !important; }
-    .a4-viewport { background: transparent !important; box-shadow: none !important; overflow: visible !important; }
-    .a4-sheet { box-shadow: none !important; padding: 18mm !important; }
+    .a4-viewport { background: transparent !important; box-shadow: none !important;
+                   overflow: visible !important; height: auto !important; }
+    .a4-sheet {
+        box-shadow: none !important;
+        width: 210mm !important;
+        height: 297mm !important;
+        min-height: 297mm !important;
+        padding: 3mm 4mm 4mm 4mm !important;  /* [UBAH] semula 18mm */
+    }
 }
 
 
@@ -865,6 +882,92 @@ input[type=range] {
   background: #e53e3e;
 }
 
+/* ====== 4 TOMBOL DI ATAS APPLET ====== */
+.ggb-controls-top { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:14px; }
+.ggb-controls-top button {
+  flex:1 1 140px; max-width:180px; padding:11px 16px; font-size:15px; font-weight:700;
+  border:none; border-radius:8px; color:#fff; cursor:pointer; min-height:46px;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  transition:all .2s; box-shadow:0 3px 6px rgba(0,0,0,.15);
+}
+.ggb-controls-top button:hover:not(:disabled){ transform:translateY(-2px); }
+.ggb-controls-top button:disabled{ opacity:.5; cursor:not-allowed; }
+.ggb-controls-top .btn-play  { background:#27ae60; }
+.ggb-controls-top .btn-pause { background:#f39c12; }
+.ggb-controls-top .btn-end   { background:#9b59b6; }
+.ggb-controls-top .btn-reset { background:#e74c3c; }
+
+/* ====== PANDUAN PRESENTASI COLLAPSE ====== */
+.ai-prompt-box { background:#f0f4ff; border:2px solid #5a67d8; border-radius:10px; margin:20px 0; overflow:hidden; }
+.ai-prompt-toggle {
+  width:100%; padding:14px 16px; background:#5a67d8; color:#fff; border:none;
+  font-size:15px; font-weight:700; cursor:pointer; display:flex; align-items:center;
+  justify-content:space-between; gap:10px;
+}
+.ai-prompt-toggle:hover { background:#4c51bf; }
+.ai-prompt-toggle .chevron { transition:transform .3s; font-size:18px; }
+.ai-prompt-box.collapsed .ai-prompt-content { display:none; }
+.ai-prompt-box.collapsed .chevron { transform:rotate(-90deg); }
+.ai-prompt-content { padding:16px; }
+
+/* ====== FORMULA DENGAN BADGE "TERBUKTI" ====== */
+.export-formula {
+  display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap;
+  background:#fff3cd; border-left:3px solid #ffc107; border-radius:4px;
+  padding:10px 14px; margin-top:8px; text-align:center;
+}
+.formula-calc { font-size:16px; font-weight:bold; color:#333; letter-spacing:0.3px; }
+.formula-verified {
+  background:#4CAF50; color:#fff; padding:4px 10px; border-radius:4px;
+  font-size:13px; font-weight:bold; white-space:nowrap; letter-spacing:0.5px;
+}
+
+/* ====== KESIMPULAN COMPACT (1 BARIS) ====== */
+.pythagoras-container {
+  background:linear-gradient(90deg,#3b5ce1,#8430cf);
+  padding:12px 18px; border-radius:8px; color:#fff;
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  margin:8px 0 10px 0;
+}
+.pythagoras-label {
+  font-size:14px; font-weight:600; opacity:.95; letter-spacing:0.5px;
+  flex-shrink:0;
+}
+.pythagoras-rumus {
+  font-size:18px; font-weight:900; letter-spacing:0.5px;
+  flex-shrink:0;
+}
+.pythagoras-sep { opacity:.6; font-size:18px; flex-shrink:0; }
+.pythagoras-teks {
+  font-size:13px; font-style:italic; opacity:.95; line-height:1.4;
+  flex:1 1 auto; min-width:200px;
+}
+.pythagoras-refresh-btn {
+  background:rgba(255,255,255,.15); border:none; cursor:pointer; padding:6px;
+  border-radius:50%; transition:all .3s; flex-shrink:0;
+  width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+}
+.pythagoras-refresh-btn:hover { background:rgba(255,255,255,.3); transform:rotate(180deg); }
+.pythagoras-refresh-btn svg { width:18px; height:18px; fill:#fff; }
+
+/* Compact di sheet A4 */
+.a4-sheet .pythagoras-container { padding:10px 14px; gap:10px; }
+.a4-sheet .pythagoras-label { font-size:12px; }
+.a4-sheet .pythagoras-rumus { font-size:15px; }
+.a4-sheet .pythagoras-teks { font-size:11px; min-width:180px; }
+.a4-sheet .pythagoras-sep { font-size:15px; }
+.a4-sheet .pythagoras-refresh-btn { width:26px; height:26px; }
+.a4-sheet .pythagoras-refresh-btn svg { width:14px; height:14px; }
+
+
+/* Print-friendly */
+@media print {
+  .pythagoras-container, .formula-verified, .export-formula {
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+  }
+}
+
 /* ============ PRINT: Compact group info tetap terlihat ============ */
 @media print {
   .group-info-compact {
@@ -876,3 +979,50 @@ input[type=range] {
     border-bottom-color: #999 !important;
   }
 }
+
+/* Gambar screenshot mengisi penuh kotak scene (tidak kecil di tengah) */
+.a4-sheet .proof-figure .scene img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+}
+/* Kotak scene tidak terlalu menjulang */
+.a4-sheet .proof-figures.three .scene{ min-height:130px; max-height:190px; }
+
+/* ===== Sheet A4: layout 2 kolom, gambar besar ===== */
+.a4-sheet .proof-figures .proof-figure .scene { min-height: 170px; }
+.a4-sheet .proof-figures .proof-figure .scene img {
+  width: 100%; height: 100%; object-fit: contain; display: block;
+}
+
+/* ===== Panel kontrol icon-only ===== */
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;}
+.icon-only-title{font-size:22px;text-align:center;margin:0 0 10px 0;cursor:default;line-height:1;}
+.icon-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.icon-btn{
+  width:46px;height:46px;border:none;border-radius:10px;background:#3498db;color:#fff;
+  font-size:17px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .2s;box-shadow:0 2px 5px rgba(0,0,0,.15);
+}
+.icon-btn:hover:not(:disabled){transform:translateY(-2px);background:#2980b9;}
+.icon-btn:disabled{opacity:.5;cursor:not-allowed;}
+.pan-grid{display:grid;grid-template-columns:repeat(3,46px);grid-auto-rows:46px;gap:6px;justify-content:center;}
+.pan-grid .icon-btn.pan{background:#8e44ad;}
+.pan-grid .icon-btn.pan:hover:not(:disabled){background:#7d3c98;}
+
+/* ===== Fullscreen ===== */
+.ggb-wrap:fullscreen{background:#fff;overflow:auto;padding:24px;border-radius:0;}
+.ggb-wrap:fullscreen #ggb-element{min-height:52vh;}
+
+/* ===== Checkbox mode capture ===== */
+.capture-mode-label{display:inline-flex;align-items:center;gap:8px;margin:0 0 10px 0;font-size:13px;font-weight:600;color:#4a5568;cursor:pointer;}
+.capture-mode-label input{width:16px;height:16px;cursor:pointer;}
+
+/* ===== Sembunyikan tombol native GeoGebra (fallback CSS) ===== */
+#ggb-element button, #ggb-element [role="button"]{display:none !important;}
+
+.ggb-wrap.pseudo-fullscreen{
+  position:fixed; inset:0; z-index:9999; background:#fff;
+  overflow:auto; padding:16px; border-radius:0; margin:0; max-width:none;
+}
+.ggb-wrap.pseudo-fullscreen #ggb-element{ min-height:52vh; }

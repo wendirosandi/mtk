@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animasi Pembuktian Pythagoras - Smooth Transform</title>
+  
+  <script src="https://www.geogebra.org/apps/deployggb.js"></script>
+  
+  <style>
+    :root {
+      --bg-color: #f4f7f6;
+      --container-bg: #ffffff;
+      --text-color: #2c3e50;
+      --text-secondary: #7f8c8d;
+      --info-bg: #e8f4f8;
+      --info-border: #3498db;
+      --info-text: #2980b9;
+      --btn-play: #27ae60;
+      --btn-play-hover: #219653;
+      --btn-pause: #f39c12;
+      --btn-pause-hover: #d68910;
+      --btn-reset: #e74c3c;
+      --btn-reset-hover: #c0392b;
+      --btn-end: #9b59b6;
+      --btn-end-hover: #8e44ad;
+      --btn-nav: #3498db;
+      --btn-nav-hover: #2980b9;
+      --btn-toggle: #16a085;
+      --btn-toggle-hover: #138d75;
+      --btn-zoom: #e67e22;
+      --btn-zoom-hover: #d35400;
+      --btn-pan: #8e44ad;
+      --btn-pan-hover: #7d3c98;
+      --progress-bg: #e0e0e0;
+      --progress-fill: #27ae60;
+    }
+
+    .dark-mode {
+      --bg-color: #121212;
+      --container-bg: #1e1e2f;
+      --text-color: #e0e0e0;
+      --text-secondary: #a0a0b0;
+      --info-bg: #2a2a40;
+      --info-border: #e94560;
+      --info-text: #fcdab7;
+      --btn-play: #2ecc71;
+      --btn-play-hover: #27ae60;
+      --btn-pause: #f1c40f;
+      --btn-pause-hover: #d4ac0d;
+      --btn-reset: #e74c3c;
+      --btn-reset-hover: #c0392b;
+      --btn-end: #a569bd;
+      --btn-end-hover: #8e44ad;
+      --btn-nav: #3498db;
+      --btn-nav-hover: #2980b9;
+      --btn-toggle: #1abc9c;
+      --btn-toggle-hover: #16a085;
+      --btn-zoom: #f39c12;
+      --btn-zoom-hover: #e67e22;
+      --btn-pan: #9b59b6;
+      --btn-pan-hover: #8e44ad;
+      --progress-bg: #33334d;
+      --progress-fill: #2ecc71;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: var(--container-bg);
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+      transition: background-color 0.3s ease;
+    }
+
+    h2 { text-align: center; margin-top: 0; margin-bottom: 10px; font-size: 26px; }
+    .subtitle { text-align: center; color: var(--text-secondary); margin-bottom: 25px; font-size: 14px; font-style: italic; }
+
+    .controls-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+
+    button {
+      padding: 12px 20px; font-size: 15px; font-weight: 600; border: none; border-radius: 6px;
+      cursor: pointer; color: white; transition: all 0.2s ease; box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+      display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; flex: 1; max-width: 180px;
+    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+    button:hover:not(:disabled) { transform: translateY(-2px); }
+
+    button.play { background-color: var(--btn-play); }
+    button.play:hover:not(:disabled) { background-color: var(--btn-play-hover); }
+    button.pause { background-color: var(--btn-pause); }
+    button.pause:hover:not(:disabled) { background-color: var(--btn-pause-hover); }
+    button.reset { background-color: var(--btn-reset); }
+    button.reset:hover:not(:disabled) { background-color: var(--btn-reset-hover); }
+    button.end { background-color: var(--btn-end); }
+    button.end:hover:not(:disabled) { background-color: var(--btn-end-hover); }
+    button.nav { background-color: var(--btn-nav); }
+    button.nav:hover:not(:disabled) { background-color: var(--btn-nav-hover); }
+    button.toggle { background-color: var(--btn-toggle); }
+    button.toggle:hover:not(:disabled) { background-color: var(--btn-toggle-hover); }
+    button.zoom { background-color: var(--btn-zoom); min-width: 70px; max-width: 120px; }
+    button.zoom:hover:not(:disabled) { background-color: var(--btn-zoom-hover); }
+    button.pan { background-color: var(--btn-pan); min-width: 70px; max-width: 100px; }
+    button.pan:hover:not(:disabled) { background-color: var(--btn-pan-hover); }
+
+    .info-box {
+      background-color: var(--info-bg); border-left: 5px solid var(--info-border); color: var(--info-text);
+      padding: 15px; border-radius: 6px; margin: 15px 0; font-size: 15px; font-weight: 500; line-height: 1.6;
+      transition: opacity 0.3s ease; opacity: 1; min-height: 80px;
+    }
+
+    .progress-container {
+      width: 100%; background-color: var(--progress-bg); border-radius: 8px; margin: 10px 0;
+      height: 20px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .progress-bar { height: 100%; background-color: var(--progress-fill); width: 0%; transition: width 0.1s linear; }
+
+    .status-text { text-align: center; font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; font-style: italic; }
+
+    #ggb-element {
+      width: 100%; display: flex; justify-content: center; border: 2px solid var(--text-secondary);
+      border-radius: 8px; overflow: hidden; background-color: var(--container-bg); min-height: 500px;
+    }
+
+    .section-box { margin-top: 20px; padding: 20px; background: var(--info-bg); border-radius: 8px; }
+    .section-box h3 { margin-top: 0; margin-bottom: 15px; font-size: 18px; color: var(--text-color); text-align: center; }
+    .zoom-pan-grid { display: flex; flex-direction: column; gap: 15px; align-items: center; }
+    .zoom-row, .pan-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+
+    .speed-control { text-align: center; margin: 15px 0; background: var(--info-bg); padding: 15px; border-radius: 8px; }
+    .speed-control label { font-weight: 600; font-size: 16px; color: var(--text-color); display: block; margin-bottom: 10px; }
+    .speed-control input[type=range] { width: 100%; max-width: 400px; cursor: pointer; height: 8px; }
+    .speed-value { display: block; margin-top: 8px; font-size: 18px; font-weight: bold; color: var(--btn-reset); }
+    .speed-hint { display: block; margin-top: 5px; font-size: 12px; color: var(--text-secondary); font-style: italic; }
+
+    .keyboard-shortcuts {
+      margin-top: 20px; padding: 15px; background: var(--container-bg); border-radius: 6px;
+      border-left: 4px solid var(--btn-nav); font-size: 13px;
+    }
+    .keyboard-shortcuts h4 { margin-top: 0; margin-bottom: 10px; color: var(--btn-nav); }
+    .keyboard-shortcuts ul { margin: 0; padding-left: 20px; columns: 2; }
+    .keyboard-shortcuts li { margin-bottom: 5px; break-inside: avoid; }
+    .keyboard-shortcuts kbd {
+      background: var(--info-bg); padding: 2px 6px; border-radius: 3px; font-family: monospace;
+      font-weight: bold; border: 1px solid var(--text-secondary);
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 10px; } .container { padding: 15px; } h2 { font-size: 20px; }
+      button { padding: 10px 14px; font-size: 13px; min-height: 44px; }
+      .info-box { font-size: 14px; padding: 12px; min-height: 100px; }
+      .keyboard-shortcuts ul { columns: 1; } #ggb-element { min-height: 400px; }
+    }
+    @media (max-width: 480px) { button { padding: 8px 12px; font-size: 12px; } }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>📐 Animasi Pembuktian Pythagoras</h2>
+  <div class="subtitle">Transformasi Geometri: 4 Segitiga Kongruen (Smooth Animation)</div>
+
+  <div class="controls-row">
+    <button id="btnPlay" class="play" onclick="togglePlay()" title="Space">▶ Play</button>
+    <button id="btnPause" class="pause" onclick="togglePause()" disabled title="Space">⏸ Jeda</button>
+    <button class="reset" onclick="resetAnimasi()" title="R">🔄 Reset</button>
+    <button class="end" onclick="goToEnd()" title="A">⏭ Akhir</button>
+  </div>
+
+  <div class="controls-row">
+    <button class="nav" onclick="prevStep()" title="←">⏮ Prev</button>
+    <button class="nav" onclick="nextStep()" title="→">⏭ Next</button>
+  </div>
+
+  <div class="info-box" id="infoBox">Langkah 0: Segitiga siku-siku dengan sisi a=8, b=15, c=17.</div>
+
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+  <div class="status-text" id="statusText">Siap - Klik Play untuk memulai animasi smooth</div>
+
+  <div id="ggb-element"></div>
+
+  <div class="section-box">
+    <h3>🛠️ Kontrol Tampilan</h3>
+    <div class="zoom-pan-grid">
+      <div class="zoom-row">
+        <button class="zoom" onclick="zoomIn()" title="+">🔍+ Perbesar</button>
+        <button class="zoom" onclick="zoomOut()" title="-">🔍− Perkecil</button>
+        <button class="zoom" onclick="resetZoom()" title="0">↺ Reset Zoom</button>
+        <button class="zoom" onclick="resetView()" title="Home">🏠 Reset View</button>
+      </div>
+      <div class="pan-row">
+        <button class="pan" onclick="panUp()" title="↑">↑ Atas</button>
+        <button class="pan" onclick="panDown()" title="↓">↓ Bawah</button>
+        <button class="pan" onclick="panLeft()" title="←">← Kiri</button>
+        <button class="pan" onclick="panRight()" title="→">→ Kanan</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls-row">
+    <button class="toggle" onclick="toggleTitik()">👁️ Titik</button>
+    <button class="toggle" onclick="ambilScreenshot()"> Unduh</button>
+    <button class="toggle" onclick="toggleDarkMode()" id="btnDarkMode">🌙 Gelap</button>
+  </div>
+
+  <div class="speed-control">
+    <label for="speedSlider"> Kecepatan Animasi:</label>
+    <input type="range" id="speedSlider" min="1" max="4" step="1" value="2" oninput="updateKecepatan()">
+    <span class="speed-value" id="speedValue">2x (Sedang)</span>
+    <span class="speed-hint">1 = Lambat | 2 = Sedang | 3 = Cepat | 4 = Sangat Cepat</span>
+  </div>
+
+  <div class="keyboard-shortcuts">
+    <h4>⌨️ Shortcut Keyboard:</h4>
+    <ul>
+      <li><kbd>Space</kbd> - Play/Pause</li>
+      <li><kbd>R</kbd> - Reset</li>
+      <li><kbd>A</kbd> - Akhir</li>
+      <li><kbd>←</kbd> - Prev Step</li>
+      <li><kbd>→</kbd> - Next Step</li>
+      <li><kbd>+/-</kbd> - Zoom In/Out</li>
+      <li><kbd>0</kbd> - Reset Zoom</li>
+      <li><kbd>H</kbd> - Reset View</li>
+      <li><kbd>↑↓←→</kbd> - Pan</li>
+      <li><kbd>T</kbd> - Toggle Titik</li>
+      <li><kbd>S</kbd> - Screenshot</li>
+      <li><kbd>D</kbd> - Dark Mode</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  // ============================================================
+  // KONFIGURASI GEOGEBRA
+  // ============================================================
+  var params = {
+    "appName": "calculator",
+    "material_id": "j76arz7t",
+    "width": 800,
+    "height": 600,
+    "showToolBar": false,
+    "showAlgebraInput": false,
+    "showMenuBar": false,
+    "enableShiftDragZoom": false,
+    "appletOnLoad": function(api) {
+      updateInfoBox(0);
+      updateKecepatan();
+      // Set initial view
+      currentCoord = { ...viewPerLangkah[0] };
+      applyCoordSystem();
+    }
+  };
+
+  var applet = new GGBApplet(params, true);
+  window.addEventListener("load", function() { applet.inject('ggb-element'); });
+
+  // ============================================================
+  // VARIABEL GLOBAL & KONFIGURASI LANGKAH
+  // ============================================================
+  
+  const langkahValues = { 0: 0, 1: 0.98, 2: 2, 3: 2.5, 4: 3, 5: 3.01, 6: 4 };
+
+  // DURASI TRANSISI (ms) - Skala waktu berbeda per langkah
+  // Langkah 4->5 (3 ke 3.01) diberi waktu cukup agar perubahan terlihat, tidak instan.
+  const transitionDurations = {
+    "0-1": 3000,
+    "1-2": 3000,
+    "2-3": 2500,
+    "3-4": 2500,
+    "4-5": 1500, // Langkah kecil tapi butuh waktu untuk "snap"
+    "5-6": 3000
+  };
+
+  const viewPerLangkah = {
+    0: { xmin: -5, xmax: 25, ymin: -5, ymax: 25 },
+    1: { xmin: -5, xmax: 25, ymin: -5, ymax: 25 },
+    2: { xmin: -20, xmax: 20, ymin: -20, ymax: 20 },
+    3: { xmin: -20, xmax: 20, ymin: -20, ymax: 20 },
+    4: { xmin: -25, xmax: 15, ymin: -10, ymax: 25 },
+    5: { xmin: -25, xmax: 15, ymin: -10, ymax: 25 },
+    6: { xmin: -25, xmax: 15, ymin: -10, ymax: 25 }
+  };
+
+  const langkahInfo = {
+    0: "Langkah 0: Segitiga siku-siku dengan sisi a=8, b=15, c=17. Triple Pythagoras: 8² + 15² = 17².",
+    1: "Langkah 1: Transisi awal. Label menghilang, segitiga mulai berotasi dan bertranslasi untuk membentuk konfigurasi pertama.",
+    2: "Langkah 2: Empat segitiga kongruen membentuk persegi besar sisi c=17. Di tengah ada persegi kecil sisi (b-a)=7. Luas = c².",
+    3: "Langkah 3: Rotasi dan penyusunan ulang segitiga. Transformasi kontinu mempertahankan luas total (konservasi luas).",
+    4: "Langkah 4: Terbentuk dua persegi terpisah: a² (sisi 8) dan b² (sisi 15). Pembuktian inti: a² + b² = c².",
+    5: "Langkah 5: Penyesuaian akhir posisi. Penyempurnaan visual konfigurasi final.",
+    6: "✅ SELESAI! Teorema Pythagoras terbukti melalui transformasi geometri. Luas tetap konstan: a² + b² = c²."
+  };
+
+  var currentLangkah = 0;
+  var isPlaying = false;
+  var isPaused = false;
+  var currentSpeed = 2;
+  var userOverrideView = false;
+  var currentCoord = { xmin: -10, xmax: 20, ymin: -10, ymax: 20 };
+  
+  // Variabel untuk animasi smooth
+  var animationFrameId = null;
+  var animStartT = 0;
+  var animTargetT = 0;
+  var animStartTime = 0;
+  var animDuration = 0;
+  var animRemainingDuration = 0;
+
+  // ============================================================
+  // FUNGSI UTILITAS UI
+  // ============================================================
+  
+  function updateInfoBox(langkah) {
+    const infoBox = document.getElementById("infoBox");
+    infoBox.style.opacity = 0;
+    setTimeout(() => { infoBox.innerText = langkahInfo[langkah]; infoBox.style.opacity = 1; }, 200);
+  }
+
+  function updateProgress(tValue) {
+    const percent = (tValue / 4) * 100;
+    document.getElementById("progressBar").style.width = percent + "%";
+  }
+
+  function updateStatus(text) { document.getElementById("statusText").innerText = text; }
+
+  function updateUIState() {
+    document.getElementById("btnPlay").disabled = isPlaying || currentLangkah >= 6;
+    document.getElementById("btnPause").disabled = !isPlaying;
+  }
+
+  function getSpeedMultiplier() {
+    // Speed 1 = 2x slower, Speed 4 = 0.5x faster
+    const multipliers = { 1: 2.0, 2: 1.0, 3: 0.6, 4: 0.3 };
+    return multipliers[currentSpeed] || 1.0;
+  }
+
+  function updateKecepatan() {
+    currentSpeed = parseInt(document.getElementById("speedSlider").value);
+    const labels = { 1: "1x (Lambat)", 2: "2x (Sedang)", 3: "3x (Cepat)", 4: "4x (Sangat Cepat)" };
+    document.getElementById("speedValue").innerText = labels[currentSpeed];
+  }
+
+  // ============================================================
+  // FUNGSI ANIMASI SMOOTH (requestAnimationFrame)
+  // ============================================================
+  
+  function startAnimation(targetLangkah, durationMs) {
+    // Batalkan animasi sebelumnya jika ada
+    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+
+    const currentT = ggbApplet.getValue('t');
+    const targetT = langkahValues[targetLangkah];
+    
+    // Jika sudah di target, skip
+    if (Math.abs(currentT - targetT) < 0.001) {
+      onAnimationComplete(targetLangkah);
+      return;
+    }
+
+    animStartT = currentT;
+    animTargetT = targetT;
+    animDuration = durationMs * getSpeedMultiplier();
+    animRemainingDuration = animDuration;
+    animStartTime = performance.now();
+
+    isPlaying = true;
+    isPaused = false;
+    updateUIState();
+    document.getElementById("btnPause").innerText = "⏸ Jeda";
+    updateStatus(`Menganimasikan ke Langkah ${targetLangkah}...`);
+
+    animationLoop();
+  }
+
+  function animationLoop() {
+    if (isPaused) return;
+
+    const now = performance.now();
+    const elapsed = now - animStartTime;
+    const progress = Math.min(elapsed / animRemainingDuration, 1);
+
+    // Interpolasi linear nilai t
+    const currentT = animStartT + (animTargetT - animStartT) * progress;
+    ggbApplet.setValue('t', currentT);
+    updateProgress(currentT);
+
+    if (progress < 1) {
+      animationFrameId = requestAnimationFrame(animationLoop);
+    } else {
+      onAnimationComplete(currentLangkah);
+    }
+  }
+
+  function onAnimationComplete(langkah) {
+    animationFrameId = null;
+    isPlaying = false;
+    updateUIState();
+    
+    // Auto-center view
+    setTimeout(() => {
+      if (!userOverrideView) resetViewToDefault(langkah);
+    }, 300);
+
+    if (langkah === 6) {
+      updateStatus("Selesai! Klik Reset untuk mengulang");
+    } else {
+      updateStatus(`Langkah ${langkah} selesai. Klik Next atau Play untuk lanjut.`);
+    }
+  }
+
+  function pauseAnimation() {
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = null;
+    }
+    isPaused = true;
+    isPlaying = false;
+    
+    // Hitung sisa durasi untuk resume nanti
+    const now = performance.now();
+    const elapsed = now - animStartTime;
+    animRemainingDuration = Math.max(0, animRemainingDuration - elapsed);
+    
+    updateUIState();
+    document.getElementById("btnPause").innerText = "▶️ Lanjut";
+    updateStatus("Dijeda - Klik Lanjut untuk melanjutkan dari posisi ini");
+  }
+
+  function resumeAnimation() {
+    isPaused = false;
+    animStartTime = performance.now(); // Reset start time untuk sisa durasi
+    isPlaying = true;
+    updateUIState();
+    document.getElementById("btnPause").innerText = "⏸ Jeda";
+    updateStatus("Melanjutkan animasi...");
+    animationLoop();
+  }
+
+  // ============================================================
+  // FUNGSI NAVIGASI LANGKAH
+  // ============================================================
+  
+  function goToLangkah(langkah) {
+    if (langkah < 0 || langkah > 6) return;
+    
+    // Batalkan animasi yang sedang berjalan (User choice A: Cancel current)
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = null;
+    }
+
+    currentLangkah = langkah;
+    const durationKey = `${langkah-1}-${langkah}`;
+    const duration = transitionDurations[durationKey] || 2000;
+
+    // Jika langkah 0, set instan
+    if (langkah === 0) {
+      ggbApplet.setValue('t', 0);
+      updateProgress(0);
+      onAnimationComplete(0);
+    } else {
+      startAnimation(langkah, duration);
+    }
+
+    updateInfoBox(langkah);
+  }
+
+  function nextStep() { if (currentLangkah < 6) goToLangkah(currentLangkah + 1); }
+  function prevStep() { if (currentLangkah > 0) goToLangkah(currentLangkah - 1); }
+  
+  function goToEnd() {
+    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    currentLangkah = 6;
+    ggbApplet.setValue('t', 4);
+    updateProgress(4);
+    updateInfoBox(6);
+    onAnimationComplete(6);
+  }
+
+  function togglePlay() {
+    if (currentLangkah >= 6) { resetAnimasi(); return; }
+    if (isPaused) { resumeAnimation(); return; }
+    
+    // Jika tidak playing dan tidak paused, mulai dari langkah saat ini ke berikutnya
+    if (currentLangkah < 6) {
+      goToLangkah(currentLangkah + 1);
+    }
+  }
+
+  function togglePause() {
+    if (isPlaying) {
+      pauseAnimation();
+    } else if (isPaused) {
+      resumeAnimation();
+    }
+  }
+
+  function resetAnimasi() {
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = null;
+    }
+    currentLangkah = 0;
+    isPlaying = false;
+    isPaused = false;
+    userOverrideView = false;
+    updateUIState();
+    document.getElementById("btnPause").innerText = "⏸ Jeda";
+    goToLangkah(0);
+  }
+
+  // ============================================================
+  // FUNGSI ZOOM & PAN
+  // ============================================================
+  
+  function applyCoordSystem() {
+    if (typeof ggbApplet !== 'undefined') {
+      ggbApplet.setCoordSystem(currentCoord.xmin, currentCoord.xmax, currentCoord.ymin, currentCoord.ymax);
+    }
+  }
+
+  function resetViewToDefault(langkah) {
+    const view = viewPerLangkah[langkah];
+    if (view) { currentCoord = { ...view }; applyCoordSystem(); }
+  }
+
+  function zoomIn() {
+    userOverrideView = true;
+    const cx = (currentCoord.xmin + currentCoord.xmax) / 2;
+    const cy = (currentCoord.ymin + currentCoord.ymax) / 2;
+    const rx = (currentCoord.xmax - currentCoord.xmin) * 0.4;
+    const ry = (currentCoord.ymax - currentCoord.ymin) * 0.4;
+    currentCoord = { xmin: cx-rx, xmax: cx+rx, ymin: cy-ry, ymax: cy+ry };
+    applyCoordSystem();
+  }
+
+  function zoomOut() {
+    userOverrideView = true;
+    const cx = (currentCoord.xmin + currentCoord.xmax) / 2;
+    const cy = (currentCoord.ymin + currentCoord.ymax) / 2;
+    const rx = (currentCoord.xmax - currentCoord.xmin) * 0.6;
+    const ry = (currentCoord.ymax - currentCoord.ymin) * 0.6;
+    currentCoord = { xmin: cx-rx, xmax: cx+rx, ymin: cy-ry, ymax: cy+ry };
+    applyCoordSystem();
+  }
+
+  function resetZoom() { userOverrideView = true; ggbApplet.setZoom(100); }
+  function resetView() { userOverrideView = false; resetViewToDefault(currentLangkah); }
+
+  function panUp() { userOverrideView = true; currentCoord.ymin += 2; currentCoord.ymax += 2; applyCoordSystem(); }
+  function panDown() { userOverrideView = true; currentCoord.ymin -= 2; currentCoord.ymax -= 2; applyCoordSystem(); }
+  function panLeft() { userOverrideView = true; currentCoord.xmin += 2; currentCoord.xmax += 2; applyCoordSystem(); }
+  function panRight() { userOverrideView = true; currentCoord.xmin -= 2; currentCoord.xmax -= 2; applyCoordSystem(); }
+
+  // ============================================================
+  // FUNGSI TAMBAHAN
+  // ============================================================
+  
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    document.getElementById("btnDarkMode").innerText = isDark ? "☀️ Terang" : " Gelap";
+  }
+
+  function ambilScreenshot() {
+    if (typeof ggbApplet === 'undefined') return;
+    try {
+      const base64 = ggbApplet.getPNGBase64();
+      if (!base64 || base64.length < 100) throw new Error("Empty");
+      const link = document.createElement('a');
+      link.download = `Pythagoras_${Date.now()}.png`;
+      link.href = 'data:image/png;base64,' + base64;
+      document.body.appendChild(link); link.click(); document.body.removeChild(link);
+      updateStatus("✅ Gambar diunduh!");
+    } catch (e) { updateStatus("❌ Gagal mengunduh"); }
+  }
+
+  function toggleTitik() {
+    if (typeof ggbApplet === 'undefined') return;
+    try {
+      ggbApplet.evalCommand("tampil = !tampil");
+      updateStatus(ggbApplet.getValue("tampil") ? "👁️ Titik ditampilkan" : "🚫 Titik disembunyikan");
+    } catch (e) { updateStatus("Toggle titik"); }
+  }
+
+  // ============================================================
+  // KEYBOARD SHORTCUTS
+  // ============================================================
+  document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT') return;
+    switch(e.key) {
+      case ' ': e.preventDefault(); togglePlay(); break;
+      case 'r': case 'R': resetAnimasi(); break;
+      case 'a': case 'A': goToEnd(); break;
+      case 'ArrowLeft': if (!e.ctrlKey) prevStep(); break;
+      case 'ArrowRight': if (!e.ctrlKey) nextStep(); break;
+      case '+': case '=': zoomIn(); break;
+      case '-': case '_': zoomOut(); break;
+      case '0': resetZoom(); break;
+      case 'h': case 'H': resetView(); break;
+      case 'ArrowUp': panUp(); break;
+      case 'ArrowDown': panDown(); break;
+      case 't': case 'T': toggleTitik(); break;
+      case 's': case 'S': ambilScreenshot(); break;
+      case 'd': case 'D': toggleDarkMode(); break;
+    }
+  });
+</script>
+</body>
+</html>
