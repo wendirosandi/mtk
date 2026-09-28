@@ -295,9 +295,11 @@ async function initGate(){
   const p=plain.split('|');
   if(p.length!==6||p[0].trim()!==KODE){showError('Token bukan untuk MTK-004.');return;}
   TK={username:p[1].trim(),nama:p[2].trim(),kelas:p[3].trim(),kategori:(p[4].trim().toUpperCase()||'C'),gen:parseInt(p[5])||1,pair:null};
-  let info={ok:false,mode:'none',kolaborasi:''};
-  try{info=await postAction({action:'lkpdInfo',d:token});}catch(e){}
-  if(!info.ok){showError('Gagal memverifikasi link.');return;}
+  let info={ok:false,mode:'none',kolaborasi:'',debug:''};
+  try{ info=await postAction({action:'lkpdInfo',d:token}); }
+  catch(e){ info={ok:false,debug:'fetch error: '+e.message}; }
+  console.log('[MTK004] lkpdInfo →', info);
+  if(!info.ok){ showError('Gagal memverifikasi link. ['+(info.debug||info.msg||JSON.stringify(info))+']'); return; }
   if(info.mode==='partner-blocked'){
     hideLoader();$('#gate-overlay').classList.remove('hidden');$('#gate-pick').classList.add('hidden');
     $('#gate-blocked').classList.remove('hidden');
