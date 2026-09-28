@@ -245,18 +245,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;}
 
 <script>
 
-      let info={ok:false,mode:'none',kolaborasi:'',debug:''};
-  try{ info=await postAction({action:'lkpdInfo',d:token}); }
-  catch(e){ info={ok:false,debug:'fetch error: '+e.message}; }
-  console.log('[MTK004] lkpdInfo →', info);
-  if(!info.ok){ showError('Gagal memverifikasi link. ['+(info.debug||info.msg||JSON.stringify(info))+']'); return; }
-  
-  
+ 
+
 /* ============================================================
    MTK-004 — TEOREMA PYTHAGORAS (LKPD + GAME KUIS)
    ============================================================ */
 const KODE='MTK-004', SECRET='MTK001#Rahasia!2026@Guru';
-const GS_URL='https://script.google.com/macros/s/AKfycbw55mTigv_PQFlsw9ia-lxCspgueQwXRH7ouWKnYKXw15BKn9ytmu0l3mFwO1n3a6fS/exec';
+const GS_URL='https://script.google.com/macros/s/AKfycbyPq_kQqj-nDdEMaN5Q7CcZQmJmEdDmVukBWu51ZwDbqcA-BWvIXSM36jcEaiaUEwNI/exec';
 const LOGIN_URL='LoginDirect.html';
 let TK={username:'',nama:'',kelas:'',kategori:'C',gen:1,pair:null};
 let locked={k1:false,k2:false}, submitted=false, finalScoreLKPD=0;
