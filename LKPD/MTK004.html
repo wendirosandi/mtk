@@ -244,6 +244,14 @@ body{font-family:'Plus Jakarta Sans',sans-serif;}
 </div>
 
 <script>
+
+      let info={ok:false,mode:'none',kolaborasi:'',debug:''};
+  try{ info=await postAction({action:'lkpdInfo',d:token}); }
+  catch(e){ info={ok:false,debug:'fetch error: '+e.message}; }
+  console.log('[MTK004] lkpdInfo →', info);
+  if(!info.ok){ showError('Gagal memverifikasi link. ['+(info.debug||info.msg||JSON.stringify(info))+']'); return; }
+  
+  
 /* ============================================================
    MTK-004 — TEOREMA PYTHAGORAS (LKPD + GAME KUIS)
    ============================================================ */
@@ -698,12 +706,7 @@ $('#g-btn-exit').onclick=()=>{try{localStorage.removeItem(sKey());}catch(e){}loc
 window.addEventListener('load',initGate);
 window.addEventListener('beforeunload',e=>{if(G.timer){pauseT();saveGS();}saveAnswers();if(!submitted){e.preventDefault();e.returnValue='';}});
 
-  let info={ok:false,mode:'none',kolaborasi:'',debug:''};
-  try{ info=await postAction({action:'lkpdInfo',d:token}); }
-  catch(e){ info={ok:false,debug:'fetch error: '+e.message}; }
-  console.log('[MTK004] lkpdInfo →', info);
-  if(!info.ok){ showError('Gagal memverifikasi link. ['+(info.debug||info.msg||JSON.stringify(info))+']'); return; }
-  
+
 </script>
 </body>
 </html>
