@@ -21,6 +21,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;}
 .step-row{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:8px;font-size:14px;}
 .step-row input{width:74px;padding:5px 6px;border:1.5px solid #cbd5e1;border-radius:8px;text-align:center;font-weight:600;background:#fff;}
 .step-row select{padding:5px 6px;border:1.5px solid #cbd5e1;border-radius:8px;background:#fff;font-weight:700;}
+.step-row.step-continuation{margin-left:28px;}
+.svg-container{display:flex;justify-content:center;align-items:center;}
+.svg-container svg{max-width:100%;height:auto;}
+.q-bs{background:#f1f5f9;color:#64748b;border:1.5px solid #cbd5e1;transition:all .15s;}
+.q-bs.sel[data-v="Benar"]{background:#10b981;color:#fff;border-color:#059669;}
+.q-bs.sel[data-v="Salah"]{background:#f43f5e;color:#fff;border-color:#e11d48;}
+.q-bs:disabled{opacity:.55;cursor:not-allowed;}
 #game-root .g-screen{display:none;flex-direction:column;}
 #game-root .g-screen.active{display:flex;}
 #game-root .g-center{flex:1;display:flex;align-items:center;justify-content:center;padding:20px;}
@@ -33,6 +40,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;}
 #game-root .dot.done{background:#16a34a;}
 #game-root .dot.failed{background:#f59e0b;}
 .timer{font-weight:700;font-size:18px;color:#dc2626;}
+.timer-expired{color:#dc2626!important;animation:blinkExp 1s step-start infinite;}
+@keyframes blinkExp{50%{opacity:.3;}}
+#g-ot-display{animation:blinkExp 1.2s step-start infinite;}
 </style>
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800 p-3 md:p-6 pb-20">
@@ -40,178 +50,183 @@ body{font-family:'Plus Jakarta Sans',sans-serif;}
 <div id="loader-overlay" role="status"><div class="loader-card"><div class="spinner"></div><div id="loader-text" class="font-bold text-sm">Memverifikasi link...</div><div class="text-xs text-slate-500 mt-1">mohon tunggu</div></div></div>
 
 <div id="gate-overlay" class="hidden fixed inset-0 z-50 bg-slate-100 flex items-center justify-center p-4">
-  <div class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-md space-y-4">
-    <h2 class="text-lg font-extrabold text-slate-800">📐 Teorema Pythagoras — MTK-004</h2>
-    <p id="gate-msg" class="text-sm text-slate-600">Memuat...</p>
-    <div id="gate-pick" class="hidden space-y-3">
-      <label class="block text-xs font-bold text-slate-500">Pilih Teman (Kolaborasi WAJIB):</label>
-      <select id="gate-teman" class="w-full border rounded-xl px-3 py-3 text-sm"></select>
-      <button id="gate-ajukan" class="w-full bg-teal-700 text-white font-bold py-3 rounded-xl">👥 Mulai Berpasangan</button>
-    </div>
-    <div id="gate-blocked" class="hidden text-sm text-slate-600"></div>
-  </div>
+<div class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-md space-y-4">
+<h2 class="text-lg font-extrabold text-slate-800">📐 Teorema Pythagoras — MTK-004</h2>
+<p id="gate-msg" class="text-sm text-slate-600">Memuat...</p>
+<div id="gate-pick" class="hidden space-y-3">
+<label class="block text-xs font-bold text-slate-500">Pilih Teman (Kolaborasi WAJIB):</label>
+<select id="gate-teman" class="w-full border rounded-xl px-3 py-3 text-sm"></select>
+<button id="gate-ajukan" class="w-full bg-teal-700 text-white font-bold py-3 rounded-xl">👥 Mulai Berpasangan</button>
+</div>
+<div id="gate-blocked" class="hidden text-sm text-slate-600"></div>
+</div>
 </div>
 
 <div id="error-panel" class="hidden max-w-2xl mx-auto mt-10 bg-white border-2 border-red-300 rounded-xl p-6 shadow">
-  <h2 class="text-lg font-bold text-red-600 mb-2">Link Tidak Valid</h2>
-  <p id="error-msg" class="text-sm text-gray-700"></p>
+<h2 class="text-lg font-bold text-red-600 mb-2">Link Tidak Valid</h2>
+<p id="error-msg" class="text-sm text-gray-700"></p>
 </div>
 
 <div id="main-container" class="hidden max-w-5xl mx-auto space-y-6">
 
-  <header class="bg-gradient-to-r from-teal-800 via-teal-700 to-emerald-800 text-white rounded-3xl p-6 shadow-xl">
-    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-      <div>
-        <span class="inline-block bg-teal-600/60 border border-teal-400/40 text-teal-100 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider mb-2">LKPD Digital • MTK-004</span>
-        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">TEOREMA PYTHAGORAS</h1>
-        <p class="text-teal-100 text-sm mt-1 max-w-xl">Aplikasi Kontekstual & Menentukan Jenis Segitiga</p>
-      </div>
-      <div class="bg-teal-900/60 border border-teal-500/30 p-3.5 rounded-2xl text-xs w-full lg:w-auto">
-        <div class="font-bold text-teal-200 text-sm">Wendi Rosandi, S.Pd., M.Pd.</div>
-        <div class="text-teal-100">SMPN 2 Karawang Barat</div>
-        <div class="flex items-center gap-2 mt-1">⏱️ Waktu: <span id="timer-lkpd" class="font-mono font-bold">00.00</span></div>
-      </div>
-    </div>
-  </header>
+<header class="bg-gradient-to-r from-teal-800 via-teal-700 to-emerald-800 text-white rounded-3xl p-6 shadow-xl">
+<div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+<div>
+<span class="inline-block bg-teal-600/60 border border-teal-400/40 text-teal-100 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider mb-2">LKPD Digital • MTK-004</span>
+<h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">TEOREMA PYTHAGORAS</h1>
+<p class="text-teal-100 text-sm mt-1 max-w-xl">Aplikasi Kontekstual & Menentukan Jenis Segitiga</p>
+</div>
+<div class="bg-teal-900/60 border border-teal-500/30 p-3.5 rounded-2xl text-xs w-full lg:w-auto">
+<div class="font-bold text-teal-200 text-sm">Wendi Rosandi, S.Pd., M.Pd.</div>
+<div class="text-teal-100">SMPN 2 Karawang Barat</div>
+<div class="flex items-center gap-2 mt-1">⏱️ Waktu: <span id="timer-lkpd" class="font-mono font-bold">00.00</span></div>
+</div>
+</div>
+</header>
 
-  <section class="bg-white rounded-3xl p-6 shadow-sm border space-y-4">
-    <h2 class="text-base font-bold flex items-center gap-2 border-b pb-3">👤 Identitas Siswa & Mode Soal</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div><label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Nama</label><input type="text" id="student-name" disabled class="w-full px-3.5 py-2.5 bg-slate-100 border rounded-xl text-sm"></div>
-      <div><label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Kelas</label><input type="text" id="student-class" disabled class="w-full px-3.5 py-2.5 bg-slate-100 border rounded-xl text-sm"></div>
-      <div><label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Pasangan</label><input type="text" id="student-pair" disabled class="w-full px-3.5 py-2.5 bg-slate-100 border rounded-xl text-sm" value="-"></div>
-    </div>
-    <div class="pt-3 flex flex-col md:flex-row justify-between items-center gap-3 bg-slate-50 p-3.5 rounded-2xl border">
-      <div class="flex items-center gap-2"><span class="text-xs font-bold text-slate-600 uppercase">Kategori:</span><span id="diff-tag" class="text-xs px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-800">Kategori C</span></div>
-      <button id="btn-reshuffle" class="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-sm">🔄 Acak Soal Baru</button>
-    </div>
-  </section>
+<section class="bg-white rounded-3xl p-6 shadow-sm border space-y-4">
+<h2 class="text-base font-bold flex items-center gap-2 border-b pb-3">👤 Identitas Siswa & Mode Soal</h2>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+<div><label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Nama</label><input type="text" id="student-name" disabled class="w-full px-3.5 py-2.5 bg-slate-100 border rounded-xl text-sm"></div>
+<div><label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Kelas</label><input type="text" id="student-class" disabled class="w-full px-3.5 py-2.5 bg-slate-100 border rounded-xl text-sm"></div>
+<div><label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Pasangan</label><input type="text" id="student-pair" disabled class="w-full px-3.5 py-2.5 bg-slate-100 border rounded-xl text-sm" value="-"></div>
+</div>
+<div class="pt-3 flex flex-col md:flex-row justify-between items-center gap-3 bg-slate-50 p-3.5 rounded-2xl border">
+<div class="flex items-center gap-2"><span class="text-xs font-bold text-slate-600 uppercase">Kategori:</span><span id="diff-tag" class="text-xs px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-800">Kategori C</span></div>
+<button id="btn-reshuffle" class="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-sm">🔄 Acak Soal Baru</button>
+</div>
+</section>
 
-  <!-- KEGIATAN 1 -->
-  <section class="bg-white rounded-3xl p-6 shadow-sm border space-y-5">
-    <div class="flex flex-col sm:flex-row justify-between items-center border-b pb-3 gap-2">
-      <h2 class="text-lg font-bold text-teal-900">⛵ KEGIATAN 1: Perjalanan Kapal</h2>
-      <div class="flex items-center gap-2"><span id="diff-tag-1" class="text-xs px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-800">Kategori C</span><button id="lock-1" class="text-xs px-3 py-1 rounded-full font-bold bg-slate-200 text-slate-700">🔓 Kunci</button></div>
-    </div>
-    <div id="k1-problem-text" class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/80 text-emerald-950 p-4 rounded-2xl text-sm leading-relaxed font-medium"></div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-2xl border items-center">
-      <div class="md:col-span-2 flex justify-center py-2"><svg id="route-svg" width="320" height="200" viewBox="0 0 320 200" class="max-w-full h-auto"></svg></div>
-      <div class="flex flex-col items-center justify-center p-3 bg-white rounded-2xl border text-xs text-slate-500 space-y-2">
-        <span class="font-bold text-slate-700">Panduan Arah</span>
-        <div class="relative w-20 h-20 flex items-center justify-center font-bold">
-          <span class="absolute top-0 text-teal-700 font-extrabold">U</span><span class="absolute bottom-0 text-slate-400">S</span><span class="absolute right-0 text-slate-400">T</span><span class="absolute left-0 text-slate-400">B</span>
-          <div class="w-9 h-9 border-2 border-dashed border-teal-300 rounded-full flex items-center justify-center text-teal-600 text-xs">🧭</div>
-        </div>
-      </div>
-    </div>
-    <div class="space-y-4 pt-2">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-        <div class="bg-slate-50 p-4 rounded-2xl border space-y-3">
-          <div><label class="block font-semibold mb-1">a. Bentuk jalur lintasan:</label>
-            <select id="k1-shape" class="w-full p-2.5 bg-white border rounded-xl text-xs font-semibold"><option value="">-- Pilih --</option><option value="segitiga_siku">Segitiga Siku-Siku</option><option value="segitiga_sisi">Segitiga Sama Sisi</option><option value="segitiga_kaki">Segitiga Sama Kaki</option></select></div>
-          <div><label class="block font-semibold mb-1">b. Siku-siku di titik:</label>
-            <select id="k1-right-node" class="w-full p-2.5 bg-white border rounded-xl text-xs font-semibold"></select></div>
-        </div>
-        <div class="bg-slate-50 p-4 rounded-2xl border space-y-3">
-          <div class="flex items-center gap-2"><span class="w-32 font-semibold">• Jarak Leg 1:</span><input type="number" id="k1-side1" class="w-24 p-2 bg-white border rounded-xl text-center font-bold"><span>km</span></div>
-          <div class="flex items-center gap-2"><span class="w-32 font-semibold">• Jarak Leg 2:</span><input type="number" id="k1-side2" class="w-24 p-2 bg-white border rounded-xl text-center font-bold"><span>km</span></div>
-        </div>
-      </div>
-      <div class="bg-teal-50/50 p-4 rounded-2xl border border-teal-100 text-sm space-y-2">
-        <div class="font-bold text-teal-900">c. Jarak terpendek pulang (sisi miring <span class="math-eq">c</span>):</div>
-        <div class="step-row"><span>c² = a² + b²</span></div>
-        <div class="step-row"><span>c² = (</span><input type="number" id="k1-calc-a"><span>)² + (</span><input type="number" id="k1-calc-b"><span>)²</span></div>
-        <div class="step-row"><span>c² = </span><input type="number" id="k1-calc-a2"><span> + </span><input type="number" id="k1-calc-b2"><span> = </span><input type="number" id="k1-calc-sum" class="font-bold text-teal-800"></div>
-        <div class="step-row"><span class="font-bold text-teal-900">c = √</span><input type="number" id="k1-calc-sqrt"><span class="font-bold text-teal-900"> = </span><input type="number" id="k1-hypotenuse" class="font-bold text-teal-900"><span class="font-bold text-teal-900">km</span></div>
-      </div>
-      <div class="bg-amber-50/70 p-4 rounded-2xl border border-amber-200 text-sm space-y-3">
-        <div class="font-bold text-amber-900">d. Total jarak keseluruhan:</div>
-        <div class="flex items-center gap-2 flex-wrap"><span class="font-semibold text-xs">Urutan jalur:</span><select id="k1-seq-path" class="p-2 bg-white border rounded-xl text-xs font-bold"></select></div>
-        <div class="flex items-center gap-2 flex-wrap border-t border-amber-200/80 pt-2">
-          <span class="font-semibold text-xs">Total =</span>
-          <input type="number" id="k1-dist1" class="w-20 p-2 bg-white border rounded-xl text-center font-bold"><span>+</span>
-          <input type="number" id="k1-dist2" class="w-20 p-2 bg-white border rounded-xl text-center font-bold"><span>+</span>
-          <input type="number" id="k1-dist3" class="w-20 p-2 bg-white border rounded-xl text-center font-bold"><span>=</span>
-          <input type="number" id="k1-total-dist" class="w-28 p-2 bg-white border-2 border-amber-600 rounded-xl text-center font-extrabold text-amber-900"><span class="font-bold text-amber-900">km</span>
-        </div>
-      </div>
-      <div><label class="block font-semibold text-sm mb-1">e. Kesimpulan Kegiatan 1:</label>
-        <select id="k1-conclusion" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs sm:text-sm font-medium"></select></div>
-    </div>
-  </section>
+<!-- KEGIATAN 1 -->
+<section class="bg-white rounded-3xl p-6 shadow-sm border space-y-5">
+<div class="flex flex-col sm:flex-row justify-between items-center border-b pb-3 gap-2">
+<h2 class="text-lg font-bold text-teal-900">⛵ KEGIATAN 1: Perjalanan Kapal</h2>
+<div class="flex items-center gap-2"><span id="diff-tag-1" class="text-xs px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-800">Kategori C</span><button id="lock-1" class="text-xs px-3 py-1 rounded-full font-bold bg-slate-200 text-slate-700">🔓 Kunci</button></div>
+</div>
+<div id="k1-problem-text" class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/80 text-emerald-950 p-4 rounded-2xl text-sm leading-relaxed font-medium"></div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-2xl border items-center">
+<div class="md:col-span-2 svg-container py-2"><svg id="route-svg" width="320" height="200" viewBox="0 0 320 200"></svg></div>
+<div class="flex flex-col items-center justify-center p-3 bg-white rounded-2xl border text-xs text-slate-500 space-y-2">
+<span class="font-bold text-slate-700">Panduan Arah</span>
+<div class="relative w-20 h-20 flex items-center justify-center font-bold">
+<span class="absolute top-0 text-teal-700 font-extrabold">U</span><span class="absolute bottom-0 text-slate-400">S</span><span class="absolute right-0 text-slate-400">T</span><span class="absolute left-0 text-slate-400">B</span>
+<div class="w-9 h-9 border-2 border-dashed border-teal-300 rounded-full flex items-center justify-center text-teal-600 text-xs">🧭</div>
+</div>
+</div>
+</div>
+<div class="space-y-4 pt-2">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+<div class="bg-slate-50 p-4 rounded-2xl border space-y-3">
+<div><label class="block font-semibold mb-1">a. Bentuk jalur lintasan:</label>
+<select id="k1-shape" class="w-full p-2.5 bg-white border rounded-xl text-xs font-semibold"><option value="">-- Pilih --</option><option value="segitiga_siku">Segitiga Siku-Siku</option><option value="segitiga_sisi">Segitiga Sama Sisi</option><option value="segitiga_kaki">Segitiga Sama Kaki</option></select></div>
+<div><label class="block font-semibold mb-1">b. Siku-siku di titik:</label>
+<select id="k1-right-node" class="w-full p-2.5 bg-white border rounded-xl text-xs font-semibold"></select></div>
+</div>
+<div class="bg-slate-50 p-4 rounded-2xl border space-y-3">
+<div class="flex items-center gap-2"><span class="w-32 font-semibold">• Jarak Leg 1:</span><input type="text" inputmode="decimal" maxlength="5" id="k1-side1" class="w-24 p-2 bg-white border rounded-xl text-center font-bold"><span>km</span></div>
+<div class="flex items-center gap-2"><span class="w-32 font-semibold">• Jarak Leg 2:</span><input type="text" inputmode="decimal" maxlength="5" id="k1-side2" class="w-24 p-2 bg-white border rounded-xl text-center font-bold"><span>km</span></div>
+</div>
+</div>
+<div class="bg-teal-50/50 p-4 rounded-2xl border border-teal-100 text-sm space-y-2">
+<div class="font-bold text-teal-900">c. Jarak terpendek pulang (sisi miring <span class="math-eq">c</span>):</div>
+<div class="step-row"><span>c² = a² + b²</span></div>
+<div class="step-row"><span>c² = (</span><input type="text" inputmode="decimal" maxlength="5" id="k1-calc-a"><span>)² + (</span><input type="text" inputmode="decimal" maxlength="5" id="k1-calc-b"><span>)²</span></div>
+<div class="step-row"><span>c² = </span><input type="text" inputmode="decimal" maxlength="5" id="k1-calc-a2"><span> + </span><input type="text" inputmode="decimal" maxlength="5" id="k1-calc-b2"></div>
+<div class="step-row step-continuation"><span>= </span><input type="text" inputmode="decimal" maxlength="5" id="k1-calc-sum" class="font-bold text-teal-800"></div>
+<div class="step-row"><span class="font-bold text-teal-900">c = √</span><input type="text" inputmode="decimal" maxlength="5" id="k1-calc-sqrt"><span class="font-bold text-teal-900"> = </span><input type="text" inputmode="decimal" maxlength="5" id="k1-hypotenuse" class="font-bold text-teal-900"><span class="font-bold text-teal-900">km</span></div>
+</div>
+<div class="bg-amber-50/70 p-4 rounded-2xl border border-amber-200 text-sm space-y-3">
+<div class="font-bold text-amber-900">d. Total jarak keseluruhan:</div>
+<div class="flex items-center gap-2 flex-wrap"><span class="font-semibold text-xs">Urutan jalur:</span><select id="k1-seq-path" class="p-2 bg-white border rounded-xl text-xs font-bold"></select></div>
+<div class="flex items-center gap-2 flex-wrap border-t border-amber-200/80 pt-2">
+<span class="font-semibold text-xs">Total =</span>
+<input type="text" inputmode="decimal" maxlength="5" id="k1-dist1" class="w-20 p-2 bg-white border rounded-xl text-center font-bold"><span>+</span>
+<input type="text" inputmode="decimal" maxlength="5" id="k1-dist2" class="w-20 p-2 bg-white border rounded-xl text-center font-bold"><span>+</span>
+<input type="text" inputmode="decimal" maxlength="5" id="k1-dist3" class="w-20 p-2 bg-white border rounded-xl text-center font-bold">
+</div>
+<div class="step-row step-continuation"><span>= </span><input type="text" inputmode="decimal" maxlength="5" id="k1-total-dist" class="w-28 p-2 bg-white border-2 border-amber-600 rounded-xl text-center font-extrabold text-amber-900"><span class="font-bold text-amber-900">km</span></div>
+</div>
+<div><label class="block font-semibold text-sm mb-1">e. Kesimpulan Kegiatan 1:</label>
+<select id="k1-conclusion" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs sm:text-sm font-medium"></select></div>
+</div>
+</section>
 
-  <!-- KEGIATAN 2 -->
-  <section class="bg-white rounded-3xl p-6 shadow-sm border space-y-6">
-    <div class="flex flex-col sm:flex-row justify-between items-center border-b pb-3 gap-2">
-      <h2 class="text-lg font-bold text-indigo-900">📐 KEGIATAN 2: Jenis Segitiga</h2>
-      <div class="flex items-center gap-2"><span id="diff-tag-2" class="text-xs px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-800">Kategori C</span><button id="lock-2" class="text-xs px-3 py-1 rounded-full font-bold bg-slate-200 text-slate-700">🔓 Kunci</button></div>
-    </div>
-    <div class="bg-indigo-50/70 border border-indigo-200 rounded-2xl p-4 text-xs sm:text-sm text-indigo-950 space-y-2">
-      <div class="font-bold text-indigo-900 text-base">💡 Landasan Konsep:</div>
-      <p>Misal <span class="math-eq font-bold">c</span> sisi terpanjang, <span class="math-eq font-bold">a, b</span> sisi lainnya:</p>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 font-semibold text-center">
-        <div class="bg-white p-2 rounded-xl border">c² = a²+b² ➔ <span class="text-teal-700">Siku-Siku</span></div>
-        <div class="bg-white p-2 rounded-xl border">c² &lt; a²+b² ➔ <span class="text-blue-700">Lancip</span></div>
-        <div class="bg-white p-2 rounded-xl border">c² &gt; a²+b² ➔ <span class="text-rose-700">Tumpul</span></div>
-      </div>
-    </div>
-    <div id="k2-cases-container" class="space-y-6"></div>
-    <div class="bg-slate-50 p-4 rounded-2xl border space-y-2">
-      <label class="block font-bold text-sm">Kesimpulan Generalisasi:</label>
-      <select id="k2-conclusion" class="w-full p-2.5 bg-white border rounded-xl text-xs sm:text-sm font-medium"></select>
-    </div>
-  </section>
+<!-- KEGIATAN 2 -->
+<section class="bg-white rounded-3xl p-6 shadow-sm border space-y-6">
+<div class="flex flex-col sm:flex-row justify-between items-center border-b pb-3 gap-2">
+<h2 class="text-lg font-bold text-indigo-900">📐 KEGIATAN 2: Jenis Segitiga</h2>
+<div class="flex items-center gap-2"><span id="diff-tag-2" class="text-xs px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-800">Kategori C</span><button id="lock-2" class="text-xs px-3 py-1 rounded-full font-bold bg-slate-200 text-slate-700">🔓 Kunci</button></div>
+</div>
+<div class="bg-indigo-50/70 border border-indigo-200 rounded-2xl p-4 text-xs sm:text-sm text-indigo-950 space-y-2">
+<div class="font-bold text-indigo-900 text-base">💡 Landasan Konsep:</div>
+<p>Misal <span class="math-eq font-bold">c</span> sisi terpanjang, <span class="math-eq font-bold">a, b</span> sisi lainnya:</p>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 font-semibold text-center">
+<div class="bg-white p-2 rounded-xl border">c² = a²+b² ➔ <span class="text-teal-700">Siku-Siku</span></div>
+<div class="bg-white p-2 rounded-xl border">c² &lt; a²+b² ➔ <span class="text-blue-700">Lancip</span></div>
+<div class="bg-white p-2 rounded-xl border">c² &gt; a²+b² ➔ <span class="text-rose-700">Tumpul</span></div>
+</div>
+</div>
+<div id="k2-cases-container" class="space-y-6"></div>
+<div class="bg-slate-50 p-4 rounded-2xl border space-y-2">
+<label class="block font-bold text-sm">Kesimpulan Generalisasi:</label>
+<select id="k2-conclusion" class="w-full p-2.5 bg-white border rounded-xl text-xs sm:text-sm font-medium"></select>
+</div>
+</section>
 
-  <div class="flex justify-center pt-2">
-    <button id="btn-evaluate" class="w-full sm:w-2/3 py-3.5 px-6 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-2xl font-extrabold text-base shadow-xl">📝 Cek Nilai & Evaluasi LKPD</button>
-  </div>
+<div class="flex justify-center pt-2">
+<button id="btn-evaluate" class="w-full sm:w-2/3 py-3.5 px-6 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-2xl font-extrabold text-base shadow-xl">📝 Cek Nilai & Evaluasi LKPD</button>
+</div>
 
-  <div id="score-card" class="hidden bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border-2 border-teal-500 text-center space-y-5">
-    <h3 class="text-xl font-extrabold">Laporan Hasil Evaluasi LKPD</h3>
-    <div class="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-teal-50 to-emerald-100 border-4 border-teal-600 rounded-full text-4xl font-black text-teal-800" id="score-val">0</div>
-    <div><div id="score-predicate" class="text-lg font-bold"></div><p id="score-feedback" class="text-xs sm:text-sm font-semibold text-slate-600 mt-1"></p></div>
-    <div id="score-breakdown" class="text-xs text-left bg-slate-50 p-4 rounded-2xl border grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
-    <button id="btn-kirim-lkpd" class="hidden w-full sm:w-2/3 mx-auto py-3 px-6 bg-gradient-to-r from-sky-600 to-blue-600 text-white rounded-2xl font-extrabold shadow-xl">📤 Kirim Nilai LKPD ke Guru</button>
-    <p id="kirim-lkpd-status" class="text-xs text-slate-500"></p>
-  </div>
+<div id="score-card" class="hidden bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border-2 border-teal-500 text-center space-y-5">
+<h3 class="text-xl font-extrabold">Laporan Hasil Evaluasi LKPD</h3>
+<div class="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-teal-50 to-emerald-100 border-4 border-teal-600 rounded-full text-4xl font-black text-teal-800" id="score-val">0</div>
+<div><div id="score-predicate" class="text-lg font-bold"></div><p id="score-feedback" class="text-xs sm:text-sm font-semibold text-slate-600 mt-1"></p></div>
+<div id="score-breakdown" class="text-xs text-left bg-slate-50 p-4 rounded-2xl border grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+<button id="btn-kirim-lkpd" class="hidden w-full sm:w-2/3 mx-auto py-3 px-6 bg-gradient-to-r from-sky-600 to-blue-600 text-white rounded-2xl font-extrabold shadow-xl">📤 Kirim Nilai LKPD ke Guru</button>
+<p id="kirim-lkpd-status" class="text-xs text-slate-500"></p>
+</div>
 
-  <!-- GAME KUIS -->
-  <div id="game-root" class="bg-white rounded-3xl shadow-xl overflow-hidden mt-6" style="min-height:560px;">
-    <div id="g-lobby-screen" class="g-screen active"><div class="g-center"><div class="g-card">
-      <h1 class="text-xl font-extrabold text-teal-800">🎯 Kuis Pythagoras</h1>
-      <p class="text-sm text-slate-600 mb-3 mt-2">5 Soal • Timer total 15:00 • Tanpa retry</p>
-      <div class="bg-teal-50 border border-teal-200 rounded-lg p-3 text-xs text-teal-900 text-left mb-3"><b>Aturan:</b><br>• Timer keseluruhan 15 menit<br>• CEK/Lewati aktif setelah 60 detik per soal<br>• Sekali CEK = final<br>• Urutan tipe soal diacak per sesi</div>
-      <button class="btn" id="g-start-btn">🚀 Mulai Kuis</button>
-    </div></div></div>
-    <div id="g-game-screen" class="g-screen">
-      <div class="bg-white p-3 flex justify-between items-center border-b">
-        <div><div id="g-student-info" class="text-xs font-bold text-slate-500"></div><div class="progress-dots mt-1" id="g-progress-dots"></div></div>
-        <div class="timer" id="g-timer-display">15:00</div>
-      </div>
-      <div class="p-4 bg-slate-50 min-h-[380px] overflow-y-auto" id="g-question-area"></div>
-      <div class="p-3 bg-white border-t space-y-2">
-        <div id="g-fill-info" class="text-xs text-slate-500 font-semibold text-center"></div>
-        <div id="g-message" class="text-xs font-semibold text-center text-slate-600">Belum lengkap</div>
-        <div class="flex gap-2" id="g-btn-group-play">
-          <button class="btn" id="g-btn-skip-play" style="flex:1;background:#64748b">Lewati</button>
-          <button class="btn" id="g-btn-check-play" style="flex:2">CEK JAWABAN</button>
-        </div>
-        <div class="flex gap-2" id="g-btn-group-next" style="display:none"><button class="btn" id="g-btn-next">LANJUT →</button></div>
-      </div>
-    </div>
-    <div id="g-result-screen" class="g-screen"><div class="g-center"><div class="g-card">
-      <h1 class="text-xl font-extrabold text-teal-800">🏆 Kuis Selesai!</h1>
-      <div class="text-5xl font-black text-teal-700 my-4"><span id="g-final-score">0</span></div>
-      <div id="g-detail-list" class="text-left text-xs bg-slate-50 border rounded-lg p-3 max-h-40 overflow-y-auto mb-4"></div>
-      <button class="btn" id="g-btn-kirim" style="background:#16a34a">📤 Kirim Nilai Kuis</button>
-    </div></div></div>
-    <div id="g-success-screen" class="g-screen"><div class="g-center"><div class="g-card">
-      <div class="text-5xl mb-3">✅</div><h1 class="text-xl font-extrabold text-teal-800">Selesai!</h1>
-      <p class="text-sm text-slate-600 mt-2">Nilai LKPD & Kuis tersimpan di Rekap Guru.</p>
-      <div class="text-3xl font-black text-green-600 my-3"><span id="g-saved-score">0</span></div>
-      <button class="btn" id="g-btn-exit" style="background:#64748b">🚪 Keluar / Kembali</button>
-    </div></div></div>
-  </div>
+<!-- GAME KUIS -->
+<div id="game-root" class="bg-white rounded-3xl shadow-xl overflow-hidden mt-6" style="min-height:560px;">
+<div id="g-lobby-screen" class="g-screen active"><div class="g-center"><div class="g-card">
+<h1 class="text-xl font-extrabold text-teal-800">🎯 Kuis Pythagoras</h1>
+<p class="text-sm text-slate-600 mb-3 mt-2">5 Soal • Timer total 15:00 • Tanpa retry</p>
+<div class="bg-teal-50 border border-teal-200 rounded-lg p-3 text-xs text-teal-900 text-left mb-3"><b>Aturan:</b><br>• Timer keseluruhan 15 menit<br>• CEK/Lewati aktif setelah 60 detik per soal<br>• Sekali CEK = final<br>• Bobot soal: #1=20, #2=30, #3=10, #4=10, #5=30<br>• Urutan tipe soal diacak per sesi</div>
+<button class="btn" id="g-start-btn">🚀 Mulai Kuis</button>
+</div></div></div>
+<div id="g-game-screen" class="g-screen">
+<div class="bg-white p-3 flex justify-between items-center border-b">
+<div><div id="g-student-info" class="text-xs font-bold text-slate-500"></div><div class="progress-dots mt-1" id="g-progress-dots"></div></div>
+<div class="text-right">
+  <div class="timer" id="g-timer-display">15:00</div>
+  <div id="g-ot-display" class="hidden text-[11px] font-extrabold text-purple-700 bg-purple-100 border border-purple-300 rounded-full px-2 py-0.5 mt-1">⚡ TAMBAHAN 05:00</div>
+</div>
+</div>
+<div class="p-4 bg-slate-50 min-h-[380px] overflow-y-auto" id="g-question-area"></div>
+<div class="p-3 bg-white border-t space-y-2">
+<div id="g-fill-info" class="text-xs text-slate-500 font-semibold text-center"></div>
+<div id="g-message" class="text-xs font-semibold text-center text-slate-600">Belum lengkap</div>
+<div class="flex gap-2" id="g-btn-group-play">
+<button class="btn" id="g-btn-skip-play" style="flex:1;background:#64748b">Lewati</button>
+<button class="btn" id="g-btn-check-play" style="flex:2">CEK JAWABAN</button>
+</div>
+<div class="flex gap-2" id="g-btn-group-next" style="display:none"><button class="btn" id="g-btn-next">LANJUT →</button></div>
+</div>
+</div>
+<div id="g-result-screen" class="g-screen"><div class="g-center"><div class="g-card">
+<h1 class="text-xl font-extrabold text-teal-800">🏆 Kuis Selesai!</h1>
+<p id="g-result-note" class="hidden text-xs font-bold text-purple-700 bg-purple-50 border border-purple-200 rounded-lg px-2 py-1">⏰ Waktu tambahan habis — nilai dikirim otomatis.</p>
+<div class="text-5xl font-black text-teal-700 my-4"><span id="g-final-score">0</span></div>
+<div id="g-detail-list" class="text-left text-xs bg-slate-50 border rounded-lg p-3 max-h-40 overflow-y-auto mb-4"></div>
+<button class="btn" id="g-btn-kirim" style="background:#16a34a">📤 Kirim Nilai Kuis</button>
+</div></div></div>
+<div id="g-success-screen" class="g-screen"><div class="g-center"><div class="g-card">
+<div class="text-5xl mb-3">✅</div><h1 class="text-xl font-extrabold text-teal-800">Selesai!</h1>
+<p id="g-success-note" class="text-sm text-slate-600 mt-2">Nilai LKPD & Kuis tersimpan di Rekap Guru.</p>
+<div class="text-3xl font-black text-green-600 my-3"><span id="g-saved-score">0</span></div>
+<button class="btn" id="g-btn-exit" style="background:#64748b">🚪 Keluar / Tutup</button>
+</div></div></div>
+</div>
 </div>
 
 <script>
@@ -226,6 +241,10 @@ const $$=s=>document.querySelectorAll(s);
 const pad=n=>String(n).padStart(2,'0');
 const fmtMs=ms=>{const s=Math.floor(ms/1000),m=Math.floor(s/60),d=s%60;return pad(m)+'.'+pad(d);};
 const fmtSec=s=>{s=Math.max(0,Math.floor(s));return pad(Math.floor(s/60))+':'+pad(s%60);};
+const r6=v=>Math.round(v*1e6)/1e6;
+const fmtN=v=>String(r6(v));
+const normNum=v=>{const n=parseFloat(String(v).trim().replace(',','.'));return isNaN(n)?null:n;};
+const near=(a,b)=>Math.abs(a-b)<1e-6;
 const hideLoader=()=>$('#loader-overlay').classList.add('hidden');
 const postAction=p=>fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)}).then(r=>r.json());
 function b64u(t){let s=t.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return s;}
@@ -248,407 +267,579 @@ function setRNG(s){Math.random=mulberry32(s);}
 
 /* ================= GATE ================= */
 async function initGate(){
-  const token=new URLSearchParams(location.search).get('d');
-  if(!token){showError('Token tidak ditemukan. Gunakan link dari guru.');return;}
-  const plain=decTok(token);
-  if(!plain){showError('Token rusak / tidak valid.');return;}
-  const p=plain.split('|');
-  if(p.length!==6||p[0].trim()!==KODE){showError('Token bukan untuk MTK-004.');return;}
-  TK={username:p[1].trim(),nama:p[2].trim(),kelas:p[3].trim(),kategori:(p[4].trim().toUpperCase()||'C'),gen:parseInt(p[5])||1,pair:null};
-  let info={ok:false,mode:'none',kolaborasi:'',debug:''};
-  try{ info=await postAction({action:'lkpdInfo',d:token}); }
-  catch(e){ info={ok:false,debug:'fetch error: '+e.message}; }
-  console.log('[MTK004] lkpdInfo →', info);
-  if(!info.ok){ showError('Gagal memverifikasi link. ['+(info.debug||info.msg||JSON.stringify(info))+']'); return; }
-  if(info.mode==='partner-blocked'){
-    hideLoader();$('#gate-overlay').classList.remove('hidden');$('#gate-pick').classList.add('hidden');
-    $('#gate-blocked').classList.remove('hidden');
-    $('#gate-blocked').innerHTML=`👥 Akun Anda terdaftar sebagai <b>Siswa 2</b> pasangan <b>${info.blockedBy.nama1}</b>.<br>Silakan bergabung di perangkat/link pasangan Anda.`;
-    return;
-  }
-  if(info.mode==='owner-approved'){TK.pair=info.pair||null;hideLoader();$('#gate-overlay').classList.add('hidden');startLKPD();return;}
-  if(info.kolaborasi==='Wajib'||info.kolaborasi==='Ya'){
-    hideLoader();$('#gate-overlay').classList.remove('hidden');
-    $('#gate-msg').textContent='Kolaborasi '+(info.kolaborasi==='Wajib'?'WAJIB':'opsional')+' — pilih teman untuk memulai.';
-    $('#gate-pick').classList.remove('hidden');
-    const cl=await postAction({action:'classmates',d:token});
-    $('#gate-teman').innerHTML=(cl.list||[]).map(u=>`<option value="${u.username}">${u.nama} (${u.kategori})</option>`).join('');
-    $('#gate-ajukan').onclick=async()=>{
-      const u2=$('#gate-teman').value;if(!u2)return;
-      const r=await postAction({action:'requestKolab',d:token,username2:u2});
-      if(r.ok){TK.pair={username2:u2,nama2:(cl.list||[]).find(x=>x.username===u2)?.nama||u2};$('#gate-overlay').classList.add('hidden');startLKPD();}
-      else{$('#gate-msg').innerHTML='<span class="text-rose-600 font-bold">❌ Gagal mengajukan pasangan.</span>';}
-    };
-    return;
-  }
-  hideLoader();$('#gate-overlay').classList.add('hidden');startLKPD();
+const token=new URLSearchParams(location.search).get('d');
+if(!token){showError('Token tidak ditemukan. Gunakan link dari guru.');return;}
+const plain=decTok(token);
+if(!plain){showError('Token rusak / tidak valid.');return;}
+const p=plain.split('|');
+if(p.length!==6||p[0].trim()!==KODE){showError('Token bukan untuk MTK-004.');return;}
+TK={username:p[1].trim(),nama:p[2].trim(),kelas:p[3].trim(),kategori:(p[4].trim().toUpperCase()||'C'),gen:parseInt(p[5])||1,pair:null};
+let info={ok:false,mode:'none',kolaborasi:'',debug:''};
+try{ info=await postAction({action:'lkpdInfo',d:token}); }
+catch(e){ info={ok:false,debug:'fetch error: '+e.message}; }
+console.log('[MTK004] lkpdInfo →', info);
+if(!info.ok){ showError('Gagal memverifikasi link. ['+(info.debug||info.msg||JSON.stringify(info))+']'); return; }
+if(info.mode==='partner-blocked'){
+hideLoader();$('#gate-overlay').classList.remove('hidden');$('#gate-pick').classList.add('hidden');
+$('#gate-blocked').classList.remove('hidden');
+$('#gate-blocked').innerHTML=`👥 Akun Anda terdaftar sebagai <b>Siswa 2</b> pasangan <b>${info.blockedBy.nama1}</b>.<br>Silakan bergabung di perangkat/link pasangan Anda.`;
+return;
+}
+if(info.mode==='owner-approved'){TK.pair=info.pair||null;hideLoader();$('#gate-overlay').classList.add('hidden');startLKPD();return;}
+if(info.kolaborasi==='Wajib'||info.kolaborasi==='Ya'){
+hideLoader();$('#gate-overlay').classList.remove('hidden');
+$('#gate-msg').textContent='Kolaborasi '+(info.kolaborasi==='Wajib'?'WAJIB':'opsional')+' — pilih teman untuk memulai.';
+$('#gate-pick').classList.remove('hidden');
+const cl=await postAction({action:'classmates',d:token});
+$('#gate-teman').innerHTML=(cl.list||[]).map(u=>`<option value="${u.username}">${u.nama} (${u.kategori})</option>`).join('');
+$('#gate-ajukan').onclick=async()=>{
+const u2=$('#gate-teman').value;if(!u2)return;
+const r=await postAction({action:'requestKolab',d:token,username2:u2});
+if(r.ok){TK.pair={username2:u2,nama2:(cl.list||[]).find(x=>x.username===u2)?.nama||u2};$('#gate-overlay').classList.add('hidden');startLKPD();}
+else{$('#gate-msg').innerHTML='<span class="text-rose-600 font-bold">❌ Gagal mengajukan pasangan.</span>';}
+};
+return;
+}
+hideLoader();$('#gate-overlay').classList.add('hidden');startLKPD();
 }
 
 /* ================= LKPD START ================= */
 let lkpdAccMs=0, lkpdResumeEpoch=null;
 function startLKPD(){
-  $('#student-name').value=TK.nama;$('#student-class').value=TK.kelas;
-  $('#student-pair').value=TK.pair?TK.pair.nama2:'(sendiri)';
-  setRNG(getSalt());
-  setDifficulty(TK.kategori);
-  const st=loadState();
-  restoreAnswers(st.answers);
-  if(st.locked1)applyLock('k1',true);
-  if(st.locked2)applyLock('k2',true);
-  if(st.submittedLKPD){submitted=true;finalScoreLKPD=st.finalScoreLKPD||0;lockAllLKPD(true);$('#btn-kirim-lkpd').classList.add('hidden');$('#kirim-lkpd-status').textContent='✅ LKPD sudah terkirim.';}
-  wireLocks();wireReshuffle();wireEvaluate();
-  $('#main-container').classList.remove('hidden');
-  lkpdResumeEpoch=Date.now();
-  setInterval(()=>{if(!submitted&&lkpdResumeEpoch)$('#timer-lkpd').textContent=fmtMs(lkpdAccMs+(Date.now()-lkpdResumeEpoch));},500);
-  document.addEventListener('visibilitychange',()=>{if(submitted)return;if(document.hidden){if(lkpdResumeEpoch){lkpdAccMs+=Date.now()-lkpdResumeEpoch;lkpdResumeEpoch=null;}}else{lkpdResumeEpoch=Date.now();}});
-  initGame();
+$('#student-name').value=TK.nama;$('#student-class').value=TK.kelas;
+$('#student-pair').value=TK.pair?TK.pair.nama2:'(sendiri)';
+setRNG(getSalt());
+setDifficulty(TK.kategori);
+const st=loadState();
+restoreAnswers(st.answers);
+if(st.locked1)applyLock('k1',true);
+if(st.locked2)applyLock('k2',true);
+if(st.submittedLKPD){submitted=true;finalScoreLKPD=st.finalScoreLKPD||0;lockAllLKPD(true);$('#btn-kirim-lkpd').classList.add('hidden');$('#kirim-lkpd-status').textContent='✅ LKPD sudah terkirim.';}
+wireLocks();wireReshuffle();wireEvaluate();
+$('#main-container').classList.remove('hidden');
+lkpdResumeEpoch=Date.now();
+setInterval(()=>{if(!submitted&&lkpdResumeEpoch)$('#timer-lkpd').textContent=fmtMs(lkpdAccMs+(Date.now()-lkpdResumeEpoch));},500);
+document.addEventListener('visibilitychange',()=>{if(submitted)return;if(document.hidden){if(lkpdResumeEpoch){lkpdAccMs+=Date.now()-lkpdResumeEpoch;lkpdResumeEpoch=null;}}else{lkpdResumeEpoch=Date.now();}});
+initGame();
 }
 
 /* ================= DIFFICULTY & POOLS ================= */
 let currentDiff='C';
 function setDifficulty(diff){
-  currentDiff=diff;
-  const labels={'C':{text:'Kategori C (Mudah)',c:'bg-emerald-100 text-emerald-800'},'B':{text:'Kategori B (Sedang)',c:'bg-amber-100 text-amber-800'},'A':{text:'Kategori A (Sulit)',c:'bg-rose-100 text-rose-800'}};
-  ['diff-tag','diff-tag-1','diff-tag-2'].forEach(id=>{$('#'+id).textContent=labels[diff].text;$('#'+id).className='text-xs px-3 py-1 rounded-full font-bold '+labels[diff].c;});
-  generateAllProblems();
+currentDiff=diff;
+const labels={'C':{text:'Kategori C (Mudah)',c:'bg-emerald-100 text-emerald-800'},'B':{text:'Kategori B (Sedang)',c:'bg-amber-100 text-amber-800'},'A':{text:'Kategori A (Sulit)',c:'bg-rose-100 text-rose-800'}};
+['diff-tag','diff-tag-1','diff-tag-2'].forEach(id=>{$('#'+id).textContent=labels[diff].text;$('#'+id).className='text-xs px-3 py-1 rounded-full font-bold '+labels[diff].c;});
+generateAllProblems();
 }
 const k1Triples={'C':[{a:3,b:4,c:5},{a:6,b:8,c:10},{a:5,b:12,c:13},{a:8,b:15,c:17}],'B':[{a:9,b:12,c:15},{a:12,b:16,c:20},{a:15,b:20,c:25},{a:10,b:24,c:26},{a:7,b:24,c:25}],'A':[{a:9,b:40,c:41},{a:12,b:35,c:37},{a:20,b:21,c:29},{a:16,b:63,c:65},{a:11,b:60,c:61}]};
 const islandSets=[['Pulau A','Pulau B','Pulau C'],['Pulau P','Pulau Q','Pulau R'],['Pulau X','Pulau Y','Pulau Z']];
 const directions=[{dir1Name:'Utara',dir1Dx:0,dir1Dy:-1,dir2Name:'Timur',dir2Dx:1,dir2Dy:0},{dir1Name:'Timur',dir1Dx:1,dir1Dy:0,dir2Name:'Selatan',dir2Dx:0,dir2Dy:1},{dir1Name:'Barat',dir1Dx:-1,dir1Dy:0,dir2Name:'Utara',dir2Dx:0,dir2Dy:-1},{dir1Name:'Selatan',dir1Dx:0,dir1Dy:1,dir2Name:'Barat',dir2Dx:-1,dir2Dy:0}];
 
+/* ================= SVG HELPERS (auto-center) ================= */
+function fitPts(pts,W=320,H=200,pad=34){
+const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);
+const minx=Math.min(...xs),maxx=Math.max(...xs),miny=Math.min(...ys),maxy=Math.max(...ys);
+const bw=Math.max(maxx-minx,1e-6),bh=Math.max(maxy-miny,1e-6);
+const s=Math.min((W-2*pad)/bw,(H-2*pad)/bh);
+const tx=(W-bw*s)/2-minx*s, ty=(H-bh*s)/2-miny*s;
+return (x,y)=>[r6(x*s+tx),r6(y*s+ty)];
+}
+function raMark(V,P,Q,u){
+const d1=[P[0]-V[0],P[1]-V[1]],d2=[Q[0]-V[0],Q[1]-V[1]];
+const n1=Math.hypot(...d1),n2=Math.hypot(...d2);
+const a=[d1[0]/n1*u,d1[1]/n1*u],b=[d2[0]/n2*u,d2[1]/n2*u];
+return [ [V[0]+a[0],V[1]+a[1]], [V[0]+a[0]+b[0],V[1]+a[1]+b[1]], [V[0]+b[0],V[1]+b[1]] ];
+}
+function svgBuild(sh){
+const pts=[];
+sh.lines.forEach(l=>{pts.push([l.p[0],l.p[1]],[l.p[2],l.p[3]]);});
+sh.polys.forEach(pl=>pl.pts.forEach(p=>pts.push(p)));
+sh.marks.forEach(m=>m.forEach(p=>pts.push(p)));
+sh.dots.forEach(d=>pts.push([d.x,d.y]));
+const T=fitPts(pts);
+let out=`<defs><marker id="arr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0f766e"/></marker></defs>`;
+sh.polys.forEach(pl=>{out+=`<polygon points="${pl.pts.map(p=>T(...p).join(',')).join(' ')}" fill="${pl.fill||'rgba(13,148,136,.08)'}" stroke="${pl.stroke||'#cbd5e1'}" stroke-width="1.5"/>`;});
+sh.lines.forEach(l=>{const[a,b]=T(l.p[0],l.p[1]),[c,d]=T(l.p[2],l.p[3]);out+=`<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="${l.stroke||'#0f766e'}" stroke-width="${l.w||3}" ${l.dash?'stroke-dasharray="4,4"':''} ${l.arr?'marker-end="url(#arr)"':''}/>`;});
+sh.marks.forEach(m=>{out+=`<polyline points="${m.map(p=>T(...p).join(',')).join(' ')}" fill="none" stroke="#64748b" stroke-width="1.5"/>`;});
+sh.dots.forEach(d=>{const[a,b]=T(d.x,d.y);out+=`<circle cx="${a}" cy="${b}" r="5" fill="${d.c||'#0f766e'}"/>`;});
+sh.labels.forEach(l=>{const[a,b]=T(l.x,l.y);out+=`<text x="${a}" y="${b}" font-size="${l.size||10}" font-weight="bold" fill="${l.c||'#0f172a'}" text-anchor="${l.anchor||'middle'}">${l.t}</text>`;});
+return `<svg width="320" height="200" viewBox="0 0 320 200">${out}</svg>`;
+}
+const mid=(P,Q,ox=0,oy=0)=>[ (P[0]+Q[0])/2+ox, (P[1]+Q[1])/2+oy ];
+
 /* ================= KEGIATAN 1 ================= */
 let k1Data={};
 function generateActivity1(){
-  const triple=PICK(k1Triples[currentDiff]);
-  const islands=shuffle(PICK(islandSets));
-  const nStart=islands[0],nMiddle=islands[1],nEnd=islands[2];
-  const dir=PICK(directions);
-  k1Data={a:triple.a,b:triple.b,c:triple.c,total:triple.a+triple.b+triple.c,start:nStart,middle:nMiddle,end:nEnd,dir1:dir.dir1Name,dir2:dir.dir2Name,dirInfo:dir};
-  $('#k1-problem-text').innerHTML=`Seorang wisatawan mengelilingi pulau dengan kapal. Dimulai dari <strong>${nStart}</strong> ke arah <strong>${dir.dir1Name}</strong> menuju <strong>${nMiddle}</strong> sejauh <strong>${triple.b} km</strong>. Lalu dari ${nMiddle} ke arah <strong>${dir.dir2Name}</strong> menuju <strong>${nEnd}</strong> sejauh <strong>${triple.a} km</strong>. Kapal pulang langsung dari ${nEnd} ke ${nStart}. Berapa <strong>total jarak</strong> perjalanan?`;
-  renderK1SVG();
-  $('#k1-right-node').innerHTML=`<option value="">-- Pilih --</option><option value="${nStart}">${nStart}</option><option value="${nMiddle}">${nMiddle}</option><option value="${nEnd}">${nEnd}</option>`;
-  $('#k1-seq-path').innerHTML=`<option value="">-- Pilih --</option><option value="p1">${nStart} ➔ ${nMiddle} ➔ ${nEnd} ➔ ${nStart}</option>`;
+const triple=PICK(k1Triples[currentDiff]);
+const islands=shuffle(PICK(islandSets));
+const nStart=islands[0],nMiddle=islands[1],nEnd=islands[2];
+const dir=PICK(directions);
+k1Data={a:triple.a,b:triple.b,c:triple.c,total:triple.a+triple.b+triple.c,start:nStart,middle:nMiddle,end:nEnd,dir1:dir.dir1Name,dir2:dir.dir2Name,dirInfo:dir};
+$('#k1-problem-text').innerHTML=`Seorang wisatawan mengelilingi pulau dengan kapal. Dimulai dari <strong>${nStart}</strong> ke arah <strong>${dir.dir1Name}</strong> menuju <strong>${nMiddle}</strong> sejauh <strong>${triple.b} km</strong>. Lalu dari ${nMiddle} ke arah <strong>${dir.dir2Name}</strong> menuju <strong>${nEnd}</strong> sejauh <strong>${triple.a} km</strong>. Kapal pulang langsung dari ${nEnd} ke ${nStart}. Berapa <strong>total jarak</strong> perjalanan?`;
+renderK1SVG();
+$('#k1-right-node').innerHTML=`<option value="">-- Pilih --</option><option value="${nStart}">${nStart}</option><option value="${nMiddle}">${nMiddle}</option><option value="${nEnd}">${nEnd}</option>`;
+$('#k1-seq-path').innerHTML=`<option value="">-- Pilih --</option><option value="p1">${nStart} ➔ ${nMiddle} ➔ ${nEnd} ➔ ${nStart}</option>`;
 }
 function renderK1SVG(){
-  const svg=$('#route-svg');const p=k1Data;
-  let x1=80,y1=150;
-  if(p.dir1==='Utara'){x1=70;y1=160;}else if(p.dir1==='Timur'){x1=50;y1=70;}else if(p.dir1==='Barat'){x1=230;y1=70;}else{x1=70;y1=50;}
-  let x2=x1+(p.dirInfo.dir1Dx*80),y2=y1+(p.dirInfo.dir1Dy*80);
-  if(p.dir1==='Utara'){x2=70;y2=60;}else if(p.dir1==='Timur'){x2=220;y2=70;}else if(p.dir1==='Barat'){x2=60;y2=70;}else{x2=70;y2=150;}
-  let x3=x2+(p.dirInfo.dir2Dx*140),y3=y2+(p.dirInfo.dir2Dy*100);
-  if(p.dir2==='Timur'){x3=x2+160;y3=y2;}else if(p.dir2==='Utara'){x3=x2;y3=y2-100;}else if(p.dir2==='Barat'){x3=x2-160;y3=y2;}else{x3=x2;y3=y2+100;}
-  svg.innerHTML=`<defs><marker id="arr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0f766e"/></marker></defs>
-    <polygon points="${x1},${y1} ${x2},${y2} ${x3},${y3}" fill="rgba(13,148,136,.08)" stroke="#cbd5e1" stroke-width="1.5"/>
-    <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#0f766e" stroke-width="3" marker-end="url(#arr)"/>
-    <line x1="${x2}" y1="${y2}" x2="${x3}" y2="${y3}" stroke="#0f766e" stroke-width="3" marker-end="url(#arr)"/>
-    <line x1="${x3}" y1="${y3}" x2="${x1}" y2="${y1}" stroke="#e11d48" stroke-width="2.5" stroke-dasharray="4,4"/>
-    <circle cx="${x1}" cy="${y1}" r="6" fill="#0f766e"/><circle cx="${x2}" cy="${y2}" r="6" fill="#0f766e"/><circle cx="${x3}" cy="${y3}" r="6" fill="#e11d48"/>
-    <text x="${x1-10}" y="${y1+18}" font-size="11" font-weight="bold" fill="#0f172a">${p.start}</text>
-    <text x="${x2-10}" y="${y2-10}" font-size="11" font-weight="bold" fill="#0f172a">${p.middle}</text>
-    <text x="${x3+8}" y="${y3+12}" font-size="11" font-weight="bold" fill="#0f172a">${p.end}</text>
-    <text x="${(x1+x2)/2-20}" y="${(y1+y2)/2}" font-size="10" font-weight="bold" fill="#0284c7">${p.b} km</text>
-    <text x="${(x2+x3)/2}" y="${(y2+y3)/2-8}" font-size="10" font-weight="bold" fill="#0284c7">${p.a} km</text>
-    <text x="${(x1+x3)/2}" y="${(y1+y3)/2+15}" font-size="10" font-weight="bold" fill="#e11d48">c = ?</text>`;
+const p=k1Data;
+let x1,y1,x2,y2,x3,y3;
+if(p.dir1==='Utara'){x1=70;y1=160;x2=70;y2=60;}else if(p.dir1==='Timur'){x1=50;y1=70;x2=220;y2=70;}else if(p.dir1==='Barat'){x1=230;y1=70;x2=60;y2=70;}else{x1=70;y1=50;x2=70;y2=150;}
+if(p.dir2==='Timur'){x3=x2+160;y3=y2;}else if(p.dir2==='Utara'){x3=x2;y3=y2-100;}else if(p.dir2==='Barat'){x3=x2-160;y3=y2;}else{x3=x2;y3=y2+100;}
+const T=fitPts([[x1,y1],[x2,y2],[x3,y3]]);
+const[a,b]=T(x1,y1),[c,d]=T(x2,y2),[e,f]=T(x3,y3);
+$('#route-svg').outerHTML=`<svg id="route-svg" width="320" height="200" viewBox="0 0 320 200">
+<defs><marker id="arr1" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0f766e"/></marker></defs>
+<polygon points="${a},${b} ${c},${d} ${e},${f}" fill="rgba(13,148,136,.08)" stroke="#cbd5e1" stroke-width="1.5"/>
+<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#0f766e" stroke-width="3" marker-end="url(#arr1)"/>
+<line x1="${c}" y1="${d}" x2="${e}" y2="${f}" stroke="#0f766e" stroke-width="3" marker-end="url(#arr1)"/>
+<line x1="${e}" y1="${f}" x2="${a}" y2="${b}" stroke="#e11d48" stroke-width="2.5" stroke-dasharray="4,4"/>
+<circle cx="${a}" cy="${b}" r="6" fill="#0f766e"/><circle cx="${c}" cy="${d}" r="6" fill="#0f766e"/><circle cx="${e}" cy="${f}" r="6" fill="#e11d48"/>
+<text x="${a-10}" y="${b+18}" font-size="11" font-weight="bold" fill="#0f172a">${p.start}</text>
+<text x="${c-10}" y="${d-10}" font-size="11" font-weight="bold" fill="#0f172a">${p.middle}</text>
+<text x="${e+8}" y="${f+12}" font-size="11" font-weight="bold" fill="#0f172a">${p.end}</text>
+<text x="${(a+c)/2-22}" y="${(b+d)/2}" font-size="10" font-weight="bold" fill="#0284c7">${p.b} km</text>
+<text x="${(c+e)/2}" y="${(d+f)/2-8}" font-size="10" font-weight="bold" fill="#0284c7">${p.a} km</text>
+<text x="${(a+e)/2}" y="${(b+f)/2+15}" font-size="10" font-weight="bold" fill="#e11d48">c = ?</text></svg>`;
 }
 
-/* ================= KEGIATAN 2 (SCAFFOLD LENGKAP) ================= */
+/* ================= KEGIATAN 2 ================= */
 let k2Cases=[];
 function generateActivity2(){
-  const pools={'C':{siku:[[3,4,5],[6,8,10],[5,12,13]],lancip:[[4,5,6],[6,7,8],[7,8,10]],tumpul:[[3,4,6],[5,6,9],[4,7,10]]},'B':{siku:[[9,12,15],[12,16,20],[10,24,26]],lancip:[[10,12,14],[12,15,18],[15,18,22]],tumpul:[[8,12,17],[10,15,20],[12,18,25]]},'A':{siku:[[15,36,39],[20,21,29],[12,35,37]],lancip:[[20,25,30],[25,30,35],[2.4,4.5,5.1]],tumpul:[[15,20,30],[18,24,35],[20,30,42]]}};
-  const p=pools[currentDiff];
-  k2Cases=shuffle([
-    {type:'Segitiga Siku-siku',s:PICK(p.siku),sym:'='},
-    {type:'Segitiga Lancip',s:PICK(p.lancip),sym:'<'},
-    {type:'Segitiga Tumpul',s:PICK(p.tumpul),sym:'>'}
-  ]);
-  const cont=$('#k2-cases-container');cont.innerHTML='';
-  k2Cases.forEach((item,idx)=>{
-    const s=[...item.s].sort((a,b)=>a-b);
-    item.sol={a:s[0],b:s[1],c:s[2],a2:s[0]*s[0],b2:s[1]*s[1],sum:s[0]*s[0]+s[1]*s[1],c2:s[2]*s[2],sym:item.sym,type:item.type};
-    cont.insertAdjacentHTML('beforeend',`<div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-3">
-      <div class="flex justify-between items-center border-b pb-2"><h3 class="font-bold text-sm">Kasus ${idx+1}: Sisi = <span class="text-indigo-700">${item.s.join(', ')}</span></h3><span class="text-xs bg-indigo-100 text-indigo-800 font-bold px-2.5 py-0.5 rounded">Soal ${idx+1}</span></div>
-      <div class="step-row"><span>a (terpendek) =</span><input type="number" id="k2-a-${idx}"><span>b =</span><input type="number" id="k2-b-${idx}"><span>c (terpanjang) =</span><input type="number" id="k2-c-${idx}"></div>
-      <div class="step-row"><span>a² + b² =</span><input type="number" id="k2-a2-${idx}"><span>+</span><input type="number" id="k2-b2-${idx}"><span>=</span><input type="number" id="k2-sum-${idx}"></div>
-      <div class="step-row"><span>maka:</span><input type="number" id="k2-c2cmp-${idx}"><select id="k2-sym-${idx}" class="w-14 p-1.5 border rounded font-bold"><option value="">?</option><option value="=">=</option><option value="<">&lt;</option><option value=">">&gt;</option></select><input type="number" id="k2-abcmp-${idx}"></div>
-      <div class="step-row"><span>Kesimpulan jenis:</span><select id="k2-type-${idx}" class="p-2 bg-white border rounded-xl font-bold"><option value="">-- Pilih --</option><option>Segitiga Siku-siku</option><option>Segitiga Lancip</option><option>Segitiga Tumpul</option></select></div>
-    </div>`);
-  });
+const pools={'C':{siku:[[3,4,5],[6,8,10],[5,12,13]],lancip:[[4,5,6],[6,7,8],[7,8,10]],tumpul:[[3,4,6],[5,6,9],[4,7,10]]},'B':{siku:[[9,12,15],[12,16,20],[10,24,26]],lancip:[[10,12,14],[12,15,18],[15,18,22]],tumpul:[[8,12,17],[10,15,20],[12,18,25]]},'A':{siku:[[15,36,39],[20,21,29],[12,35,37]],lancip:[[20,25,30],[25,30,35],[2.4,4.5,5.1]],tumpul:[[15,20,30],[18,24,35],[20,30,42]]}};
+const p=pools[currentDiff];
+k2Cases=shuffle([
+{type:'Segitiga Siku-siku',s:PICK(p.siku),sym:'='},
+{type:'Segitiga Lancip',s:PICK(p.lancip),sym:'<'},
+{type:'Segitiga Tumpul',s:PICK(p.tumpul),sym:'>'}
+]);
+const cont=$('#k2-cases-container');cont.innerHTML='';
+k2Cases.forEach((item,idx)=>{
+const s=[...item.s].sort((a,b)=>a-b);
+item.sol={a:s[0],b:s[1],c:s[2],a2:r6(s[0]*s[0]),b2:r6(s[1]*s[1]),sum:r6(s[0]*s[0]+s[1]*s[1]),c2:r6(s[2]*s[2]),sym:item.sym,type:item.type};
+cont.insertAdjacentHTML('beforeend',`<div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-3">
+<div class="flex justify-between items-center border-b pb-2"><h3 class="font-bold text-sm">Kasus ${idx+1}: Sisi = <span class="text-indigo-700">${item.s.join(', ')}</span></h3><span class="text-xs bg-indigo-100 text-indigo-800 font-bold px-2.5 py-0.5 rounded">Soal ${idx+1}</span></div>
+<div class="space-y-1">
+<div class="step-row"><span>a (terpendek) =</span><input type="text" inputmode="decimal" maxlength="5" id="k2-a-${idx}"></div>
+<div class="step-row"><span>b =</span><input type="text" inputmode="decimal" maxlength="5" id="k2-b-${idx}"></div>
+<div class="step-row"><span>c (terpanjang) =</span><input type="text" inputmode="decimal" maxlength="5" id="k2-c-${idx}"></div>
+<div class="step-row"><span>c² =</span><input type="text" inputmode="decimal" maxlength="5" id="k2-c2-${idx}"></div>
+<div class="step-row"><span>a² + b² =</span><input type="text" inputmode="decimal" maxlength="5" id="k2-a2-${idx}"><span>+</span><input type="text" inputmode="decimal" maxlength="5" id="k2-b2-${idx}"></div>
+<div class="step-row step-continuation"><span>=</span><input type="text" inputmode="decimal" maxlength="5" id="k2-sum-${idx}"></div>
+<div class="step-row"><span>maka, c² ? (a² + b²)</span></div>
+<div class="step-row step-continuation"><input type="text" inputmode="decimal" maxlength="5" id="k2-c2cmp-${idx}"><select id="k2-sym-${idx}" class="w-14 p-1.5 border rounded font-bold"><option value="">?</option><option value="=">=</option><option value="<">&lt;</option><option value=">">&gt;</option></select><input type="text" inputmode="decimal" maxlength="5" id="k2-abcmp-${idx}"></div>
+<div class="step-row"><span>Kesimpulan jenis:</span><select id="k2-type-${idx}" class="p-2 bg-white border rounded-xl font-bold"><option value="">-- Pilih --</option><option>Segitiga Siku-siku</option><option>Segitiga Lancip</option><option>Segitiga Tumpul</option></select></div>
+</div>
+</div>`);
+});
 }
 
-/* ================= KESIMPULAN MIRIP + ACak ================= */
+/* ================= KESIMPULAN & GENERATE ================= */
 function buildConclusions(){
-  const k1o=[{v:'correct',t:'Jarak pulang = sisi miring c = √(a²+b²); total jarak = a + b + c.'},{v:'w1',t:'Jarak pulang = sisi miring c = √(a²−b²); total jarak = a + b + c.'},{v:'w2',t:'Jarak pulang = sisi miring c = a²+b²; total jarak = a + b + c.'},{v:'w3',t:'Jarak pulang = sisi miring c = √(a²+b²); total jarak = a + b.'}];
-  const k2o=[{v:'correct',t:'Siku-siku jika c²=a²+b²; Lancip jika c²<a²+b²; Tumpul jika c²>a²+b².'},{v:'w1',t:'Siku-siku jika c²=a²+b²; Lancip jika c²>a²+b²; Tumpul jika c²<a²+b².'},{v:'w2',t:'Siku-siku jika c²<a²+b²; Lancip jika c²=a²+b²; Tumpul jika c²>a²+b².'},{v:'w3',t:'Siku-siku jika c²>a²+b²; Lancip jika c²<a²+b²; Tumpul jika c²=a²+b².'}];
-  const fill=(id,o)=>{$('#'+id).innerHTML='<option value="">-- Pilih Kesimpulan --</option>'+shuffle(o).map(x=>`<option value="${x.v}">${x.t}</option>`).join('');};
-  fill('k1-conclusion',k1o);fill('k2-conclusion',k2o);
+const k1o=[{v:'correct',t:'Jarak pulang = sisi miring c = √(a²+b²); total jarak = a + b + c.'},{v:'w1',t:'Jarak pulang = sisi miring c = √(a²−b²); total jarak = a + b + c.'},{v:'w2',t:'Jarak pulang = sisi miring c = a²+b²; total jarak = a + b + c.'},{v:'w3',t:'Jarak pulang = sisi miring c = √(a²+b²); total jarak = a + b.'}];
+const k2o=[{v:'correct',t:'Siku-siku jika c²=a²+b²; Lancip jika c²<a²+b²; Tumpul jika c²>a²+b².'},{v:'w1',t:'Siku-siku jika c²=a²+b²; Lancip jika c²>a²+b²; Tumpul jika c²<a²+b².'},{v:'w2',t:'Siku-siku jika c²<a²+b²; Lancip jika c²=a²+b²; Tumpul jika c²>a²+b².'},{v:'w3',t:'Siku-siku jika c²>a²+b²; Lancip jika c²<a²+b²; Tumpul jika c²=a²+b².'}];
+const fill=(id,o)=>{$('#'+id).innerHTML='<option value="">-- Pilih Kesimpulan --</option>'+shuffle(o).map(x=>`<option value="${x.v}">${x.t}</option>`).join('');};
+fill('k1-conclusion',k1o);fill('k2-conclusion',k2o);
 }
 function generateAllProblems(){buildConclusions();generateActivity1();generateActivity2();if(!locked.k1)resetInputs('k1');if(!locked.k2)resetInputs('k2');$('#score-card').classList.add('hidden');}
 function resetInputs(pre){document.querySelectorAll('input,select').forEach(inp=>{if(inp.id.startsWith(pre+'-')){inp.value='';inp.classList.remove('input-correct','input-wrong');}});}
 
-/* ================= KUNCI KEGIATAN ================= */
+/* ================= KUNCI & RESHUFFLE ================= */
 function applyLock(which,on){
-  locked[which]=on;saveState(which==='k1'?{locked1:on}:{locked2:on});
-  const pre=which==='k1'?'k1-':'k2-';
-  document.querySelectorAll('input,select').forEach(el=>{if(el.id&&el.id.startsWith(pre))el.disabled=on;});
-  const btn=$('#'+(which==='k1'?'lock-1':'lock-2'));
-  btn.textContent=on?'🔒 Terbuka':'🔓 Kunci';
-  btn.className='text-xs px-3 py-1 rounded-full font-bold '+(on?'bg-rose-100 text-rose-700':'bg-slate-200 text-slate-700');
+locked[which]=on;saveState(which==='k1'?{locked1:on}:{locked2:on});
+const pre=which==='k1'?'k1-':'k2-';
+document.querySelectorAll('input,select').forEach(el=>{if(el.id&&el.id.startsWith(pre))el.disabled=on;});
+const btn=$('#'+(which==='k1'?'lock-1':'lock-2'));
+btn.textContent=on?'🔒 Terbuka':'🔓 Kunci';
+btn.className='text-xs px-3 py-1 rounded-full font-bold '+(on?'bg-rose-100 text-rose-700':'bg-slate-200 text-slate-700');
 }
 function wireLocks(){
-  $('#lock-1').onclick=()=>{if(submitted)return;if(!locked.k1&&!confirm('Kunci Kegiatan 1? Jawaban tersimpan, soal tidak bisa diacak lagi.'))return;applyLock('k1',!locked.k1);saveAnswers();};
-  $('#lock-2').onclick=()=>{if(submitted)return;if(!locked.k2&&!confirm('Kunci Kegiatan 2?'))return;applyLock('k2',!locked.k2);saveAnswers();};
+$('#lock-1').onclick=()=>{if(submitted)return;if(!locked.k1&&!confirm('Kunci Kegiatan 1? Jawaban tersimpan, soal tidak bisa diacak lagi.'))return;applyLock('k1',!locked.k1);saveAnswers();};
+$('#lock-2').onclick=()=>{if(submitted)return;if(!locked.k2&&!confirm('Kunci Kegiatan 2?'))return;applyLock('k2',!locked.k2);saveAnswers();};
 }
 function wireReshuffle(){
-  $('#btn-reshuffle').onclick=()=>{
-    if((locked.k1&&locked.k2)||submitted)return alert('Kegiatan terkunci / sudah dikirim.');
-    if(!confirm('Acak soal baru? Jawaban yang belum dikunci akan dihapus.'))return;
-    const s=(Date.now()%2147483647)^(Math.floor(Math.random()*1e9));saveState({salt:s,answers:{}});setRNG(s);generateAllProblems();
-  };
+$('#btn-reshuffle').onclick=()=>{
+if((locked.k1&&locked.k2)||submitted)return alert('Kegiatan terkunci / sudah dikirim.');
+if(!confirm('Acak soal baru? Jawaban yang belum dikunci akan dihapus.'))return;
+const s=(Date.now()%2147483647)^(Math.floor(Math.random()*1e9));saveState({salt:s,answers:{}});setRNG(s);generateAllProblems();
+};
 }
 function lockAllLKPD(on){document.querySelectorAll('input,select').forEach(el=>{if(el.id&&!el.id.startsWith('gate-')&&!el.id.startsWith('student-'))el.disabled=on;});}
 
-/* ================= EVALUASI (totalMax DINAMIS) ================= */
+/* ================= EVALUASI ================= */
 function countEmpty(){
-  let e1=0,e2=0;
-  document.querySelectorAll('input,select').forEach(el=>{
-    if(!el.id||el.disabled)return;
-    if(el.id.startsWith('k1-')&&!String(el.value).trim())e1++;
-    if(el.id.startsWith('k2-')&&!String(el.value).trim())e2++;
-  });
-  return{e1,e2};
+let e1=0,e2=0;
+document.querySelectorAll('input,select').forEach(el=>{
+if(!el.id||el.disabled)return;
+if(el.id.startsWith('k1-')&&!String(el.value).trim())e1++;
+if(el.id.startsWith('k2-')&&!String(el.value).trim())e2++;
+});
+return{e1,e2};
 }
 function evaluateAll(){
-  let score=0,totalMax=0,s1=0,s2=0;
-  const ck=(id,exp,pts=1)=>{totalMax+=pts;const el=$('#'+id);if(!el)return false;const v=String(el.value).trim().toLowerCase();const ex=String(exp).trim().toLowerCase();if(v===ex){el.classList.remove('input-wrong');el.classList.add('input-correct');score+=pts;return true;}el.classList.remove('input-correct');el.classList.add('input-wrong');return false;};
-  const ckPair=(i1,i2,v1,v2,pts=2)=>{totalMax+=pts;const a=$('#'+i1),b=$('#'+i2);const ok=(String(a.value).trim()===String(v1)&&String(b.value).trim()===String(v2))||(String(a.value).trim()===String(v2)&&String(b.value).trim()===String(v1));[a,b].forEach(el=>{el.classList.remove('input-correct','input-wrong');el.classList.add(ok?'input-correct':'input-wrong');});if(ok)score+=pts;return ok;};
-  const k1s=score;
-  ck('k1-shape','segitiga_siku');ck('k1-right-node',k1Data.middle);ckPair('k1-side1','k1-side2',k1Data.a,k1Data.b);
-  ck('k1-calc-a',k1Data.b);ck('k1-calc-b',k1Data.a);ck('k1-calc-a2',k1Data.b*k1Data.b);ck('k1-calc-b2',k1Data.a*k1Data.a);ck('k1-calc-sum',k1Data.a*k1Data.a+k1Data.b*k1Data.b);ck('k1-calc-sqrt',k1Data.a*k1Data.a+k1Data.b*k1Data.b);ck('k1-hypotenuse',k1Data.c);
-  ck('k1-seq-path','p1');ck('k1-dist1',k1Data.b);ck('k1-dist2',k1Data.a);ck('k1-dist3',k1Data.c);ck('k1-total-dist',k1Data.total);ck('k1-conclusion','correct');
-  s1=score-k1s;
-  const k2s=score;
-  k2Cases.forEach((it,idx)=>{const s=it.sol;ck(`k2-a-${idx}`,s.a);ck(`k2-b-${idx}`,s.b);ck(`k2-c-${idx}`,s.c);ck(`k2-a2-${idx}`,s.a2);ck(`k2-b2-${idx}`,s.b2);ck(`k2-sum-${idx}`,s.sum);ck(`k2-c2cmp-${idx}`,s.c2);ck(`k2-abcmp-${idx}`,s.sum);ck(`k2-sym-${idx}`,s.sym);ck(`k2-type-${idx}`,s.type);});
-  ck('k2-conclusion','correct');
-  s2=score-k2s;
-  finalScoreLKPD=Math.min(100,Math.round(score/totalMax*100));
-  $('#score-val').textContent=finalScoreLKPD;
-  const pred=finalScoreLKPD>=90?['Sangat Baik (A)','text-emerald-600']:finalScoreLKPD>=75?['Baik (B)','text-teal-600']:finalScoreLKPD>=60?['Cukup (C)','text-amber-600']:['Perlu Bimbingan (D)','text-rose-600'];
-  $('#score-predicate').textContent=pred[0];$('#score-predicate').className='text-lg font-extrabold '+pred[1];
-  $('#score-feedback').textContent=finalScoreLKPD>=75?'Bagus! Teliti kembali kotak berwarna merah.':'Pelajari ulang langkah kuadrat dan perbandingan relasi.';
-  $('#score-breakdown').innerHTML=`<div><b>Nama:</b> ${TK.nama}</div><div><b>Kelas:</b> ${TK.kelas}</div><div><b>Kategori:</b> ${currentDiff}</div><div><b>Poin:</b> ${score}/${totalMax}</div><div><b>Kegiatan 1:</b> ${s1}/17</div><div><b>Kegiatan 2:</b> ${s2}/31</div>`;
-  $('#score-card').classList.remove('hidden');$('#score-card').scrollIntoView({behavior:'smooth'});
-  if(!submitted)$('#btn-kirim-lkpd').classList.remove('hidden');
+let score=0,totalMax=0,s1=0,s2=0;
+const ck=(id,exp,pts=1)=>{totalMax+=pts;const el=$('#'+id);if(!el)return false;
+const nv=normNum(el.value),ne=normNum(exp);
+const ok=(nv!==null&&ne!==null)?near(nv,ne):(String(el.value).trim().toLowerCase()===String(exp).trim().toLowerCase());
+if(ok){el.classList.remove('input-wrong');el.classList.add('input-correct');score+=pts;return true;}
+el.classList.remove('input-correct');el.classList.add('input-wrong');return false;};
+const ckPair=(i1,i2,v1,v2,pts=2)=>{totalMax+=pts;const a=$('#'+i1),b=$('#'+i2);const ok=(near(normNum(a.value)||-1,v1)&&near(normNum(b.value)||-2,v2))||(near(normNum(a.value)||-1,v2)&&near(normNum(b.value)||-2,v1));[a,b].forEach(el=>{el.classList.remove('input-correct','input-wrong');el.classList.add(ok?'input-correct':'input-wrong');});if(ok)score+=pts;return ok;};
+const k1s=score;
+ck('k1-shape','segitiga_siku');ck('k1-right-node',k1Data.middle);ckPair('k1-side1','k1-side2',k1Data.a,k1Data.b);
+ck('k1-calc-a',k1Data.b);ck('k1-calc-b',k1Data.a);ck('k1-calc-a2',k1Data.b*k1Data.b);ck('k1-calc-b2',k1Data.a*k1Data.a);ck('k1-calc-sum',k1Data.a*k1Data.a+k1Data.b*k1Data.b);ck('k1-calc-sqrt',k1Data.a*k1Data.a+k1Data.b*k1Data.b);ck('k1-hypotenuse',k1Data.c);
+ck('k1-seq-path','p1');ck('k1-dist1',k1Data.b);ck('k1-dist2',k1Data.a);ck('k1-dist3',k1Data.c);ck('k1-total-dist',k1Data.total);ck('k1-conclusion','correct');
+s1=score-k1s;
+const k2s=score;
+k2Cases.forEach((it,idx)=>{const s=it.sol;ck(`k2-a-${idx}`,s.a);ck(`k2-b-${idx}`,s.b);ck(`k2-c-${idx}`,s.c);ck(`k2-c2-${idx}`,s.c2);ck(`k2-a2-${idx}`,s.a2);ck(`k2-b2-${idx}`,s.b2);ck(`k2-sum-${idx}`,s.sum);ck(`k2-c2cmp-${idx}`,s.c2);ck(`k2-abcmp-${idx}`,s.sum);ck(`k2-sym-${idx}`,s.sym);ck(`k2-type-${idx}`,s.type);});
+ck('k2-conclusion','correct');
+s2=score-k2s;
+finalScoreLKPD=Math.min(100,Math.round(score/totalMax*100));
+$('#score-val').textContent=finalScoreLKPD;
+const pred=finalScoreLKPD>=90?['Sangat Baik (A)','text-emerald-600']:finalScoreLKPD>=75?['Baik (B)','text-teal-600']:finalScoreLKPD>=60?['Cukup (C)','text-amber-600']:['Perlu Bimbingan (D)','text-rose-600'];
+$('#score-predicate').textContent=pred[0];$('#score-predicate').className='text-lg font-extrabold '+pred[1];
+$('#score-feedback').textContent=finalScoreLKPD>=75?'Bagus! Teliti kembali kotak berwarna merah.':'Pelajari ulang langkah kuadrat dan perbandingan relasi.';
+$('#score-breakdown').innerHTML=`<div><b>Nama:</b> ${TK.nama}</div><div><b>Kelas:</b> ${TK.kelas}</div><div><b>Kategori:</b> ${currentDiff}</div><div><b>Poin:</b> ${score}/${totalMax}</div><div><b>Kegiatan 1:</b> ${s1}/17</div><div><b>Kegiatan 2:</b> ${s2}/34</div>`;
+$('#score-card').classList.remove('hidden');$('#score-card').scrollIntoView({behavior:'smooth'});
+if(!submitted)$('#btn-kirim-lkpd').classList.remove('hidden');
 }
 function wireEvaluate(){
-  $('#btn-evaluate').onclick=()=>{
-    const c=countEmpty();
-    if(c.e1+c.e2>0){
-      const ov=document.createElement('div');ov.className='modal-bg';
-      ov.innerHTML=`<div class="bg-white rounded-2xl p-6 w-full max-w-sm space-y-3">
-        <h3 class="font-extrabold text-slate-800">⚠️ Isian Belum Lengkap</h3>
-        <p class="text-sm text-slate-600">Kegiatan 1: <b>${c.e1}</b> kotak kosong<br>Kegiatan 2: <b>${c.e2}</b> kotak kosong</p>
-        <button id="w-back" class="w-full bg-teal-600 text-white font-bold py-2.5 rounded-xl">Kembali Melengkapi</button>
-        <button id="w-go" class="w-full bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl">Tetap Evaluasi (kosong = salah)</button></div>`;
-      document.body.appendChild(ov);
-      $('#w-back').onclick=()=>ov.remove();
-      $('#w-go').onclick=()=>{ov.remove();evaluateAll();};
-      return;
-    }
-    evaluateAll();
-  };
-  $('#btn-kirim-lkpd').onclick=async()=>{
-    if(submitted)return;
-    const o={};document.querySelectorAll('input,select').forEach(el=>{if(el.id&&!el.id.startsWith('gate-')&&!el.id.startsWith('student-'))o[el.id]=el.value;});
-    const jawaban='K1:'+JSON.stringify({shape:o['k1-shape'],right:o['k1-right-node'],hyp:o['k1-hypotenuse'],total:o['k1-total-dist']})+' ;; K2:'+JSON.stringify([0,1,2].map(i=>o['k2-type-'+i]));
-    const elapsed=lkpdAccMs+(lkpdResumeEpoch?Date.now()-lkpdResumeEpoch:0);
-    const payload={tipe:'LKPD',kode:KODE,nama1:TK.nama,kelas:TK.kelas,kategori:TK.kategori,username:TK.username,nama2:TK.pair?TK.pair.nama2:'-',jawaban:jawaban,waktuPengerjaan:fmtMs(elapsed),percobaan:TK.gen,autoNilai:finalScoreLKPD,totalSoal:48,username2:TK.pair?TK.pair.username2:''};
-    $('#kirim-lkpd-status').textContent='⏳ Mengirim...';
-    try{await postAction(payload);submitted=true;saveState({submittedLKPD:true,finalScoreLKPD:finalScoreLKPD});lockAllLKPD(true);$('#btn-kirim-lkpd').classList.add('hidden');$('#kirim-lkpd-status').textContent='✅ Nilai LKPD terkirim.'+(TK.pair?' (Pasangan: '+TK.pair.nama2+')':'');}
-    catch(e){$('#kirim-lkpd-status').textContent='❌ Gagal mengirim. Coba lagi.';}
-  };
+$('#btn-evaluate').onclick=()=>{
+const c=countEmpty();
+if(c.e1+c.e2>0){
+const ov=document.createElement('div');ov.className='modal-bg';
+ov.innerHTML=`<div class="bg-white rounded-2xl p-6 w-full max-w-sm space-y-3">
+<h3 class="font-extrabold text-slate-800">⚠️ Isian Belum Lengkap</h3>
+<p class="text-sm text-slate-600">Kegiatan 1: <b>${c.e1}</b> kotak kosong<br>Kegiatan 2: <b>${c.e2}</b> kotak kosong</p>
+<button id="w-back" class="w-full bg-teal-600 text-white font-bold py-2.5 rounded-xl">Kembali Melengkapi</button>
+<button id="w-go" class="w-full bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl">Tetap Evaluasi (kosong = salah)</button></div>`;
+document.body.appendChild(ov);
+$('#w-back').onclick=()=>ov.remove();
+$('#w-go').onclick=()=>{ov.remove();evaluateAll();};
+return;
+}
+evaluateAll();
+};
+$('#btn-kirim-lkpd').onclick=async()=>{
+if(submitted)return;
+const o={};document.querySelectorAll('input,select').forEach(el=>{if(el.id&&!el.id.startsWith('gate-')&&!el.id.startsWith('student-'))o[el.id]=el.value;});
+const jawaban='K1:'+JSON.stringify({shape:o['k1-shape'],right:o['k1-right-node'],hyp:o['k1-hypotenuse'],total:o['k1-total-dist']})+' ;; K2:'+JSON.stringify([0,1,2].map(i=>o['k2-type-'+i]));
+const elapsed=lkpdAccMs+(lkpdResumeEpoch?Date.now()-lkpdResumeEpoch:0);
+const payload={tipe:'LKPD',kode:KODE,nama1:TK.nama,kelas:TK.kelas,kategori:TK.kategori,username:TK.username,nama2:TK.pair?TK.pair.nama2:'-',jawaban:jawaban,waktuPengerjaan:fmtMs(elapsed),percobaan:TK.gen,autoNilai:finalScoreLKPD,totalSoal:51,username2:TK.pair?TK.pair.username2:''};
+$('#kirim-lkpd-status').textContent='⏳ Mengirim...';
+try{await postAction(payload);submitted=true;saveState({submittedLKPD:true,finalScoreLKPD:finalScoreLKPD});lockAllLKPD(true);$('#btn-kirim-lkpd').classList.add('hidden');$('#kirim-lkpd-status').textContent='✅ Nilai LKPD terkirim.'+(TK.pair?' (Pasangan: '+TK.pair.nama2+')':'');}
+catch(e){$('#kirim-lkpd-status').textContent='❌ Gagal mengirim. Coba lagi.';}
+};
 }
 
-/* ================= GAME KUIS (FINAL) ================= */
-const GAME_CONFIG={TOTAL_TIME:900,MIN_PER_Q:60,POINTS:20};
+/* ================= GAME KUIS ================= */
+const GAME_CONFIG={TOTAL_TIME:900,MIN_PER_Q:60,OT_RATIO:3};
+const OT_TOTAL=()=>Math.round(GAME_CONFIG.TOTAL_TIME/GAME_CONFIG.OT_RATIO);
+let G={current:1,timeLeft:900,spent:0,checked:false,timer:null,scores:[],order:[],label:[],phase:'lobby',currentQ:null,ot:false,otLeft:0};
+const BOBOT={1:20,2:30,3:10,4:10,5:30};
 const QUESTION_PATTERNS={'A':['C','B','A','C','B'],'B':['C','B','B','C','B'],'C':['C','B','C','B','C']};
-let G={current:1,timeLeft:900,spent:0,checked:false,timer:null,scores:[],order:[],label:[],phase:'lobby',currentQ:null};
 const gKey=()=>sKey()+'_game';
-function saveGS(){try{localStorage.setItem(gKey(),JSON.stringify({q:G.current,t:G.timeLeft,s:G.scores,p:G.phase,o:G.order,l:G.label}));}catch(e){}}
-function loadGS(){try{const o=JSON.parse(localStorage.getItem(gKey())||'null');if(o){G.current=o.q||1;G.timeLeft=o.t||900;G.scores=o.s||[];G.phase=o.p||'lobby';G.order=o.o||[];G.label=o.l||[];}}catch(e){}}
+function saveGS(){try{localStorage.setItem(gKey(),JSON.stringify({q:G.current,t:G.timeLeft,s:G.scores,p:G.phase,o:G.order,l:G.label,ot:G.ot,ol:G.otLeft}));}catch(e){}}
+function loadGS(){try{const o=JSON.parse(localStorage.getItem(gKey())||'null');if(o){G.current=o.q||1;G.timeLeft=o.t||900;G.scores=o.s||[];G.phase=o.p||'lobby';G.order=o.o||[];G.label=o.l||[];G.ot=!!o.ot;G.otLeft=o.ol||0;}}catch(e){}}
 function showGS(id){['#g-lobby-screen','#g-game-screen','#g-result-screen','#g-success-screen'].forEach(s=>$(s).classList.remove('active'));$(id).classList.add('active');}
+function weightedTotal(){return G.scores.reduce((sum,p,i)=>sum+Math.round(p*(BOBOT[G.order[i]]||20)),0);}
 function initGame(){
-  if(loadState().submittedKuis){$('#g-saved-score').textContent=loadState().kuisScore||0;showGS('#g-success-screen');return;}
-  G.pattern=QUESTION_PATTERNS[currentDiff]||QUESTION_PATTERNS['C'];
-  loadGS();$('#g-student-info').innerText=TK.nama+' - '+TK.kelas;
-  if(G.phase==='game'&&G.current<=5){if(!G.order.length)G.order=shuffle([1,2,3,4,5]);showGS('#g-game-screen');dots();tDisp();startT();loadQ();}
-  else if(G.phase==='result')showResult();
-  else showGS('#g-lobby-screen');
+if(loadState().submittedKuis){$('#g-saved-score').textContent=loadState().kuisScore||0;showGS('#g-success-screen');return;}
+G.pattern=QUESTION_PATTERNS[currentDiff]||QUESTION_PATTERNS['C'];
+loadGS();$('#g-student-info').innerText=TK.nama+' - '+TK.kelas;
+if(G.phase==='game'&&G.current<=5){if(!G.order.length)G.order=shuffle([1,2,3,4,5]);showGS('#g-game-screen');dots();tDisp();if(G.ot)otDisp();startT();loadQ();}
+else if(G.phase==='result')showResult();
+else showGS('#g-lobby-screen');
 }
-$('#g-start-btn').onclick=()=>{G.current=1;G.timeLeft=GAME_CONFIG.TOTAL_TIME;G.scores=[];G.order=shuffle([1,2,3,4,5]);G.label=[];G.phase='game';saveGS();$('#g-student-info').innerText=TK.nama+' - '+TK.kelas;dots();showGS('#g-game-screen');tDisp();startT();loadQ();};
+$('#g-start-btn').onclick=()=>{G.current=1;G.timeLeft=GAME_CONFIG.TOTAL_TIME;G.scores=[];G.order=shuffle([1,2,3,4,5]);G.label=[];G.phase='game';G.ot=false;G.otLeft=0;
+  $('#g-ot-display').classList.add('hidden');$('#g-timer-display').classList.remove('timer-expired');$('#g-result-note').classList.add('hidden');
+  saveGS();$('#g-student-info').innerText=TK.nama+' - '+TK.kelas;dots();showGS('#g-game-screen');tDisp();startT();loadQ();};
 function dots(){const c=$('#g-progress-dots');c.innerHTML='';for(let i=0;i<5;i++){let cl='dot';if(i<G.scores.length)cl+=' '+(G.scores[i]===1?'done':'failed');else if(i===G.current-1)cl+=' active';const d=document.createElement('div');d.className=cl;c.appendChild(d);}}
-function startT(){if(!G.timer)G.timer=setInterval(()=>{G.timeLeft--;G.spent++;tDisp();updateBtn();saveGS();if(G.timeLeft<=0){pauseT();timeUp();}},1000);}
+function startT(){if(!G.timer)G.timer=setInterval(()=>{
+  G.spent++;
+  if(!G.ot){G.timeLeft--;tDisp();if(G.timeLeft<=0){mainTimeUp();return;}}
+  else{G.otLeft--;otDisp();if(G.otLeft<=0){pauseT();autoSubmitKuis();return;}}
+  updateBtn();saveGS();
+},1000);}
 function pauseT(){if(G.timer){clearInterval(G.timer);G.timer=null;}}
-function tDisp(){$('#g-timer-display').innerText=fmtSec(Math.max(0,G.timeLeft));}
+function tDisp(){const el=$('#g-timer-display');if(G.ot){el.innerText='⏰ WAKTU HABIS';el.classList.add('timer-expired');}else{el.innerText=fmtSec(Math.max(0,G.timeLeft));el.classList.remove('timer-expired');}}
+function otDisp(){const el=$('#g-ot-display');el.classList.remove('hidden');el.innerText='⚡ TAMBAHAN '+fmtSec(Math.max(0,G.otLeft));}
+function mainTimeUp(){
+  pauseT();
+  G.ot=true;G.otLeft=OT_TOTAL();
+  tDisp();otDisp();saveGS();
+  const m=$('#g-message');m.style.color='#7c3aed';m.innerText='⏰ Waktu utama habis — waktu tambahan +'+fmtSec(G.otLeft)+' berjalan!';
+  startT();
+}
+function autoSubmitKuis(){
+  while(G.scores.length<5)G.scores.push(0);
+  G.phase='result';saveGS();showResult();
+  $('#g-result-note').classList.remove('hidden');
+  submitKuis(true);
+}
 function fillStats(){
-  const inputs=$$('#g-question-area .q-ans');
-  const groups={};
-  $$('#g-question-area .q-bs').forEach(b=>{groups[b.dataset.i]=groups[b.dataset.i]||{filled:false};if(b.classList.contains('sel'))groups[b.dataset.i].filled=true;});
-  const gk=Object.keys(groups);
-  let t=inputs.length+gk.length,f=gk.filter(k=>groups[k].filled).length;
-  inputs.forEach(e=>{if(String(e.value).trim())f++;});
-  return{terisi:f,total:t};
+const inputs=$$('#g-question-area .q-ans');
+const groups={};
+$$('#g-question-area .q-bs').forEach(b=>{groups[b.dataset.i]=groups[b.dataset.i]||{filled:false};if(b.classList.contains('sel'))groups[b.dataset.i].filled=true;});
+const gk=Object.keys(groups);
+let t=inputs.length+gk.length,f=gk.filter(k=>groups[k].filled).length;
+inputs.forEach(e=>{if(String(e.value).trim())f++;});
+return{terisi:f,total:t};
 }
 function updateBtn(){
-  const bc=$('#g-btn-check-play'),bs=$('#g-btn-skip-play');if(!bc||!bs)return;
-  const st=fillStats();
-  $('#g-fill-info').innerText=`Terisi ${st.terisi}/${st.total} kotak`;
-  if(!G.checked){const m=$('#g-message');m.style.color='#475569';m.innerText=(st.total&&st.terisi===st.total)?'Lengkap':'Belum lengkap';}
-  const tc=GAME_CONFIG.MIN_PER_Q-G.spent;
-  if(tc>0){bc.disabled=true;bc.innerText=`CEK (${tc}s)`;}
-  else if(st.terisi<st.total){bc.disabled=true;bc.innerText=`ISI SEMUA (${st.terisi}/${st.total})`;}
-  else{bc.disabled=false;bc.innerText='CEK JAWABAN';}
-  const ts=GAME_CONFIG.MIN_PER_Q-G.spent;
-  if(ts>0){bs.disabled=true;bs.innerText=`Lewati (${ts}s)`;}else{bs.disabled=false;bs.innerText='Lewati';}
+const bc=$('#g-btn-check-play'),bs=$('#g-btn-skip-play');if(!bc||!bs)return;
+const st=fillStats();
+$('#g-fill-info').innerText=`Terisi ${st.terisi}/${st.total} kotak`;
+if(!G.checked){const m=$('#g-message');m.style.color='#475569';m.innerText=(st.total&&st.terisi===st.total)?'Lengkap':'Belum lengkap';}
+const tc=GAME_CONFIG.MIN_PER_Q-G.spent;
+if(tc>0){bc.disabled=true;bc.innerText=`CEK (${tc}s)`;}
+else if(st.terisi<st.total){bc.disabled=true;bc.innerText=`ISI SEMUA (${st.terisi}/${st.total})`;}
+else{bc.disabled=false;bc.innerText='CEK JAWABAN';}
+const ts=GAME_CONFIG.MIN_PER_Q-G.spent;
+if(ts>0){bs.disabled=true;bs.innerText=`Lewati (${ts}s)`;}else{bs.disabled=false;bs.innerText='Lewati';}
 }
-/* --- Q1: 10 pernyataan B/S --- */
+const IN=`<input type="text" inputmode="decimal" maxlength="5" class="q-ans">`;
+const L=h=>`<div class="step-row">${h}</div>`;
+const LC=h=>`<div class="step-row step-continuation">${h}</div>`;
+function sqBlock(X,P,Q,pv,qv,xv,sign){
+const op=sign==='-'?'−':'+', mid=r6(sign==='-'?pv*pv-qv*qv:pv*pv+qv*qv);
+const html=L(`<span>${X}² = ${P}² ${op} ${Q}²</span>`)
++L(`<span>${X}² = </span>${IN}<span>² ${op} </span>${IN}<span>²</span>`)
++L(`<span>${X}² = </span>${IN}<span> ${op} </span>${IN}</div>`.replace('</div>',''))
++LC(`<span>= </span>${IN}</div>`.replace('</div>',''))
++L(`<span>${X} = √</span>${IN}<span> = </span>${IN}`);
+return {html,ans:[pv,qv,r6(pv*pv),r6(qv*qv),mid,mid,xv]};
+}
+function sumLine(TXT,A,B,av,bv,xv,op){
+const res=r6(op==='-'?av-bv:av+bv);
+return {html:L(`<span>${TXT}</span>`)+L(`${IN}<span> ${op==='-'?'−':'+'} </span>${IN}<span> = </span>${IN}`),ans:[av,bv,res]};
+}
+function scaffoldPartial(ans){return ()=>{const ins=$$('#g-question-area .q-ans');let c=0;[...ins].forEach((e,i)=>{const n=normNum(e.value);if(n!==null&&ans[i]!==undefined&&near(n,ans[i]))c++;});return ins.length?c/ins.length:0;};}
+
+/* --- Q1: B/S 10 pernyataan --- */
 function genQ1(diff){
-  let L=['a','b','c'],siku='c';
-  if(diff==='B')siku=PICK(['a','b','c']);
-  else if(diff==='A'){L=PICK([['p','q','r'],['g','h','i'],['x','y','z'],['u','v','w']]);siku=PICK(L);}
-  const[x,y,z]=L;let hyp,l1,l2;
-  if(siku===z){hyp=z;l1=x;l2=y;}else if(siku===y){hyp=y;l1=x;l2=z;}else{hyp=x;l1=y;l2=z;}
-  const items=shuffle([
-    {t:`${l1}² + ${l2}² = ${hyp}²`,ok:true},{t:`${hyp} = √(${l1}² + ${l2}²)`,ok:true},
-    {t:`${l1} = √(${hyp}² − ${l2}²)`,ok:true},{t:`${l2} = √(${hyp}² − ${l1}²)`,ok:true},
-    {t:`${l1}² = ${hyp}² + ${l2}²`,ok:false},{t:`${hyp} = ${l1}² − ${l2}²`,ok:false},
-    {t:`${l2} = √(${l1}² + ${hyp}²)`,ok:false},{t:`${hyp}² = ${l1}² − ${l2}²`,ok:false},
-    {t:`${l1} = ${hyp}² − ${l2}²`,ok:false},{t:`${hyp} = √(${l1}² × ${l2}²)`,ok:false}]);
-  return{type:'bs10',short:'B/S',title:'Variasi Rumus Pythagoras (10 pernyataan)',
-    html:`<div class="bg-white rounded-2xl p-5 border space-y-2"><p class="text-sm font-bold text-slate-700">Segitiga siku-siku di titik <b>${siku.toUpperCase()}</b> dengan sisi <b>${L.join(', ')}</b>. Tentukan Benar/Salah:</p>
-    ${items.map((it,i)=>`<div class="flex items-center gap-2 border rounded-xl p-2"><span class="flex-1 text-sm font-mono">${it.t}</span><span class="flex gap-1"><button class="q-bs px-3 py-1 rounded-lg text-white text-xs font-bold" style="background:#10b981" data-i="${i}" data-v="Benar">✅</button><button class="q-bs px-3 py-1 rounded-lg text-white text-xs font-bold" style="background:#f43f5e" data-i="${i}" data-v="Salah">❌</button></span></div>`).join('')}</div>`,
-    items,partial:()=>{let c=0;items.forEach((it,i)=>{const sel=document.querySelector(`.q-bs.sel[data-i="${i}"]`);if(sel&&sel.dataset.v===(it.ok?'Benar':'Salah'))c++;});return c/10;}};
+let Lb=['a','b','c'],siku='c';
+if(diff==='B')siku=PICK(['a','b','c']);
+else if(diff==='A'){Lb=PICK([['p','q','r'],['g','h','i'],['x','y','z'],['u','v','w']]);siku=PICK(Lb);}
+const[x,y,z]=Lb;let hyp,l1,l2;
+if(siku===z){hyp=z;l1=x;l2=y;}else if(siku===y){hyp=y;l1=x;l2=z;}else{hyp=x;l1=y;l2=z;}
+const items=shuffle([
+{t:`${l1}² + ${l2}² = ${hyp}²`,ok:true},{t:`${hyp} = √(${l1}² + ${l2}²)`,ok:true},
+{t:`${l1} = √(${hyp}² − ${l2}²)`,ok:true},{t:`${l2} = √(${hyp}² − ${l1}²)`,ok:true},
+{t:`${l1}² = ${hyp}² + ${l2}²`,ok:false},{t:`${hyp} = ${l1}² − ${l2}²`,ok:false},
+{t:`${l2} = √(${l1}² + ${hyp}²)`,ok:false},{t:`${hyp}² = ${l1}² − ${l2}²`,ok:false},
+{t:`${l1} = ${hyp}² − ${l2}²`,ok:false},{t:`${hyp} = √(${l1}² × ${l2}²)`,ok:false}]);
+return{type:'bs10',short:'B/S',totalItems:10,title:'Variasi Rumus Pythagoras (10 pernyataan)',
+html:`<div class="bg-white rounded-2xl p-5 border space-y-2"><p class="text-sm font-bold text-slate-700">Segitiga siku-siku di titik <b>${siku.toUpperCase()}</b> dengan sisi <b>${Lb.join(', ')}</b>. Tentukan Benar/Salah:</p>
+${items.map((it,i)=>`<div class="flex items-center gap-2 border rounded-xl p-2"><span class="flex-1 text-sm font-mono">${it.t}</span><span class="flex gap-1"><button class="q-bs px-3 py-1.5 rounded-lg text-xs font-bold" data-i="${i}" data-v="Benar">✅ Benar</button><button class="q-bs px-3 py-1.5 rounded-lg text-xs font-bold" data-i="${i}" data-v="Salah">❌ Salah</button></span></div>`).join('')}</div>`,
+items,partial:()=>{let c=0;items.forEach((it,i)=>{const sel=document.querySelector(`.q-bs.sel[data-i="${i}"]`);if(sel&&sel.dataset.v===(it.ok?'Benar':'Salah'))c++;});return c/10;}};
 }
-/* --- Q2: 10 triple (4/2/2/2) --- */
+/* --- Q2: menjodohkan 10 --- */
 function genQ2(diff){
-  const P={siku:[[3,4,5],[6,8,10],[5,12,13],[9,12,15],[8,15,17],[12,16,20]],lancip:[[4,5,6],[6,7,8],[10,12,14],[12,15,18]],tumpul:[[3,4,6],[5,6,9],[8,12,17],[10,15,20]],bukan:[[2,3,8],[4,5,12],[1.5,1.5,4],[2,2,5]]};
-  if(diff==='A'){P.lancip.push([2.4,4.5,5.1]);P.bukan.push([2.1,3.2,5.5]);}
-  const pickN=(a,n)=>shuffle([...a]).slice(0,n);
-  let rows=[...pickN(P.siku,4).map(s=>({s,ans:'Segitiga Siku-siku'})),...pickN(P.lancip,2).map(s=>({s,ans:'Segitiga Lancip'})),...pickN(P.tumpul,2).map(s=>({s,ans:'Segitiga Tumpul'})),...pickN(P.bukan,2).map(s=>({s,ans:'Bukan Segitiga'}))];
-  rows=shuffle(rows);
-  const opt='<option value="">?</option><option>Segitiga Siku-siku</option><option>Segitiga Lancip</option><option>Segitiga Tumpul</option><option>Bukan Segitiga</option>';
-  return{type:'match10',short:'Jenis',title:'Jenis Segitiga (10 pasang)',
-    html:`<div class="bg-white rounded-2xl p-5 border space-y-2"><p class="text-sm text-slate-700">Pasangkan 10 ukuran sisi dengan jenisnya:</p>
-    ${rows.map((r,i)=>`<div class="flex items-center gap-3 border rounded-xl p-2"><span class="font-bold text-xs w-7">#${i+1}</span><span class="flex-1 font-mono font-bold text-sm">${r.s.join(', ')}</span><select class="q-ans p-2 border rounded-xl text-xs font-bold" data-i="${i}">${opt}</select></div>`).join('')}</div>`,
-    rows,partial:()=>{let c=0;rows.forEach((r,i)=>{const v=document.querySelector(`#g-question-area select[data-i="${i}"]`);if(v&&v.value===r.ans)c++;});return c/10;}};
+const P={siku:[[3,4,5],[6,8,10],[5,12,13],[9,12,15],[8,15,17],[12,16,20]],lancip:[[4,5,6],[6,7,8],[10,12,14],[12,15,18]],tumpul:[[3,4,6],[5,6,9],[8,12,17],[10,15,20]],bukan:[[2,3,8],[4,5,12],[1.5,1.5,4],[2,2,5]]};
+if(diff==='A'){P.lancip.push([2.4,4.5,5.1]);P.bukan.push([2.1,3.2,5.5]);}
+const pickN=(a,n)=>shuffle([...a]).slice(0,n);
+let rows=[...pickN(P.siku,4).map(s=>({s,ans:'Segitiga Siku-siku'})),...pickN(P.lancip,2).map(s=>({s,ans:'Segitiga Lancip'})),...pickN(P.tumpul,2).map(s=>({s,ans:'Segitiga Tumpul'})),...pickN(P.bukan,2).map(s=>({s,ans:'Bukan Segitiga'}))];
+rows=shuffle(rows);
+const opt='<option value="">?</option><option>Segitiga Siku-siku</option><option>Segitiga Lancip</option><option>Segitiga Tumpul</option><option>Bukan Segitiga</option>';
+return{type:'match10',short:'Jenis',totalItems:10,title:'Jenis Segitiga (10 pasang)',
+html:`<div class="bg-white rounded-2xl p-5 border space-y-2"><p class="text-sm text-slate-700">Pasangkan 10 ukuran sisi dengan jenisnya:</p>
+${rows.map((r,i)=>`<div class="flex items-center gap-3 border rounded-xl p-2"><span class="font-bold text-xs w-7">#${i+1}</span><span class="flex-1 font-mono font-bold text-sm">${r.s.join(', ')}</span><select class="q-ans p-2 border rounded-xl text-xs font-bold" data-i="${i}">${opt}</select></div>`).join('')}</div>`,
+rows,partial:()=>{let c=0;rows.forEach((r,i)=>{const v=document.querySelector(`#g-question-area select[data-i="${i}"]`);if(v&&v.value===r.ans)c++;});return c/10;}};
 }
-/* --- Q3: scaffold kuadrat --- */
+/* --- Q3 & Q4: scaffold (pool diperluas + desimal) --- */
+const POOL_SQ={'C':[[3,4,5],[6,8,10],[5,12,13],[8,15,17],[9,12,15],[7,24,25]],'B':[[12,16,20],[10,24,26],[15,20,25],[20,21,29],[18,24,30],[16,30,34]],'A':[[12,35,37],[9,40,41],[15,36,39],[24,32,40],[28,45,53],[33,56,65],[0.3,0.4,0.5],[0.5,1.2,1.3],[0.9,1.2,1.5],[2.4,4.5,5.1]]};
 function genQ3(diff){
-  const pool=diff==='C'?[[3,4,5],[6,8,10],[5,12,13]]:diff==='B'?[[9,12,15],[12,16,20],[8,15,17]]:[[9,40,41],[12,35,37],[20,21,29]];
-  const t=PICK(pool);const a=t[0],b=t[1],c=t[2];const mode=PICK(['c','a','b']);
-  let html='',ans=[];
-  if(mode==='c'){html=`<p class="text-sm mb-2">Diketahui a = <b>${a}</b>, b = <b>${b}</b>. Cari c!</p>
-    <div class="step-row"><span>c² = a² + b²</span></div>
-    <div class="step-row"><span>c² = (</span><input type="number" class="q-ans">² + <input type="number" class="q-ans">²<span>)</span></div>
-    <div class="step-row"><span>c² = </span><input type="number" class="q-ans"> + <input type="number" class="q-ans"> = <input type="number" class="q-ans"></div>
-    <div class="step-row"><span>c = √</span><input type="number" class="q-ans"><span> = </span><input type="number" class="q-ans font-bold text-teal-800"></div>`;
-    ans=[a,b,a*a,b*b,a*a+b*b,a*a+b*b,c];}
-  else if(mode==='a'){html=`<p class="text-sm mb-2">Diketahui c = <b>${c}</b>, b = <b>${b}</b>. Cari a!</p>
-    <div class="step-row"><span>a² = c² − b²</span></div>
-    <div class="step-row"><span>a² = </span><input type="number" class="q-ans">² − <input type="number" class="q-ans">²</div>
-    <div class="step-row"><span>a² = </span><input type="number" class="q-ans"> − <input type="number" class="q-ans"></div>
-    <div class="step-row"><span>a = √</span><input type="number" class="q-ans"><span> = </span><input type="number" class="q-ans font-bold text-teal-800"></div>`;
-    ans=[c,b,c*c,b*b,c*c-b*b,c*c-b*b,a];}
-  else{html=`<p class="text-sm mb-2">Diketahui c = <b>${c}</b>, a = <b>${a}</b>. Cari b!</p>
-    <div class="step-row"><span>b² = c² − a²</span></div>
-    <div class="step-row"><span>b² = </span><input type="number" class="q-ans">² − <input type="number" class="q-ans">²</div>
-    <div class="step-row"><span>b² = </span><input type="number" class="q-ans"> − <input type="number" class="q-ans"></div>
-    <div class="step-row"><span>b = √</span><input type="number" class="q-ans"><span> = </span><input type="number" class="q-ans font-bold text-teal-800"></div>`;
-    ans=[c,a,c*c,a*a,c*c-a*a,c*c-a*a,b];}
-  return{type:'scaffold',short:'Kuadrat',title:'Cari Sisi (Rumus Kuadrat)',html:`<div class="bg-white rounded-2xl p-5 border">${html}</div>`,ans,
-    partial:()=>{const ins=$$('#g-question-area .q-ans');let c2=0;[...ins].forEach((e,i)=>{if(parseInt(e.value)===ans[i])c2++;});return ins.length?c2/ins.length:0;}};
+const t=PICK(POOL_SQ[diff]||POOL_SQ['C']);const a=t[0],b=t[1],c=t[2];const mode=PICK(['c','a','b']);
+let out;
+if(mode==='c')out=sqBlock('c','a','b',a,b,c,'+');
+else if(mode==='a')out=sqBlock('a','c','b',c,b,a,'-');
+else out=sqBlock('b','c','a',c,a,b,'-');
+return{type:'scaffold',short:'Kuadrat',totalItems:out.ans.length,title:'Cari Sisi (Metode Rumus Kuadrat)',html:`<div class="bg-white rounded-2xl p-5 border">${out.html}</div>`,ans:out.ans,partial:scaffoldPartial(out.ans)};
 }
-/* --- Q4: scaffold akar --- */
 function genQ4(diff){
-  const pool=diff==='C'?[[3,4,5],[6,8,10],[5,12,13]]:diff==='B'?[[9,12,15],[12,16,20],[7,24,25]]:[[9,40,41],[12,35,37],[20,21,29]];
-  const t=PICK(pool);const a=t[0],b=t[1],c=t[2];
-  const html=`<p class="text-sm mb-2">Diketahui a = <b>${a}</b>, b = <b>${b}</b>. Cari c!</p>
-    <div class="step-row"><span>c = √(a² + b²)</span></div>
-    <div class="step-row"><span>c = √(</span><input type="number" class="q-ans">² + <input type="number" class="q-ans">²<span>)</span></div>
-    <div class="step-row"><span>c = √(</span><input type="number" class="q-ans"> + <input type="number" class="q-ans"><span>)</span></div>
-    <div class="step-row"><span>c = √</span><input type="number" class="q-ans"></div>
-    <div class="step-row"><span>c = </span><input type="number" class="q-ans font-bold text-teal-800"></div>`;
-  const ans=[a,b,a*a,b*b,a*a+b*b,a*a+b*b,c];
-  return{type:'scaffold',short:'Akar',title:'Cari Sisi Miring (Rumus Akar)',html:`<div class="bg-white rounded-2xl p-5 border">${html}</div>`,ans,
-    partial:()=>{const ins=$$('#g-question-area .q-ans');let c2=0;[...ins].forEach((e,i)=>{if(parseInt(e.value)===ans[i])c2++;});return ins.length?c2/ins.length:0;}};
+const t=PICK(POOL_SQ[diff]||POOL_SQ['C']);const a=t[0],b=t[1],c=t[2];
+const s1=r6(a*a),s2=r6(b*b),sum=r6(s1+s2);
+const html=L(`<span>c = √(a² + b²)</span>`)
++L(`<span>c = √(</span>${IN}<span>² + </span>${IN}<span>²)</span>`)
++L(`<span>c = √(</span>${IN}<span> + </span>${IN}<span>)</span>`)
++LC(`<span>c = √</span>${IN}`)
++L(`<span>c = </span>${IN}`);
+const ans=[a,b,s1,s2,sum,sum,c];
+return{type:'scaffold',short:'Akar',totalItems:7,title:'Cari Sisi Miring (Metode Rumus Akar)',html:`<div class="bg-white rounded-2xl p-5 border">${html}</div>`,ans,partial:scaffoldPartial(ans)};
 }
-/* --- Q5: gabungan 2 segitiga --- */
+/* --- Q5: 9 template segitiga gabungan (F1,F2,F3,F3b,F4,F5,F6,F7,F8) --- */
+const Q5_SEEDS={
+'C':[{f:'F1',s:[[3,4,5],[5,12,13]]},{f:'F1',s:[[6,8,10],[10,24,26]]},{f:'F3',s:[12,16,20]},{f:'F3',s:[9,12,15]},{f:'F3b',s:[12,20,16]},{f:'F3b',s:[9,15,12]},{f:'F8',s:[5,13,35,37]},{f:'F8',s:[9,15,16,20]}],
+'B':[{f:'F1',s:[[9,12,15],[15,8,17]]},{f:'F1',s:[[12,16,20],[20,21,29]]},{f:'F2',s:[[8,15,17],[15,20,25]]},{f:'F2',s:[[7,24,25],[24,32,40]]},{f:'F6',s:[[8,17],[7,25]]},{f:'F6',s:[[12,13],[9,15]]},{f:'F8',s:[16,20,9,15]},{f:'F8',s:[12,13,12,13]}],
+'A':[{f:'F4',s:[16,12,20,30,34]},{f:'F4',s:[12,5,13,35,37]},{f:'F5',s:[[3,4,5],[5,12,13],[13,84,85]]},{f:'F5',s:[[9,12,15],[15,20,25],[25,60,65]]},{f:'F7',s:[30,25,7]},{f:'F7',s:[25,17,8]},{f:'F8',s:[20,29,28,35]},{f:'F3b',s:[1.2,1.5,0.9]}]
+};
+function perpAway(V,P,away,len){
+const d=[P[0]-V[0],P[1]-V[1]],n=Math.hypot(...d);
+const c1=[d[1]/n*len,-d[0]/n*len],c2=[-d[1]/n*len,d[0]/n*len];
+const d1=Math.hypot(V[0]+c1[0]-away[0],V[1]+c1[1]-away[1]);
+const d2=Math.hypot(V[0]+c2[0]-away[0],V[1]+c2[1]-away[1]);
+return d1>d2?[V[0]+c1[0],V[1]+c1[1]]:[V[0]+c2[0],V[1]+c2[1]];
+}
+function buildF1(s){
+const[a1,b1,c1]=s[0],[,b2,AD]=s[1];
+const B=[0,0],C=[b1,0],A=[0,-a1];
+const D=perpAway(C,A,B,b2);
+const b1x=sqBlock('AC','AB','BC',a1,b1,c1,'+'), b2x=sqBlock('AD','AC','CD',c1,b2,AD,'+');
+const sh={lines:[{p:[...A,...B]},{p:[...B,...C]},{p:[...A,...C],stroke:'#0284c7',w:2.5},{p:[...C,...D]},{p:[...A,...D],stroke:'#e11d48',w:2.5,dash:1}],polys:[{pts:[A,B,C]}],marks:[raMark(B,A,C,Math.min(a1,b1)*0.18),raMark(C,A,D,b2*0.18)],dots:[{x:A[0],y:A[1]},{x:B[0],y:B[1]},{x:C[0],y:C[1]},{x:D[0],y:D[1],c:'#e11d48'}],
+labels:[{...(()=>{const m=mid(A,B,-14,0);return{x:m[0],y:m[1],t:fmtN(a1),c:'#0284c7'}})()},{...(()=>{const m=mid(B,C,0,14);return{x:m[0],y:m[1],t:fmtN(b1),c:'#0284c7'}})()},{...(()=>{const m=mid(C,D,10,-6);return{x:m[0],y:m[1],t:fmtN(b2),c:'#0284c7'}})()},{...(()=>{const m=mid(A,D,-10,-6);return{x:m[0],y:m[1],t:'AD = ?',c:'#e11d48'}})()},{x:A[0]-8,y:A[1]-6,t:'A'},{x:B[0]-8,y:B[1]+12,t:'B'},{x:C[0]+8,y:C[1]+12,t:'C'},{x:D[0]+10,y:D[1],t:'D'}]};
+return {svg:svgBuild(sh),html:b1x.html+b2x.html,ans:[...b1x.ans,...b2x.ans]};
+}
+function buildF2(s){
+const[p,q1,s1]=s[0],[,q2,s2]=s[1];
+const O=[0,0],P=[0,-p],Lp=[-q1,0],R=[q2,0];
+const b1x=sqBlock('PL','PO','OL',p,q1,s1,'+'), b2x=sqBlock('PR','PO','OR',p,q2,s2,'+');
+const sh={lines:[{p:[...O,...P]},{p:[...O,...Lp]},{p:[...O,...R]},{p:[...P,...Lp],stroke:'#e11d48',w:2.5,dash:1},{p:[...P,...R],stroke:'#e11d48',w:2.5,dash:1}],polys:[{pts:[P,O,Lp]},{pts:[P,O,R]}],marks:[raMark(O,P,Lp,Math.min(p,q1)*0.18),raMark(O,P,R,Math.min(p,q2)*0.18)],dots:[{x:O[0],y:O[1]},{x:P[0],y:P[1]},{x:Lp[0],y:Lp[1]},{x:R[0],y:R[1]}],
+labels:[{x:P[0]-12,y:-p/2,t:fmtN(p),c:'#0284c7'},{x:-q1/2,y:14,t:fmtN(q1),c:'#0284c7'},{x:q2/2,y:14,t:fmtN(q2),c:'#0284c7'},{x:-q1/2-8,y:-p/2-6,t:'s₁ = ?',c:'#e11d48'},{x:q2/2+8,y:-p/2-6,t:'s₂ = ?',c:'#e11d48'},{x:P[0],y:P[1]-8,t:'P'},{x:O[0],y:O[1]+16,t:'O'},{x:Lp[0]-8,y:Lp[1]+4,t:'L'},{x:R[0]+8,y:R[1]+4,t:'R'}]};
+return {svg:svgBuild(sh),html:b1x.html+b2x.html,ans:[...b1x.ans,...b2x.ans]};
+}
+function buildF3(s,modeB){
+const[sq,x,h]=s;
+const S1=[0,0],S2=[sq,0],S3=[sq,-sq],S4=[0,-sq],R=[sq+x,0];
+let blk,labels;
+if(!modeB){blk=sqBlock('h','s','x',sq,x,h,'+');
+labels=[{x:sq/2,y:-sq-8,t:fmtN(sq),c:'#0284c7'},{x:sq+x/2,y:14,t:fmtN(x),c:'#0284c7'},{x:sq+x/2+10,y:-sq/2-8,t:'h = ?',c:'#e11d48'}];
+}else{blk=sqBlock('x','h','s',h,sq,x,'-');
+labels=[{x:sq/2,y:-sq-8,t:fmtN(sq),c:'#0284c7'},{x:sq+x/2,y:14,t:'x = ?',c:'#e11d48'},{x:sq+x/2+10,y:-sq/2-8,t:fmtN(h),c:'#0284c7'}];
+}
+const sh={lines:[{p:[...S2,...R]},{p:[...S3,...R],stroke:modeB?'#0284c7':'#e11d48',w:2.5,dash:modeB?0:1},{p:[...S2,...S3],stroke:'#0284c7',w:2.5}],polys:[{pts:[S1,S2,S3,S4],fill:'rgba(245,158,11,.15)'},{pts:[S2,R,S3]}],marks:[raMark(S2,S3,R,Math.min(sq,x)*0.18)],dots:[{x:S2[0],y:S2[1]},{x:S3[0],y:S3[1]},{x:R[0],y:R[1],c:'#e11d48'}],labels};
+return {svg:svgBuild(sh),html:blk.html,ans:blk.ans};
+}
+function buildF4(s){
+const[p,q1,s1,q2,s2]=s;
+const O=[0,0],T=[0,-p],Bt=[0,p],Lp=[-q1,0],R=[q2,0];
+const b1x=sqBlock('s₁','p','q₁',p,q1,s1,'+'), b2x=sqBlock('s₂','p','q₂',p,q2,s2,'+');
+const sh={lines:[{p:[...T,...Bt]},{p:[...Lp,...R]},{p:[...T,...Lp],stroke:'#e11d48',w:2.5,dash:1},{p:[...T,...R],stroke:'#e11d48',w:2.5,dash:1},{p:[...Bt,...Lp],stroke:'#94a3b8',w:2},{p:[...Bt,...R],stroke:'#94a3b8',w:2}],polys:[{pts:[T,Lp,Bt,R],fill:'rgba(13,148,136,.08)'}],marks:[raMark(O,T,R,Math.min(p,q2)*0.15)],dots:[{x:T[0],y:T[1]},{x:Bt[0],y:Bt[1]},{x:Lp[0],y:Lp[1]},{x:R[0],y:R[1]},{x:O[0],y:O[1],c:'#64748b'}],
+labels:[{x:8,y:-p/2,t:fmtN(p),c:'#0284c7'},{x:-q1/2,y:-8,t:fmtN(q1),c:'#0284c7'},{x:q2/2,y:-8,t:fmtN(q2),c:'#0284c7'},{x:-q1/2-8,y:-p/2-8,t:'s₁ = ?',c:'#e11d48'},{x:q2/2+8,y:-p/2-8,t:'s₂ = ?',c:'#e11d48'},{x:T[0],y:T[1]-8,t:'T'},{x:Lp[0]-8,y:Lp[1]+4,t:'L'},{x:R[0]+8,y:R[1]+4,t:'R'},{x:Bt[0],y:Bt[1]+14,t:'B'}]};
+return {svg:svgBuild(sh),html:b1x.html+b2x.html,ans:[...b1x.ans,...b2x.ans]};
+}
+function buildF5(s){
+const[a1,b1,c1]=s[0],[,b2,c2]=s[1],[,b3,c3]=s[2];
+const B=[0,0],C=[b1,0],A=[0,-a1];
+const D=perpAway(C,A,B,b2);
+const E=perpAway(D,A,C,b3);
+const k1x=sqBlock('AC','AB','BC',a1,b1,c1,'+'), k2x=sqBlock('AD','AC','CD',c1,b2,c2,'+'), k3x=sqBlock('AE','AD','DE',c2,b3,c3,'+');
+const sh={lines:[{p:[...A,...B]},{p:[...B,...C]},{p:[...A,...C],stroke:'#0284c7',w:2.5},{p:[...C,...D]},{p:[...A,...D],stroke:'#0284c7',w:2.5},{p:[...D,...E]},{p:[...A,...E],stroke:'#e11d48',w:2.5,dash:1}],polys:[{pts:[A,B,C]},{pts:[A,C,D]},{pts:[A,D,E]}],marks:[raMark(B,A,C,Math.min(a1,b1)*0.15),raMark(C,A,D,b2*0.15),raMark(D,A,E,b3*0.15)],dots:[{x:A[0],y:A[1]},{x:B[0],y:B[1]},{x:C[0],y:C[1]},{x:D[0],y:D[1]},{x:E[0],y:E[1],c:'#e11d48'}],
+labels:[{x:-12,y:-a1/2,t:fmtN(a1),c:'#0284c7'},{x:b1/2,y:14,t:fmtN(b1),c:'#0284c7'},{x:(C[0]+D[0])/2+8,y:(C[1]+D[1])/2-6,t:fmtN(b2),c:'#0284c7'},{x:(D[0]+E[0])/2+8,y:(D[1]+E[1])/2-6,t:fmtN(b3),c:'#0284c7'},{x:(A[0]+E[0])/2-10,y:(A[1]+E[1])/2-8,t:'AE = ?',c:'#e11d48'},{x:A[0]-8,y:A[1]-6,t:'A'},{x:B[0]-8,y:B[1]+12,t:'B'},{x:C[0]+6,y:C[1]+12,t:'C'},{x:D[0]+8,y:D[1]+4,t:'D'},{x:E[0]+8,y:E[1],t:'E'}]};
+return {svg:svgBuild(sh),html:k1x.html+k2x.html+k3x.html,ans:[...k1x.ans,...k2x.ans,...k3x.ans]};
+}
+function buildF6(s){
+const[cd,cb]=s[0],[ae,ab]=s[1];
+const db=r6(Math.sqrt(cb*cb-cd*cd)), eb=r6(Math.sqrt(ab*ab-ae*ae)), de=r6(eb-db);
+const E=[0,0],D=[de,0],B=[eb,0],A=[0,ae],C=[de,-cd];
+const b1x=sqBlock('DB','CB','CD',cb,cd,db,'-'), b2x=sqBlock('EB','AB','AE',ab,ae,eb,'-'), b3x=sumLine('DE = EB − DB','EB','DB',eb,db,de,'-');
+const sh={lines:[{p:[...E,...B],w:2.5,stroke:'#334155'},{p:[...E,...A]},{p:[...D,...C]},{p:[...A,...B],stroke:'#0284c7',w:2.5},{p:[...C,...B],stroke:'#0284c7',w:2.5}],polys:[{pts:[E,A,B],fill:'rgba(244,63,94,.08)'},{pts:[D,C,B],fill:'rgba(13,148,136,.10)'}],marks:[raMark(E,A,B,Math.min(ae,eb)*0.15),raMark(D,C,B,Math.min(cd,db)*0.15)],dots:[{x:E[0],y:E[1]},{x:D[0],y:D[1]},{x:B[0],y:B[1]},{x:A[0],y:A[1]},{x:C[0],y:C[1]}],
+labels:[{x:-12,y:ae/2,t:fmtN(ae),c:'#0284c7'},{x:eb/2,y:ae/2+12,t:fmtN(ab),c:'#0284c7'},{x:de+10,y:-cd/2,t:fmtN(cd),c:'#0284c7'},{x:(de+eb)/2+6,y:-cd/2-8,t:fmtN(cb),c:'#0284c7'},{x:de/2,y:-10,t:'DE = ?',c:'#e11d48'},{x:E[0]-8,y:E[1]-6,t:'E'},{x:D[0],y:D[1]+14,t:'D'},{x:B[0]+8,y:B[1]+10,t:'B'},{x:A[0]-8,y:A[1]+8,t:'A'},{x:C[0],y:C[1]-8,t:'C'}]};
+return {svg:svgBuild(sh),html:b1x.html+b2x.html+b3x.html,ans:[...b1x.ans,...b2x.ans,...b3x.ans]};
+}
+function buildF7(s){
+const[ea,ed,od]=s;
+const eo=r6(Math.sqrt(ed*ed-od*od)), ao=r6(Math.sqrt(ea*ea-eo*eo)), ad=r6(ao+od);
+const A=[0,0],O=[ao,0],D=[ad,0],E=[ao,-eo];
+const b1x=sqBlock('EO','ED','OD',ed,od,eo,'-'), b2x=sqBlock('AO','EA','EO',ea,eo,ao,'-'), b3x=sumLine('AD = AO + OD','AO','OD',ao,od,ad,'+');
+const sh={lines:[{p:[...A,...D],w:2.5,stroke:'#334155'},{p:[...O,...E],stroke:'#e11d48',w:2.5,dash:1},{p:[...A,...E],stroke:'#0284c7',w:2.5},{p:[...E,...D],stroke:'#0284c7',w:2.5}],polys:[{pts:[A,E,D]}],marks:[raMark(O,E,D,Math.min(eo,od)*0.15)],dots:[{x:A[0],y:A[1]},{x:O[0],y:O[1]},{x:D[0],y:D[1]},{x:E[0],y:E[1]}],
+labels:[{x:ao/2-6,y:-eo/2-6,t:fmtN(ea),c:'#0284c7'},{x:(ao+ad)/2+6,y:-eo/2-6,t:fmtN(ed),c:'#0284c7'},{x:(ao+ad)/2,y:14,t:fmtN(od),c:'#0284c7'},{x:ao/2,y:14,t:'AO = ?',c:'#e11d48'},{x:ao+12,y:-eo/2,t:'EO',c:'#64748b'},{x:A[0]-8,y:A[1]+12,t:'A'},{x:O[0],y:O[1]+16,t:'O'},{x:D[0]+8,y:D[1]+12,t:'D'},{x:E[0],y:E[1]-8,t:'E'}]};
+return {svg:svgBuild(sh),html:b1x.html+b2x.html+b3x.html,ans:[...b1x.ans,...b2x.ans,...b3x.ans]};
+}
+function buildF8(s){
+const[t,hl,base,x]=s;
+const v=r6(Math.sqrt(hl*hl-t*t));
+const T=[0,0],M=[0,v],Lp=[-t,0],R=[base,v];
+const b1x=sqBlock('v','m','t',hl,t,v,'-'), b2x=sqBlock('x','v','a',v,base,x,'+');
+const sh={lines:[{p:[...Lp,...T]},{p:[...T,...M],stroke:'#64748b',w:2,dash:1},{p:[...M,...R]},{p:[...Lp,...M],stroke:'#0284c7',w:2.5},{p:[...T,...R],stroke:'#e11d48',w:2.5,dash:1}],polys:[{pts:[Lp,T,M]},{pts:[T,M,R]}],marks:[raMark(T,Lp,M,Math.min(t,v)*0.15),raMark(M,T,R,Math.min(v,base)*0.15)],dots:[{x:T[0],y:T[1]},{x:M[0],y:M[1]},{x:Lp[0],y:Lp[1]},{x:R[0],y:R[1]}],
+labels:[{x:-t/2,y:-8,t:fmtN(t),c:'#0284c7'},{x:-t/2-10,y:v/2,t:fmtN(hl),c:'#0284c7'},{x:base/2,y:v+14,t:fmtN(base),c:'#0284c7'},{x:base/2+8,y:v/2-8,t:'x = ?',c:'#e11d48'},{x:10,y:v/2,t:'v',c:'#64748b'},{x:T[0],y:T[1]-8,t:'T'},{x:M[0]-8,y:M[1]+10,t:'M'},{x:Lp[0]-8,y:Lp[1]-6,t:'L'},{x:R[0]+8,y:R[1]+8,t:'R'}]};
+return {svg:svgBuild(sh),html:b1x.html+b2x.html,ans:[...b1x.ans,...b2x.ans]};
+}
 function genQ5(diff){
-  const chain={C:[{t1:[3,4,5],t2:[5,12,13]},{t1:[6,8,10],t2:[10,24,26]}],B:[{t1:[9,12,15],t2:[15,8,17]},{t1:[8,15,17],t2:[17,144,145]}],A:[{t1:[12,16,20],t2:[20,21,29]},{t1:[15,20,25],t2:[25,60,65]}]};
-  const pk=PICK(chain[diff]||chain['B']);const[a1,b1,c1]=pk.t1;const b2=pk.t2[1];const AD=pk.t2[2];
-  const html=`<p class="text-sm mb-2">△ABC siku-siku di B (AB=<b>${a1}</b>, BC=<b>${b1}</b>); △ACD siku-siku di C (CD=<b>${b2}</b>). Cari AC lalu AD!</p>
-    <div class="bg-teal-50 p-3 rounded-xl space-y-2 mb-2">
-      <div class="step-row"><span>AC² = </span><input type="number" class="q-ans">² + <input type="number" class="q-ans">²</div>
-      <div class="step-row"><span>AC² = </span><input type="number" class="q-ans"> + <input type="number" class="q-ans"> = <input type="number" class="q-ans"></div>
-      <div class="step-row"><span>AC = √</span><input type="number" class="q-ans"><span> = </span><input type="number" class="q-ans font-bold text-teal-800"></div>
-    </div>
-    <div class="bg-amber-50 p-3 rounded-xl space-y-2">
-      <div class="step-row"><span>AD² = </span><input type="number" class="q-ans">² + <input type="number" class="q-ans">²</div>
-      <div class="step-row"><span>AD² = </span><input type="number" class="q-ans"> + <input type="number" class="q-ans"> = <input type="number" class="q-ans"></div>
-      <div class="step-row"><span>AD = √</span><input type="number" class="q-ans"><span> = </span><input type="number" class="q-ans font-bold text-amber-800"></div>
-    </div>`;
-  const ans=[a1,b1,a1*a1,b1*b1,a1*a1+b1*b1,a1*a1+b1*b1,c1,c1,b2,c1*c1,b2*b2,c1*c1+b2*b2,c1*c1+b2*b2,AD];
-  return{type:'scaffold',short:'Gabung',title:'Segitiga Gabungan (2 berantai)',html:`<div class="bg-white rounded-2xl p-5 border">${html}</div>`,ans,
-    partial:()=>{const ins=$$('#g-question-area .q-ans');let c2=0;[...ins].forEach((e,i)=>{if(parseInt(e.value)===ans[i])c2++;});return ins.length?c2/ins.length:0;}};
+const entry=PICK(Q5_SEEDS[diff]||Q5_SEEDS['B']);
+const builders={F1:()=>buildF1(entry.s),F2:()=>buildF2(entry.s),F3:()=>buildF3(entry.s,false),F3b:()=>buildF3(entry.s,true),F4:()=>buildF4(entry.s),F5:()=>buildF5(entry.s),F6:()=>buildF6(entry.s),F7:()=>buildF7(entry.s),F8:()=>buildF8(entry.s)};
+const r=builders[entry.f]();
+const titles={F1:'Segitiga Gabungan (Rantai 2)',F2:'Segitiga Gabungan (Sisi Bersama)',F3:'Persegi + Segitiga (Cari Miring)',F3b:'Persegi + Segitiga (Cari Sisi Siku)',F4:'Layang-layang Diagonal ⊥',F5:'Segitiga Gabungan (Rantai 3)',F6:'Selisih Dua Segitiga',F7:'Tinggi dari Titik Puncak',F8:'Dua Segitiga Operasi Campuran'};
+return{type:'scaffold',short:entry.f,totalItems:r.ans.length,title:titles[entry.f],
+html:`<div class="bg-white rounded-2xl p-4 border"><div class="svg-container bg-slate-50 rounded-xl border mb-3 py-2">${r.svg}</div>${r.html}</div>`,
+ans:r.ans,partial:scaffoldPartial(r.ans)};
 }
 /* --- LOAD / CEK / LANJUT --- */
 function loadQ(){
-  G.spent=0;G.checked=false;
-  $('#g-btn-group-play').style.display='flex';$('#g-btn-group-next').style.display='none';
-  const type=G.order[G.current-1];const diff=G.pattern[G.current-1]||'C';
-  const gens={1:genQ1,2:genQ2,3:genQ3,4:genQ4,5:genQ5};
-  G.currentQ=gens[type](diff);
-  G.label[G.current-1]=`#${G.current}(${G.currentQ.short})`;
-  $('#g-question-area').innerHTML=`<h3 class="font-extrabold text-lg text-teal-800 mb-3">Soal ${G.current}/5: ${G.currentQ.title}</h3>${G.currentQ.html}`;
-  $$('#g-question-area .q-bs').forEach(b=>b.addEventListener('click',()=>{
-    const i=b.dataset.i;
-    $$('#g-question-area .q-bs').forEach(x=>{if(x.dataset.i===i)x.classList.remove('sel','ring-4','ring-teal-300');});
-    b.classList.add('sel','ring-4','ring-teal-300');updateBtn();
-  }));
-  $$('#g-question-area .q-ans').forEach(e=>e.addEventListener('input',updateBtn));
-  updateBtn();saveGS();
+G.spent=0;G.checked=false;
+$('#g-btn-group-play').style.display='flex';$('#g-btn-group-next').style.display='none';
+const type=G.order[G.current-1];const diff=G.pattern[G.current-1]||'C';
+const gens={1:genQ1,2:genQ2,3:genQ3,4:genQ4,5:genQ5};
+G.currentQ=gens[type](diff);
+G.label[G.current-1]=`#${G.current}(${G.currentQ.short})`;
+$('#g-question-area').innerHTML=`<h3 class="font-extrabold text-lg text-teal-800 mb-3">Soal ${G.current}/5: ${G.currentQ.title} <span class="text-xs bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full">Bobot ${BOBOT[type]}</span></h3>${G.currentQ.html}`;
+$$('#g-question-area .q-bs').forEach(b=>b.addEventListener('click',()=>{
+const i=b.dataset.i;
+$$('#g-question-area .q-bs').forEach(x=>{if(x.dataset.i===i)x.classList.remove('sel','ring-4','ring-teal-300');});
+b.classList.add('sel','ring-4','ring-teal-300');updateBtn();
+}));
+$$('#g-question-area .q-ans').forEach(e=>e.addEventListener('input',updateBtn));
+updateBtn();saveGS();
 }
 function checkAns(){
-  if(!confirm('Yakin dengan jawaban? Tidak ada perbaikan setelah CEK.'))return;
-  const st=fillStats();const partial=G.currentQ.partial();
-  G.checked=true;G.scores.push(partial);
-  const m=$('#g-message');m.style.color=partial===1?'#16a34a':'#dc2626';
-  m.innerText=`Terisi ${st.terisi}/${st.total} kotak — ${partial===1?'Tepat!':'Belum tepat.'}`;
-  $$('#g-question-area input,#g-question-area select,#g-question-area button').forEach(e=>e.disabled=true);
-  pauseT();saveGS();dots();
-  $('#g-btn-group-play').style.display='none';$('#g-btn-group-next').style.display='flex';
+if(!confirm('Yakin dengan jawaban? Tidak ada perbaikan setelah CEK.'))return;
+const st=fillStats();const partial=G.currentQ.partial();
+const type=G.order[G.current-1];
+const benar=Math.round(partial*G.currentQ.totalItems);
+const skor=Math.round(partial*BOBOT[type]);
+G.checked=true;G.scores.push(partial);
+const m=$('#g-message');m.style.color=partial===1?'#16a34a':'#dc2626';
+m.innerText=`Benar ${benar}/${G.currentQ.totalItems} • Skor +${skor}/${BOBOT[type]}`;
+$$('#g-question-area input,#g-question-area select,#g-question-area button').forEach(e=>e.disabled=true);
+pauseT();saveGS();dots();
+$('#g-btn-group-play').style.display='none';$('#g-btn-group-next').style.display='flex';
 }
 function skipQ(){if(!confirm('Lewati soal ini? (dinilai 0)'))return;G.checked=true;G.scores.push(0);
-  const m=$('#g-message');m.style.color='#64748b';m.innerText='Dilewati.';dots();pauseT();saveGS();
-  $('#g-btn-group-play').style.display='none';$('#g-btn-group-next').style.display='flex';}
+const m=$('#g-message');m.style.color='#64748b';m.innerText='Dilewati (skor 0).';dots();pauseT();saveGS();
+$('#g-btn-group-play').style.display='none';$('#g-btn-group-next').style.display='flex';}
 function nextQ(){G.current++;if(G.current>5){G.phase='result';saveGS();showResult();}else{startT();loadQ();}}
-function timeUp(){while(G.scores.length<5)G.scores.push(0);G.phase='result';saveGS();showResult();}
-function showResult(){pauseT();const sum=G.scores.reduce((a,b)=>a+b,0);const f=Math.round((sum/5)*100);
-  $('#g-final-score').innerText=f;
-  $('#g-detail-list').innerHTML='<b>Detail:</b><br>'+G.scores.map((s,i)=>`${G.label[i]||('#'+(i+1))}: ${Math.round(s*20)}/20`).join(' | ');
-  showGS('#g-result-screen');}
+
+function showResult(){pauseT();const f=weightedTotal();
+$('#g-final-score').innerText=f;
+$('#g-detail-list').innerHTML='<b>Detail:</b><br>'+G.scores.map((s,i)=>{const t=G.order[i];return `${G.label[i]||('#'+(i+1))}: ${Math.round(s*BOBOT[t])}/${BOBOT[t]}`;}).join(' | ');
+showGS('#g-result-screen');}
 $('#g-btn-check-play').onclick=checkAns;
 $('#g-btn-skip-play').onclick=skipQ;
 $('#g-btn-next').onclick=nextQ;
-$('#g-btn-kirim').onclick=async()=>{
+async function submitKuis(auto){
   const btn=$('#g-btn-kirim');btn.disabled=true;btn.textContent='⏳ Mengirim...';
-  const sum=G.scores.reduce((a,b)=>a+b,0);const f=Math.round((sum/5)*100);
-  const detail=G.scores.map((s,i)=>`${G.label[i]||('#'+(i+1))}:${Math.round(s*20)}`).join(' | ');
-  const used=GAME_CONFIG.TOTAL_TIME-Math.max(0,G.timeLeft);
-  const payload={tipe:'KUIS',kode:KODE,nama1:TK.nama,kelas:TK.kelas,kategori:TK.kategori,username:TK.username,skor:f,jawaban:detail,waktuPengerjaan:fmtSec(used),percobaan:TK.gen,username2:TK.pair?TK.pair.username2:''};
-  try{await postAction(payload);saveState({submittedKuis:true,kuisScore:f});try{localStorage.removeItem(gKey());}catch(e){}$('#g-saved-score').textContent=f;showGS('#g-success-screen');}
-  catch(e){alert('Gagal mengirim.');btn.disabled=false;btn.textContent='📤 Kirim Nilai';}
+  const f=weightedTotal();
+  const detail=G.scores.map((s,i)=>{const t=G.order[i];return `${G.label[i]||('#'+(i+1))}:${Math.round(s*BOBOT[t])}`;}).join(' | ');
+  const otUsed=G.ot?(OT_TOTAL()-Math.max(0,G.otLeft)):0;
+  const used=(GAME_CONFIG.TOTAL_TIME-Math.max(0,G.timeLeft))+otUsed;
+  const payload={tipe:'KUIS',kode:KODE,nama1:TK.nama,kelas:TK.kelas,kategori:TK.kategori,username:TK.username,skor:f,jawaban:(auto?'[WAKTU-TAMBAHAN] ':'')+detail,waktuPengerjaan:fmtSec(used),percobaan:TK.gen,waktuTambahan:otUsed>0?fmtSec(otUsed):'-',username2:TK.pair?TK.pair.username2:''};
+  try{
+    await postAction(payload);
+    saveState({submittedKuis:true,kuisScore:f});
+    try{localStorage.removeItem(gKey());}catch(e){}
+    $('#g-saved-score').textContent=f;
+    if(auto){
+      btn.disabled=false;btn.style.background='#64748b';btn.textContent='✅ Nilai Terkirim Otomatis — LIHAT HASIL';
+      btn.onclick=()=>{$('#g-success-note').textContent='⏰ Nilai dikirim otomatis karena waktu tambahan habis.';showGS('#g-success-screen');};
+    }else{
+      $('#g-success-note').textContent='Nilai LKPD & Kuis tersimpan di Rekap Guru.';
+      showGS('#g-success-screen');
+    }
+  }catch(e){
+    if(auto){btn.disabled=false;btn.style.background='#16a34a';btn.textContent='📤 Kirim Manual (otomatis gagal)';btn.onclick=()=>submitKuis(false);}
+    else{alert('Gagal mengirim.');btn.disabled=false;btn.textContent='📤 Kirim Nilai Kuis';}
+  }
+}
+$('#g-btn-kirim').onclick=()=>submitKuis(false);
+$('#g-btn-exit').onclick=()=>{
+  try{localStorage.removeItem(sKey());}catch(e){}
+  try{localStorage.removeItem(gKey());}catch(e){}
+  window.close();
+  setTimeout(()=>{
+    try{window.open('','_self');window.close();}catch(e){}
+    setTimeout(()=>{
+      document.open();document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Sesi Berakhir</title></head><body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f1f5f9;font-family:sans-serif"><div style="background:#fff;padding:32px 40px;border-radius:16px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.12)"><div style="font-size:44px">✅</div><h2 style="margin:10px 0 6px;color:#0f172a">Sesi Berakhir</h2><p style="color:#64748b;font-size:14px;margin:0">Silakan tutup jendela/tab ini secara manual.</p></div></body></html>');document.close();
+    },300);
+  },400);
 };
-$('#g-btn-exit').onclick=()=>{try{localStorage.removeItem(sKey());}catch(e){}location.href=LOGIN_URL;};
 
 /* ================= BOOT ================= */
 window.addEventListener('load',initGate);
