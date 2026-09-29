@@ -3,94 +3,114 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login — Tes Formatif</title>
+<title>Ujian CBT Exambro — Login</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-body{font-family:'Segoe UI',sans-serif;background:linear-gradient(165deg,#5bb0e8 0%,#2f7fc1 60%,#266ba8 100%);min-height:100vh;margin:0;display:flex;align-items:center;justify-content:center;padding:20px}
-.hidden{display:none!important}
-#loader-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.55);backdrop-filter:blur(3px)}
-#loader-overlay.hidden{display:none!important}
-.loader-card{background:rgba(255,255,255,.92);border-radius:16px;padding:22px 28px;display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.15);text-align:center}
-.spinner{width:46px;height:46px;border-radius:50%;border:5px solid #e0e7ff;border-top-color:#4f46e5;animation:spin .9s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-#loader-text{font-weight:700;color:#1f2937;font-size:.95rem}
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>body{font-family:'Plus Jakarta Sans',sans-serif;}</style>
 </head>
-<body>
-<div id="loader-overlay"><div class="loader-card"><div class="spinner"></div><div id="loader-text">🏫 Memuat info kegiatan...</div></div></div>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
+<div class="w-full max-w-md">
+  <div class="bg-white rounded-3xl shadow-2xl p-6 space-y-4">
+    <div class="text-center space-y-1">
+      <h1 id="ld-judul" class="text-xl font-extrabold text-slate-800">Ujian CBT Exambrowser</h1>
+      <p id="ld-sub" class="text-xs text-slate-500">SMPN 2 Karawang Barat</p>
+      <p id="ld-desk" class="text-xs text-slate-600"></p>
+    </div>
+    <div class="bg-teal-50 border border-teal-200 rounded-xl p-3 text-[11px] text-teal-900 whitespace-pre-line" id="ld-instr"></div>
 
-<div id="ua-block" class="hidden max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
-  <div class="text-5xl mb-4">🛡️</div>
-  <h1 class="text-xl font-bold text-gray-800 mb-2">Akses Dibatasi</h1>
-  <p class="text-sm text-gray-600 mb-4">Halaman ini hanya dapat dibuka melalui aplikasi <b>CBT Exam Browser</b> SMPN 2 Karawang Barat.</p>
-  <p class="text-xs text-gray-500">Silakan buka aplikasi CBT di perangkat Anda, lalu masuk kembali melalui link yang diberikan guru.</p>
-</div>
+    <div class="space-y-1">
+      <label class="text-xs font-bold text-slate-500 uppercase">1 • Pilih Nama Ujian (wajib)</label>
+      <select id="ex-select" class="w-full border-2 rounded-xl px-3 py-3 text-sm font-semibold bg-white">
+        <option value="">— memuat daftar ujian —</option>
+      </select>
+    </div>
 
-<div id="login-card" class="hidden max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
-  <div class="text-center mb-6">
-    <div class="text-4xl mb-2">📝</div>
-    <h1 id="d-judul" class="text-xl font-bold text-gray-800">Tes Formatif</h1>
-    <p id="d-subjudul" class="text-sm text-gray-500">Sekolah</p>
+    <div id="ld-form" class="space-y-3 opacity-50 pointer-events-none">
+      <div class="space-y-1">
+        <label class="text-xs font-bold text-slate-500 uppercase">2 • Username</label>
+        <input id="ld-user" class="w-full border-2 rounded-xl px-3 py-3 text-sm" placeholder="Username" autocomplete="off">
+      </div>
+      <div class="space-y-1">
+        <label class="text-xs font-bold text-slate-500 uppercase">3 • Password</label>
+        <input id="ld-pass" type="password" class="w-full border-2 rounded-xl px-3 py-3 text-sm" placeholder="Password">
+      </div>
+      <button id="ld-login" class="w-full bg-teal-700 hover:bg-teal-800 text-white font-extrabold py-3 rounded-xl">Masuk →</button>
+    </div>
+    <p id="ld-msg" class="text-xs text-center text-rose-600 font-semibold"></p>
+    <p class="text-[10px] text-center text-slate-400" id="ld-guru"></p>
   </div>
-  <p id="d-deskripsi" class="text-sm text-gray-600 bg-blue-50 border border-blue-100 rounded-xl p-3 mb-4"></p>
-  <div class="space-y-3 mb-4">
-    <input id="in-user" class="w-full border rounded-xl px-4 py-3" placeholder="Username">
-    <input id="in-pass" type="password" class="w-full border rounded-xl px-4 py-3" placeholder="Password">
-  </div>
-  <button id="btn-login" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl">Masuk →</button>
-  <p id="d-instruksi" class="text-[11px] text-gray-500 mt-4 whitespace-pre-line"></p>
-  <p id="d-guru" class="text-[11px] text-gray-400 mt-2 text-center"></p>
 </div>
 
 <script>
-const UA_MARKER='CBT-MTK-SMPN2Karbar';
-const GS_URL='https://script.google.com/macros/s/AKfycbxpRy3ycX4RYV4tpivFsxCj4TZEAYyu9Kgf8S2pcopv5TgdQ8QhDwnzUEfS6tKkMwE/exec';
-const PENGATURAN_DIRECT_CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5u_MP8qFVe53hTJUvKBun__A0RAM9rDh4GyrSaUrfc5qwAV0Y_OHA_7mxIKjZ8AOpSSUcTy172j_f/pub?gid=1953159314&single=true&output=csv';
+/* ==== KONFIGURASI — samakan dengan milik Anda ==== */
+const GS_URL='https://script.google.com/macros/s/AKfycbxNNY8YQP2ZJMIUjJ5gyCgMi5hDKoeB5NsoBYBbtydQ8i8CJ2GbwnhMo1Ki8fMG9THQ/exec';
+const CSV_URL='GANTI_DENGAN_URL_CSV_PENGATURANDIRECT_ANDA';   /* salin dari LoginDirect lama */
+const UA_WAJIB='CBT-MTK-SMPN2Karbar';
+const FALLBACK_LIST=[
+  {kode:'MTK-005',nama:'Penilaian Tengah Semester (PTS) Ganjil'},
+  {kode:'MTK-003',nama:'Tes Formatif Bilangan Berpangkat & Bentuk Akar'}
+];
 const $=s=>document.querySelector(s);
-function hideLoader(){$('#loader-overlay').classList.add('hidden');}
+const post=p=>fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)}).then(r=>r.json());
 
-if(!navigator.userAgent.includes(UA_MARKER)){
-  hideLoader(); $('#ua-block').classList.remove('hidden');
-} else {
-  fetch(PENGATURAN_DIRECT_CSV).then(r=>r.text()).then(txt=>{
-    const info={};
-    txt.split('\n').forEach(line=>{
-      const m=line.match(/^"?([^",]+)"?\s*,\s*"?(.*)"?\s*$/);
-      if(m) info[m[1].trim()]=m[2].trim();
-    });
-    $('#d-judul').textContent=info.DIRECT_JUDUL||'Tes Formatif';
-    $('#d-subjudul').textContent=info.DIRECT_SUBJUDUL||'';
-    $('#d-deskripsi').textContent=info.DIRECT_DESKRIPSI||'';
-    $('#d-instruksi').textContent=info.DIRECT_INSTRUKSI||'';
-    $('#d-guru').textContent=info.DIRECT_GURU?('Guru: '+info.DIRECT_GURU):'';
-    window.__DIRECT_TARGET=info.DIRECT_URL_TARGET||'TesFormatif1.html';
-        window.__DIRECT_KODE=info.DIRECT_KODE||'MTK-003';
-    hideLoader(); $('#login-card').classList.remove('hidden');
-  }).catch(()=>{ hideLoader(); $('#login-card').classList.remove('hidden'); });
-
-  $('#btn-login').onclick=async()=>{
-    const u=$('#in-user').value.trim(), p=$('#in-pass').value;
-    if(!u||!p){ alert('Isi username dan password.'); return; }
-    $('#btn-login').disabled=true; $('#btn-login').textContent='⏳ Memverifikasi...';
-    try{
-      const res=await fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'directLogin',u:u,p:p,kode:(window.__DIRECT_KODE||'MTK-003')})});
-      const r=await res.json();
-      if(!r.ok){ alert('Username/password salah.'); $('#btn-login').disabled=false; $('#btn-login').textContent='Masuk →'; return; }
-      const targetKode = window.__DIRECT_KODE || 'MTK-003';
-      let doneInfo=null;
-      const stTarget = (r.status||{})[targetKode];
-      if(stTarget && stTarget.skorKuis && stTarget.skorKuis!=='-'){ doneInfo={kode:targetKode, skorLkpd:stTarget.skorLkpd, skorKuis:stTarget.skorKuis}; }
-      if(doneInfo){
-        if(!confirm('⚠️ Anda sudah menyelesaikan '+doneInfo.kode+' (Skor LKPD: '+doneInfo.skorLkpd+', Kuis: '+doneInfo.skorKuis+').\n\nMasuk lagi akan mencatat PERCOBAAN BARU dan menimpa catatan lama.\n\nLanjutkan?')){
-          $('#btn-login').disabled=false; $('#btn-login').textContent='Masuk →'; return;
-        }
-      }
-      localStorage.setItem('DIRECT_SESSION', JSON.stringify({username:r.username,nama:r.nama,kelas:r.kelas,kategori:r.kategori,ts:Date.now()}));
-      location.href=(window.__DIRECT_TARGET||'TesFormatif1.html');
-    }catch(e){ alert('Gagal menghubungi server. Coba lagi.'); $('#btn-login').disabled=false; $('#btn-login').textContent='Masuk →'; }
-  };
+/* ==== UA GATE ==== */
+if((navigator.userAgent||'').indexOf(UA_WAJIB)<0){
+  document.body.innerHTML='<div class="max-w-md mx-auto mt-16 bg-white border-2 border-rose-300 rounded-xl p-6 text-center"><h2 class="font-extrabold text-rose-600">Akses Ditolak</h2><p class="text-sm text-slate-600 mt-2">Halaman ini hanya dapat dibuka melalui aplikasi CBT Exambrowser resmi.</p></div>';
+  throw new Error('UA tidak sah');
 }
+
+/* ==== INFO DARI CSV ==== */
+(async()=>{
+  try{
+    const t=await (await fetch(CSV_URL)).text();
+    const o={};
+    t.split(/\r?\n/).forEach(r=>{const i=r.indexOf(',');if(i<0)return;const k=r.slice(0,i).trim().replace(/^"|"$/g,'');const v=r.slice(i+1).trim().replace(/^"|"$/g,'');if(k)o[k]=v;});
+    if(o.DIRECT_JUDUL)$('#ld-judul').textContent=o.DIRECT_JUDUL;
+    if(o.DIRECT_SUBJUDUL)$('#ld-sub').textContent=o.DIRECT_SUBJUDUL;
+    if(o.DIRECT_DESKRIPSI)$('#ld-desk').textContent=o.DIRECT_DESKRIPSI;
+    if(o.DIRECT_INSTRUKSI)$('#ld-instr').textContent=o.DIRECT_INSTRUKSI;
+    if(o.DIRECT_GURU)$('#ld-guru').textContent='Guru: '+o.DIRECT_GURU;
+  }catch(e){}
+})();
+
+/* ==== DAFTAR UJIAN (terbaru dulu) ==== */
+let EX={selected:null};
+(async()=>{
+  let list=null;
+  try{ const r=await post({action:'directExamList'}); if(r.ok&&r.list&&r.list.length) list=r.list; }catch(e){}
+  if(!list) list=FALLBACK_LIST;
+  $('#ex-select').innerHTML='<option value="">— Pilih Nama Ujian —</option>'+list.map(x=>`<option value="${x.kode}">${x.kode} : ${x.nama}</option>`).join('');
+})();
+$('#ex-select').onchange=()=>{
+  EX.selected=$('#ex-select').value||null;
+  const on=!!EX.selected;
+  $('#ld-form').classList.toggle('opacity-50',!on);
+  $('#ld-form').classList.toggle('pointer-events-none',!on);
+  $('#ld-msg').textContent='';
+};
+
+/* ==== LOGIN ==== */
+$('#ld-login').onclick=async()=>{
+  const kode=EX.selected;
+  if(!kode){ $('#ld-msg').textContent='Pilih nama ujian terlebih dahulu.'; return; }
+  const u=$('#ld-user').value.trim(), p=$('#ld-pass').value;
+  if(!u||!p){ $('#ld-msg').textContent='Isi username dan password.'; return; }
+  $('#ld-login').disabled=true; $('#ld-login').textContent='Memverifikasi...';
+  let r;
+  try{ r=await post({action:'directLogin',u:u,p:p,kode:kode}); }
+  catch(e){ $('#ld-msg').textContent='Gagal koneksi server.'; $('#ld-login').disabled=false; $('#ld-login').textContent='Masuk →'; return; }
+  if(!r.ok){ $('#ld-msg').textContent='Username/password salah.'; $('#ld-login').disabled=false; $('#ld-login').textContent='Masuk →'; return; }
+  const st=(r.status||{})[kode];
+  if(st && st.skorKuis && st.skorKuis!=='-'){
+    if(!confirm('⚠️ Anda sudah menyelesaikan '+kode+' (Skor LKPD: '+st.skorLkpd+', Kuis: '+st.skorKuis+').\nMasuk lagi = percobaan baru dan menimpa catatan lama.\nLanjutkan?')){
+      $('#ld-login').disabled=false; $('#ld-login').textContent='Masuk →'; return;
+    }
+  }
+  localStorage.setItem('DIRECT_SESSION', JSON.stringify({username:r.username,nama:r.nama,kelas:r.kelas,kategori:r.kategori,kode:kode,ts:Date.now()}));
+  const target=r.target || (kode==='MTK-003'?'TesFormatif1.html':'');
+  if(!target){ $('#ld-msg').textContent='FileHTML ujian tidak ditemukan di DaftarLKPD.'; $('#ld-login').disabled=false; $('#ld-login').textContent='Masuk →'; return; }
+  location.href=target;
+};
 </script>
 </body>
 </html>
