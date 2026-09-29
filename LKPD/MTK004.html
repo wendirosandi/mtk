@@ -309,6 +309,7 @@ function startLKPD(){
 $('#student-name').value=TK.nama;$('#student-class').value=TK.kelas;
 $('#student-pair').value=TK.pair?TK.pair.nama2:'(sendiri)';
 setRNG(getSalt());
+  auditK2Pools();
 setDifficulty(TK.kategori);
 const st=loadState();
 restoreAnswers(st.answers);
@@ -404,20 +405,40 @@ $('#route-svg').outerHTML=`<svg id="route-svg" width="320" height="200" viewBox=
 
 /* ================= KEGIATAN 2 ================= */
 let k2Cases=[];
+const K2_POOLS={'C':{siku:[[3,4,5],[6,8,10],[5,12,13]],lancip:[[4,5,6],[6,7,8],[7,8,10]],tumpul:[[3,4,6],[5,6,9],[4,7,10]]},'B':{siku:[[9,12,15],[12,16,20],[10,24,26]],lancip:[[10,12,14],[12,15,18],[15,18,22]],tumpul:[[8,12,17],[10,15,20],[12,18,25]]},'A':{siku:[[15,36,39],[20,21,29],[12,35,37],[2.4,4.5,5.1]],lancip:[[20,25,30],[25,30,35],[4.5,5.5,6.5],[2.5,3.5,4]],tumpul:[[15,20,30],[18,24,35],[20,30,42],[2,3,4.5]]}};
+function classifyTriple(tri){
+  const s=[...tri].sort((a,b)=>a-b);
+  const dec=Math.max(...s.map(v=>(String(v).split('.')[1]||'').length));
+  const f=Math.pow(10,dec);
+  const A=Math.round(s[0]*f),B=Math.round(s[1]*f),C=Math.round(s[2]*f);
+  const lhs=A*A+B*B, rhs=C*C;
+  if(lhs===rhs)return{type:'Segitiga Siku-siku',sym:'='};
+  if(lhs>rhs)return{type:'Segitiga Lancip',sym:'<'};
+  return{type:'Segitiga Tumpul',sym:'>'};
+}
+function auditK2Pools(){
+  const names={siku:'Segitiga Siku-siku',lancip:'Segitiga Lancip',tumpul:'Segitiga Tumpul'};
+  const perms=[[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]];
+  ['C','B','A'].forEach(cat=>{Object.keys(K2_POOLS[cat]).forEach(bucket=>{K2_POOLS[cat][bucket].forEach(tri=>{
+    const cl=classifyTriple(tri);
+    if(cl.type!==names[bucket])console.warn('[MTK004] Pool K2 salah label:',cat,bucket,tri.join(','),'→ seharusnya',cl.type);
+    perms.forEach(pm=>{if(classifyTriple(pm.map(i=>tri[i])).type!==cl.type)console.warn('[MTK004] classify tidak konsisten permutasi:',tri.join(','));});
+  });});});
+  if(classifyTriple([2.4,4.5,5.1]).type!=='Segitiga Siku-siku')console.warn('[MTK004] REGRESI GAGAL: (2.4,4.5,5.1) wajib Siku-Siku');
+}
 function generateActivity2(){
-const pools={'C':{siku:[[3,4,5],[6,8,10],[5,12,13]],lancip:[[4,5,6],[6,7,8],[7,8,10]],tumpul:[[3,4,6],[5,6,9],[4,7,10]]},'B':{siku:[[9,12,15],[12,16,20],[10,24,26]],lancip:[[10,12,14],[12,15,18],[15,18,22]],tumpul:[[8,12,17],[10,15,20],[12,18,25]]},'A':{siku:[[15,36,39],[20,21,29],[12,35,37]],lancip:[[20,25,30],[25,30,35],[2.4,4.5,5.1]],tumpul:[[15,20,30],[18,24,35],[20,30,42]]}};
-const p=pools[currentDiff];
-k2Cases=shuffle([
-{type:'Segitiga Siku-siku',s:PICK(p.siku),sym:'='},
-{type:'Segitiga Lancip',s:PICK(p.lancip),sym:'<'},
-{type:'Segitiga Tumpul',s:PICK(p.tumpul),sym:'>'}
-]);
+  const p=K2_POOLS[currentDiff];
+  k2Cases=shuffle([{s:PICK(p.siku)},{s:PICK(p.lancip)},{s:PICK(p.tumpul)}]).map(c=>{
+    const cl=classifyTriple(c.s);
+    return {s:c.s,type:cl.type,sym:cl.sym,display:shuffle([...c.s])};
+  });
 const cont=$('#k2-cases-container');cont.innerHTML='';
 k2Cases.forEach((item,idx)=>{
 const s=[...item.s].sort((a,b)=>a-b);
 item.sol={a:s[0],b:s[1],c:s[2],a2:r6(s[0]*s[0]),b2:r6(s[1]*s[1]),sum:r6(s[0]*s[0]+s[1]*s[1]),c2:r6(s[2]*s[2]),sym:item.sym,type:item.type};
 cont.insertAdjacentHTML('beforeend',`<div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-3">
-<div class="flex justify-between items-center border-b pb-2"><h3 class="font-bold text-sm">Kasus ${idx+1}: Sisi = <span class="text-indigo-700">${item.s.join(', ')}</span></h3><span class="text-xs bg-indigo-100 text-indigo-800 font-bold px-2.5 py-0.5 rounded">Soal ${idx+1}</span></div>
+<div class="flex justify-between items-center border-b pb-2"><h3 class="font-bold text-sm">
+  Kasus ${idx+1}: Sisi = <span class="text-indigo-700">${item.display.join(', ')}</span></h3><span class="text-xs bg-indigo-100 text-indigo-800 font-bold px-2.5 py-0.5 rounded">Soal ${idx+1}</span></div>
 <div class="space-y-1">
 <div class="step-row"><span>a (terpendek) =</span><input type="text" inputmode="decimal" maxlength="5" id="k2-a-${idx}"></div>
 <div class="step-row"><span>b =</span><input type="text" inputmode="decimal" maxlength="5" id="k2-b-${idx}"></div>
