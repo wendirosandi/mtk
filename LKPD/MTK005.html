@@ -1,846 +1,499 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Platform Asesmen: Rasionalisasi Pecahan</title>
-    
-    <!-- KaTeX CSS & JS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --success: #16a34a;
-            --danger: #dc2626;
-            --warning: #f59e0b;
-            --bg-color: #f1f5f9;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-        }
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* Screen Management */
-        .screen {
-            display: none;
-            width: 100%;
-            height: 100%;
-        }
-        .screen.active {
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Lobby & Result Screen */
-        .center-container {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .card {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-        .card h1 { margin-top: 0; color: var(--primary); font-size: 24px; }
-        .form-group { margin-bottom: 15px; text-align: left; }
-        .form-group label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px;}
-        .form-input {
-            width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;
-            font-size: 16px; box-sizing: border-box;
-        }
-        .btn {
-            background-color: var(--primary); color: white; border: none;
-            padding: 12px 20px; font-size: 16px; border-radius: 8px; font-weight: bold;
-            cursor: pointer; width: 100%; transition: background 0.2s;
-        }
-        .btn:hover { background-color: var(--primary-hover); }
-        .btn:disabled {
-            background-color: #cbd5e1 !important;
-            cursor: not-allowed !important;
-            color: #64748b !important;
-            transform: none !important;
-            box-shadow: none !important;
-        }
-
-        /* Game UI */
-        .game-header {
-            background-color: var(--card-bg);
-            padding: 15px 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 10;
-        }
-        .progress-dots { display: flex; gap: 8px; }
-        .dot { width: 12px; height: 12px; border-radius: 50%; background-color: #cbd5e1; }
-        .dot.active { background-color: var(--primary); }
-        .dot.done { background-color: var(--success); }
-        .dot.failed { background-color: var(--warning); }
-        .timer { font-weight: bold; font-size: 18px; color: var(--danger); }
-
-        /* Equation Area */
-        .equation-area {
-            flex: 1; overflow-y: auto; overflow-x: auto;
-            padding: 20px; background: white;
-        }
-        .step-row {
-            display: flex; align-items: center; margin-bottom: 30px;
-            font-size: 18px; white-space: nowrap;
-        }
-        .operator { margin: 0 10px; font-weight: bold; }
-        
-        .fraction {
-            display: inline-flex; flex-direction: column; align-items: center;
-            vertical-align: middle; margin: 0 5px;
-        }
-        .numerator {
-            border-bottom: 2px solid #334155; padding: 5px; min-width: 40px;
-            display: flex; align-items: center; justify-content: center; gap: 5px;
-        }
-        .denominator {
-            padding: 5px; min-width: 40px;
-            display: flex; align-items: center; justify-content: center; gap: 5px;
-        }
-
-        /* Drop Zones & Items */
-        .drop-zone {
-            min-width: 60px; min-height: 42px;
-            border: 2px dashed #94a3b8; border-radius: 6px;
-            background-color: #f8fafc; display: inline-flex;
-            align-items: center; justify-content: center;
-            cursor: pointer; padding: 2px 5px; box-sizing: border-box;
-        }
-        .drop-zone.locked {
-            border: 2px solid var(--success);
-            background-color: #dcfce7;
-            cursor: default;
-        }
-
-        .answer-bank {
-            background-color: #f8fafc; padding: 15px;
-            border-top: 3px solid #e2e8f0; display: flex;
-            flex-wrap: wrap; gap: 10px; justify-content: center;
-            min-height: 120px; max-height: 35vh; overflow-y: auto;
-        }
-        
-        .answer-item {
-            background-color: white; border: 2px solid var(--primary);
-            color: var(--text-main); padding: 8px 12px; border-radius: 6px;
-            cursor: pointer; font-size: 16px; user-select: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s;
-        }
-        .answer-item.selected {
-            background-color: var(--primary); color: white; transform: scale(1.05);
-        }
-        
-        /* State saat item masuk drop zone */
-        .drop-zone .answer-item {
-            border: none; box-shadow: none; background: transparent; padding: 0; margin: 0;
-        }
-        .drop-zone .answer-item.selected { color: var(--primary); }
-
-        /* Animation */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
-        }
-        .shake-animation {
-            animation: shake 0.4s ease-in-out;
-            border-color: var(--danger) !important;
-            background-color: #fee2e2 !important;
-        }
-
-        /* Controls */
-        .control-panel {
-            background: white; padding: 10px 15px 20px 15px;
-            display: flex; flex-direction: column; align-items: center; gap: 10px;
-        }
-        .btn-group { display: flex; gap: 10px; width: 100%; max-width: 400px;}
-        .btn-check { flex: 2; background-color: var(--success); border-radius: 20px;}
-        .btn-check:hover { background-color: #15803d; }
-        .btn-skip { flex: 1; background-color: #64748b; border-radius: 20px;}
-        
-        #message { font-weight: 600; font-size: 14px; min-height: 20px; text-align: center; }
-
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LKPD PTS - MTK005 (Berpangkat, Akar, Pythagoras)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{font-family:'Plus Jakarta Sans',sans-serif;}
+.hidden{display:none!important}
+.input-correct{border-color:#10b981!important;background:#ecfdf5!important;color:#047857!important;font-weight:700;}
+.input-wrong{border-color:#ef4444!important;background:#fef2f2!important;color:#b91c1c!important;font-weight:700;}
+.step-row{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:8px;font-size:14px;}
+.step-row input{width:74px;padding:5px 6px;border:1.5px solid #cbd5e1;border-radius:8px;text-align:center;font-weight:600;background:#fff;}
+.step-row select{padding:5px 6px;border:1.5px solid #cbd5e1;border-radius:8px;background:#fff;font-weight:700;}
+.step-row.step-continuation{margin-left:28px;}
+.svg-container{display:flex;justify-content:center;align-items:center;}
+.svg-container svg{max-width:100%;height:auto;}
+.ans-mark{font-size:11px;pointer-events:none;margin-left:2px;}
+.math-input{width:100%;padding:9px;font-size:1.05rem;border:2px solid #e0e0e0;border-radius:8px;box-sizing:border-box}
+.math-toolbar{position:absolute;bottom:calc(100% + 6px);left:0;right:0;background:#2c3e50;border-radius:10px;padding:6px;display:flex;flex-wrap:wrap;gap:5px;justify-content:center;z-index:70;box-shadow:0 6px 18px rgba(0,0,0,.28)}
+.math-toolbar .kbd-btn{flex:1 1 30px;max-width:44px;background:#f39c12;color:#fff;border:none;padding:8px 0;font-size:.95rem;font-weight:700;border-radius:7px;cursor:pointer}
+.math-toolbar .kbd-btn.red{background:#ef4444}
+.math-toolbar .tb-hide{flex:0 0 auto;background:#e74c3c;color:#fff;border:none;padding:7px 10px;border-radius:7px;font-weight:700;cursor:pointer}
+.q-bs{background:#f1f5f9;color:#64748b;border:1.5px solid #cbd5e1;transition:all .15s;}
+.q-bs.sel[data-v="Benar"]{background:#10b981;color:#fff;border-color:#059669;}
+.q-bs.sel[data-v="Salah"]{background:#f43f5e;color:#fff;border-color:#e11d48;}
+.q-bs:disabled{opacity:.55;cursor:not-allowed;}
+.pbtn{min-width:30px;height:30px;border-radius:9px;border:1.5px solid #cbd5e1;background:#f1f5f9;color:#64748b;font-weight:800;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0 6px;}
+.pbtn.active{background:#0f766e;color:#fff;border-color:#0f766e;}
+.pbtn.tunda{background:#ede9fe;color:#6d28d9;border-color:#a78bfa;}
+.pbtn.done{background:#dcfce7;color:#15803d;border-color:#86efac;}
+#toast-overlay{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:9998;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);border:1px solid rgba(15,118,110,.35);border-radius:999px;padding:8px 18px;box-shadow:0 8px 24px rgba(0,0,0,.12);pointer-events:none;transition:opacity .25s;}
+#toast-overlay.hidden{opacity:0;transform:translateX(-50%) translateY(-12px);}
+#toast-overlay .t-spin{width:16px;height:16px;border-radius:50%;border:3px solid #e0e7ff;border-top-color:#0f766e;animation:spin .8s linear infinite;flex:none;}
+#toast-overlay.t-error{border-color:rgba(220,38,38,.5);}
+#toast-overlay.t-info .t-spin{display:none;}
+#toast-overlay .t-msg{font-size:12.5px;font-weight:700;color:#0f172a;}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loader-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.75);backdrop-filter:blur(3px);}
+#loader-overlay.hidden{display:none!important;}
+.timer{font-weight:700;font-size:18px;color:#dc2626;}
+.timer-expired{color:#dc2626!important;animation:blinkExp 1s step-start infinite;}
+@keyframes blinkExp{50%{opacity:.3;}}
+#g-ot-display{animation:blinkExp 1.2s step-start infinite;}
+.ring-unlock{animation:ringPulse 1.2s ease-out 2;}
+@keyframes ringPulse{0%{box-shadow:0 0 0 0 rgba(15,118,110,.55);}100%{box-shadow:0 0 0 18px rgba(15,118,110,0);}}
+#game-root .g-screen{display:none;flex-direction:column;}
+#game-root .g-screen.active{display:flex;}
+</style>
 </head>
-<body>
+<body class="bg-slate-100 min-h-screen text-slate-800 p-3 md:p-6 pb-20">
+<div id="loader-overlay"><div class="bg-white rounded-2xl p-6 shadow-xl text-center"><div class="t-spin mx-auto mb-3" style="width:42px;height:42px;border-radius:50%;border:5px solid #e0e7ff;border-top-color:#0f766e;animation:spin .8s linear infinite"></div><div id="loader-text" class="font-bold text-sm">Memverifikasi akses...</div></div></div>
+<div id="toast-overlay" class="hidden"><div class="t-spin"></div><div class="t-msg" id="toast-msg">Memuat...</div></div>
+<div id="ua-block" class="hidden max-w-md mx-auto mt-10 bg-white rounded-2xl shadow-xl p-8 text-center"><div class="text-5xl mb-4">🛡️</div><h1 class="text-xl font-bold text-gray-800 mb-2">Akses Dibatasi</h1><p class="text-sm text-gray-600">Halaman ini hanya dapat dibuka melalui aplikasi <b>CBT Exam Browser</b> SMPN 2 Karawang Barat.</p></div>
+<div id="error-panel" class="hidden max-w-md mx-auto mt-10 bg-white border-2 border-red-300 rounded-xl p-6 shadow"><h2 class="text-lg font-bold text-red-600 mb-2">Sesi Tidak Valid</h2><p class="text-sm text-gray-700 mb-3">Silakan masuk kembali melalui halaman Login Direct / link guru.</p><a href="LoginDirect.html" class="text-sky-600 font-bold text-sm">→ Ke Halaman Login</a></div>
 
-    <!-- 0. BLOCKED SCREEN (Muncul jika dibuka selain di aplikasi CBT) -->
-    <div id="block-screen" class="screen">
-        <div class="center-container">
-            <div class="card" style="border: 2px solid var(--danger);">
-                <div style="font-size: 50px; margin-bottom: 10px;">⚠️</div>
-                <h1 style="color: var(--danger);">Akses Ditolak!</h1>
-                <p style="font-weight: 600; margin-bottom: 10px;">Ujian ini diproteksi.</p>
-                <p style="font-size: 14px;">Anda hanya dapat mengakses dan mengerjakan ujian ini menggunakan Aplikasi CBT Exam Browser dari sekolah.</p>
-                
-                <!-- Alat Pelacak untuk Guru -->
-                <div style="margin-top: 25px; padding: 10px; background-color: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1; text-align: left;">
-                    <p style="font-size: 12px; color: #64748b; margin: 0 0 5px 0; font-weight: bold;">[Diagnostic Tool] Info Perangkat:</p>
-                    <code id="current-ua" style="font-size: 10px; color: #dc2626; word-break: break-all;">Mendeteksi perangkat...</code>
-                </div>
-            </div>
-        </div>
+<div id="main-container" class="hidden max-w-5xl mx-auto space-y-6">
+<header class="bg-gradient-to-r from-indigo-800 via-indigo-700 to-blue-800 text-white rounded-3xl p-6 shadow-xl">
+  <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+    <div><span class="inline-block bg-indigo-600/60 border border-indigo-400/40 text-indigo-100 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider mb-2">LKPD PTS Ganjil • MTK-005</span>
+    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">BERPANGKAT • AKAR • PYTHAGORAS</h1>
+    <p class="text-indigo-100 text-sm mt-1">Rasionalisasi Penyebut & Segitiga Gabungan Kontekstual</p></div>
+    <div class="bg-indigo-900/60 border border-indigo-500/30 p-3.5 rounded-2xl text-xs w-full lg:w-auto">
+      <div class="font-bold text-indigo-200 text-sm">Wendi Rosandi, S.Pd., M.Pd.</div>
+      <div class="text-indigo-100">SMPN 2 Karawang Barat</div>
+      <div class="flex items-center gap-2 mt-1">⏱️ Waktu: <span id="timer-lkpd" class="font-mono font-bold">00.00</span></div>
     </div>
+  </div>
+</header>
+<section class="bg-white rounded-3xl p-6 shadow-sm border space-y-4">
+  <h2 class="text-base font-bold flex items-center gap-2 border-b pb-3">👤 Identitas Siswa</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div><label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Nama</label><input type="text" id="student-name" disabled class="w-full px-3.5 py-2.5 bg-slate-100 border rounded-xl text-sm"></div>
+    <div><label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Kelas</label><input type="text" id="student-class" disabled class="w-full px-3.5 py-2.5 bg-slate-100 border rounded-xl text-sm"></div>
+    <div><label class="block text-xs font-bold text-slate-500 uppercase mb-1.5">Kategori</label><input type="text" id="student-cat" disabled class="w-full px-3.5 py-2.5 bg-slate-100 border rounded-xl text-sm"></div>
+  </div>
+  <div class="pt-3 flex justify-end bg-slate-50 p-3.5 rounded-2xl border"><button id="btn-reshuffle" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-sm">🔄 Acak Soal Baru</button></div>
+</section>
 
-    <!-- 1. LOBBY SCREEN -->
-    <div id="lobby-screen" class="screen active">
-        <div class="center-container">
-            <div class="card">
-                <h1>Ujian Rasionalisasi</h1>
-                <div class="form-group">
-                    <label>Nama Siswa</label>
-                    <input type="text" id="input-nama" class="form-input" placeholder="Masukkan nama..." required>
-                </div>
-                <div class="form-group">
-                    <label>Kelas</label>
-                    <input type="text" id="input-kelas" class="form-input" placeholder="Misal: 10 MIPA 1" required>
-                </div>
-                <div class="form-group">
-                    <label>Level Ujian (Kesulitan)</label>
-                    <select id="input-kategori" class="form-input">
-                        <option value="C">Level C (Rendah)</option>
-                        <option value="B">Level B (Sedang)</option>
-                        <option value="A">Level A (Tinggi)</option>
-                    </select>
-                </div>
-                <button class="btn" onclick="startGame()">Mulai Ujian</button>
-            </div>
-        </div>
+<!-- KEGIATAN 1 -->
+<section class="bg-white rounded-3xl p-6 shadow-sm border space-y-5">
+  <div class="flex flex-col sm:flex-row justify-between items-center border-b pb-3 gap-2">
+    <h2 class="text-lg font-bold text-indigo-900">🃏 KEGIATAN 1: Kartu Merasionalkan Penyebut</h2>
+    <button id="lock-1" class="text-xs px-3 py-1 rounded-full font-bold bg-slate-200 text-slate-700">🔓 Kunci</button>
+  </div>
+  <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-xs font-semibold text-amber-900">📎 Nilai pendekatan: √2≈1,4 • √3≈1,7 • √5≈2,2 • √6≈2,4 • √7≈2,6 • √10≈3,2 — <i>Isi jawaban hasil akhir yang sudah disederhanakan pada kotak yang tersedia.</i></div>
+  <div id="k1-cards" class="space-y-4"></div>
+  <div id="k1-bs" class="bg-slate-50 p-4 rounded-2xl border space-y-2"></div>
+</section>
+
+<!-- KEGIATAN 2 -->
+<section class="bg-white rounded-3xl p-6 shadow-sm border space-y-5">
+  <div class="flex flex-col sm:flex-row justify-between items-center border-b pb-3 gap-2">
+    <h2 class="text-lg font-bold text-teal-900">⛰️ KEGIATAN 2: Bukit & Terowongan</h2>
+    <button id="lock-2" class="text-xs px-3 py-1 rounded-full font-bold bg-slate-200 text-slate-700">🔓 Kunci</button>
+  </div>
+  <div id="k2-problem" class="bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-200/80 text-teal-950 p-4 rounded-2xl text-sm leading-relaxed font-medium"></div>
+  <div class="svg-container bg-slate-50 rounded-2xl border py-2" id="k2-svg"></div>
+  <div id="k2-scaffold" class="bg-teal-50/50 p-4 rounded-2xl border border-teal-100 text-sm space-y-2"></div>
+</section>
+
+<div class="flex justify-center pt-2"><button id="btn-evaluate" class="w-full sm:w-2/3 py-3.5 px-6 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-2xl font-extrabold text-base shadow-xl">📝 Cek Nilai & Evaluasi LKPD</button></div>
+<div id="score-card" class="hidden bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border-2 border-indigo-500 text-center space-y-5">
+  <h3 class="text-xl font-extrabold">Laporan Hasil Evaluasi LKPD</h3>
+  <div class="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-indigo-50 to-blue-100 border-4 border-indigo-600 rounded-full text-4xl font-black text-indigo-800" id="score-val">0</div>
+  <div><div id="score-predicate" class="text-lg font-bold"></div><p id="score-feedback" class="text-xs sm:text-sm font-semibold text-slate-600 mt-1"></p></div>
+  <div id="score-breakdown" class="text-xs text-left bg-slate-50 p-4 rounded-2xl border grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+  <button id="btn-kirim-lkpd" class="hidden w-full sm:w-2/3 mx-auto py-3 px-6 bg-gradient-to-r from-sky-600 to-blue-600 text-white rounded-2xl font-extrabold shadow-xl">📤 Kirim Nilai LKPD ke Guru</button>
+  <p id="kirim-lkpd-status" class="text-xs text-slate-500"></p>
+</div>
+
+<div id="quiz-locked-card" class="bg-white rounded-3xl p-6 shadow-sm border mt-6 text-center space-y-3">
+  <div class="text-4xl">🔒</div><h3 class="text-lg font-extrabold text-slate-800">Kuis Terkunci</h3>
+  <p class="text-sm text-slate-600">Kuis terbuka otomatis setelah Nilai LKPD Anda <b>terkirim sukses</b> ke Guru.</p>
+  <div class="inline-flex flex-col items-start gap-1 text-xs font-semibold text-slate-600 bg-slate-50 border rounded-xl px-4 py-3">
+    <span id="chk-eval">☐ Evaluasi LKPD selesai</span><span id="chk-kirim">☐ Nilai LKPD terkirim ke Guru</span>
+  </div>
+</div>
+
+<div id="game-root" class="hidden bg-white rounded-3xl shadow-xl overflow-hidden mt-6" style="min-height:560px;">
+  <div id="g-game-screen" class="g-screen">
+    <div class="bg-white p-3 flex justify-between items-center border-b">
+      <div><div id="g-student-info" class="text-xs font-bold text-slate-500"></div><div class="flex gap-1.5 flex-wrap mt-1" id="g-progress-dots"></div></div>
+      <div class="text-right"><div class="timer" id="g-timer-display">40:00</div><div id="g-ot-display" class="hidden text-[11px] font-extrabold text-purple-700 bg-purple-100 border border-purple-300 rounded-full px-2 py-0.5 mt-1">⚡ TAMBAHAN 10:00</div></div>
     </div>
-
-    <!-- 2. GAME SCREEN -->
-    <div id="game-screen" class="screen">
-        <div class="game-header">
-            <div>
-                <div id="student-info" style="font-size: 12px; font-weight: bold; color: #64748b;"></div>
-                <div class="progress-dots" id="progress-dots">
-                    <!-- Titik progress -->
-                </div>
-            </div>
-            <div class="timer" id="timer-display">00:00</div>
-        </div>
-
-        <div class="equation-area" id="equation-area">
-            <!-- Langkah-langkah soal -->
-        </div>
-
-        <div class="control-panel">
-            <div id="message">Pilih jawaban dari kotak di bawah.</div>
-            
-            <div class="btn-group" id="btn-group-play">
-                <button class="btn btn-skip" id="btn-skip-play" onclick="skipQuestion()">Lewati</button>
-                <button class="btn btn-check" id="btn-check-play" onclick="checkAnswer()">CEK JAWABAN</button>
-            </div>
-            
-            <div class="btn-group" id="btn-group-next" style="display: none;">
-                <button class="btn btn-check" style="background-color: var(--primary);" onclick="handleLanjut()">LANJUT KE SOAL BERIKUTNYA</button>
-            </div>
-        </div>
-
-        <div class="answer-bank" id="answer-bank">
-            <!-- Pilihan Jawaban Acak -->
-        </div>
+    <div class="p-4 bg-slate-50 min-h-[380px] overflow-y-auto" id="g-question-area"></div>
+    <div class="p-3 bg-white border-t space-y-2">
+      <div id="g-fill-info" class="text-xs text-slate-500 font-semibold text-center"></div>
+      <div id="g-message" class="text-xs font-semibold text-center text-slate-600">Belum lengkap</div>
+      <div class="flex gap-2" id="g-btn-group-play">
+        <button class="btn px-3 py-2 rounded-xl text-white text-sm font-bold" id="g-btn-tunda-play" style="flex:1;background:#7c3aed">⏭ Tunda</button>
+        <button class="btn px-3 py-2 rounded-xl text-white text-sm font-bold" id="g-btn-check-play" style="flex:2;background:#0f766e">CEK JAWABAN</button>
+      </div>
+      <div class="flex gap-2" id="g-btn-group-next" style="display:none"><button class="btn px-3 py-2 rounded-xl text-white text-sm font-bold w-full" id="g-btn-next" style="background:#0f766e">LANJUT →</button></div>
+      <button id="g-btn-finish" class="w-full py-2.5 rounded-xl text-white text-sm font-extrabold bg-green-600 disabled:bg-slate-300" disabled>📤 Akhiri & Kirim Kuis</button>
     </div>
+  </div>
+  <div id="g-success-screen" class="g-screen"><div class="flex items-center justify-center p-8"><div class="bg-white p-8 rounded-2xl shadow-xl text-center w-full max-w-sm">
+    <div class="text-5xl mb-3">✅</div><h1 class="text-xl font-extrabold text-indigo-800">Selesai!</h1>
+    <p id="g-success-note" class="text-sm text-slate-600 mt-2">Nilai LKPD & Kuis tersimpan di Rekap Guru.</p>
+    <div class="text-3xl font-black text-green-600 my-3"><span id="g-saved-score">0</span></div>
+    <button class="btn w-full py-3 rounded-xl text-white font-extrabold" id="g-btn-exit" style="background:#64748b">🚪 Keluar / Tutup</button>
+  </div></div></div>
+</div>
+</div>
 
-    <!-- 3. RESULT SCREEN -->
-    <div id="result-screen" class="screen">
-        <div class="center-container">
-            <div class="card">
-                <h1>Ujian Selesai!</h1>
-                <h2 id="res-name" style="margin-bottom: 5px;"></h2>
-                <p id="res-class" style="color: #64748b; margin-top: 0;"></p>
-                <div style="font-size: 60px; font-weight: bold; color: var(--primary); margin: 20px 0;">
-                    <span id="final-score">0</span>
-                </div>
-                <p id="res-stats" style="margin-bottom: 25px;"></p>
-                <button class="btn" onclick="location.reload()">Selesai</button>
-            </div>
-        </div>
-    </div>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+/* ============ KONSTANTA ============ */
+const UA_MARKER='CBT-MTK-SMPN2Karbar';
+const KODE='MTK-005', SECRET='MTK001#Rahasia!2026@Guru';
+const GS_URL='https://script.google.com/macros/s/AKfycbyPq_kQqj-nDdEMaN5Q7CcZQmJmEdDmVukBWu51ZwDbqcA-BWvIXSM36jcEaiaUEwNI/exec';
+const GC={TOTAL:2400,MIN_EXIT:1200,OT:600};
+const $=s=>document.querySelector(s); const $$=s=>document.querySelectorAll(s);
+const pad=n=>String(n).padStart(2,'0');
+const fmtMs=ms=>{const s=Math.floor(ms/1000);return pad(Math.floor(s/60))+'.'+pad(s%60);};
+const fmtSec=s=>{s=Math.max(0,Math.floor(s));return pad(Math.floor(s/60))+':'+pad(s%60);};
+const r6=v=>Math.round(v*1e6)/1e6;
+const fmtN=v=>String(r6(v));
+const fmtID=v=>String(r6(v)).replace('.',',');
+const normNum=v=>{const n=parseFloat(String(v).trim().replace(',','.'));return isNaN(n)?null:n;};
+const near=(a,b)=>Math.abs(a-b)<1e-6;
+const slug=t=>String(t||'').toLowerCase().replace(/[^a-z0-9]+/g,'_');
+const RI=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const PICK=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{const arr=[...a];for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;};
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const setRNG=s=>{Math.random=mulberry32(s);};
+let toastTimer=null;
+function showToast(msg,isError,ms){const t=$('#toast-overlay');$('#toast-msg').textContent=msg;t.classList.toggle('t-error',!!isError);t.classList.toggle('t-info',!!isError||!!ms);t.classList.remove('hidden');if(toastTimer){clearTimeout(toastTimer);toastTimer=null;}if(ms)toastTimer=setTimeout(hideToast,ms);}
+function hideToast(){$('#toast-overlay').classList.add('hidden');if(toastTimer){clearTimeout(toastTimer);toastTimer=null;}}
+const postAction=p=>fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)}).then(r=>r.json());
+function b64u(t){let s=t.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return s;}
+const decTok=t=>{try{return CryptoJS.AES.decrypt(b64u(t),SECRET).toString(CryptoJS.enc.Utf8)||null;}catch(e){return null;}};
+const normExpr=s=>String(s||'').toLowerCase().replace(/\s+/g,'').replace(/×/g,'').replace(/\*/g,'').replace(/−/g,'-').replace(/,/g,'.');
+function toLatex(s){let t=String(s||'').trim();if(!t)return '';t=t.replace(/×/g,'\\times ').replace(/\*/g,'\\times ');t=t.replace(/√\s*\(?([0-9.,]+)\)?/g,'\\sqrt{$1}');t=t.replace(/√([a-z])/g,'\\sqrt{$1}');t=t.replace(/\^(-?\d+)/g,'^{$1}');return t;}
 
-    <script>
-        // === PROTEKSI CBT BROWSER (DIJALANKAN PALING AWAL) ===
-        (function initCBTCheck() {
-            const ua = navigator.userAgent.toLowerCase();
-            
-            // DAFTAR KATA KUNCI (Tambahkan jika aplikasi CBT Anda memiliki kata kunci khusus)
-            // exambro, exam, cbt, woka, dll.
-            // Memasukkan User-Agent khusus sesuai gambar: "CBT-MTK-SMPN2Karbar"
-            const allowedKeywords = ['cbt', 'exam', 'exambro', 'cbt-mtk-smpn2karbar']; 
-            
-            let isAllowed = false;
-            for (let keyword of allowedKeywords) {
-                if (ua.includes(keyword)) {
-                    isAllowed = true;
-                    break;
-                }
-            }
+/* ============ IDENTITAS DUAL-MODE + UA GATE ============ */
+if(!navigator.userAgent.includes(UA_MARKER)){$('#loader-overlay').classList.add('hidden');$('#ua-block').classList.remove('hidden');return;}
+let TK={username:'',nama:'',kelas:'',kategori:'C',gen:1};
+const tok=new URLSearchParams(location.search).get('d');
+if(tok){const plain=decTok(tok);if(plain){const p=plain.split('|');if(p.length===6&&p[0].trim()===KODE)TK={username:p[1].trim(),nama:p[2].trim(),kelas:p[3].trim(),kategori:(p[4].trim().toUpperCase()||'C'),gen:parseInt(p[5])||1};}}
+else{try{const s=JSON.parse(localStorage.getItem('DIRECT_SESSION')||'null');if(s&&s.username)TK={username:s.username,nama:s.nama,kelas:s.kelas,kategori:(s.kategori||'C').toUpperCase(),gen:Number(localStorage.getItem('MTK005_GEN_'+slug(s.username)))||1};}catch(e){}}
+if(!TK.username||!['A','B','C'].includes(TK.kategori)){$('#loader-overlay').classList.add('hidden');$('#error-panel').classList.remove('hidden');return;}
+const DIFF={A:3,B:2,C:1}[TK.kategori];
 
-            // Jalankan saat HTML sudah siap dirender
-            window.addEventListener('DOMContentLoaded', (event) => {
-                if (!isAllowed) {
-                    // Blokir akses jika dibuka di Chrome/Safari/Browser biasa
-                    document.getElementById('lobby-screen').classList.remove('active');
-                    document.getElementById('block-screen').classList.add('active');
-                    
-                    // Tampilkan User Agent asli untuk membantu debugging guru
-                    document.getElementById('current-ua').innerText = navigator.userAgent;
-                }
-            });
-        })();
+/* ============ STORAGE ============ */
+const sKey=()=>'MTK005_'+TK.username+'_g'+TK.gen;
+const loadState=()=>{try{return JSON.parse(localStorage.getItem(sKey()))||{};}catch(e){return{};}};
+const saveState=o=>{const c=loadState();Object.assign(c,o);localStorage.setItem(sKey(),JSON.stringify(c));};
+function saveAnswers(){const o={};document.querySelectorAll('#main-container input,#main-container select').forEach(el=>{if(el.id&&!el.id.startsWith('student-'))o[el.id]=el.value;});saveState({answers:o});}
+function restoreAnswers(a){if(!a)return;Object.keys(a).forEach(id=>{const el=document.getElementById(id);if(el&&!el.disabled)el.value=a[id];});}
+document.addEventListener('input',e=>{if(e.target&&e.target.id)saveAnswers();});
+document.addEventListener('change',e=>{if(e.target&&e.target.id)saveAnswers();});
+function getSalt(){const st=loadState();if(st.salt)return st.salt;const s=(Date.now()%2147483647);saveState({salt:s});return s;}
 
+/* ============ SVG HELPERS ============ */
+function fitPts(pts,W=320,H=200,pad=34){const xs=pts.map(p=>p[0]),ys=pts.map(p=>1*p[1]);const minx=Math.min(...xs),maxx=Math.max(...xs),miny=Math.min(...ys),maxy=Math.max(...ys);const bw=Math.max(maxx-minx,1e-6),bh=Math.max(maxy-miny,1e-6);const s=Math.min((W-2*pad)/bw,(H-2*pad)/bh);const tx=(W-bw*s)/2-minx*s,ty=(H-bh*s)/2-miny*s;return (x,y)=>[r6(x*s+tx),r6(y*s+ty)];}
+function raMark(V,P,Q,u){const d1=[P[0]-V[0],P[1]-V[1]],d2=[Q[0]-V[0],Q[1]-V[1]];const n1=Math.hypot(...d1),n2=Math.hypot(...d2);const a=[d1[0]/n1*u,d1[1]/n1*u],b=[d2[0]/n2*u,d2[1]/n2*u];return [[V[0]+a[0],V[1]+a[1]],[V[0]+a[0]+b[0],V[1]+a[1]+b[1]],[V[0]+b[0],V[1]+b[1]]];}
+function svgBuild(sh){const pts=[];sh.lines.forEach(l=>{pts.push([l.p[0],l.p[1]],[l.p[2],l.p[3]]);});sh.polys.forEach(pl=>pl.pts.forEach(p=>pts.push(p)));sh.marks.forEach(m=>m.forEach(p=>pts.push(p)));sh.dots.forEach(d=>pts.push([d.x,d.y]));const T=fitPts(pts);let out='';sh.polys.forEach(pl=>{out+=`<polygon points="${pl.pts.map(p=>T(...p).join(',')).join(' ')}" fill="${pl.fill||'rgba(13,148,136,.08)'}" stroke="${pl.stroke||'#cbd5e1'}" stroke-width="1.5"/>`;});sh.lines.forEach(l=>{const[a,b]=T(l.p[0],l.p[1]),[c,d]=T(l.p[2],l.p[3]);out+=`<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="${l.stroke||'#0f766e'}" stroke-width="${l.w||3}" ${l.dash?'stroke-dasharray="4,4"':''}/>`;});sh.marks.forEach(m=>{out+=`<polyline points="${m.map(p=>T(...p).join(',')).join(' ')}" fill="none" stroke="#64748b" stroke-width="1.5"/>`;});sh.dots.forEach(d=>{const[a,b]=T(d.x,d.y);out+=`<circle cx="${a}" cy="${b}" r="5" fill="${d.c||'#0f766e'}"/>`;});sh.labels.forEach(l=>{const[a,b]=T(l.x,l.y);out+=`<text x="${a}" y="${b}" font-size="${l.size||10}" font-weight="bold" fill="${l.c||'#0f172a'}" text-anchor="${l.anchor||'middle'}">${l.t}</text>`;});return `<svg width="320" height="200" viewBox="0 0 320 200">${out}</svg>`;}
+const mid=(P,Q,ox=0,oy=0)=>[(P[0]+Q[0])/2+ox,(P[1]+Q[1])/2+oy];
 
-        // === PENGATURAN DEFAULT (CONFIG) ===
-        const CONFIG = {
-            TOTAL_QUESTIONS: 10,       // Jumlah soal berdasarkan pola
-            TIME_LIMIT: 1200,          // Total waktu: 20 Menit (1200 detik)
-            MIN_CHECK_SEC: 60,         // Syarat minimal untuk cek jawaban (detik)
-            MIN_SKIP_SEC: 120,         // Syarat minimal untuk skip soal (detik)
-            MAX_RETRIES: 1,            // Kesempatan perbaikan per soal
-            AUTO_SHOW_ANSWER: true,    // Tampilkan jawaban benar saat gagal/skip
-            POINTS_PER_QUESTION: 10    // 10 Soal x 10 Poin = Max 100
-        };
+/* ============ POOL KEGIATAN 1 (kartu rasionalisasi) ============ */
+const K1_POOLS={
+ M:[{t:'\\frac{6}{3\\sqrt{2}}',tpl:'√{0}',k:[2],v:1.414},{t:'\\frac{9}{3\\sqrt{3}}',tpl:'√{0}',k:[3],v:1.732},{t:'\\frac{10}{2\\sqrt{5}}',tpl:'√{0}',k:[5],v:2.236},{t:'\\frac{14}{7\\sqrt{7}}',tpl:'√{0}',k:[7],v:2.646},{t:'\\frac{8}{2\\sqrt{2}}',tpl:'{0}√{1}',k:[2,2],v:2.828},{t:'\\frac{12}{3\\sqrt{6}}',tpl:'({0}√{1})/{2}',k:[2,6,3],v:1.633},{t:'\\frac{12}{2\\sqrt{10}}',tpl:'({0}√{1})/{2}',k:[3,10,5],v:1.897},{t:'\\frac{0,8}{0,4\\sqrt{2}}',tpl:'√{0}',k:[2],v:1.414},{t:'\\frac{1,2}{0,4\\sqrt{3}}',tpl:'√{0}',k:[3],v:1.732}],
+ S:[{t:'\\frac{5}{2+\\sqrt{3}}',tpl:'{0}-{1}√{2}',k:[10,5,3],v:1.34},{t:'\\frac{6}{3+\\sqrt{3}}',tpl:'{0}-{1}√{2}',k:[3,1,3],v:1.268},{t:'\\frac{4}{\\sqrt{6}-2}',tpl:'{0}√{1}+{2}',k:[2,6,4],v:8.898},{t:'\\frac{2}{3-\\sqrt{5}}',tpl:'({0}+{1}√{2})/{3}',k:[3,1,5,2],v:2.618},{t:'\\frac{3}{\\sqrt{5}-1}',tpl:'({0}√{1}+{2})/{3}',k:[3,5,3,4],v:2.427},{t:'\\frac{7}{\\sqrt{7}-2}',tpl:'({0}√{1}+{2})/{3}',k:[7,7,14,3],v:10.84},{t:'\\frac{1,2}{\\sqrt{5}-1}',tpl:'{0}√{1}+{2}',k:[0.3,5,0.3],v:0.971},{t:'\\frac{2,4}{\\sqrt{6}-2}',tpl:'{0}√{1}+{2}',k:[1.2,6,2.4],v:5.339}],
+ U:[{t:'\\frac{6}{\\sqrt{3}+\\sqrt{2}}',tpl:'{0}√{1}-{1}√{3}'.replace('{1}√{3}','{2}√{3}'),k:[6,3,6,2],v:1.902},{t:'\\frac{4}{\\sqrt{7}-\\sqrt{3}}',tpl:'{0}√{1}+{2}√{3}',k:[1,7,1,3],v:4.378},{t:'\\frac{8}{3\\sqrt{2}+\\sqrt{10}}',tpl:'{0}√{1}-{2}√{3}',k:[3,2,1,10],v:1.081},{t:'\\frac{2}{2\\sqrt{2}+\\sqrt{6}}',tpl:'{0}√{1}-{2}√{3}',k:[2,2,1,6],v:0.379},{t:'\\frac{5}{\\sqrt{6}-\\sqrt{5}}',tpl:'{0}√{1}+{2}√{3}',k:[5,6,5,5],v:23.43},{t:'\\frac{3}{\\sqrt{10}-\\sqrt{7}}',tpl:'{0}√{1}+{2}√{3}',k:[1,10,1,7],v:5.808},{t:'\\frac{6}{2\\sqrt{5}+\\sqrt{10}}',tpl:'({0}√{1}-{2}√{3})/{4}',k:[6,5,3,10,5],v:0.786},{t:'\\frac{1,2}{\\sqrt{5}+\\sqrt{3}}',tpl:'{0}√{1}-{2}√{3}',k:[0.6,5,0.6,3],v:0.306}]
+};
+const K1_PAT={A:['M','S','U','U','S','U'],B:['M','M','S','S','S','U'],C:['M','M','M','S','S','U']};
+function renderTpl(tpl,pre){let i=0;return tpl.replace(/\{(\d+)\}/g,(m,d)=>`<input type="text" inputmode="decimal" maxlength="6" id="${pre}-k${d}" class="w-16 p-1.5 bg-white border rounded-lg text-center font-bold">`);}
+let k1Cards=[],k1BS=[];
+function generateK1(){
+  const pat=shuffle(K1_PAT[TK.kategori]);
+  k1Cards=pat.map((diff,ci)=>{const e=PICK(K1_POOLS[diff]);return {...e,ci};});
+  $('#k1-cards').innerHTML=k1Cards.map((c,ci)=>`<div class="bg-slate-50 border rounded-2xl p-4 space-y-2">
+    <div class="flex justify-between items-center"><span class="font-bold text-sm">Kartu ${'ABCDEF'[ci]}</span><span class="text-[10px] bg-indigo-100 text-indigo-700 font-bold px-2 py-0.5 rounded">${c.k.length} kotak</span></div>
+    <div class="text-lg k1-tex" data-tex="${c.t}"></div>
+    <div class="step-row text-sm font-bold text-indigo-800">= ${renderTpl(c.tpl,'k1-c'+ci)}</div>
+  </div>`).join('');
+  $$('.k1-tex').forEach(el=>{try{katex.render(el.dataset.tex,el,{throwOnError:false});}catch(e){el.innerText=el.dataset.tex;}});
+  const vals=k1Cards.map(c=>c.v);
+  const cmp=(x,y)=>Math.abs(vals[x]-vals[y]);
+  const pool=[
+    {txt:`Hasil Kartu ${'ABCDEF'[argmin(vals)]} adalah yang paling kecil.`,ok:true},
+    {txt:`Hasil Kartu ${'ABCDEF'[argmax(vals)]} adalah yang paling besar.`,ok:true},
+    {txt:`Hasil Kartu ${'ABCDEF'[argmin(vals)]} adalah yang paling besar.`,ok:false},
+    {txt:`Hasil Kartu ${'ABCDEF'[argmax(vals)]} adalah yang paling kecil.`,ok:false}];
+  for(let a=0;a<6;a++)for(let b=0;b<6;b++){if(a!==b){pool.push({txt:`Hasil Kartu ${'ABCDEF'[a]} lebih besar dari hasil Kartu ${'ABCDEF'[b]}.`,ok:vals[a]>vals[b]});pool.push({txt:`Selisih hasil Kartu ${'ABCDEF'[a]} dan Kartu ${'ABCDEF'[b]} kurang dari 1.`,ok:cmp(a,b)<1});}}
+  k1BS=shuffle(pool).slice(0,4);
+  $('#k1-bs').innerHTML=`<div class="font-bold text-sm mb-1">Jawab 4 pernyataan Benar/Salah:</div>`+k1BS.map((s,i)=>`<div class="flex items-center gap-2 border rounded-xl p-2 bg-white"><span class="flex-1 text-sm font-semibold">${s.txt}</span><span class="flex gap-1"><button class="q-bs px-3 py-1.5 rounded-lg text-xs font-bold" data-i="${i}" data-v="Benar">✅ Benar</button><button class="q-bs px-3 py-1.5 rounded-lg text-xs font-bold" data-i="${i}" data-v="Salah">❌ Salah</button></span></div>`).join('');
+  $$('#k1-bs .q-bs').forEach(b=>b.addEventListener('click',()=>{const i=b.dataset.i;$$('#k1-bs .q-bs').forEach(x=>{if(x.dataset.i===i)x.classList.remove('sel','ring-4','ring-teal-300');});b.classList.add('sel','ring-4','ring-teal-300');saveState({bsSel:getBSSel()});}));
+}
+const argmin=a=>a.indexOf(Math.min(...a)); const argmax=a=>a.indexOf(Math.max(...a));
+function getBSSel(){const o={};$$('#k1-bs .q-bs.sel').forEach(b=>{o[b.dataset.i]=b.dataset.v;});return o;}
+function restoreBS(sel){if(!sel)return;Object.entries(sel).forEach(([i,v])=>{const b=document.querySelector(`#k1-bs .q-bs[data-i="${i}"][data-v="${v}"]`);if(b)b.classList.add('sel','ring-4','ring-teal-300');});}
 
-        // --- BLUEPRINT POLA SOAL BERDASARKAN LEVEL ---
-        const QUESTION_PATTERNS = {
-            'A': ['C', 'B', 'A', 'C', 'B', 'A', 'B', 'A', 'A', 'A'],
-            'B': ['C', 'B', 'B', 'C', 'B', 'A', 'C', 'B', 'B', 'A'],
-            'C': ['C', 'B', 'C', 'B', 'C', 'B', 'A', 'C', 'B', 'A']
-        };
+/* ============ KEGIATAN 2 (F7 tetap) ============ */
+const K2={ea:30,ed:25,od:7,eo:24,ao:18,ad:25,biaya:50};
+function generateK2(){
+  $('#k2-problem').innerHTML=`Sebuah bukit tidak simetris terlihat seperti gambar. Terowongan lurus akan dibangun dari kaki bukit sisi <b>A</b> menuju kaki bukit sisi <b>D</b>, melewati titik <b>O</b> yang berada tepat di bawah puncak <b>E</b>. Dari O sudah lebih dahulu dibangun elevator lurus menuju puncak E. Diketahui <b>EA = 30 m</b>, <b>ED = 25 m</b>, <b>OD = 7 m</b>. Jika biaya pembangunan terowongan <b>Rp 2 juta per meter</b>, berapakah total biaya yang dibutuhkan?`;
+  const A=[0,0],O=[18,0],D=[25,0],E=[18,-24];
+  $('#k2-svg').innerHTML=svgBuild({lines:[{p:[...A,...D],stroke:'#334155',w:2.5},{p:[...O,...E],stroke:'#e11d48',w:2.5,dash:1},{p:[...A,...E],stroke:'#0284c7',w:2.5},{p:[...E,...D],stroke:'#0284c7',w:2.5}],polys:[{pts:[A,E,D]}],marks:[raMark(O,E,D,2)],dots:[{x:A[0],y:A[1]},{x:O[0],y:O[1]},{x:D[0],y:D[1]},{x:E[0],y:E[1]}],labels:[{x:8,y:-13,t:'30 m',c:'#0284c7'},{x:22.5,y:-13,t:'25 m',c:'#0284c7'},{x:21.5,y:2,t:'7 m',c:'#0284c7'},{x:16,y:-11,t:'EO',c:'#64748b'},{x:A[0]-2,y:A[1]+3,t:'A'},{x:O[0],y:O[1]+3,t:'O'},{x:D[0]+2,y:D[1]+3,t:'D'},{x:E[0],y:E[1]-2,t:'E'}]});
+  const IN=`<input type="text" inputmode="decimal" maxlength="6" class="w-20 p-1.5 bg-white border rounded-lg text-center font-bold">`;
+  $('#k2-scaffold').innerHTML=`
+  <div class="step-row"><span>EO² = ED² − OD²</span></div>
+  <div class="step-row"><span>EO² = </span>${IN}<span id="k2-a1">² − </span>${IN}<span>²</span></div>
+  <div class="step-row"><span>EO² = </span>${IN}<span> − </span>${IN}</div>
+  <div class="step-row step-continuation"><span>= </span>${IN}</div>
+  <div class="step-row"><span>EO = √</span>${IN}<span> = </span>${IN}</div>
+  <div class="step-row mt-2"><span>AO² = EA² − EO²</span></div>
+  <div class="step-row"><span>AO² = </span>${IN}<span>² − </span>${IN}<span>²</span></div>
+  <div class="step-row"><span>AO² = </span>${IN}<span> − </span>${IN}</div>
+  <div class="step-row step-continuation"><span>= </span>${IN}</div>
+  <div class="step-row"><span>AO = √</span>${IN}<span> = </span>${IN}</div>
+  <div class="step-row mt-2"><span>AD = AO + OD = </span>${IN}<span> + </span>${IN}<span> = </span>${IN}</div>
+  <div class="step-row"><span class="font-bold text-teal-900">Biaya = AD × 2 = </span>${IN}<span class="font-bold text-teal-900"> (juta rupiah)</span></div>`;
+  const ids=['k2-e1','k2-e2','k2-e3','k2-e4','k2-e5','k2-e6','k2-e7','k2-a2','k2-a3','k2-a4','k2-a5','k2-a6','k2-a7','k2-a8','k2-a9','k2-a10','k2-ad1','k2-ad2','k2-ad3','k2-biaya'];
+  $$('#k2-scaffold input').forEach((inp,i)=>{inp.id=ids[i];});
+}
+const K2_KEY=[25,7,625,49,576,576,24,30,24,900,576,324,324,18,18,7,25,50];
 
-        // Game State Variables
-        let currentQuestion = 1;
-        let timeLeft = CONFIG.TIME_LIMIT;
-        let timerInterval = null;
-        let timeSpentCurrent = 0; 
-        let retryCount = CONFIG.MAX_RETRIES;
-        let scores = []; 
-        let currentPattern = []; 
-        
-        let userName, userClass, userCategory;
-        
-        let selectedItem = null;
-        let currentAnswers = []; 
-        let dictKeys = {}; 
+/* ============ EVALUASI LKPD ============ */
+let locked={k1:false,k2:false},submitted=false,finalScore=0;
+function applyLock(which,on){locked[which]=on;saveState(which==='k1'?{locked1:on}:{locked2:on});const pre=which==='k1'?'k1-':'k2-';document.querySelectorAll('input,select').forEach(el=>{if(el.id&&el.id.startsWith(pre))el.disabled=on;});$$('#k1-bs .q-bs').forEach(b=>{if(which==='k1')b.disabled=on;});const btn=$('#'+(which==='k1'?'lock-1':'lock-2'));btn.textContent=on?'🔒 Terbuka':'🔓 Kunci';btn.className='text-xs px-3 py-1 rounded-full font-bold '+(on?'bg-rose-100 text-rose-700':'bg-slate-200 text-slate-700');}
+function evaluateAll(){
+  showToast('🧮 Menghitung hasil evaluasi...');
+  let k1raw=0;
+  k1Cards.forEach((c,ci)=>{c.k.forEach((kv,k)=>{const el=$('#k1-c'+ci+'-k'+k);const n=normNum(el.value);const ok=n!==null&&near(n,kv);el.classList.remove('input-correct','input-wrong');el.classList.add(ok?'input-correct':'input-wrong');if(ok)k1raw+=7/c.k.length;});});
+  let bsOk=0;k1BS.forEach((s,i)=>{const sel=document.querySelector(`#k1-bs .q-bs.sel[data-i="${i}"]`);const ok=sel&&sel.dataset.v===(s.ok?'Benar':'Salah');if(ok)bsOk++;});
+  k1raw+=bsOk*2;
+  let k2ok=0;$$('#k2-scaffold input').forEach((el,i)=>{const n=normNum(el.value);const ok=n!==null&&near(n,K2_KEY[i]);el.classList.remove('input-correct','input-wrong');el.classList.add(ok?'input-correct':'input-wrong');if(ok)k2ok++;});
+  const k2raw=k2ok/K2_KEY.length*50;
+  finalScore=Math.min(100,Math.round(k1raw+k2raw));
+  $('#score-val').textContent=finalScore;
+  const pred=finalScore>=90?['Sangat Baik (A)','text-emerald-600']:finalScore>=75?['Baik (B)','text-teal-600']:finalScore>=60?['Cukup (C)','text-amber-600']:['Perlu Bimbingan (D)','text-rose-600'];
+  $('#score-predicate').textContent=pred[0];$('#score-predicate').className='text-lg font-extrabold '+pred[1];
+  $('#score-feedback').textContent=finalScore>=75?'Bagus! Teliti kembali kotak berwarna merah.':'Pelajari ulang materi rasionalisasi & Pythagoras.';
+  $('#score-breakdown').innerHTML=`<div><b>Nama:</b> ${TK.nama}</div><div><b>Kelas:</b> ${TK.kelas}</div><div><b>Kategori:</b> ${TK.kategori}</div><div><b>Keg 1:</b> ${Math.round(k1raw)}/50</div><div><b>Keg 2:</b> ${Math.round(k2raw)}/50</div><div><b>B/S benar:</b> ${bsOk}/4</div>`;
+  $('#chk-eval').textContent='✅ Evaluasi LKPD selesai';
+  hideToast();
+  $('#score-card').classList.remove('hidden');$('#score-card').scrollIntoView({behavior:'smooth'});
+  if(!submitted)$('#btn-kirim-lkpd').classList.remove('hidden');
+}
 
-        function startGame() {
-            userName = document.getElementById('input-nama').value;
-            userClass = document.getElementById('input-kelas').value;
-            userCategory = document.getElementById('input-kategori').value;
+/* ============ FASE 2: UNLOCK KUIS ============ */
+let kuisUnlocked=false;
+function unlockKuis(silent){if(kuisUnlocked)return;kuisUnlocked=true;$('#quiz-locked-card').classList.add('hidden');$('#chk-kirim').textContent='✅ Nilai LKPD terkirim ke Guru';const gr=$('#game-root');gr.classList.remove('hidden');if(!silent){showToast('🔓 Kuis terbuka — siapkan diri!');gr.classList.add('ring-unlock');gr.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>{hideToast();initGame();},700);}else initGame();}
 
-            if(!userName || !userClass) {
-                alert("Mohon isi Nama dan Kelas terlebih dahulu.");
-                return;
-            }
+/* ============ KUIS: GENERATOR 10 TIPE ============ */
+const BOBOT={1:10,2:10,3:10,4:10,5:10,6:10,7:10,8:10,9:10,10:10};
+const QPAT={'A':['B','A','A','B','A','A','B','A','A','A'],'B':['C','B','B','C','B','B','C','B','B','B'],'C':['C','C','B','C','C','C','B','C','C','B']};
+const INP=`<input type="text" inputmode="decimal" maxlength="6" class="q-ans w-20 p-1.5 bg-white border rounded-lg text-center font-bold">`;
+function previewWrap(id){return `<div class="mt-2 text-sm bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-2">Preview: <span id="${id}" class="font-bold text-indigo-800"></span></div>`;}
+function bindPreview(inpId,pvId){const inp=document.getElementById(inpId);const pv=document.getElementById(pvId);const upd=()=>{try{katex.render(toLatex(inp.value),pv,{throwOnError:false});}catch(e){pv.innerText=inp.value;}};inp.addEventListener('input',upd);upd();}
+/* Tipe 1 pangkat */
+function genT1(diff){
+  let tex,key,alts=[];
+  const p=PICK([2,3,5]);
+  if(diff===1){const e1=RI(2,4),e2=RI(1,3),e3=RI(1,4);const N=e1*e2+e3;tex=`(${p}^{${e1}})^{${e2}} \\times ${p}^{${e3}}`;key=`${p}^${N}`;alts=[String(Math.pow(p,N))];}
+  else if(diff===2){const k=PICK([2,3]);const B=Math.pow(p,k);const e1=RI(2,4),e2=RI(1,3),e3=RI(1,5);const N=k*e1+k*e2-e3;tex=`${B}^{${e1}} \\times ${B}^{${e2}} \\div ${p}^{${e3}}`;if(N>=0){key=`${p}^${N}`;alts=[String(Math.pow(p,N))];}else{key=`1/${p}^${-N}`;alts=[`${p}^-${-N}`];}}
+  else{const a=RI(2,5),b=RI(2,5),c=RI(1,4),d=RI(1,2);const N=a+b-c*d;tex=`\\frac{${p}^{${a}} \\times ${p}^{${b}}}{(${p}^{${c}})^{${d}}}`;if(N>0){key=`${p}^${N}`;alts=[String(Math.pow(p,N))];}else if(N===0){key=`${p}^0`;alts=['1'];}else{key=`1/${p}^${-N}`;alts=[`${p}^-${-N}`];}
+    if(Math.random()<0.4){const m1=RI(2,4),n1=RI(1,3),m2=RI(1,2),n2=RI(1,2),cc=PICK([2,3]);tex=`${cc}m^{${m1}}n^{${n1}} \\times m^{-${m2}}n^{${n2}} \\div ${cc}mn`;key=`m^${m1-m2-1}n^${n1+n2-1}`.replace(/\^1(?![0-9])/g,'').replace('m^0','').replace('n^0','');alts=['m n^2','mn^2'];return{html:qShell(1,tex,key,alts),key,alts};}}
+  return{html:qShell(1,tex,key,alts),key,alts};
+}
+/* Tipe 2 akar */
+function genT2(diff){
+  let tex,key,alts=[];
+  const s=PICK([2,3,5,6,7,10]);
+  if(diff===1){const a=RI(2,6),b=RI(1,5),c=RI(1,4);const u=RI(1,3),v=RI(1,3);const P=a*u+b*v-c*u;tex=`${a}\\sqrt{${s*u*u}} + ${b}\\sqrt{${s*v*v}} - ${c}\\sqrt{${s*u*u}}`;key=`${P}√${s}`;alts=[String(r6(P*Math.sqrt(s)))];}
+  else if(diff===2){const a=RI(2,5),b=RI(2,5);const x=s*RI(2,4)**2,y=s*RI(1,3)**2;const prod=a*b*Math.sqrt(x*y);tex=`${a}\\sqrt{${x}} \\times ${b}\\sqrt{${y}}`;const g2=simpl(Math.round(prod));key=g2;alts=[String(r6(prod))];}
+  else{const a=RI(2,6),b=RI(1,5),c=RI(1,4);const x=s*4,y=s*9;const num=a*2*Math.sqrt(s)+b*3*Math.sqrt(s);tex=`\\frac{${a}\\sqrt{${x}} + ${b}\\sqrt{${y}}}{${c}\\sqrt{${s}}}`;const P=r6(num/c);key=`${P}√${s}`;alts=[String(r6(P*Math.sqrt(s)))];}
+  return{html:qShell(2,tex,key,alts),key,alts};
+}
+function simpl(v){for(const s of [2,3,5,6,7,10]){const r=v/(s);if(Number.isInteger(r)&&Number.isInteger(Math.sqrt(v*v/(s))/1)){} }return `${r6(v)}√1`;}
+/* Tipe 3 bentuk baku */
+function genT3(diff){
+  const q=RI(1,4);let html='',ans=[];
+  if(q===1){const mant=(RI(1,9)+'.'+RI(10,99));const n=RI(3,7);const val=Math.round(parseFloat(mant)*Math.pow(10,n));html=`<p class="text-sm mb-2">Nyatakan dalam bentuk baku: <b>${val.toLocaleString('id-ID')}</b></p><div class="step-row">${INP}<span> × 10^</span>${INP.replace('decimal','numeric')}</div>${previewWrap('pv3')}`;ans=[mant,String(n)];}
+  else if(q===2){const mant=(RI(1,9)+'.'+RI(10,99));const n=-RI(3,7);const val=parseFloat(mant)*Math.pow(10,n);html=`<p class="text-sm mb-2">Nyatakan dalam bentuk baku: <b>${String(val).replace('.',',')}</b></p><div class="step-row">${INP}<span> × 10^</span>${INP.replace('decimal','numeric')}</div>${previewWrap('pv3')}`;ans=[mant,String(n)];}
+  else if(q===3){const mant=(RI(1,9)+'.'+RI(10,99));const n=RI(3,6);const val=Math.round(parseFloat(mant)*Math.pow(10,n));html=`<p class="text-sm mb-2">Hitung: <b>${mant.replace('.',',')} × 10^${n}</b></p><div class="step-row">${INP}</div>`;ans=[String(val)];}
+  else{const mant=(RI(1,9)+'.'+RI(10,99));const n=-RI(3,6);const val=parseFloat(mant)*Math.pow(10,n);html=`<p class="text-sm mb-2">Hitung: <b>${mant.replace('.',',')} × 10^${n}</b></p><div class="step-row">${INP}</div>`;ans=[String(val).replace('.',',')];}
+  return{html:qShellRaw(3,html),ans,total:ans.length,q3:q};
+}
+/* Tipe 4 B/S rumus */
+function genT4(diff){
+  const correct={'C':['a²+b²=c²','c²=a²+b²','c=√(a²+b²)','a=√(c²−b²)','b=√(c²−a²)','a²=c²−b²'],'B':['a²+c²=b²','b=√(a²+c²)','a=√(b²−c²)','c=√(b²−a²)'],'A':['b²+c²=a²','a=√(b²+c²)','b=√(a²−c²)','c=√(a²−b²)']};
+  const verts=['A','B','C'];const items=[];
+  for(let i=0;i<10;i++){const V=PICK(verts);const useCorrect=i<5;let F;if(useCorrect)F=PICK(correct[V]);else{const others=verts.filter(x=>x!==V);F=PICK(correct[PICK(others)]);}items.push({V,F,ok:useCorrect});}
+  const sh=shuffle(items);
+  const fig=`<div class="svg-container bg-white rounded-xl border mb-3 py-2">${svgBuild({lines:[{p:[0,0,4,0]},{p:[4,0,2,-3]},{p:[2,-3,0,0]}],polys:[{pts:[[0,0],[4,0],[2,-3]]}],marks:[raMark([2,-3],[0,0],[4,0],0.5)],dots:[{x:0,y:0},{x:4,y:0},{x:2,y:-3}],labels:[{x:-0.4,y:0.2,t:'A'},{x:4.4,y:0.2,t:'B'},{x:2,y:-3.3,t:'C'},{x:3.2,y:-1.7,t:'a',c:'#0284c7'},{x:0.8,y:-1.7,t:'b',c:'#0284c7'},{x:2,y:0.35,t:'c',c:'#0284c7'}]})}</div>`;
+  return{type:'bs',total:10,items:sh,html:qShellRaw(4,fig+sh.map((it,i)=>`<div class="flex items-center gap-2 border rounded-xl p-2 bg-white mb-1"><span class="flex-1 text-sm"><b>Siku-siku di ${it.V}</b> : <span class="font-mono">${it.F}</span></span><span class="flex gap-1"><button class="q-bs px-3 py-1 rounded-lg text-xs font-bold" data-i="${i}" data-v="Benar">✅</button><button class="q-bs px-3 py-1 rounded-lg text-xs font-bold" data-i="${i}" data-v="Salah">❌</button></span></div>`).join(''))};
+}
+/* Tipe 5 jenis segitiga */
+function genT5(diff){
+  const P={siku:[[3,4,5],[6,8,10],[5,12,13],[9,12,15]],lancip:[[4,5,6],[6,7,8],[10,12,14]],tumpul:[[3,4,6],[5,6,9],[8,12,17]]};
+  if(diff>=2){P.lancip.push([2.4,4.5,5.1],[4.5,5.5,6.5]);P.siku.push([2.4,4.5,5.1]);P.tumpul.push([2,3,4.5]);}
+  const rows=[];for(let i=0;i<10;i++){const t=PICK(['siku','lancip','tumpul']);rows.push({s:shuffle(PICK(P[t])),ans:t});}
+  const ex=`<div class="bg-white rounded-xl border p-3 mb-2 text-xs space-y-1"><b>Contoh:</b><br>✅ 3-4-5 → kuadrat 9,16,25 → Siku-siku (benar penuh)<br>⚠️ 3-4-5 → kuadrat 9,16,26 → Siku-siku (parsial: kuadrat salah, jenis benar)<br>❌ 3-4-6 → kuadrat 9,16,36 → Lancip (salah)</div>`;
+  return{type:'t5',total:40,rows,html:qShellRaw(5,ex+rows.map((r,i)=>`<div class="bg-white border rounded-xl p-2 mb-2 text-sm"><div class="font-bold text-xs mb-1">#${i+1} Sisi: ${r.s.map(fmtID).join(' - ')}</div><div class="step-row"><span>Kuadrat:</span>${INP}${INP}${INP}</div><div class="step-row"><span>Jenis:</span><select class="q-sel p-1.5 border rounded-lg text-xs font-bold"><option value="">?</option><option>Siku-siku</option><option>Lancip</option><option>Tumpul</option></select></div></div>`).join(''))};
+}
+/* Tipe 6-10 gabungan (input hasil akhir) */
+function genT6(diff){const s=PICK([[12,9,15,15,8,17],[3,4,5,5,12,13],[6,8,10,10,24,26],[9,12,15,15,20,25],[1.2,0.9,1.5,1.5,0.8,1.7]]);const[ab,bc,ac,ac2,cd,ad]=s;
+  const svg=svgBuild({lines:[{p:[0,0,0,-ab]},{p:[0,0,bc,0]},{p:[0,-ab,bc,0]},{p:[bc,0,bc+cd*0.8,cd*0.6]}],polys:[{pts:[[0,0],[0,-ab],[bc,0]]}],marks:[raMark([0,0],[0,-ab],[bc,0],Math.min(ab,bc)*0.15),raMark([bc,0],[0,-ab],[bc+cd*0.8,cd*0.6],cd*0.2)],dots:[{x:0,y:-ab},{x:0,y:0},{x:bc,y:0},{x:bc+cd*0.8,y:cd*0.6}],labels:[{x:-1.5,y:-ab/2,t:fmtN(ab),c:'#0284c7'},{x:bc/2,y:1.5,t:fmtN(bc),c:'#0284c7'},{x:bc+cd*0.5,y:cd*0.4+1,t:fmtN(cd),c:'#0284c7'},{x:bc/2-1,y:-ab/2,t:'AC = ?',c:'#e11d48'},{x:(bc+bc+cd*0.8)/2,y:(-ab+cd*0.6)/2-1,t:'AD = ?',c:'#e11d48'},{x:0,y:-ab-1,t:'A'},{x:0,y:2.5,t:'B'},{x:bc,y:2.5,t:'C'},{x:bc+cd*0.8+1,y:cd*0.6,t:'D'}]});
+  return{type:'fin',total:2,ans:[ac,ad],html:qShellRaw(6,`<div class="svg-container bg-white rounded-xl border mb-2 py-2">${svg}</div><div class="step-row"><span>AC =</span>${INP}<span> ; AD =</span>${INP}</div>`)};}
+function genT7(diff){const s=PICK([[8,10,5,13,6,12,6],[6,10,9,15,8,12,4],[12,13,8,17,5,15,10],[0.8,1.0,0.5,1.3,0.6,1.2,0.6]]);const[ae,ab,dc,bc,be,bd,ed]=s;
+  const svg=svgBuild({lines:[{p:[0,0,2,-6]},{p:[0,0,8,1]},{p:[2,-6,8,1]},{p:[5,-1.5,8,1]}],polys:[{pts:[[0,0],[2,-6],[5,-1.5]],fill:'rgba(236,72,153,.25)'},{pts:[[0,0],[5,-1.5],[8,1]],fill:'rgba(22,163,74,.25)'}],marks:[raMark([5,-1.5],[2,-6],[8,1],0.8)],dots:[{x:0,y:0},{x:2,y:-6},{x:5,y:-1.5},{x:8,y:1}],labels:[{x:0.4,y:-3.2,t:fmtN(ae),c:'#0284c7'},{x:3.6,y:-4,t:fmtN(ab),c:'#0284c7'},{x:6.8,y:-1.2,t:fmtN(dc),c:'#0284c7'},{x:4,y:1.6,t:fmtN(bc),c:'#0284c7'},{x:0,y:2,t:'B'},{x:2,y:-6.5,t:'A'},{x:5,y:-2.2,t:'E'},{x:8.5,y:1,t:'C'},{x:2.5,y:0,t:'ED = ?',c:'#e11d48'}]});
+  return{type:'fin',total:3,ans:[be,bd,ed],html:qShellRaw(7,`<div class="svg-container bg-white rounded-xl border mb-2 py-2">${svg}</div><div class="step-row"><span>BE =</span>${INP}<span> ; BD =</span>${INP}<span> ; ED =</span>${INP}</div>`)};}
+function genT8(diff){const s=PICK([[5,13,35,12,37],[9,15,16,12,20],[16,20,9,12,15],[20,29,28,21,35]]);const[t,m,a,v,x]=s;
+  const svg=svgBuild({lines:[{p:[0,0,5,0]},{p:[5,0,5,12]},{p:[5,12,40,12]},{p:[0,0,5,12]},{p:[5,0,40,12]}],polys:[{pts:[[0,0],[5,0],[5,12]]},{pts:[[5,0],[5,12],[40,12]]}],marks:[raMark([5,0],[0,0],[5,12],1.2),raMark([5,12],[5,0],[40,12],1.5)],dots:[{x:0,y:0},{x:5,y:0},{x:5,y:12},{x:40,y:12}],labels:[{x:2.5,y:-1,t:fmtN(t),c:'#0284c7'},{x:2,y:6,t:fmtN(m),c:'#0284c7'},{x:22,y:13.5,t:fmtN(a),c:'#0284c7'},{x:22,y:5,t:'x = ?',c:'#e11d48'},{x:6,y:6,t:'v',c:'#64748b'}]});
+  return{type:'fin',total:2,ans:[v,x],html:qShellRaw(8,`<div class="svg-container bg-white rounded-xl border mb-2 py-2">${svg}</div><div class="step-row"><span>v =</span>${INP}<span> ; x =</span>${INP}</div>`)};}
+function genT9(diff){const s=PICK([[12,9,15,17,8],[3,4,5,13,12],[6,8,10,26,24],[9,12,15,39,36]]);const[ab,bc,ac,ad,cd]=s;
+  const svg=svgBuild({lines:[{p:[0,0,0,-ab]},{p:[0,0,bc,0]},{p:[0,-ab,bc,0]},{p:[bc,0,bc+cd*0.7,-cd*0.7]},{p:[0,-ab,bc+cd*0.7,-cd*0.7]}],polys:[{pts:[[0,0],[0,-ab],[bc,0]]}],marks:[raMark([0,0],[0,-ab],[bc,0],Math.min(ab,bc)*0.15),raMark([bc,0],[0,-ab],[bc+cd*0.7,-cd*0.7],cd*0.2)],dots:[{x:0,y:-ab},{x:0,y:0},{x:bc,y:0},{x:bc+cd*0.7,y:-cd*0.7}],labels:[{x:-1.5,y:-ab/2,t:fmtN(ab),c:'#0284c7'},{x:bc/2,y:1.5,t:fmtN(bc),c:'#0284c7'},{x:bc/2,y:-ab/2-1,t:fmtN(ad),c:'#0284c7'},{x:bc/2-1,y:-ab/2+2,t:'AC = ?',c:'#e11d48'},{x:bc+cd*0.4,y:-cd*0.4+1.5,t:'CD = ?',c:'#e11d48'},{x:0,y:-ab-1,t:'A'},{x:0,y:2.5,t:'B'},{x:bc,y:2.5,t:'C'},{x:bc+cd*0.7+1,y:-cd*0.7,t:'D'}]});
+  return{type:'fin',total:2,ans:[ac,cd],html:qShellRaw(9,`<div class="svg-container bg-white rounded-xl border mb-2 py-2">${svg}</div><div class="step-row"><span>AC =</span>${INP}<span> ; CD =</span>${INP}</div>`)};}
+function genT10(diff){const s=PICK([[5,6,4],[10,12,8],[13,10,12],[15,18,12],[17,16,15],[2.5,3,2]]);const[sl,b,t]=s;
+  const svg=svgBuild({lines:[{p:[0,0,b,0]},{p:[0,0,b/2,-t]},{p:[b/2,-t,b,0]},{p:[b/2,-t,b/2,0],dash:1,stroke:'#64748b',w:2}],polys:[{pts:[[0,0],[b,0],[b/2,-t]]}],dots:[{x:0,y:0},{x:b,y:0},{x:b/2,y:-t}],labels:[{x:b*0.25,y:-t/2-1,t:fmtN(sl),c:'#0284c7'},{x:b/2,y:1.5,t:fmtN(b),c:'#0284c7'},{x:b/2+1.2,y:-t/2,t:'t = ?',c:'#e11d48'}]});
+  return{type:'fin',total:1,ans:[t],html:qShellRaw(10,`<div class="svg-container bg-white rounded-xl border mb-2 py-2">${svg}</div><div class="step-row"><span>tinggi t =</span>${INP}</div>`)};}
+function qShell(tn,tex,key,alts){return qShellRaw(tn,`<div class="text-lg mb-2 q-tex" data-tex="${tex}"></div><div class="step-row"><span>Jawab:</span><input type="text" inputmode="decimal" maxlength="12" class="q-ans q-math w-40 p-2 bg-white border rounded-lg text-center font-bold" id="qin-${tn}"></div>${previewWrap('pv-'+tn)}`);}
+function qShellRaw(tn,inner){return `<div class="bg-white rounded-2xl p-4 border">${inner}</div>`;}
 
-            currentPattern = QUESTION_PATTERNS[userCategory];
+/* ============ KUIS STATE & FLOW ============ */
+let G={current:1,timeLeft:GC.TOTAL,timer:null,scores:Array(10).fill(null),status:Array(10).fill('open'),fill:Array(10).fill(null),order:[],phase:'lobby',currentQ:null,ot:false,otLeft:0,used:0};
+const gKey=()=>sKey()+'_game';
+function saveGS(){try{localStorage.setItem(gKey(),JSON.stringify({q:G.current,t:G.timeLeft,s:G.scores,p:G.phase,o:G.order,ot:G.ot,ol:G.otLeft,st:G.status,fl:G.fill,u:G.used}));}catch(e){}}
+function loadGS(){try{const o=JSON.parse(localStorage.getItem(gKey())||'null');if(o){G.current=o.q||1;G.timeLeft=o.t||GC.TOTAL;G.scores=(o.s&&o.s.length===10)?o.s:Array(10).fill(null);G.phase=o.p||'lobby';G.order=o.o||[];G.ot=!!o.ot;G.otLeft=o.ol||0;G.status=(o.st&&o.st.length===10)?o.st:Array(10).fill('open');G.fill=(o.fl&&o.fl.length===10)?o.fl:Array(10).fill(null);G.used=o.u||0;}}catch(e){}}
+function showGS(id){['#g-game-screen','#g-success-screen'].forEach(s=>$(s).classList.remove('active'));$(id).classList.add('active');}
+function weightedTotal(){return Math.round(G.scores.reduce((sum,p,i)=>sum+(p===null?0:p*BOBOT[i+1]),0));}
+function initGame(){
+  if(loadState().submittedKuis){$('#g-saved-score').textContent=loadState().kuisScore||0;showGS('#g-success-screen');return;}
+  G.pattern=QPAT[TK.kategori];loadGS();$('#g-student-info').innerText=TK.nama+' - '+TK.kelas;
+  if(G.phase==='game'){showGS('#g-game-screen');dots();tDisp();if(G.ot)otDisp();startT();loadQ(G.current-1);}
+  else{showGS('#g-game-screen');dots();tDisp();startT();loadQ(0);}
+}
+function dots(){const c=$('#g-progress-dots');c.innerHTML='';for(let i=0;i<10;i++){const st=G.status[i];const b=document.createElement('button');b.type='button';let cl='pbtn',txt=String(i+1);if(st==='checked'){cl+=' done';txt='🔒'+(i+1);}else if(st==='tunda'){cl+=' tunda';txt='⏸'+(i+1);}if(i===G.current-1&&st!=='checked')cl+=' active';b.className=cl;b.textContent=txt;b.onclick=()=>navTo(i);c.appendChild(b);}}
+function navTo(i){if(G.phase!=='game'||i===G.current-1)return;if(G.status[i]==='checked'){showToast('🔒 Soal nomor '+(i+1)+' sudah dikunci.',true,3000);return;}captureFill(G.current-1);loadQ(i);}
+function captureFill(pos){const ins=[...$$('#g-question-area .q-ans')].map(e=>e.value);const bs={};$$('#g-question-area .q-bs.sel').forEach(x=>{bs[x.dataset.i]=x.dataset.v;});const sel=$$('#g-question-area .q-sel').length?[...$$('#g-question-area .q-sel')].map(e=>e.value):null;G.fill[pos]={ins,bs,sel};saveGS();}
+function restoreFill(pos){const f=G.fill[pos];if(!f)return;const ins=$$('#g-question-area .q-ans');(f.ins||[]).forEach((v,i)=>{if(ins[i])ins[i].value=v;});Object.entries(f.bs||{}).forEach(([i,v])=>{const b=document.querySelector(`#g-question-area .q-bs[data-i="${i}"][data-v="${v}"]`);if(b)b.classList.add('sel','ring-4','ring-teal-300');});if(f.sel)$$('#g-question-area .q-sel').forEach((e,i)=>{e.value=f.sel[i]||'';});}
+function nextOpen(from){for(let k=1;k<=10;k++){const i=(from+k)%10;if(G.status[i]!=='checked')return i;}return -1;}
+function loadQ(pos){
+  if(pos===undefined)pos=G.current-1;
+  G.current=pos+1;
+  $('#g-btn-group-play').style.display='flex';$('#g-btn-group-next').style.display='none';
+  const type=G.order[pos];const diff={C:1,B:2,A:3}[G.pattern[pos]||'C'];
+  setRNG((getSalt()^((pos+1)*7919))>>>0);
+  const gens={1:genT1,2:genT2,3:genT3,4:genT4,5:genT5,6:genT6,7:genT7,8:genT8,9:genT9,10:genT10};
+  const r=gens[type](diff);
+  G.currentQ={...r,type};
+  $('#g-question-area').innerHTML=`<h3 class="font-extrabold text-lg text-indigo-800 mb-3">Soal ${pos+1}/10 • Tipe ${type} <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full">Bobot ${BOBOT[type]}</span></h3>${r.html}`;
+  $$('#g-question-area .q-tex').forEach(el=>{try{katex.render(el.dataset.tex,el,{throwOnError:false});}catch(e){el.innerText=el.dataset.tex;}});
+  $$('#g-question-area .q-bs').forEach(b=>b.addEventListener('click',()=>{const i=b.dataset.i;$$('#g-question-area .q-bs').forEach(x=>{if(x.dataset.i===i)x.classList.remove('sel','ring-4','ring-teal-300');});b.classList.add('sel','ring-4','ring-teal-300');updateBtn();}));
+  $$('#g-question-area .q-ans').forEach(e=>e.addEventListener('input',updateBtn));
+  if($('#qin-1')){attachToolbar($('#qin-1'));bindPreview('qin-1','pv-1');}
+  if($('#qin-2')){attachToolbar($('#qin-2'));bindPreview('qin-2','pv-2');}
+  if($('#pv-3')){const ins=$$('#g-question-area .q-ans');if(ins.length>=2){const upd=()=>{try{katex.render((ins[0].value||'?')+'\\times 10^{'+(ins[1].value||'?')+'}',$('#pv-3'),{throwOnError:false});}catch(e){}};ins[0].addEventListener('input',upd);ins[1].addEventListener('input',upd);upd();}}
+  restoreFill(pos);
+  if(G.phase==='game')startT();
+  updateBtn();dots();saveGS();
+}
+function attachToolbar(inp){const w=inp.parentElement;const tb=document.createElement('div');tb.className='math-toolbar hidden';['√','^','(',')','+','-','×','÷','/','m','n','⌫'].forEach(sym=>{const b=document.createElement('button');b.type='button';b.className='kbd-btn'+(sym==='⌫'?' red':'');b.textContent=sym;b.addEventListener('click',e=>{e.preventDefault();if(sym==='⌫'){inp.value=inp.value.slice(0,-1);}else inp.value+=sym;inp.dispatchEvent(new Event('input'));});tb.appendChild(b);});const c=document.createElement('button');c.type='button';c.className='tb-hide';c.textContent='✕';c.addEventListener('click',()=>tb.classList.add('hidden'));tb.appendChild(c);w.style.position='relative';w.appendChild(tb);inp.addEventListener('focus',()=>tb.classList.remove('hidden'));inp.addEventListener('blur',()=>setTimeout(()=>tb.classList.add('hidden'),150));}
+function fillStats(){const inputs=$$('#g-question-area .q-ans');const sels=$$('#g-question-area .q-sel');const groups={};$$('#g-question-area .q-bs').forEach(b=>{groups[b.dataset.i]=groups[b.dataset.i]||false;if(b.classList.contains('sel'))groups[b.dataset.i]=true;});const gk=Object.keys(groups);let t=inputs.length+sels.length+gk.length,f=gk.filter(k=>groups[k]).length;inputs.forEach(e=>{if(String(e.value).trim())f++;});sels.forEach(e=>{if(e.value)f++;});return{terisi:f,total:t};}
+function updateBtn(){
+  const bc=$('#g-btn-check-play');if(!bc)return;
+  const st=fillStats();
+  $('#g-fill-info').innerText=`Terisi ${st.terisi}/${st.total} kotak`;
+  if(st.terisi<st.total){bc.disabled=true;bc.innerText=`ISI SEMUA (${st.terisi}/${st.total})`;}else{bc.disabled=false;bc.innerText='CEK JAWABAN';}
+  const fb=$('#g-btn-finish');fb.disabled=G.used<GC.MIN_EXIT;fb.innerText=G.used<GC.MIN_EXIT?`📤 Akhiri & Kirim (${fmtSec(GC.MIN_EXIT-G.used)} lagi)`:'📤 Akhiri & Kirim Kuis';
+}
+function partialOf(q){
+  if(q.type==='bs'){let c=0;q.items.forEach((it,i)=>{const sel=document.querySelector(`#g-question-area .q-bs.sel[data-i="${i}"]`);if(sel&&sel.dataset.v===(it.ok?'Benar':'Salah'))c++;});return c/10;}
+  if(q.type==='t5'){let c=0;q.rows.forEach((r,i)=>{const ins=$$('#g-question-area .q-ans').length?$$('#g-question-area .q-ans'):[];const base=i*3;const all=$$('#g-question-area .q-ans');const kv=[...r.s].sort((a,b)=>a-b).map(v=>v*v);for(let k=0;k<3;k++){const n=normNum(all[base+k]?all[base+k].value:'');if(n!==null&&near(n,r.s.map(v=>v*v)[k]))c++;}const sel=$$('#g-question-area .q-sel')[i];const map={siku:'Siku-siku',lancip:'Lancip',tumpul:'Tumpul'};if(sel&&sel.value===map[r.ans])c++;});return c/40;}
+  if(q.type==='fin'){const ins=$$('#g-question-area .q-ans');let c=0;[...ins].forEach((e,i)=>{const n=normNum(e.value);if(n!==null&&near(n,q.ans[i]))c++;});return c/q.total;}
+  if(q.q3){const ins=$$('#g-question-area .q-ans');let c=0;[...ins].forEach((e,i)=>{const nv=normNum(e.value);const nk=normNum(q.ans[i]);if(nv!==null&&nk!==null&&near(nv,nk))c++;else if(String(e.value).trim()===q.ans[i])c++;});return c/q.total;}
+  const n=normExpr($('#g-question-area .q-ans').value);const k=normExpr(q.key);let ok=n===k;if(!ok)ok=(q.alts||[]).some(a=>normExpr(a)===n);return ok?1:0;
+}
+function markInputs(){
+  const q=G.currentQ;
+  if(q.type==='fin'||q.q3){[...$$('#g-question-area .q-ans')].forEach((e,i)=>{const n=normNum(e.value);const nk=normNum(q.ans[i]);const ok=(n!==null&&nk!==null&&near(n,nk))||String(e.value).trim()===q.ans[i];e.classList.add(ok?'input-correct':'input-wrong');e.insertAdjacentHTML('afterend',`<span class="ans-mark">${ok?'✅':'❌'}</span>`);});}
+  else if(q.type==='t5'){const all=$$('#g-question-area .q-ans');q.rows.forEach((r,i)=>{const base=i*3;const sq=r.s.map(v=>r6(v*v));for(let k=0;k<3;k++){const e=all[base+k];if(!e)continue;const n=normNum(e.value);const ok=n!==null&&near(n,sq[k]);e.classList.add(ok?'input-correct':'input-wrong');e.insertAdjacentHTML('afterend',`<span class="ans-mark">${ok?'✅':'❌'}</span>`);}const sel=$$('#g-question-area .q-sel')[i];const map={siku:'Siku-siku',lancip:'Lancip',tumpul:'Tumpul'};if(sel){const ok=sel.value===map[r.ans];sel.classList.add(ok?'input-correct':'input-wrong');}});}
+  else if(q.type==='bs'){q.items.forEach((it,i)=>{const btns=[...document.querySelectorAll(`#g-question-area .q-bs[data-i="${i}"]`)];const sel=btns.find(b=>b.classList.contains('sel'));const ok=!!sel&&sel.dataset.v===(it.ok?'Benar':'Salah');if(sel)sel.style.boxShadow=ok?'0 0 0 4px #86efac':'0 0 0 4px #fca5a5';const row=(sel||btns[0]).closest('div.flex');if(row)row.insertAdjacentHTML('beforeend',`<span class="ans-mark">${ok?'✅':'❌'}</span>`);});}
+  else{const e=$('#g-question-area .q-ans');const n=normExpr(e.value);const ok=n===normExpr(q.key)||(q.alts||[]).some(a=>normExpr(a)===n);e.classList.add(ok?'input-correct':'input-wrong');e.insertAdjacentHTML('afterend',`<span class="ans-mark">${ok?'✅':'❌'}</span>`);}
+}
+function checkAns(){
+  if(!confirm('Yakin? Tidak ada perbaikan setelah CEK.'))return;
+  const pos=G.current-1;const partial=partialOf(G.currentQ);
+  G.scores[pos]=partial;G.status[pos]='checked';
+  const benar=Math.round(partial*G.currentQ.total);const skor=Math.round(partial*BOBOT[pos+1]);
+  const m=$('#g-message');m.style.color=partial===1?'#16a34a':'#dc2626';m.innerText=`Benar ${benar}/${G.currentQ.total} • Skor +${skor}/${BOBOT[pos+1]}`;
+  $$('#g-question-area input,#g-question-area select,#g-question-area button').forEach(e=>e.disabled=true);
+  markInputs();saveGS();dots();
+  $('#g-btn-group-play').style.display='none';$('#g-btn-group-next').style.display='flex';
+  if(G.scores.every(s=>s!==null))showToast('✅ Semua soal selesai — kirim tersedia setelah 20:00 terpakai.',false,4000);
+}
+function tundaQ(){const pos=G.current-1;if(G.status[pos]==='open')G.status[pos]='tunda';captureFill(pos);const nxt=nextOpen(pos);if(nxt===-1){showToast('⏸ Semua soal tertunda — pilih lewat palet.',true,3000);dots();saveGS();return;}loadQ(nxt);}
+function nextQ(){const nxt=nextOpen(G.current-1);if(nxt===-1){showToast('Semua soal selesai — tunggu waktu minimal untuk kirim.',false,4000);}else loadQ(nxt);}
+function startT(){if(!G.timer)G.timer=setInterval(()=>{
+  G.used++;
+  if(!G.ot){G.timeLeft--;tDisp();if(G.timeLeft<=0){mainTimeUp();return;}}
+  else{G.otLeft--;otDisp();if(G.otLeft<=0){pauseT();autoSubmit(true);return;}}
+  if(G.used>=GC.MIN_EXIT&&G.scores.every(s=>s!==null)&&G.phase==='game'){pauseT();autoSubmit(false);return;}
+  updateBtn();saveGS();
+},1000);}
+function pauseT(){if(G.timer){clearInterval(G.timer);G.timer=null;}}
+function tDisp(){const el=$('#g-timer-display');if(G.ot){el.innerText='⏰ WAKTU HABIS';el.classList.add('timer-expired');}else el.innerText=fmtSec(Math.max(0,G.timeLeft));}
+function otDisp(){const el=$('#g-ot-display');el.classList.remove('hidden');el.innerText='⚡ TAMBAHAN '+fmtSec(Math.max(0,G.otLeft));}
+function mainTimeUp(){pauseT();G.ot=true;G.otLeft=GC.OT;tDisp();otDisp();saveGS();showToast('⏰ Waktu utama habis — waktu tambahan +10:00 berjalan!',false,4000);startT();}
+async function autoSubmit(byOvertime){
+  G.phase='result';saveGS();
+  const f=weightedTotal();
+  const detail=G.scores.map((s,i)=>`T${i+1}:${Math.round((s||0)*BOBOT[i+1])}`).join(' | ');
+  const payload={tipe:'KUIS',kode:KODE,nama1:TK.nama,kelas:TK.kelas,kategori:TK.kategori,username:TK.username,skor:f,jawaban:(byOvertime?'[WAKTU-TAMBAHAN] ':'')+detail,waktuPengerjaan:fmtSec(G.used),percobaan:TK.gen,waktuTambahan:G.ot?fmtSec(GC.OT-Math.max(0,G.otLeft)):'-'};
+  showToast('📤 Mengirim Nilai Kuis ke Guru...');
+  try{await postAction(payload);saveState({submittedKuis:true,kuisScore:f});try{localStorage.removeItem(gKey());}catch(e){}hideToast();$('#g-saved-score').textContent=f;$('#g-success-note').textContent=byOvertime?'⏰ Nilai dikirim otomatis karena waktu tambahan habis.':'Nilai LKPD & Kuis tersimpan di Rekap Guru.';showGS('#g-success-screen');}
+  catch(e){hideToast();showToast('❌ Gagal mengirim Nilai Kuis — coba lagi',true,3500);G.phase='game';startT();}
+}
+$('#g-btn-check-play').onclick=checkAns;
+$('#g-btn-tunda-play').onclick=tundaQ;
+$('#g-btn-next').onclick=nextQ;
+$('#g-btn-finish').onclick=()=>{if(confirm('Akhiri & kirim kuis sekarang?'))autoSubmit(false);};
+$('#g-btn-exit').onclick=()=>{try{localStorage.removeItem(sKey());localStorage.removeItem(gKey());}catch(e){}window.close();setTimeout(()=>{try{window.open('','_self');window.close();}catch(e){}setTimeout(()=>{document.open();document.write('<body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f1f5f9;font-family:sans-serif"><div style="background:#fff;padding:32px;border-radius:16px;text-align:center"><div style="font-size:44px">✅</div><h2>Sesi Berakhir</h2><p style="color:#64748b">Silakan tutup jendela/tab ini.</p></div>');document.close();},300);},400);};
 
-            const progressContainer = document.getElementById('progress-dots');
-            progressContainer.innerHTML = '';
-            for(let i = 0; i < CONFIG.TOTAL_QUESTIONS; i++) {
-                let dot = document.createElement('div');
-                dot.className = 'dot' + (i === 0 ? ' active' : '');
-                progressContainer.appendChild(dot);
-            }
-
-            document.getElementById('student-info').innerText = `${userName} - ${userClass}`;
-            document.getElementById('lobby-screen').classList.remove('active');
-            document.getElementById('game-screen').classList.add('active');
-
-            updateTimerDisplay(); 
-            startTimer();
-            loadQuestion();
-        }
-
-        function startTimer() {
-            if (!timerInterval) {
-                timerInterval = setInterval(() => {
-                    timeLeft--;
-                    timeSpentCurrent++; 
-                    
-                    updateTimerDisplay();
-                    updateButtonStates(); 
-
-                    if (timeLeft <= 0) {
-                        pauseTimer();
-                        handleTimeUp();
-                    }
-                }, 1000);
-            }
-        }
-
-        function pauseTimer() {
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-            }
-        }
-
-        function updateTimerDisplay() {
-            let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-            let s = (timeLeft % 60).toString().padStart(2, '0');
-            document.getElementById('timer-display').innerText = `${m}:${s}`;
-        }
-
-        function updateButtonStates() {
-            const btnCheck = document.getElementById('btn-check-play');
-            const btnSkip = document.getElementById('btn-skip-play');
-
-            if (!btnCheck || !btnSkip) return;
-
-            let checkTimeLeft = CONFIG.MIN_CHECK_SEC - timeSpentCurrent;
-            if (checkTimeLeft > 0) {
-                btnCheck.disabled = true;
-                btnCheck.innerText = `CEK JAWABAN (${checkTimeLeft}s)`;
-            } else {
-                btnCheck.disabled = false;
-                btnCheck.innerText = `CEK JAWABAN`;
-            }
-
-            let skipTimeLeft = CONFIG.MIN_SKIP_SEC - timeSpentCurrent;
-            if (skipTimeLeft > 0) {
-                btnSkip.disabled = true;
-                btnSkip.innerText = `Lewati (${skipTimeLeft}s)`;
-            } else {
-                btnSkip.disabled = false;
-                btnSkip.innerText = `Lewati`;
-            }
-        }
-
-        function updateProgressUI(status) {
-            const dots = document.querySelectorAll('.dot');
-            if(status === 'done') {
-                dots[currentQuestion - 1].classList.remove('active');
-                dots[currentQuestion - 1].classList.add('done');
-            } else if (status === 'failed') {
-                dots[currentQuestion - 1].classList.remove('active');
-                dots[currentQuestion - 1].classList.add('failed');
-            }
-
-            if(currentQuestion < CONFIG.TOTAL_QUESTIONS) {
-                dots[currentQuestion].classList.add('active');
-            }
-        }
-
-        function getPrimes() { return [2, 3, 5, 7, 11]; }
-        function getRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-        function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-
-        function getZone(latexStr) {
-            if(!dictKeys[latexStr]) {
-                dictKeys[latexStr] = "key_" + Math.random().toString(36).substr(2, 8);
-            }
-            currentAnswers.push({ key: dictKeys[latexStr], latex: latexStr });
-            let safeLatex = btoa(unescape(encodeURIComponent(latexStr)));
-            return `<div class="drop-zone" data-expected="${dictKeys[latexStr]}" data-latex="${safeLatex}"></div>`;
-        }
-
-        function generateCategoryC() {
-            let a = getRandom(getPrimes());
-            let c = randInt(2, 9);
-            
-            return `
-            <div class="step-row">
-                <span class="operator">Soal:</span>
-                <div class="fraction">
-                    <div class="numerator katex-static" data-tex="${c}"></div>
-                    <div class="denominator katex-static" data-tex="\\sqrt{${a}}"></div>
-                </div>
-            </div>
-            <div class="step-row">
-                <span class="operator">=</span>
-                <div class="fraction">
-                    <div class="numerator">${getZone(c.toString())}</div>
-                    <div class="denominator">${getZone(`\\sqrt{${a}}`)}</div>
-                </div>
-                <span class="operator">&times;</span>
-                <div class="fraction">
-                    <div class="numerator">${getZone(`\\sqrt{${a}}`)}</div>
-                    <div class="denominator">${getZone(`\\sqrt{${a}}`)}</div>
-                </div>
-            </div>
-            <div class="step-row">
-                <span class="operator">=</span>
-                <div class="fraction">
-                    <div class="numerator">${getZone(`${c}\\sqrt{${a}}`)}</div>
-                    <div class="denominator">${getZone(`(\\sqrt{${a}})^2`)}</div>
-                </div>
-            </div>
-            <div class="step-row">
-                <span class="operator">=</span>
-                <div class="fraction">
-                    <div class="numerator">${getZone(`${c}\\sqrt{${a}}`)}</div>
-                    <div class="denominator">${getZone(a.toString())}</div>
-                </div>
-            </div>`;
-        }
-
-        function generateCategoryB() {
-            let a = randInt(2, 5);
-            let b = getRandom(getPrimes());
-            let c = randInt(2, 9);
-            let sign = Math.random() > 0.5 ? '+' : '-';
-            let oppSign = sign === '+' ? '-' : '+';
-
-            let soalBawah = `${a} ${sign} \\sqrt{${b}}`;
-            let sekawan = `${a} ${oppSign} \\sqrt{${b}}`;
-            
-            return `
-            <div class="step-row">
-                <span class="operator">Soal:</span>
-                <div class="fraction">
-                    <div class="numerator katex-static" data-tex="${c}"></div>
-                    <div class="denominator katex-static" data-tex="${soalBawah}"></div>
-                </div>
-            </div>
-            <div class="step-row">
-                <span class="operator">=</span>
-                <div class="fraction">
-                    <div class="numerator">${getZone(c.toString())}</div>
-                    <div class="denominator">${getZone(soalBawah)}</div>
-                </div>
-                <span class="operator">&times;</span>
-                <div class="fraction">
-                    <div class="numerator">${getZone(sekawan)}</div>
-                    <div class="denominator">${getZone(sekawan)}</div>
-                </div>
-            </div>
-            <div class="step-row">
-                <span class="operator">=</span>
-                <div class="fraction">
-                    <div class="numerator">${getZone(`${c}(${sekawan})`)}</div>
-                    <div class="denominator">${getZone(`${a}^2`)} <span class="operator">-</span> ${getZone(`(\\sqrt{${b}})^2`)}</div>
-                </div>
-            </div>
-            <div class="step-row">
-                <span class="operator">=</span>
-                <div class="fraction">
-                    <div class="numerator">${getZone(`${c}(${sekawan})`)}</div>
-                    <div class="denominator">${getZone(`${a*a} - ${b}`)}</div>
-                </div>
-            </div>
-            <div class="step-row">
-                <span class="operator">=</span>
-                <div class="fraction">
-                    <div class="numerator">${getZone(`${c}(${sekawan})`)}</div>
-                    <div class="denominator">${getZone((a*a - b).toString())}</div>
-                </div>
-            </div>`;
-        }
-
-        function generateCategoryA() {
-            let a = getRandom(getPrimes());
-            let b = getRandom(getPrimes());
-            while(a === b) b = getRandom(getPrimes()); 
-            
-            let c = randInt(2, 9);
-            let sign = Math.random() > 0.5 ? '+' : '-';
-            let oppSign = sign === '+' ? '-' : '+';
-
-            let soalBawah = `\\sqrt{${a}} ${sign} \\sqrt{${b}}`;
-            let sekawan = `\\sqrt{${a}} ${oppSign} \\sqrt{${b}}`;
-            
-            return `
-            <div class="step-row">
-                <span class="operator">Soal:</span>
-                <div class="fraction">
-                    <div class="numerator katex-static" data-tex="${c}"></div>
-                    <div class="denominator katex-static" data-tex="${soalBawah}"></div>
-                </div>
-            </div>
-            <div class="step-row">
-                <span class="operator">=</span>
-                <div class="fraction">
-                    <div class="numerator">${getZone(c.toString())}</div>
-                    <div class="denominator">${getZone(soalBawah)}</div>
-                </div>
-                <span class="operator">&times;</span>
-                <div class="fraction">
-                    <div class="numerator">${getZone(sekawan)}</div>
-                    <div class="denominator">${getZone(sekawan)}</div>
-                </div>
-            </div>
-            <div class="step-row">
-                <span class="operator">=</span>
-                <div class="fraction">
-                    <div class="numerator">${getZone(`${c}(${sekawan})`)}</div>
-                    <div class="denominator">${getZone(`(\\sqrt{${a}})^2`)} <span class="operator">-</span> ${getZone(`(\\sqrt{${b}})^2`)}</div>
-                </div>
-            </div>
-            <div class="step-row">
-                <span class="operator">=</span>
-                <div class="fraction">
-                    <div class="numerator">${getZone(`${c}(${sekawan})`)}</div>
-                    <div class="denominator">${getZone(`${a} - ${b}`)}</div>
-                </div>
-            </div>
-            <div class="step-row">
-                <span class="operator">=</span>
-                <div class="fraction">
-                    <div class="numerator">${getZone(`${c}(${sekawan})`)}</div>
-                    <div class="denominator">${getZone((a - b).toString())}</div>
-                </div>
-            </div>`;
-        }
-
-        function loadQuestion() {
-            retryCount = CONFIG.MAX_RETRIES;
-            timeSpentCurrent = 0; 
-            selectedItem = null;
-            currentAnswers = [];
-            dictKeys = {};
-            
-            document.getElementById('btn-group-play').style.display = 'flex';
-            document.getElementById('btn-group-next').style.display = 'none';
-            
-            updateButtonStates(); 
-
-            document.getElementById('message').innerText = `Soal ${currentQuestion} dari ${CONFIG.TOTAL_QUESTIONS}. Pilih jawaban dari bawah.`;
-            document.getElementById('message').style.color = "var(--text-main)";
-
-            let eqArea = document.getElementById('equation-area');
-            let currentDifficulty = currentPattern[currentQuestion - 1]; 
-
-            if(currentDifficulty === 'C') {
-                eqArea.innerHTML = generateCategoryC();
-            } else if(currentDifficulty === 'B') {
-                eqArea.innerHTML = generateCategoryB();
-            } else {
-                eqArea.innerHTML = generateCategoryA();
-            }
-
-            document.querySelectorAll('.katex-static').forEach(el => {
-                katex.render(el.dataset.tex, el);
-            });
-
-            document.querySelectorAll('.drop-zone').forEach(zone => {
-                zone.addEventListener('click', () => handleZoneClick(zone));
-            });
-
-            const bank = document.getElementById('answer-bank');
-            bank.innerHTML = ''; 
-            
-            currentAnswers.sort(() => Math.random() - 0.5);
-
-            currentAnswers.forEach(ans => {
-                const item = document.createElement('div');
-                item.className = 'answer-item';
-                item.dataset.value = ans.key;
-                katex.render(ans.latex, item);
-                item.addEventListener('click', () => handleItemClick(item));
-                bank.appendChild(item);
-            });
-        }
-
-        function handleItemClick(itemEl) {
-            if (selectedItem === itemEl) {
-                itemEl.classList.remove('selected');
-                selectedItem = null;
-                return;
-            }
-            if (selectedItem) selectedItem.classList.remove('selected');
-            itemEl.classList.add('selected');
-            selectedItem = itemEl;
-        }
-
-        function handleZoneClick(zone) {
-            if(zone.classList.contains('locked')) return; 
-
-            if (selectedItem) {
-                if (zone.children.length > 0) {
-                    document.getElementById('answer-bank').appendChild(zone.children[0]);
-                }
-                zone.appendChild(selectedItem);
-                selectedItem.classList.remove('selected');
-                selectedItem = null;
-                zone.style.borderColor = "#94a3b8"; 
-            } 
-            else if (zone.children.length > 0) {
-                document.getElementById('answer-bank').appendChild(zone.children[0]);
-                zone.style.borderColor = "#94a3b8";
-            }
-        }
-
-        function checkAnswer() {
-            const zones = document.querySelectorAll('.drop-zone');
-            let total = zones.length;
-            let terisi = 0;
-            let benar = 0;
-            let hasWrong = false;
-
-            zones.forEach(zone => {
-                const expected = zone.dataset.expected;
-                
-                if (zone.children.length > 0) {
-                    terisi++;
-                    const child = zone.children[0];
-                    if (expected === child.dataset.value) {
-                        benar++;
-                        zone.classList.add('locked'); 
-                    } else {
-                        hasWrong = true;
-                        zone.classList.add('shake-animation');
-                        setTimeout(() => {
-                            if(!zone.classList.contains('locked') && zone.children.length > 0) {
-                                document.getElementById('answer-bank').appendChild(zone.children[0]);
-                                zone.classList.remove('shake-animation');
-                            }
-                        }, 500);
-                    }
-                }
-            });
-
-            const msg = document.getElementById('message');
-
-            if (terisi < total && !hasWrong && retryCount > 0) {
-                msg.style.color = "var(--warning)";
-                msg.innerText = "Ada kotak yang belum diisi!";
-                return;
-            }
-
-            if (benar === total) {
-                scores.push(1); 
-                msg.style.color = "var(--success)";
-                msg.innerText = "Tepat Sekali!";
-                updateProgressUI('done');
-                pauseTimer(); 
-                setTimeout(() => {
-                    startTimer();
-                    nextQuestion();
-                }, 1500);
-            } else {
-                if (retryCount > 0) {
-                    retryCount--;
-                    msg.style.color = "var(--danger)";
-                    msg.innerText = `Jawaban salah dikembalikan. Kesempatan perbaikan: ${retryCount}`;
-                } else {
-                    scores.push(benar / total); 
-                    msg.style.color = "var(--danger)";
-                    
-                    if (CONFIG.AUTO_SHOW_ANSWER) {
-                        msg.innerText = "Kesempatan Habis. Berikut adalah jawaban yang benar.";
-                        forceShowAnswers();
-                    } else {
-                        msg.innerText = "Kesempatan Habis. Jawaban Anda kurang tepat.";
-                    }
-                    
-                    updateProgressUI(benar > 0 ? 'done' : 'failed');
-                    
-                    pauseTimer();
-                    document.getElementById('btn-group-play').style.display = 'none';
-                    document.getElementById('btn-group-next').style.display = 'flex';
-                }
-            }
-        }
-
-        function forceShowAnswers() {
-            document.querySelectorAll('.drop-zone').forEach(zone => {
-                if (!zone.classList.contains('locked')) {
-                    if (zone.children.length > 0) {
-                        document.getElementById('answer-bank').appendChild(zone.children[0]);
-                    }
-                    const safeLatex = zone.getAttribute('data-latex');
-                    const correctLatex = decodeURIComponent(escape(atob(safeLatex)));
-                    
-                    const dummy = document.createElement('div');
-                    dummy.className = 'answer-item';
-                    dummy.style.backgroundColor = '#dcfce7';
-                    dummy.style.borderColor = '#16a34a';
-                    dummy.style.cursor = 'default';
-                    katex.render(correctLatex, dummy);
-                    
-                    zone.appendChild(dummy);
-                    zone.classList.add('locked');
-                }
-            });
-        }
-
-        function skipQuestion() {
-            if(confirm("Yakin ingin melewati soal ini? Anda tidak mendapat nilai penuh.")) {
-                const zones = document.querySelectorAll('.drop-zone');
-                let benar = 0;
-                zones.forEach(z => { if(z.classList.contains('locked')) benar++; });
-                
-                scores.push(benar / zones.length);
-                
-                const msg = document.getElementById('message');
-                if (CONFIG.AUTO_SHOW_ANSWER) {
-                    forceShowAnswers();
-                    msg.innerText = "Soal dilewati. Berikut adalah jawaban yang benar.";
-                } else {
-                    msg.innerText = "Soal dilewati.";
-                }
-                
-                updateProgressUI('failed');
-                msg.style.color = "var(--warning)";
-                
-                pauseTimer();
-                document.getElementById('btn-group-play').style.display = 'none';
-                document.getElementById('btn-group-next').style.display = 'flex';
-            }
-        }
-
-        function handleLanjut() {
-            startTimer(); 
-            nextQuestion();
-        }
-
-        function nextQuestion() {
-            currentQuestion++;
-            if (currentQuestion > CONFIG.TOTAL_QUESTIONS) {
-                endGame();
-            } else {
-                loadQuestion();
-            }
-        }
-
-        function handleTimeUp() {
-            alert("Waktu Habis!");
-            while(scores.length < CONFIG.TOTAL_QUESTIONS) {
-                scores.push(0);
-            }
-            endGame();
-        }
-
-        function endGame() {
-            pauseTimer();
-            document.getElementById('game-screen').classList.remove('active');
-            document.getElementById('result-screen').classList.add('active');
-
-            let sumRatio = scores.reduce((a, b) => a + b, 0);
-            let finalScore = Math.round(sumRatio * CONFIG.POINTS_PER_QUESTION);
-
-            document.getElementById('res-name').innerText = userName;
-            document.getElementById('res-class').innerText = userClass;
-            document.getElementById('final-score').innerText = finalScore;
-            
-            let catName = userCategory === 'A' ? "Tinggi" : (userCategory === 'B' ? "Sedang" : "Rendah");
-            document.getElementById('res-stats').innerText = `Level: ${catName} | Sisa Waktu: ${document.getElementById('timer-display').innerText}`;
-        }
-    </script>
+/* ============ BOOT LKPD ============ */
+let lkpdAccMs=0,lkpdResume=null;
+function startLKPD(){
+  $('#student-name').value=TK.nama;$('#student-class').value=TK.kelas;$('#student-cat').value='Kategori '+TK.kategori;
+  setRNG(getSalt());
+  generateK1();generateK2();
+  const st=loadState();
+  restoreAnswers(st.answers);restoreBS(st.bsSel);
+  if(st.locked1)applyLock('k1',true);if(st.locked2)applyLock('k2',true);
+  if(st.submittedLKPD){submitted=true;finalScore=st.finalScore||0;$('#btn-kirim-lkpd').classList.add('hidden');$('#kirim-lkpd-status').textContent='✅ LKPD sudah terkirim.';unlockKuis(true);}
+  $('#main-container').classList.remove('hidden');hideToast();
+  lkpdResume=Date.now();
+  setInterval(()=>{if(!submitted&&lkpdResume)$('#timer-lkpd').textContent=fmtMs(lkpdAccMs+(Date.now()-lkpdResume));},500);
+  document.addEventListener('visibilitychange',()=>{if(submitted)return;if(document.hidden){if(lkpdResume){lkpdAccMs+=Date.now()-lkpdResume;lkpdResume=null;}}else lkpdResume=Date.now();});
+}
+$('#btn-reshuffle').onclick=()=>{if((locked.k1&&locked.k2)||submitted)return alert('Terkunci/sudah dikirim.');if(!confirm('Acak soal baru? Jawaban belum dikunci dihapus.'))return;const s=(Date.now()%2147483647)^(Math.floor(Math.random()*1e9));saveState({salt:s,answers:{},bsSel:{}});setRNG(s);generateK1();generateK2();};
+$('#lock-1').onclick=()=>{if(submitted)return;if(!locked.k1&&!confirm('Kunci Kegiatan 1?'))return;applyLock('k1',!locked.k1);};
+$('#lock-2').onclick=()=>{if(submitted)return;if(!locked.k2&&!confirm('Kunci Kegiatan 2?'))return;applyLock('k2',!locked.k2);};
+$('#btn-evaluate').onclick=()=>evaluateAll();
+$('#btn-kirim-lkpd').onclick=async()=>{
+  if(submitted)return;
+  const o={};document.querySelectorAll('#main-container input,#main-container select').forEach(el=>{if(el.id)o[el.id]=el.value;});
+  const elapsed=lkpdAccMs+(lkpdResume?Date.now()-lkpdResume:0);
+  const payload={tipe:'LKPD',kode:KODE,nama1:TK.nama,kelas:TK.kelas,kategori:TK.kategori,username:TK.username,nama2:'-',jawaban:'K1:'+k1Cards.map((c,i)=>'K'+'ABCDEF'[i]+':'+(c.k.map((_,k)=>o['k1-c'+i+'-k'+k]||'').join('/'))).join(' ;; ')+' ;; K2:'+fmtMs(0),waktuPengerjaan:fmtMs(elapsed),percobaan:TK.gen,autoNilai:finalScore,totalSoal:78,username2:''};
+  showToast('📤 Mengirim Nilai LKPD ke Guru...');
+  try{await postAction(payload);submitted=true;saveState({submittedLKPD:true,finalScore});$('#btn-kirim-lkpd').classList.add('hidden');$('#kirim-lkpd-status').textContent='✅ Nilai LKPD terkirim.';hideToast();unlockKuis(false);}
+  catch(e){hideToast();showToast('❌ Gagal mengirim Nilai LKPD — coba lagi',true,3500);}
+};
+G.order=shuffle([1,2,3,4,5,6,7,8,9,10]);
+startLKPD();
+$('#loader-overlay').classList.add('hidden');
+});
+</script>
 </body>
 </html>
