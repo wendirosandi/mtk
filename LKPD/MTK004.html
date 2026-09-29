@@ -43,12 +43,20 @@ body{font-family:'Plus Jakarta Sans',sans-serif;}
 .timer-expired{color:#dc2626!important;animation:blinkExp 1s step-start infinite;}
 @keyframes blinkExp{50%{opacity:.3;}}
 #g-ot-display{animation:blinkExp 1.2s step-start infinite;}
+#toast-overlay{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:9998;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);border:1px solid rgba(15,118,110,.35);border-radius:999px;padding:8px 18px;box-shadow:0 8px 24px rgba(0,0,0,.12);pointer-events:none;transition:opacity .25s,transform .25s;}
+#toast-overlay.hidden{opacity:0;transform:translateX(-50%) translateY(-12px);}
+#toast-overlay .t-spin{width:16px;height:16px;border-radius:50%;border:3px solid #e0e7ff;border-top-color:#0f766e;animation:spin .8s linear infinite;flex:none;}
+#toast-overlay.t-error{border-color:rgba(220,38,38,.5);}
+#toast-overlay.t-error .t-spin{border-top-color:#dc2626;}
+#toast-overlay .t-msg{font-size:12.5px;font-weight:700;color:#0f172a;}
+.ring-unlock{animation:ringPulse 1.2s ease-out 2;}
+@keyframes ringPulse{0%{box-shadow:0 0 0 0 rgba(15,118,110,.55);}100%{box-shadow:0 0 0 18px rgba(15,118,110,0);}}
 </style>
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800 p-3 md:p-6 pb-20">
 
 <div id="loader-overlay" role="status"><div class="loader-card"><div class="spinner"></div><div id="loader-text" class="font-bold text-sm">Memverifikasi link...</div><div class="text-xs text-slate-500 mt-1">mohon tunggu</div></div></div>
-
+<div id="toast-overlay" class="hidden" role="status"><div class="t-spin"></div><div class="t-msg" id="toast-msg">Memuat...</div></div>
 <div id="gate-overlay" class="hidden fixed inset-0 z-50 bg-slate-100 flex items-center justify-center p-4">
 <div class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-md space-y-4">
 <h2 class="text-lg font-extrabold text-slate-800">📐 Teorema Pythagoras — MTK-004</h2>
@@ -187,8 +195,17 @@ body{font-family:'Plus Jakarta Sans',sans-serif;}
 </div>
 
 <!-- GAME KUIS -->
-<div id="game-root" class="bg-white rounded-3xl shadow-xl overflow-hidden mt-6" style="min-height:560px;">
-<div id="g-lobby-screen" class="g-screen active"><div class="g-center"><div class="g-card">
+<div id="quiz-locked-card" class="bg-white rounded-3xl p-6 shadow-sm border mt-6 text-center space-y-3">
+  <div class="text-4xl">🔒</div>
+  <h3 class="text-lg font-extrabold text-slate-800">Kuis Terkunci</h3>
+  <p class="text-sm text-slate-600">Kuis terbuka otomatis setelah Nilai LKPD Anda <b>terkirim sukses</b> ke Guru.</p>
+  <div class="inline-flex flex-col items-start gap-1 text-xs font-semibold text-slate-600 bg-slate-50 border rounded-xl px-4 py-3">
+    <span id="chk-eval">☐ Evaluasi LKPD selesai</span>
+    <span id="chk-kirim">☐ Nilai LKPD terkirim ke Guru</span>
+  </div>
+</div>
+<div id="game-root" class="hidden bg-white rounded-3xl shadow-xl overflow-hidden mt-6" style="min-height:560px;">
+  <div id="g-lobby-screen" class="g-screen active"><div class="g-center"><div class="g-card">
 <h1 class="text-xl font-extrabold text-teal-800">🎯 Kuis Pythagoras</h1>
 <p class="text-sm text-slate-600 mb-3 mt-2">5 Soal • Timer total 15:00 • Tanpa retry</p>
 <div class="bg-teal-50 border border-teal-200 rounded-lg p-3 text-xs text-teal-900 text-left mb-3"><b>Aturan:</b><br>• Timer keseluruhan 15 menit<br>• CEK/Lewati aktif setelah 60 detik per soal<br>• Sekali CEK = final<br>• Bobot soal: #1=20, #2=30, #3=10, #4=10, #5=30<br>• Urutan tipe soal diacak per sesi</div>
@@ -243,13 +260,16 @@ const fmtMs=ms=>{const s=Math.floor(ms/1000),m=Math.floor(s/60),d=s%60;return pa
 const fmtSec=s=>{s=Math.max(0,Math.floor(s));return pad(Math.floor(s/60))+':'+pad(s%60);};
 const r6=v=>Math.round(v*1e6)/1e6;
 const fmtN=v=>String(r6(v));
+const fmtID=v=>String(r6(v)).replace('.',',');
 const normNum=v=>{const n=parseFloat(String(v).trim().replace(',','.'));return isNaN(n)?null:n;};
 const near=(a,b)=>Math.abs(a-b)<1e-6;
 const hideLoader=()=>$('#loader-overlay').classList.add('hidden');
 const postAction=p=>fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)}).then(r=>r.json());
+function showToast(msg,isError){const t=$('#toast-overlay');$('#toast-msg').textContent=msg;t.classList.toggle('t-error',!!isError);t.classList.remove('hidden');}
+function hideToast(){$('#toast-overlay').classList.add('hidden');}
 function b64u(t){let s=t.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return s;}
 function decTok(t){try{return CryptoJS.AES.decrypt(b64u(t),SECRET).toString(CryptoJS.enc.Utf8)||null;}catch(e){return null;}}
-function showError(m){hideLoader();$('#main-container').classList.add('hidden');$('#error-panel').classList.remove('hidden');$('#error-msg').textContent=m;}
+function showError(m){hideToast();hideLoader();$('#main-container').classList.add('hidden');$('#error-panel').classList.remove('hidden');$('#error-msg').textContent=m;}
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 const shuffle=a=>{const arr=[...a];for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;};
 const PICK=a=>a[Math.floor(Math.random()*a.length)];
@@ -280,21 +300,25 @@ catch(e){ info={ok:false,debug:'fetch error: '+e.message}; }
 console.log('[MTK004] lkpdInfo →', info);
 if(!info.ok){ showError('Gagal memverifikasi link. ['+(info.debug||info.msg||JSON.stringify(info))+']'); return; }
 if(info.mode==='partner-blocked'){
-hideLoader();$('#gate-overlay').classList.remove('hidden');$('#gate-pick').classList.add('hidden');
+hideLoader();hideToast();$('#gate-overlay').classList.remove('hidden');$('#gate-pick').classList.add('hidden');
 $('#gate-blocked').classList.remove('hidden');
 $('#gate-blocked').innerHTML=`👥 Akun Anda terdaftar sebagai <b>Siswa 2</b> pasangan <b>${info.blockedBy.nama1}</b>.<br>Silakan bergabung di perangkat/link pasangan Anda.`;
 return;
 }
-if(info.mode==='owner-approved'){TK.pair=info.pair||null;hideLoader();$('#gate-overlay').classList.add('hidden');startLKPD();return;}
+if(info.mode==='owner-approved'){TK.pair=info.pair||null;showToast('✅ Memverifikasi status pasangan...');hideLoader();$('#gate-overlay').classList.add('hidden');startLKPD();return;}
 if(info.kolaborasi==='Wajib'||info.kolaborasi==='Ya'){
 hideLoader();$('#gate-overlay').classList.remove('hidden');
 $('#gate-msg').textContent='Kolaborasi '+(info.kolaborasi==='Wajib'?'WAJIB':'opsional')+' — pilih teman untuk memulai.';
 $('#gate-pick').classList.remove('hidden');
-const cl=await postAction({action:'classmates',d:token});
+    showToast('👥 Memuat daftar teman sekelas...');
+    const cl=await postAction({action:'classmates',d:token});
+    hideToast();
 $('#gate-teman').innerHTML=(cl.list||[]).map(u=>`<option value="${u.username}">${u.nama} (${u.kategori})</option>`).join('');
 $('#gate-ajukan').onclick=async()=>{
 const u2=$('#gate-teman').value;if(!u2)return;
-const r=await postAction({action:'requestKolab',d:token,username2:u2});
+      showToast('📨 Mengajukan permintaan pasangan...');
+      const r=await postAction({action:'requestKolab',d:token,username2:u2});
+      hideToast();
 if(r.ok){TK.pair={username2:u2,nama2:(cl.list||[]).find(x=>x.username===u2)?.nama||u2};$('#gate-overlay').classList.add('hidden');startLKPD();}
 else{$('#gate-msg').innerHTML='<span class="text-rose-600 font-bold">❌ Gagal mengajukan pasangan.</span>';}
 };
@@ -306,6 +330,7 @@ hideLoader();$('#gate-overlay').classList.add('hidden');startLKPD();
 /* ================= LKPD START ================= */
 let lkpdAccMs=0, lkpdResumeEpoch=null;
 function startLKPD(){
+  showToast('🧩 Menyiapkan & mengacak soal LKPD...');
 $('#student-name').value=TK.nama;$('#student-class').value=TK.kelas;
 $('#student-pair').value=TK.pair?TK.pair.nama2:'(sendiri)';
 setRNG(getSalt());
@@ -315,13 +340,14 @@ const st=loadState();
 restoreAnswers(st.answers);
 if(st.locked1)applyLock('k1',true);
 if(st.locked2)applyLock('k2',true);
-if(st.submittedLKPD){submitted=true;finalScoreLKPD=st.finalScoreLKPD||0;lockAllLKPD(true);$('#btn-kirim-lkpd').classList.add('hidden');$('#kirim-lkpd-status').textContent='✅ LKPD sudah terkirim.';}
+  if(st.submittedLKPD){submitted=true;finalScoreLKPD=st.finalScoreLKPD||0;lockAllLKPD(true);$('#btn-kirim-lkpd').classList.add('hidden');$('#kirim-lkpd-status').textContent='✅ LKPD sudah terkirim.';unlockKuis(true);}
 wireLocks();wireReshuffle();wireEvaluate();
 $('#main-container').classList.remove('hidden');
+hideToast();
 lkpdResumeEpoch=Date.now();
 setInterval(()=>{if(!submitted&&lkpdResumeEpoch)$('#timer-lkpd').textContent=fmtMs(lkpdAccMs+(Date.now()-lkpdResumeEpoch));},500);
 document.addEventListener('visibilitychange',()=>{if(submitted)return;if(document.hidden){if(lkpdResumeEpoch){lkpdAccMs+=Date.now()-lkpdResumeEpoch;lkpdResumeEpoch=null;}}else{lkpdResumeEpoch=Date.now();}});
-initGame();
+/* initGame() kini dipanggil hanya via unlockKuis() */
 }
 
 /* ================= DIFFICULTY & POOLS ================= */
@@ -437,8 +463,8 @@ k2Cases.forEach((item,idx)=>{
 const s=[...item.s].sort((a,b)=>a-b);
 item.sol={a:s[0],b:s[1],c:s[2],a2:r6(s[0]*s[0]),b2:r6(s[1]*s[1]),sum:r6(s[0]*s[0]+s[1]*s[1]),c2:r6(s[2]*s[2]),sym:item.sym,type:item.type};
 cont.insertAdjacentHTML('beforeend',`<div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-3">
-<div class="flex justify-between items-center border-b pb-2"><h3 class="font-bold text-sm">
-  Kasus ${idx+1}: Sisi = <span class="text-indigo-700">${item.display.join(', ')}</span></h3><span class="text-xs bg-indigo-100 text-indigo-800 font-bold px-2.5 py-0.5 rounded">Soal ${idx+1}</span></div>
+<div class="flex justify-between items-center border-b pb-2"><h3 class="font-bold text-sm">Kasus ${idx+1}: Ada segitiga dengan panjang sisi berikut ini:</h3><span class="text-xs bg-indigo-100 text-indigo-800 font-bold px-2.5 py-0.5 rounded">Soal ${idx+1}</span></div>
+      <table class="w-full text-center text-sm font-bold rounded-xl overflow-hidden mt-2 mb-1"><thead><tr class="bg-indigo-100 text-indigo-800 text-xs uppercase tracking-wider"><th class="border border-indigo-200 py-1.5">Sisi 1</th><th class="border border-indigo-200 py-1.5">Sisi 2</th><th class="border border-indigo-200 py-1.5">Sisi 3</th></tr></thead><tbody><tr class="text-indigo-700">${item.display.map(v=>`<td class="border border-indigo-200 py-2 bg-white">${fmtID(v)}</td>`).join('')}</tr></tbody></table>
 <div class="space-y-1">
 <div class="step-row"><span>a (terpendek) =</span><input type="text" inputmode="decimal" maxlength="5" id="k2-a-${idx}"></div>
 <div class="step-row"><span>b =</span><input type="text" inputmode="decimal" maxlength="5" id="k2-b-${idx}"></div>
@@ -497,6 +523,7 @@ if(el.id.startsWith('k2-')&&!String(el.value).trim())e2++;
 return{e1,e2};
 }
 function evaluateAll(){
+  showToast('🧮 Menghitung hasil evaluasi...');
 let score=0,totalMax=0,s1=0,s2=0;
 const ck=(id,exp,pts=1)=>{totalMax+=pts;const el=$('#'+id);if(!el)return false;
 const nv=normNum(el.value),ne=normNum(exp);
@@ -519,7 +546,9 @@ const pred=finalScoreLKPD>=90?['Sangat Baik (A)','text-emerald-600']:finalScoreL
 $('#score-predicate').textContent=pred[0];$('#score-predicate').className='text-lg font-extrabold '+pred[1];
 $('#score-feedback').textContent=finalScoreLKPD>=75?'Bagus! Teliti kembali kotak berwarna merah.':'Pelajari ulang langkah kuadrat dan perbandingan relasi.';
 $('#score-breakdown').innerHTML=`<div><b>Nama:</b> ${TK.nama}</div><div><b>Kelas:</b> ${TK.kelas}</div><div><b>Kategori:</b> ${currentDiff}</div><div><b>Poin:</b> ${score}/${totalMax}</div><div><b>Kegiatan 1:</b> ${s1}/17</div><div><b>Kegiatan 2:</b> ${s2}/34</div>`;
-$('#score-card').classList.remove('hidden');$('#score-card').scrollIntoView({behavior:'smooth'});
+  $('#chk-eval').textContent='✅ Evaluasi LKPD selesai';
+  hideToast();
+  $('#score-card').classList.remove('hidden');$('#score-card').scrollIntoView({behavior:'smooth'});
 if(!submitted)$('#btn-kirim-lkpd').classList.remove('hidden');
 }
 function wireEvaluate(){
@@ -545,12 +574,26 @@ const o={};document.querySelectorAll('input,select').forEach(el=>{if(el.id&&!el.
 const jawaban='K1:'+JSON.stringify({shape:o['k1-shape'],right:o['k1-right-node'],hyp:o['k1-hypotenuse'],total:o['k1-total-dist']})+' ;; K2:'+JSON.stringify([0,1,2].map(i=>o['k2-type-'+i]));
 const elapsed=lkpdAccMs+(lkpdResumeEpoch?Date.now()-lkpdResumeEpoch:0);
 const payload={tipe:'LKPD',kode:KODE,nama1:TK.nama,kelas:TK.kelas,kategori:TK.kategori,username:TK.username,nama2:TK.pair?TK.pair.nama2:'-',jawaban:jawaban,waktuPengerjaan:fmtMs(elapsed),percobaan:TK.gen,autoNilai:finalScoreLKPD,totalSoal:51,username2:TK.pair?TK.pair.username2:''};
-$('#kirim-lkpd-status').textContent='⏳ Mengirim...';
-try{await postAction(payload);submitted=true;saveState({submittedLKPD:true,finalScoreLKPD:finalScoreLKPD});lockAllLKPD(true);$('#btn-kirim-lkpd').classList.add('hidden');$('#kirim-lkpd-status').textContent='✅ Nilai LKPD terkirim.'+(TK.pair?' (Pasangan: '+TK.pair.nama2+')':'');}
-catch(e){$('#kirim-lkpd-status').textContent='❌ Gagal mengirim. Coba lagi.';}
+    showToast('📤 Mengirim Nilai LKPD ke Guru...');
+    try{await postAction(payload);submitted=true;saveState({submittedLKPD:true,finalScoreLKPD:finalScoreLKPD});lockAllLKPD(true);$('#btn-kirim-lkpd').classList.add('hidden');$('#kirim-lkpd-status').textContent='✅ Nilai LKPD terkirim.'+(TK.pair?' (Pasangan: '+TK.pair.nama2+')':'');hideToast();unlockKuis(false);}
+    catch(e){hideToast();showToast('❌ Gagal mengirim Nilai LKPD — coba lagi',true);$('#kirim-lkpd-status').textContent='❌ Gagal mengirim. Coba lagi.';}
 };
 }
-
+/* ================= FASE 2: UNLOCK KUIS ================= */
+let kuisUnlocked=false;
+function unlockKuis(silent){
+  if(kuisUnlocked)return;kuisUnlocked=true;
+  $('#quiz-locked-card').classList.add('hidden');
+  $('#chk-kirim').textContent='✅ Nilai LKPD terkirim ke Guru';
+  const gr=$('#game-root');gr.classList.remove('hidden');
+  if(!silent){
+    showToast('🔓 Kuis terbuka — siapkan diri!');
+    gr.classList.add('ring-unlock');
+    gr.scrollIntoView({behavior:'smooth',block:'start'});
+    setTimeout(()=>{hideToast();const b=$('#g-start-btn');if(b)b.focus({preventScroll:true});},700);
+  }
+  initGame();
+}
 /* ================= GAME KUIS ================= */
 const GAME_CONFIG={TOTAL_TIME:900,MIN_PER_Q:60,OT_RATIO:3};
 const OT_TOTAL=()=>Math.round(GAME_CONFIG.TOTAL_TIME/GAME_CONFIG.OT_RATIO);
@@ -679,7 +722,9 @@ rows=shuffle(rows);
 const opt='<option value="">?</option><option>Segitiga Siku-siku</option><option>Segitiga Lancip</option><option>Segitiga Tumpul</option><option>Bukan Segitiga</option>';
 return{type:'match10',short:'Jenis',totalItems:10,title:'Jenis Segitiga (10 pasang)',
 html:`<div class="bg-white rounded-2xl p-5 border space-y-2"><p class="text-sm text-slate-700">Pasangkan 10 ukuran sisi dengan jenisnya:</p>
-${rows.map((r,i)=>`<div class="flex items-center gap-3 border rounded-xl p-2"><span class="font-bold text-xs w-7">#${i+1}</span><span class="flex-1 font-mono font-bold text-sm">${r.s.join(', ')}</span><select class="q-ans p-2 border rounded-xl text-xs font-bold" data-i="${i}">${opt}</select></div>`).join('')}</div>`,
+${rows.map((r,i)=>`<div class="flex items-center gap-3 border rounded-xl p-2"><span class="font-bold text-xs w-7">#${i+1}</span>
+  <span class="flex-1 font-mono font-bold text-sm">${r.s.map(fmtID).join(' - ')}</span>
+  <select class="q-ans p-2 border rounded-xl text-xs font-bold" data-i="${i}">${opt}</select></div>`).join('')}</div>`,
 rows,partial:()=>{let c=0;rows.forEach((r,i)=>{const v=document.querySelector(`#g-question-area select[data-i="${i}"]`);if(v&&v.value===r.ans)c++;});return c/10;}};
 }
 /* --- Q3 & Q4: scaffold (pool diperluas + desimal) --- */
@@ -844,6 +889,7 @@ $('#g-btn-skip-play').onclick=skipQ;
 $('#g-btn-next').onclick=nextQ;
 async function submitKuis(auto){
   const btn=$('#g-btn-kirim');btn.disabled=true;btn.textContent='⏳ Mengirim...';
+  showToast('📤 Mengirim Nilai Kuis ke Guru...');
   const f=weightedTotal();
   const detail=G.scores.map((s,i)=>{const t=G.order[i];return `${G.label[i]||('#'+(i+1))}:${Math.round(s*BOBOT[t])}`;}).join(' | ');
   const otUsed=G.ot?(OT_TOTAL()-Math.max(0,G.otLeft)):0;
@@ -853,6 +899,7 @@ async function submitKuis(auto){
     await postAction(payload);
     saveState({submittedKuis:true,kuisScore:f});
     try{localStorage.removeItem(gKey());}catch(e){}
+    hideToast();
     $('#g-saved-score').textContent=f;
     if(auto){
       btn.disabled=false;btn.style.background='#64748b';btn.textContent='✅ Nilai Terkirim Otomatis — LIHAT HASIL';
@@ -862,8 +909,9 @@ async function submitKuis(auto){
       showGS('#g-success-screen');
     }
   }catch(e){
+    hideToast();showToast('❌ Gagal mengirim Nilai Kuis — coba lagi',true);
     if(auto){btn.disabled=false;btn.style.background='#16a34a';btn.textContent='📤 Kirim Manual (otomatis gagal)';btn.onclick=()=>submitKuis(false);}
-    else{alert('Gagal mengirim.');btn.disabled=false;btn.textContent='📤 Kirim Nilai Kuis';}
+    else{btn.disabled=false;btn.textContent='📤 Kirim Nilai Kuis';}
   }
 }
 $('#g-btn-kirim').onclick=()=>submitKuis(false);
