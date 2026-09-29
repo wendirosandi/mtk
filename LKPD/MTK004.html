@@ -51,6 +51,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;}
 #toast-overlay .t-msg{font-size:12.5px;font-weight:700;color:#0f172a;}
 .ring-unlock{animation:ringPulse 1.2s ease-out 2;}
 @keyframes ringPulse{0%{box-shadow:0 0 0 0 rgba(15,118,110,.55);}100%{box-shadow:0 0 0 18px rgba(15,118,110,0);}}
+.pbtn{min-width:30px;height:30px;border-radius:9px;border:1.5px solid #cbd5e1;background:#f1f5f9;color:#64748b;font-weight:800;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0 6px;}
+.pbtn.active{background:#0f766e;color:#fff;border-color:#0f766e;}
+.pbtn.tunda{background:#ede9fe;color:#6d28d9;border-color:#a78bfa;}
+.pbtn.done{background:#dcfce7;color:#15803d;border-color:#86efac;}
+.ans-mark{font-size:11px;pointer-events:none;margin-left:2px;}
 </style>
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800 p-3 md:p-6 pb-20">
@@ -223,10 +228,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;}
 <div class="p-3 bg-white border-t space-y-2">
 <div id="g-fill-info" class="text-xs text-slate-500 font-semibold text-center"></div>
 <div id="g-message" class="text-xs font-semibold text-center text-slate-600">Belum lengkap</div>
-<div class="flex gap-2" id="g-btn-group-play">
-<button class="btn" id="g-btn-skip-play" style="flex:1;background:#64748b">Lewati</button>
-<button class="btn" id="g-btn-check-play" style="flex:2">CEK JAWABAN</button>
-</div>
+        <div class="flex gap-2" id="g-btn-group-play">
+          <button class="btn" id="g-btn-skip-play" style="flex:1;background:#94a3b8">Lewati (0)</button>
+          <button class="btn" id="g-btn-tunda-play" style="flex:1;background:#7c3aed">⏭ Tunda</button>
+          <button class="btn" id="g-btn-check-play" style="flex:2">CEK JAWABAN</button>
+        </div>
 <div class="flex gap-2" id="g-btn-group-next" style="display:none"><button class="btn" id="g-btn-next">LANJUT →</button></div>
 </div>
 </div>
@@ -597,28 +603,52 @@ function unlockKuis(silent){
 /* ================= GAME KUIS ================= */
 const GAME_CONFIG={TOTAL_TIME:900,MIN_PER_Q:60,OT_RATIO:3};
 const OT_TOTAL=()=>Math.round(GAME_CONFIG.TOTAL_TIME/GAME_CONFIG.OT_RATIO);
-let G={current:1,timeLeft:900,spent:0,checked:false,timer:null,scores:[],order:[],label:[],phase:'lobby',currentQ:null,ot:false,otLeft:0};
+let G={current:1,timeLeft:900,timer:null,scores:[null,null,null,null,null],status:['open','open','open','open','open'],spentMap:[0,0,0,0,0],fill:[null,null,null,null,null],order:[],label:[],phase:'lobby',currentQ:null,ot:false,otLeft:0};
+function saveGS(){try{localStorage.setItem(gKey(),JSON.stringify({q:G.current,t:G.timeLeft,s:G.scores,p:G.phase,o:G.order,l:G.label,ot:G.ot,ol:G.otLeft,st:G.status,sm:G.spentMap,fl:G.fill}));}catch(e){}}
+function loadGS(){try{const o=JSON.parse(localStorage.getItem(gKey())||'null');if(o){G.current=o.q||1;G.timeLeft=o.t||900;G.scores=(o.s&&o.s.length===5)?o.s:[null,null,null,null,null];G.phase=o.p||'lobby';G.order=o.o||[];G.label=o.l||[];G.ot=!!o.ot;G.otLeft=o.ol||0;G.status=(o.st&&o.st.length===5)?o.st:['open','open','open','open','open'];G.spentMap=(o.sm&&o.sm.length===5)?o.sm:[0,0,0,0,0];G.fill=(o.fl&&o.fl.length===5)?o.fl:[null,null,null,null,null];}}catch(e){}}
 const BOBOT={1:20,2:30,3:10,4:10,5:30};
 const QUESTION_PATTERNS={'A':['C','B','A','C','B'],'B':['C','B','B','C','B'],'C':['C','B','C','B','C']};
 const gKey=()=>sKey()+'_game';
-function saveGS(){try{localStorage.setItem(gKey(),JSON.stringify({q:G.current,t:G.timeLeft,s:G.scores,p:G.phase,o:G.order,l:G.label,ot:G.ot,ol:G.otLeft}));}catch(e){}}
-function loadGS(){try{const o=JSON.parse(localStorage.getItem(gKey())||'null');if(o){G.current=o.q||1;G.timeLeft=o.t||900;G.scores=o.s||[];G.phase=o.p||'lobby';G.order=o.o||[];G.label=o.l||[];G.ot=!!o.ot;G.otLeft=o.ol||0;}}catch(e){}}
 function showGS(id){['#g-lobby-screen','#g-game-screen','#g-result-screen','#g-success-screen'].forEach(s=>$(s).classList.remove('active'));$(id).classList.add('active');}
 function weightedTotal(){return G.scores.reduce((sum,p,i)=>sum+Math.round(p*(BOBOT[G.order[i]]||20)),0);}
 function initGame(){
 if(loadState().submittedKuis){$('#g-saved-score').textContent=loadState().kuisScore||0;showGS('#g-success-screen');return;}
 G.pattern=QUESTION_PATTERNS[currentDiff]||QUESTION_PATTERNS['C'];
 loadGS();$('#g-student-info').innerText=TK.nama+' - '+TK.kelas;
-if(G.phase==='game'&&G.current<=5){if(!G.order.length)G.order=shuffle([1,2,3,4,5]);showGS('#g-game-screen');dots();tDisp();if(G.ot)otDisp();startT();loadQ();}
+if(G.phase==='game'&&G.current<=5){if(!G.order.length)G.order=shuffle([1,2,3,4,5]);showGS('#g-game-screen');dots();tDisp();if(G.ot)otDisp();startT();loadQ(G.current-1);}
 else if(G.phase==='result')showResult();
 else showGS('#g-lobby-screen');
 }
-$('#g-start-btn').onclick=()=>{G.current=1;G.timeLeft=GAME_CONFIG.TOTAL_TIME;G.scores=[];G.order=shuffle([1,2,3,4,5]);G.label=[];G.phase='game';G.ot=false;G.otLeft=0;
+$('#g-start-btn').onclick=()=>{G.current=1;G.timeLeft=GAME_CONFIG.TOTAL_TIME;G.scores=[null,null,null,null,null];G.status=['open','open','open','open','open'];G.spentMap=[0,0,0,0,0];G.fill=[null,null,null,null,null];G.order=shuffle([1,2,3,4,5]);G.label=[];G.phase='game';G.ot=false;G.otLeft=0;
   $('#g-ot-display').classList.add('hidden');$('#g-timer-display').classList.remove('timer-expired');$('#g-result-note').classList.add('hidden');
-  saveGS();$('#g-student-info').innerText=TK.nama+' - '+TK.kelas;dots();showGS('#g-game-screen');tDisp();startT();loadQ();};
-function dots(){const c=$('#g-progress-dots');c.innerHTML='';for(let i=0;i<5;i++){let cl='dot';if(i<G.scores.length)cl+=' '+(G.scores[i]===1?'done':'failed');else if(i===G.current-1)cl+=' active';const d=document.createElement('div');d.className=cl;c.appendChild(d);}}
-function startT(){if(!G.timer)G.timer=setInterval(()=>{
-  G.spent++;
+  saveGS();$('#g-student-info').innerText=TK.nama+' - '+TK.kelas;dots();showGS('#g-game-screen');tDisp();startT();loadQ(0);};
+function dots(){const c=$('#g-progress-dots');c.innerHTML='';for(let i=0;i<5;i++){
+  const st=G.status[i];const b=document.createElement('button');b.type='button';
+  let cl='pbtn',txt=String(i+1);
+  if(st==='checked'){cl+=' done';txt='🔒'+(i+1);}
+  else if(st==='tunda'){cl+=' tunda';txt='⏸'+(i+1);}
+  if(i===G.current-1&&st!=='checked')cl+=' active';
+  b.className=cl;b.textContent=txt;b.onclick=()=>navTo(i);
+  c.appendChild(b);
+}}
+function navTo(i){
+  if(G.phase!=='game'||i===G.current-1)return;
+  if(G.status[i]==='checked'){showToast('🔒 Soal nomor '+(i+1)+' sudah dikunci (sekali CEK = final).',true);return;}
+  captureFill(G.current-1);loadQ(i);
+}
+function captureFill(pos){
+  const ins=[...$$('#g-question-area .q-ans')].map(e=>e.value);
+  const bs={};$$('#g-question-area .q-bs.sel').forEach(x=>{bs[x.dataset.i]=x.dataset.v;});
+  G.fill[pos]={ins,bs};saveGS();
+}
+function restoreFill(pos){
+  const f=G.fill[pos];if(!f)return;
+  const ins=$$('#g-question-area .q-ans');(f.ins||[]).forEach((v,i)=>{if(ins[i])ins[i].value=v;});
+  Object.entries(f.bs||{}).forEach(([i,v])=>{const b=document.querySelector(`#g-question-area .q-bs[data-i="${i}"][data-v="${v}"]`);if(b)b.classList.add('sel','ring-4','ring-teal-300');});
+}
+function nextOpen(from){for(let k=1;k<=5;k++){const i=(from+k)%5;if(G.status[i]!=='checked')return i;}return -1;}
+  function startT(){if(!G.timer)G.timer=setInterval(()=>{
+  G.spentMap[G.current-1]=(G.spentMap[G.current-1]||0)+1;
   if(!G.ot){G.timeLeft--;tDisp();if(G.timeLeft<=0){mainTimeUp();return;}}
   else{G.otLeft--;otDisp();if(G.otLeft<=0){pauseT();autoSubmitKuis();return;}}
   updateBtn();saveGS();
@@ -634,7 +664,7 @@ function mainTimeUp(){
   startT();
 }
 function autoSubmitKuis(){
-  while(G.scores.length<5)G.scores.push(0);
+  G.scores=G.scores.map(s=>(s===null||s===undefined)?0:s);
   G.phase='result';saveGS();showResult();
   $('#g-result-note').classList.remove('hidden');
   submitKuis(true);
@@ -653,11 +683,12 @@ const bc=$('#g-btn-check-play'),bs=$('#g-btn-skip-play');if(!bc||!bs)return;
 const st=fillStats();
 $('#g-fill-info').innerText=`Terisi ${st.terisi}/${st.total} kotak`;
 if(!G.checked){const m=$('#g-message');m.style.color='#475569';m.innerText=(st.total&&st.terisi===st.total)?'Lengkap':'Belum lengkap';}
-const tc=GAME_CONFIG.MIN_PER_Q-G.spent;
+  const sp=G.spentMap[G.current-1]||0;
+  const tc=GAME_CONFIG.MIN_PER_Q-sp;
 if(tc>0){bc.disabled=true;bc.innerText=`CEK (${tc}s)`;}
 else if(st.terisi<st.total){bc.disabled=true;bc.innerText=`ISI SEMUA (${st.terisi}/${st.total})`;}
 else{bc.disabled=false;bc.innerText='CEK JAWABAN';}
-const ts=GAME_CONFIG.MIN_PER_Q-G.spent;
+const ts=GAME_CONFIG.MIN_PER_Q-sp;
 if(ts>0){bs.disabled=true;bs.innerText=`Lewati (${ts}s)`;}else{bs.disabled=false;bs.innerText='Lewati';}
 }
 const IN=`<input type="text" inputmode="decimal" maxlength="5" class="q-ans">`;
@@ -746,8 +777,8 @@ function genQ4(diff){
     +L(`<span>c = √(</span>${IN}<span> + </span>${IN}<span>)</span>`)
     +LC(`<span>c = √</span>${IN}`)
     +L(`<span>c = </span>${IN}`);
-  const ans=[a,b,s1,s2,sum,sum,c];
-  return{type:'scaffold',short:'Akar',totalItems:7,title:'Cari Sisi Miring (Metode Rumus Akar)',html:`<div class="bg-white rounded-2xl p-5 border">${SOAL_BOX(txt)}${html}</div>`,ans,partial:scaffoldPartial(ans)};
+    const ans=[a,b,s1,s2,sum,c];
+  return{type:'scaffold',short:'Akar',totalItems:ans.length,title:'Cari Sisi Miring (Metode Rumus Akar)',html:`<div class="bg-white rounded-2xl p-5 border">${SOAL_BOX(txt)}${html}</div>`,ans,partial:scaffoldPartial(ans)};
 }
 /* --- Q5: 9 template segitiga gabungan (F1,F2,F3,F3b,F4,F5,F6,F7,F8) --- */
 const Q5_SEEDS={
@@ -846,39 +877,74 @@ return{type:'scaffold',short:entry.f,totalItems:r.ans.length,title:titles[entry.
 ans:r.ans,partial:scaffoldPartial(r.ans)};
 }
 /* --- LOAD / CEK / LANJUT --- */
-function loadQ(){
-G.spent=0;G.checked=false;
-$('#g-btn-group-play').style.display='flex';$('#g-btn-group-next').style.display='none';
-const type=G.order[G.current-1];const diff=G.pattern[G.current-1]||'C';
-const gens={1:genQ1,2:genQ2,3:genQ3,4:genQ4,5:genQ5};
-G.currentQ=gens[type](diff);
-G.label[G.current-1]=`#${G.current}(${G.currentQ.short})`;
-$('#g-question-area').innerHTML=`<h3 class="font-extrabold text-lg text-teal-800 mb-3">Soal ${G.current}/5: ${G.currentQ.title} <span class="text-xs bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full">Bobot ${BOBOT[type]}</span></h3>${G.currentQ.html}`;
-$$('#g-question-area .q-bs').forEach(b=>b.addEventListener('click',()=>{
-const i=b.dataset.i;
-$$('#g-question-area .q-bs').forEach(x=>{if(x.dataset.i===i)x.classList.remove('sel','ring-4','ring-teal-300');});
-b.classList.add('sel','ring-4','ring-teal-300');updateBtn();
-}));
-$$('#g-question-area .q-ans').forEach(e=>e.addEventListener('input',updateBtn));
-updateBtn();saveGS();
+function loadQ(pos){
+  if(pos===undefined)pos=G.current-1;
+  G.current=pos+1;G.checked=false;
+  $('#g-btn-group-play').style.display='flex';$('#g-btn-group-next').style.display='none';
+  const type=G.order[pos];const diff=G.pattern[pos]||'C';
+  const gens={1:genQ1,2:genQ2,3:genQ3,4:genQ4,5:genQ5};
+  setRNG((getSalt()^((pos+1)*7919))>>>0);
+  G.currentQ=gens[type](diff);
+  G.label[pos]=`#${pos+1}(${G.currentQ.short})`;
+  const domIn=(G.currentQ.html.match(/class="q-ans/g)||[]).length;
+  if(G.currentQ.ans&&G.currentQ.ans.length&&G.currentQ.ans.length!==domIn)console.warn('[MTK004] Audit ans≠input:',G.currentQ.title,G.currentQ.ans.length,'vs',domIn);
+  $('#g-question-area').innerHTML=`<h3 class="font-extrabold text-lg text-teal-800 mb-3">Soal ${pos+1}/5: ${G.currentQ.title} <span class="text-xs bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full">Bobot ${BOBOT[type]}</span></h3>${G.currentQ.html}`;
+  $$('#g-question-area .q-bs').forEach(b=>b.addEventListener('click',()=>{
+    const i=b.dataset.i;
+    $$('#g-question-area .q-bs').forEach(x=>{if(x.dataset.i===i)x.classList.remove('sel','ring-4','ring-teal-300');});
+    b.classList.add('sel','ring-4','ring-teal-300');updateBtn();
+  }));
+  $$('#g-question-area .q-ans').forEach(e=>e.addEventListener('input',updateBtn));
+  restoreFill(pos);
+  updateBtn();dots();saveGS();
+}
+function markInputs(){
+  const q=G.currentQ;
+  if(q.type==='scaffold'){
+    [...$$('#g-question-area .q-ans')].forEach((e,i)=>{const n=normNum(e.value);const ok=n!==null&&q.ans[i]!==undefined&&near(n,q.ans[i]);e.classList.add(ok?'input-correct':'input-wrong');e.insertAdjacentHTML('afterend',`<span class="ans-mark">${ok?'✅':'❌'}</span>`);});
+  }else if(q.type==='match10'){
+    q.rows.forEach((r,i)=>{const v=document.querySelector(`#g-question-area select[data-i="${i}"]`);if(!v)return;const ok=v.value===r.ans;v.classList.add(ok?'input-correct':'input-wrong');v.insertAdjacentHTML('afterend',`<span class="ans-mark">${ok?'✅':'❌'}</span>`);});
+  }else if(q.type==='bs10'){
+    q.items.forEach((it,i)=>{
+      const btns=[...document.querySelectorAll(`#g-question-area .q-bs[data-i="${i}"]`)];
+      const sel=btns.find(b=>b.classList.contains('sel'));
+      const ok=!!sel&&sel.dataset.v===(it.ok?'Benar':'Salah');
+      if(sel)sel.style.boxShadow=ok?'0 0 0 4px #86efac':'0 0 0 4px #fca5a5';
+      const cor=btns.find(b=>b.dataset.v===(it.ok?'Benar':'Salah'));
+      if(cor&&!ok)cor.style.outline='2px solid #16a34a';
+      const row=(sel||btns[0]).closest('div.flex');
+      if(row)row.insertAdjacentHTML('beforeend',`<span class="ans-mark">${ok?'✅':'❌'}</span>`);
+    });
+  }
 }
 function checkAns(){
-if(!confirm('Yakin dengan jawaban? Tidak ada perbaikan setelah CEK.'))return;
-const st=fillStats();const partial=G.currentQ.partial();
-const type=G.order[G.current-1];
-const benar=Math.round(partial*G.currentQ.totalItems);
-const skor=Math.round(partial*BOBOT[type]);
-G.checked=true;G.scores.push(partial);
-const m=$('#g-message');m.style.color=partial===1?'#16a34a':'#dc2626';
-m.innerText=`Benar ${benar}/${G.currentQ.totalItems} • Skor +${skor}/${BOBOT[type]}`;
-$$('#g-question-area input,#g-question-area select,#g-question-area button').forEach(e=>e.disabled=true);
-pauseT();saveGS();dots();
-$('#g-btn-group-play').style.display='none';$('#g-btn-group-next').style.display='flex';
+  if(!confirm('Yakin dengan jawaban? Tidak ada perbaikan setelah CEK.'))return;
+  const pos=G.current-1;
+  const st=fillStats();const partial=G.currentQ.partial();
+  const type=G.order[pos];
+  const benar=Math.round(partial*G.currentQ.totalItems);
+  const skor=Math.round(partial*BOBOT[type]);
+  G.checked=true;G.scores[pos]=partial;G.status[pos]='checked';
+  const m=$('#g-message');m.style.color=partial===1?'#16a34a':'#dc2626';
+  m.innerText=`Benar ${benar}/${G.currentQ.totalItems} • Skor +${skor}/${BOBOT[type]}`;
+  $$('#g-question-area input,#g-question-area select,#g-question-area button').forEach(e=>e.disabled=true);
+  markInputs();
+  pauseT();saveGS();dots();
+  $('#g-btn-group-play').style.display='none';$('#g-btn-group-next').style.display='flex';
 }
-function skipQ(){if(!confirm('Lewati soal ini? (dinilai 0)'))return;G.checked=true;G.scores.push(0);
-const m=$('#g-message');m.style.color='#64748b';m.innerText='Dilewati (skor 0).';dots();pauseT();saveGS();
-$('#g-btn-group-play').style.display='none';$('#g-btn-group-next').style.display='flex';}
-function nextQ(){G.current++;if(G.current>5){G.phase='result';saveGS();showResult();}else{startT();loadQ();}}
+function tundaQ(){
+  const pos=G.current-1;
+  if(G.status[pos]==='open')G.status[pos]='tunda';
+  captureFill(pos);
+  const nxt=nextOpen(pos);
+  if(nxt===-1){showToast('⏸ Semua soal tertunda — pilih nomor lewat palet.',true);dots();saveGS();return;}
+  loadQ(nxt);
+}
+function skipQ(){if(!confirm('Lewati soal ini? (dinilai 0 permanen)'))return;
+  const pos=G.current-1;G.checked=true;G.scores[pos]=0;G.status[pos]='checked';
+  const m=$('#g-message');m.style.color='#64748b';m.innerText='Dilewati (skor 0).';dots();pauseT();saveGS();
+  $('#g-btn-group-play').style.display='none';$('#g-btn-group-next').style.display='flex';}
+function nextQ(){const nxt=nextOpen(G.current-1);if(nxt===-1){G.phase='result';saveGS();showResult();}else loadQ(nxt);}
 
 function showResult(){pauseT();const f=weightedTotal();
 $('#g-final-score').innerText=f;
@@ -886,6 +952,7 @@ $('#g-detail-list').innerHTML='<b>Detail:</b><br>'+G.scores.map((s,i)=>{const t=
 showGS('#g-result-screen');}
 $('#g-btn-check-play').onclick=checkAns;
 $('#g-btn-skip-play').onclick=skipQ;
+$('#g-btn-tunda-play').onclick=tundaQ;
 $('#g-btn-next').onclick=nextQ;
 async function submitKuis(auto){
   const btn=$('#g-btn-kirim');btn.disabled=true;btn.textContent='⏳ Mengirim...';
