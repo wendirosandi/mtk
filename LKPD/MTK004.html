@@ -49,6 +49,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;}
 #toast-overlay.t-error{border-color:rgba(220,38,38,.5);}
 #toast-overlay.t-error .t-spin{border-top-color:#dc2626;}
 #toast-overlay .t-msg{font-size:12.5px;font-weight:700;color:#0f172a;}
+#toast-overlay.t-info .t-spin{display:none;}
 .ring-unlock{animation:ringPulse 1.2s ease-out 2;}
 @keyframes ringPulse{0%{box-shadow:0 0 0 0 rgba(15,118,110,.55);}100%{box-shadow:0 0 0 18px rgba(15,118,110,0);}}
 .pbtn{min-width:30px;height:30px;border-radius:9px;border:1.5px solid #cbd5e1;background:#f1f5f9;color:#64748b;font-weight:800;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0 6px;}
@@ -271,8 +272,16 @@ const normNum=v=>{const n=parseFloat(String(v).trim().replace(',','.'));return i
 const near=(a,b)=>Math.abs(a-b)<1e-6;
 const hideLoader=()=>$('#loader-overlay').classList.add('hidden');
 const postAction=p=>fetch(GS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)}).then(r=>r.json());
-function showToast(msg,isError){const t=$('#toast-overlay');$('#toast-msg').textContent=msg;t.classList.toggle('t-error',!!isError);t.classList.remove('hidden');}
-function hideToast(){$('#toast-overlay').classList.add('hidden');}
+let toastTimer=null;
+function showToast(msg,isError,ms){
+  const t=$('#toast-overlay');$('#toast-msg').textContent=msg;
+  t.classList.toggle('t-error',!!isError);
+  t.classList.toggle('t-info',!!isError||!!ms);
+  t.classList.remove('hidden');
+  if(toastTimer){clearTimeout(toastTimer);toastTimer=null;}
+  if(ms)toastTimer=setTimeout(hideToast,ms);
+}
+function hideToast(){$('#toast-overlay').classList.add('hidden');if(toastTimer){clearTimeout(toastTimer);toastTimer=null;}}
 function b64u(t){let s=t.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return s;}
 function decTok(t){try{return CryptoJS.AES.decrypt(b64u(t),SECRET).toString(CryptoJS.enc.Utf8)||null;}catch(e){return null;}}
 function showError(m){hideToast();hideLoader();$('#main-container').classList.add('hidden');$('#error-panel').classList.remove('hidden');$('#error-msg').textContent=m;}
@@ -582,7 +591,7 @@ const elapsed=lkpdAccMs+(lkpdResumeEpoch?Date.now()-lkpdResumeEpoch:0);
 const payload={tipe:'LKPD',kode:KODE,nama1:TK.nama,kelas:TK.kelas,kategori:TK.kategori,username:TK.username,nama2:TK.pair?TK.pair.nama2:'-',jawaban:jawaban,waktuPengerjaan:fmtMs(elapsed),percobaan:TK.gen,autoNilai:finalScoreLKPD,totalSoal:51,username2:TK.pair?TK.pair.username2:''};
     showToast('📤 Mengirim Nilai LKPD ke Guru...');
     try{await postAction(payload);submitted=true;saveState({submittedLKPD:true,finalScoreLKPD:finalScoreLKPD});lockAllLKPD(true);$('#btn-kirim-lkpd').classList.add('hidden');$('#kirim-lkpd-status').textContent='✅ Nilai LKPD terkirim.'+(TK.pair?' (Pasangan: '+TK.pair.nama2+')':'');hideToast();unlockKuis(false);}
-    catch(e){hideToast();showToast('❌ Gagal mengirim Nilai LKPD — coba lagi',true);$('#kirim-lkpd-status').textContent='❌ Gagal mengirim. Coba lagi.';}
+    catch(e){hideToast();showToast('❌ Gagal mengirim Nilai LKPD — coba lagi',true,3500);$('#kirim-lkpd-status').textContent='❌ Gagal mengirim. Coba lagi.';}
 };
 }
 /* ================= FASE 2: UNLOCK KUIS ================= */
@@ -633,7 +642,7 @@ function dots(){const c=$('#g-progress-dots');c.innerHTML='';for(let i=0;i<5;i++
 }}
 function navTo(i){
   if(G.phase!=='game'||i===G.current-1)return;
-  if(G.status[i]==='checked'){showToast('🔒 Soal nomor '+(i+1)+' sudah dikunci (sekali CEK = final).',true);return;}
+  if(G.status[i]==='checked'){showToast('🔒 Soal nomor '+(i+1)+' sudah dikunci (sekali CEK = final).',true,3000);return;}
   captureFill(G.current-1);loadQ(i);
 }
 function captureFill(pos){
@@ -895,7 +904,8 @@ function loadQ(pos){
     b.classList.add('sel','ring-4','ring-teal-300');updateBtn();
   }));
   $$('#g-question-area .q-ans').forEach(e=>e.addEventListener('input',updateBtn));
-  restoreFill(pos);
+    restoreFill(pos);
+  if(G.phase==='game')startT();
   updateBtn();dots();saveGS();
 }
 function markInputs(){
@@ -928,8 +938,7 @@ function checkAns(){
   const m=$('#g-message');m.style.color=partial===1?'#16a34a':'#dc2626';
   m.innerText=`Benar ${benar}/${G.currentQ.totalItems} • Skor +${skor}/${BOBOT[type]}`;
   $$('#g-question-area input,#g-question-area select,#g-question-area button').forEach(e=>e.disabled=true);
-  markInputs();
-  pauseT();saveGS();dots();
+  markInputs(); saveGS();dots();
   $('#g-btn-group-play').style.display='none';$('#g-btn-group-next').style.display='flex';
 }
 function tundaQ(){
@@ -937,12 +946,12 @@ function tundaQ(){
   if(G.status[pos]==='open')G.status[pos]='tunda';
   captureFill(pos);
   const nxt=nextOpen(pos);
-  if(nxt===-1){showToast('⏸ Semua soal tertunda — pilih nomor lewat palet.',true);dots();saveGS();return;}
+  if(nxt===-1){showToast('⏸ Semua soal tertunda — pilih nomor lewat palet.',true,3000);dots();saveGS();return;}
   loadQ(nxt);
 }
 function skipQ(){if(!confirm('Lewati soal ini? (dinilai 0 permanen)'))return;
   const pos=G.current-1;G.checked=true;G.scores[pos]=0;G.status[pos]='checked';
-  const m=$('#g-message');m.style.color='#64748b';m.innerText='Dilewati (skor 0).';dots();pauseT();saveGS();
+  const m=$('#g-message');m.style.color='#64748b';m.innerText='Dilewati (skor 0).';dots();saveGS();
   $('#g-btn-group-play').style.display='none';$('#g-btn-group-next').style.display='flex';}
 function nextQ(){const nxt=nextOpen(G.current-1);if(nxt===-1){G.phase='result';saveGS();showResult();}else loadQ(nxt);}
 
@@ -976,7 +985,7 @@ async function submitKuis(auto){
       showGS('#g-success-screen');
     }
   }catch(e){
-    hideToast();showToast('❌ Gagal mengirim Nilai Kuis — coba lagi',true);
+    hideToast();showToast('❌ Gagal mengirim Nilai Kuis — coba lagi',true,3500);
     if(auto){btn.disabled=false;btn.style.background='#16a34a';btn.textContent='📤 Kirim Manual (otomatis gagal)';btn.onclick=()=>submitKuis(false);}
     else{btn.disabled=false;btn.textContent='📤 Kirim Nilai Kuis';}
   }
