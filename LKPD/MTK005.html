@@ -30,7 +30,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;}
 .q-bs.sel[data-v="Benar"]{background:#10b981;color:#fff;border-color:#059669;}
 .q-bs.sel[data-v="Salah"]{background:#f43f5e;color:#fff;border-color:#e11d48;}
 .q-bs:disabled{opacity:.55;cursor:not-allowed;}
-.pbtn{min-width:30px;height:30px;border-radius:9px;border:1.5px solid #cbd5e1;background:#f1f5f9;color:#64748b;font-weight:800;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0 6px;}
+.pbtn{width:26px;height:26px;border-radius:7px;border:1.5px solid #cbd5e1;background:#f1f5f9;color:#64748b;font-weight:800;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
 .pbtn.active{background:#0f766e;color:#fff;border-color:#0f766e;}
 .pbtn.tunda{background:#ede9fe;color:#6d28d9;border-color:#a78bfa;}
 .pbtn.done{background:#dcfce7;color:#15803d;border-color:#86efac;}
@@ -240,15 +240,30 @@ function getBSSel(){const o={};$$('#k1-bs .q-bs.sel').forEach(b=>{o[b.dataset.i]
 function restoreBS(sel){if(!sel)return;Object.entries(sel).forEach(([i,v])=>{const b=document.querySelector(`#k1-bs .q-bs[data-i="${i}"][data-v="${v}"]`);if(b)b.classList.add('sel','ring-4','ring-teal-300');});}
 
 /* ============ KEGIATAN 2 (F7 tetap) ============ */
-const K2={ea:30,ed:25,od:7,eo:24,ao:18,ad:25,biaya:50};
+const K2_POOLS={
+ C:[[30,25,7],[20,15,9],[25,17,8]],
+ B:[[30,25,7],[20,15,9],[25,17,8],[15,13,5],[40,25,7],[17,10,6]],
+ A:[[30,25,7],[20,15,9],[25,17,8],[15,13,5],[40,25,7],[17,10,6],[3,2.5,0.7],[2.5,1.7,0.8],[1.5,1.3,0.5],[2,1.5,0.9]]
+};
+let K2=null,K2_KEY=[];
+function pickK2(){
+  const pool=K2_POOLS[TK.kategori]||K2_POOLS.B;
+  const [ea,ed,od]=pool[getSalt()%pool.length];
+  const eo2=r6(ed*ed-od*od), eo=r6(Math.sqrt(eo2));
+  const ao2=r6(ea*ea-eo2), ao=r6(Math.sqrt(ao2));
+  const ad=r6(ao+od), biaya=r6(ad*2);
+  K2={ea,ed,od,eo,ao,ad,biaya};
+  K2_KEY=[ed,od,r6(ed*ed),r6(od*od),eo2,eo2,eo,ea,eo,r6(ea*ea),eo2,ao2,ao2,ao,ao,od,ad,biaya];
+}
 function generateK2(){
-  $('#k2-problem').innerHTML=`Sebuah bukit tidak simetris terlihat seperti gambar. Terowongan lurus akan dibangun dari kaki bukit sisi <b>A</b> menuju kaki bukit sisi <b>D</b>, melewati titik <b>O</b> yang berada tepat di bawah puncak <b>E</b>. Dari O sudah lebih dahulu dibangun elevator lurus menuju puncak E. Diketahui <b>EA = 30 m</b>, <b>ED = 25 m</b>, <b>OD = 7 m</b>. Jika biaya pembangunan terowongan <b>Rp 2 juta per meter</b>, berapakah total biaya yang dibutuhkan?`;
-  const A=[0,0],O=[18,0],D=[25,0],E=[18,-24];
-  $('#k2-svg').innerHTML=svgBuild({lines:[{p:[...A,...D],stroke:'#334155',w:2.5},{p:[...O,...E],stroke:'#e11d48',w:2.5,dash:1},{p:[...A,...E],stroke:'#0284c7',w:2.5},{p:[...E,...D],stroke:'#0284c7',w:2.5}],polys:[{pts:[A,E,D]}],marks:[raMark(O,E,D,2)],dots:[{x:A[0],y:A[1]},{x:O[0],y:O[1]},{x:D[0],y:D[1]},{x:E[0],y:E[1]}],labels:[{x:8,y:-13,t:'30 m',c:'#0284c7'},{x:22.5,y:-13,t:'25 m',c:'#0284c7'},{x:21.5,y:2,t:'7 m',c:'#0284c7'},{x:16,y:-11,t:'EO',c:'#64748b'},{x:A[0]-2,y:A[1]+3,t:'A'},{x:O[0],y:O[1]+3,t:'O'},{x:D[0]+2,y:D[1]+3,t:'D'},{x:E[0],y:E[1]-2,t:'E'}]});
+  const K=K2;
+  $('#k2-problem').innerHTML=`Sebuah bukit tidak simetris terlihat seperti gambar. Terowongan lurus akan dibangun dari kaki bukit sisi <b>A</b> menuju kaki bukit sisi <b>D</b>, melewati titik <b>O</b> yang berada tepat di bawah puncak <b>E</b>. Dari O sudah lebih dahulu dibangun elevator lurus menuju puncak E. Diketahui <b>EA = ${fmtN(K.ea)} m</b>, <b>ED = ${fmtN(K.ed)} m</b>, <b>OD = ${fmtN(K.od)} m</b>. Jika biaya pembangunan terowongan <b>Rp 2 juta per meter</b>, berapakah total biaya yang dibutuhkan?`;
+  const A=[0,0],O=[K.ao,0],D=[K.ad,0],E=[K.ao,-K.eo];
+  $('#k2-svg').innerHTML=svgBuild({lines:[{p:[...A,...D],stroke:'#334155',w:2.5},{p:[...O,...E],stroke:'#e11d48',w:2.5,dash:1},{p:[...A,...E],stroke:'#0284c7',w:2.5},{p:[...E,...D],stroke:'#0284c7',w:2.5}],polys:[{pts:[A,E,D]}],marks:[raMark(O,E,D,Math.min(K.eo,K.od)*0.1)],dots:[{x:A[0],y:A[1]},{x:O[0],y:O[1]},{x:D[0],y:D[1]},{x:E[0],y:E[1]}],labels:[{x:K.ao*0.45,y:-K.eo/2,t:fmtN(K.ea)+' m',c:'#0284c7'},{x:(K.ao+K.ad)/2,y:-K.eo/2,t:fmtN(K.ed)+' m',c:'#0284c7'},{x:(K.ao+K.ad)/2,y:2.5,t:fmtN(K.od)+' m',c:'#0284c7'},{x:K.ao-1.5,y:-K.eo/2,t:'EO',c:'#64748b'},{x:A[0]-1,y:A[1]+3,t:'A'},{x:O[0],y:O[1]+3,t:'O'},{x:D[0]+1,y:D[1]+3,t:'D'},{x:E[0],y:E[1]-2,t:'E'}]});
   const IN=`<input type="text" inputmode="decimal" maxlength="6" class="w-20 p-1.5 bg-white border rounded-lg text-center font-bold">`;
   $('#k2-scaffold').innerHTML=`
   <div class="step-row"><span>EO² = ED² − OD²</span></div>
-  <div class="step-row"><span>EO² = </span>${IN}<span id="k2-a1">² − </span>${IN}<span>²</span></div>
+  <div class="step-row"><span>EO² = </span>${IN}<span>² − </span>${IN}<span>²</span></div>
   <div class="step-row"><span>EO² = </span>${IN}<span> − </span>${IN}</div>
   <div class="step-row step-continuation"><span>= </span>${IN}</div>
   <div class="step-row"><span>EO = √</span>${IN}<span> = </span>${IN}</div>
@@ -262,7 +277,6 @@ function generateK2(){
   const ids=['k2-e1','k2-e2','k2-e3','k2-e4','k2-e5','k2-e6','k2-e7','k2-a2','k2-a3','k2-a4','k2-a5','k2-a6','k2-a7','k2-a8','k2-a9','k2-a10','k2-ad1','k2-ad2','k2-ad3','k2-biaya'];
   $$('#k2-scaffold input').forEach((inp,i)=>{inp.id=ids[i];});
 }
-const K2_KEY=[25,7,625,49,576,576,24,30,24,900,576,324,324,18,18,7,25,50];
 
 /* ============ EVALUASI LKPD ============ */
 let locked={k1:false,k2:false},submitted=false,finalScore=0;
@@ -292,8 +306,18 @@ let kuisUnlocked=false;
 function unlockKuis(silent){if(kuisUnlocked)return;kuisUnlocked=true;$('#quiz-locked-card').classList.add('hidden');$('#chk-kirim').textContent='✅ Nilai LKPD terkirim ke Guru';const gr=$('#game-root');gr.classList.remove('hidden');if(!silent){showToast('🔓 Kuis terbuka — siapkan diri!');gr.classList.add('ring-unlock');gr.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>{hideToast();initGame();},700);}else initGame();}
 
 /* ============ KUIS: GENERATOR 10 TIPE ============ */
-const BOBOT={1:10,2:10,3:10,4:10,5:10,6:10,7:10,8:10,9:10,10:10};
-const QPAT={'A':['B','A','A','B','A','A','B','A','A','A'],'B':['C','B','B','C','B','B','C','B','B','B'],'C':['C','C','B','C','C','C','B','C','C','B']};
+/* 23 soal individual: 6 T1 + 6 T2 + 4 T3 + 1 T4(grup) + 1 T5(grup) + 5 T6-T10 */
+const SOAL_DEFS=[
+  {t:1,d:'C'},{t:1,d:'C'},{t:1,d:'B'},{t:1,d:'B'},{t:1,d:'A'},{t:1,d:'A'},
+  {t:2,d:'C'},{t:2,d:'C'},{t:2,d:'B'},{t:2,d:'B'},{t:2,d:'A'},{t:2,d:'A'},
+  {t:3,q:1},{t:3,q:2},{t:3,q:3},{t:3,q:4},
+  {t:4},{t:5},
+  {t:6},{t:7},{t:8},{t:9},{t:10}
+];
+const TOTAL_SOAL=SOAL_DEFS.length; // 23
+const TIPE_BOBOT={1:10/6,2:10/6,3:10/4,4:10,5:10,6:10,7:10,8:10,9:10,10:10};
+function bobotPos(i){return TIPE_BOBOT[SOAL_DEFS[i].t];}
+const TIPE_LABEL={1:'Pangkat',2:'Akar',3:'Bentuk Baku',4:'Rumus Pyth. B/S',5:'Jenis Segitiga',6:'Gab.1',7:'Gab.2',8:'Gab.3',9:'Gab.4',10:'Gab.5'};
 const INP=`<input type="text" inputmode="decimal" maxlength="6" class="q-ans w-20 p-1.5 bg-white border rounded-lg text-center font-bold">`;
 function previewWrap(id){return `<div class="mt-2 text-sm bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-2">Preview: <span id="${id}" class="font-bold text-indigo-800"></span></div>`;}
 function bindPreview(inpId,pvId){const inp=document.getElementById(inpId);const pv=document.getElementById(pvId);const upd=()=>{try{katex.render(toLatex(inp.value),pv,{throwOnError:false});}catch(e){pv.innerText=inp.value;}};inp.addEventListener('input',upd);upd();}
@@ -318,14 +342,15 @@ function genT2(diff){
 }
 function simpl(v){for(const s of [2,3,5,6,7,10]){const r=v/(s);if(Number.isInteger(r)&&Number.isInteger(Math.sqrt(v*v/(s))/1)){} }return `${r6(v)}√1`;}
 /* Tipe 3 bentuk baku */
-function genT3(diff){
-  const q=RI(1,4);let html='',ans=[];
-  if(q===1){const mant=(RI(1,9)+'.'+RI(10,99));const n=RI(3,7);const val=Math.round(parseFloat(mant)*Math.pow(10,n));html=`<p class="text-sm mb-2">Nyatakan dalam bentuk baku: <b>${val.toLocaleString('id-ID')}</b></p><div class="step-row">${INP}<span> × 10^</span>${INP.replace('decimal','numeric')}</div>${previewWrap('pv3')}`;ans=[mant,String(n)];}
-  else if(q===2){const mant=(RI(1,9)+'.'+RI(10,99));const n=-RI(3,7);const val=parseFloat(mant)*Math.pow(10,n);html=`<p class="text-sm mb-2">Nyatakan dalam bentuk baku: <b>${String(val).replace('.',',')}</b></p><div class="step-row">${INP}<span> × 10^</span>${INP.replace('decimal','numeric')}</div>${previewWrap('pv3')}`;ans=[mant,String(n)];}
-  else if(q===3){const mant=(RI(1,9)+'.'+RI(10,99));const n=RI(3,6);const val=Math.round(parseFloat(mant)*Math.pow(10,n));html=`<p class="text-sm mb-2">Hitung: <b>${mant.replace('.',',')} × 10^${n}</b></p><div class="step-row">${INP}</div>`;ans=[String(val)];}
-  else{const mant=(RI(1,9)+'.'+RI(10,99));const n=-RI(3,6);const val=parseFloat(mant)*Math.pow(10,n);html=`<p class="text-sm mb-2">Hitung: <b>${mant.replace('.',',')} × 10^${n}</b></p><div class="step-row">${INP}</div>`;ans=[String(val).replace('.',',')];}
+function genT3_specific(q){
+  let html='',ans=[];
+  if(q===1){const mant=(RI(1,9)+'.'+String(RI(10,99)).padStart(2,'0'));const n=RI(3,7);const val=Math.round(parseFloat(mant)*Math.pow(10,n));html=`<p class="text-sm mb-2">Nyatakan dalam bentuk baku: <b>${val.toLocaleString('id-ID')}</b></p><div class="step-row">${INP}<span> × 10^</span>${INP.replace('decimal','numeric')}</div>${previewWrap('pv3')}`;ans=[mant,String(n)];}
+  else if(q===2){const mant=(RI(1,9)+'.'+String(RI(10,99)).padStart(2,'0'));const n=-RI(3,7);const val=parseFloat(mant)*Math.pow(10,n);html=`<p class="text-sm mb-2">Nyatakan dalam bentuk baku: <b>${String(val.toFixed(Math.abs(n)+2)).replace('.',',')}</b></p><div class="step-row">${INP}<span> × 10^</span>${INP.replace('decimal','numeric')}</div>${previewWrap('pv3')}`;ans=[mant,String(n)];}
+  else if(q===3){const mant=(RI(1,9)+'.'+String(RI(10,99)).padStart(2,'0'));const n=RI(3,6);const val=Math.round(parseFloat(mant)*Math.pow(10,n));html=`<p class="text-sm mb-2">Hitung: <b>${mant.replace('.',',')} × 10^${n}</b></p><div class="step-row">${INP}</div>`;ans=[String(val)];}
+  else{const mant=(RI(1,9)+'.'+String(RI(10,99)).padStart(2,'0'));const n=-RI(3,6);const val=parseFloat(mant)*Math.pow(10,n);html=`<p class="text-sm mb-2">Hitung: <b>${mant.replace('.',',')} × 10^${n}</b></p><div class="step-row">${INP}</div>`;ans=[String(val.toFixed(Math.abs(n)+2)).replace('.',',')];}
   return{html:qShellRaw(3,html),ans,total:ans.length,q3:q};
 }
+function genT3(diff){return genT3_specific(RI(1,4));}
 /* Tipe 4 B/S rumus */
 function genT4(diff){
   const correct={'C':['a²+b²=c²','c²=a²+b²','c=√(a²+b²)','a=√(c²−b²)','b=√(c²−a²)','a²=c²−b²'],'B':['a²+c²=b²','b=√(a²+c²)','a=√(b²−c²)','c=√(b²−a²)'],'A':['b²+c²=a²','a=√(b²+c²)','b=√(a²−c²)','c=√(a²−b²)']};
@@ -344,38 +369,109 @@ function genT5(diff){
   return{type:'t5',total:40,rows,html:qShellRaw(5,ex+rows.map((r,i)=>`<div class="bg-white border rounded-xl p-2 mb-2 text-sm"><div class="font-bold text-xs mb-1">#${i+1} Sisi: ${r.s.map(fmtID).join(' - ')}</div><div class="step-row"><span>Kuadrat:</span>${INP}${INP}${INP}</div><div class="step-row"><span>Jenis:</span><select class="q-sel p-1.5 border rounded-lg text-xs font-bold"><option value="">?</option><option>Siku-siku</option><option>Lancip</option><option>Tumpul</option></select></div></div>`).join(''))};
 }
 /* Tipe 6-10 gabungan (input hasil akhir) */
-function genT6(diff){const s=PICK([[12,9,15,15,8,17],[3,4,5,5,12,13],[6,8,10,10,24,26],[9,12,15,15,20,25],[1.2,0.9,1.5,1.5,0.8,1.7]]);const[ab,bc,ac,ac2,cd,ad]=s;
-  const svg=svgBuild({lines:[{p:[0,0,0,-ab]},{p:[0,0,bc,0]},{p:[0,-ab,bc,0]},{p:[bc,0,bc+cd*0.8,cd*0.6]}],polys:[{pts:[[0,0],[0,-ab],[bc,0]]}],marks:[raMark([0,0],[0,-ab],[bc,0],Math.min(ab,bc)*0.15),raMark([bc,0],[0,-ab],[bc+cd*0.8,cd*0.6],cd*0.2)],dots:[{x:0,y:-ab},{x:0,y:0},{x:bc,y:0},{x:bc+cd*0.8,y:cd*0.6}],labels:[{x:-1.5,y:-ab/2,t:fmtN(ab),c:'#0284c7'},{x:bc/2,y:1.5,t:fmtN(bc),c:'#0284c7'},{x:bc+cd*0.5,y:cd*0.4+1,t:fmtN(cd),c:'#0284c7'},{x:bc/2-1,y:-ab/2,t:'AC = ?',c:'#e11d48'},{x:(bc+bc+cd*0.8)/2,y:(-ab+cd*0.6)/2-1,t:'AD = ?',c:'#e11d48'},{x:0,y:-ab-1,t:'A'},{x:0,y:2.5,t:'B'},{x:bc,y:2.5,t:'C'},{x:bc+cd*0.8+1,y:cd*0.6,t:'D'}]});
-  return{type:'fin',total:2,ans:[ac,ad],html:qShellRaw(6,`<div class="svg-container bg-white rounded-xl border mb-2 py-2">${svg}</div><div class="step-row"><span>AC =</span>${INP}<span> ; AD =</span>${INP}</div>`)};}
-function genT7(diff){const s=PICK([[8,10,5,13,6,12,6],[6,10,9,15,8,12,4],[12,13,8,17,5,15,10],[0.8,1.0,0.5,1.3,0.6,1.2,0.6]]);const[ae,ab,dc,bc,be,bd,ed]=s;
-  const svg=svgBuild({lines:[{p:[0,0,2,-6]},{p:[0,0,8,1]},{p:[2,-6,8,1]},{p:[5,-1.5,8,1]}],polys:[{pts:[[0,0],[2,-6],[5,-1.5]],fill:'rgba(236,72,153,.25)'},{pts:[[0,0],[5,-1.5],[8,1]],fill:'rgba(22,163,74,.25)'}],marks:[raMark([5,-1.5],[2,-6],[8,1],0.8)],dots:[{x:0,y:0},{x:2,y:-6},{x:5,y:-1.5},{x:8,y:1}],labels:[{x:0.4,y:-3.2,t:fmtN(ae),c:'#0284c7'},{x:3.6,y:-4,t:fmtN(ab),c:'#0284c7'},{x:6.8,y:-1.2,t:fmtN(dc),c:'#0284c7'},{x:4,y:1.6,t:fmtN(bc),c:'#0284c7'},{x:0,y:2,t:'B'},{x:2,y:-6.5,t:'A'},{x:5,y:-2.2,t:'E'},{x:8.5,y:1,t:'C'},{x:2.5,y:0,t:'ED = ?',c:'#e11d48'}]});
-  return{type:'fin',total:3,ans:[be,bd,ed],html:qShellRaw(7,`<div class="svg-container bg-white rounded-xl border mb-2 py-2">${svg}</div><div class="step-row"><span>BE =</span>${INP}<span> ; BD =</span>${INP}<span> ; ED =</span>${INP}</div>`)};}
-function genT8(diff){const s=PICK([[5,13,35,12,37],[9,15,16,12,20],[16,20,9,12,15],[20,29,28,21,35]]);const[t,m,a,v,x]=s;
-  const svg=svgBuild({lines:[{p:[0,0,5,0]},{p:[5,0,5,12]},{p:[5,12,40,12]},{p:[0,0,5,12]},{p:[5,0,40,12]}],polys:[{pts:[[0,0],[5,0],[5,12]]},{pts:[[5,0],[5,12],[40,12]]}],marks:[raMark([5,0],[0,0],[5,12],1.2),raMark([5,12],[5,0],[40,12],1.5)],dots:[{x:0,y:0},{x:5,y:0},{x:5,y:12},{x:40,y:12}],labels:[{x:2.5,y:-1,t:fmtN(t),c:'#0284c7'},{x:2,y:6,t:fmtN(m),c:'#0284c7'},{x:22,y:13.5,t:fmtN(a),c:'#0284c7'},{x:22,y:5,t:'x = ?',c:'#e11d48'},{x:6,y:6,t:'v',c:'#64748b'}]});
-  return{type:'fin',total:2,ans:[v,x],html:qShellRaw(8,`<div class="svg-container bg-white rounded-xl border mb-2 py-2">${svg}</div><div class="step-row"><span>v =</span>${INP}<span> ; x =</span>${INP}</div>`)};}
-function genT9(diff){const s=PICK([[12,9,15,17,8],[3,4,5,13,12],[6,8,10,26,24],[9,12,15,39,36]]);const[ab,bc,ac,ad,cd]=s;
-  const svg=svgBuild({lines:[{p:[0,0,0,-ab]},{p:[0,0,bc,0]},{p:[0,-ab,bc,0]},{p:[bc,0,bc+cd*0.7,-cd*0.7]},{p:[0,-ab,bc+cd*0.7,-cd*0.7]}],polys:[{pts:[[0,0],[0,-ab],[bc,0]]}],marks:[raMark([0,0],[0,-ab],[bc,0],Math.min(ab,bc)*0.15),raMark([bc,0],[0,-ab],[bc+cd*0.7,-cd*0.7],cd*0.2)],dots:[{x:0,y:-ab},{x:0,y:0},{x:bc,y:0},{x:bc+cd*0.7,y:-cd*0.7}],labels:[{x:-1.5,y:-ab/2,t:fmtN(ab),c:'#0284c7'},{x:bc/2,y:1.5,t:fmtN(bc),c:'#0284c7'},{x:bc/2,y:-ab/2-1,t:fmtN(ad),c:'#0284c7'},{x:bc/2-1,y:-ab/2+2,t:'AC = ?',c:'#e11d48'},{x:bc+cd*0.4,y:-cd*0.4+1.5,t:'CD = ?',c:'#e11d48'},{x:0,y:-ab-1,t:'A'},{x:0,y:2.5,t:'B'},{x:bc,y:2.5,t:'C'},{x:bc+cd*0.7+1,y:-cd*0.7,t:'D'}]});
-  return{type:'fin',total:2,ans:[ac,cd],html:qShellRaw(9,`<div class="svg-container bg-white rounded-xl border mb-2 py-2">${svg}</div><div class="step-row"><span>AC =</span>${INP}<span> ; CD =</span>${INP}</div>`)};}
-function genT10(diff){const s=PICK([[5,6,4],[10,12,8],[13,10,12],[15,18,12],[17,16,15],[2.5,3,2]]);const[sl,b,t]=s;
-  const svg=svgBuild({lines:[{p:[0,0,b,0]},{p:[0,0,b/2,-t]},{p:[b/2,-t,b,0]},{p:[b/2,-t,b/2,0],dash:1,stroke:'#64748b',w:2}],polys:[{pts:[[0,0],[b,0],[b/2,-t]]}],dots:[{x:0,y:0},{x:b,y:0},{x:b/2,y:-t}],labels:[{x:b*0.25,y:-t/2-1,t:fmtN(sl),c:'#0284c7'},{x:b/2,y:1.5,t:fmtN(b),c:'#0284c7'},{x:b/2+1.2,y:-t/2,t:'t = ?',c:'#e11d48'}]});
-  return{type:'fin',total:1,ans:[t],html:qShellRaw(10,`<div class="svg-container bg-white rounded-xl border mb-2 py-2">${svg}</div><div class="step-row"><span>tinggi t =</span>${INP}</div>`)};}
-function qShell(tn,tex,key,alts){return qShellRaw(tn,`<div class="text-lg mb-2 q-tex" data-tex="${tex}"></div><div class="step-row"><span>Jawab:</span><input type="text" inputmode="decimal" maxlength="12" class="q-ans q-math w-40 p-2 bg-white border rounded-lg text-center font-bold" id="qin-${tn}"></div>${previewWrap('pv-'+tn)}`);}
+function genT6(diff){
+  const seeds=[[12,9,15,8,17],[3,4,5,12,13],[6,8,10,24,26],[9,12,15,20,25],[1.2,0.9,1.5,0.8,1.7]];
+  const [ab,bc,ac,cd,ad]=PICK(seeds);
+  // Vektor tegak lurus CA (skala cd)
+  const ux=-bc/ac, uy=-ab/ac;   // vektor satuan C→A
+  const px=-uy, py=ux;          // rotasi +90° → sisi berlawanan dari B
+  const dx=bc+px*cd, dy=py*cd;
+  const svg=svgBuild({
+    lines:[{p:[0,0,0,-ab]},{p:[0,0,bc,0]},{p:[0,-ab,bc,0]},{p:[bc,0,dx,dy]},{p:[0,-ab,dx,dy],dash:1,stroke:'#e11d48',w:2.5}],
+    polys:[{pts:[[0,0],[0,-ab],[bc,0]]}],
+    marks:[raMark([0,0],[0,-ab],[bc,0],Math.min(ab,bc)*0.15),raMark([bc,0],[0,-ab],[dx,dy],cd*0.18)],
+    dots:[{x:0,y:-ab},{x:0,y:0},{x:bc,y:0},{x:dx,y:dy,c:'#e11d48'}],
+    labels:[{x:-1.5,y:-ab/2,t:fmtN(ab),c:'#0284c7'},{x:bc/2,y:1.5,t:fmtN(bc),c:'#0284c7'},{x:(bc+dx)/2+1,y:dy/2+1,t:fmtN(cd),c:'#0284c7'},{x:bc/2-2,y:-ab/2-0.5,t:'AC = ?',c:'#e11d48'},{x:dx/2-1.5,y:(-ab+dy)/2-1,t:'AD = ?',c:'#e11d48'},{x:0,y:-ab-1,t:'A'},{x:-1,y:1.5,t:'B'},{x:bc+0.5,y:1.5,t:'C'},{x:dx+1,y:dy,t:'D'}]
+  });
+  return{type:'fin',total:2,ans:[ac,ad],html:qShellRaw(6,`<div class="svg-container bg-white rounded-xl border mb-2 py-2">${svg}</div><div class="text-xs text-slate-500 mb-1 italic">Gambar ilustrasi, tidak berskala tepat.</div><div class="step-row"><span>AC =</span>${INP}<span> ; AD =</span>${INP}</div>`)};
+}
+function genT7(diff){
+  const seeds=[[8,10,5,13,6,12,6],[6,10,9,15,8,12,4],[12,13,8,17,5,15,10],[15,17,20,25,7,15,8],[1.2,1.5,0.9,1.7,0.72,1.44,0.72]];
+  const [ae,ab,dc,bc,be,bd,ed]=PICK(seeds);
+  const svg=svgBuild({
+    lines:[{p:[0,0,bd,0],stroke:'#334155',w:2.5},{p:[be,0,be,-ae]},{p:[bd,0,bd,-dc]},{p:[be,-ae,0,0],stroke:'#0284c7',w:2.5},{p:[bd,-dc,0,0],stroke:'#0284c7',w:2.5}],
+    polys:[],
+    marks:[raMark([be,0],[0,0],[be,-ae],Math.min(ae,be)*0.15),raMark([bd,0],[0,0],[bd,-dc],Math.min(dc,bd)*0.15)],
+    dots:[{x:0,y:0},{x:be,y:0},{x:bd,y:0},{x:be,y:-ae},{x:bd,y:-dc}],
+    labels:[{x:be/2,y:1.5,t:fmtN(be),c:'#0284c7'},{x:(be+bd)/2,y:1.5,t:fmtN(ed),c:'#e11d48'},{x:be+0.5,y:-ae/2,t:fmtN(ae),c:'#0284c7'},{x:bd+0.5,y:-dc/2,t:fmtN(dc),c:'#0284c7'},{x:-2,y:-ae/2+0.5,t:fmtN(ab),c:'#0284c7'},{x:bd/2-1,y:-dc/2-2,t:fmtN(bc),c:'#0284c7'},{x:-1,y:1.5,t:'B'},{x:be,y:2.5,t:'E'},{x:bd,y:2.5,t:'D'},{x:be-1,y:-ae-0.5,t:'A'},{x:bd-1,y:-dc-0.5,t:'C'}]
+  });
+  return{type:'fin',total:3,ans:[be,bd,ed],html:qShellRaw(7,`<div class="svg-container bg-white rounded-xl border mb-2 py-2">${svg}</div><div class="text-xs text-slate-500 mb-1 italic">Gambar ilustrasi, tidak berskala tepat.</div><div class="step-row"><span>BE =</span>${INP}<span> ; BD =</span>${INP}<span> ; ED =</span>${INP}</div>`)};
+}
+function genT8(diff){
+  const seeds=[[5,13,35,12,37],[9,15,16,12,20],[16,20,9,12,15],[20,29,28,21,35],[1.5,2.5,3,2,3.6]];
+  const [t,m,a,v,x]=PICK(seeds);
+  const svg=svgBuild({
+    lines:[{p:[0,0,t,0]},{p:[t,0,t,v],dash:1,stroke:'#64748b',w:2},{p:[t,v,t+a,v]},{p:[0,0,t,v],stroke:'#0284c7',w:2.5},{p:[t,0,t+a,v],stroke:'#e11d48',w:2.5,dash:1}],
+    polys:[],
+    marks:[raMark([t,0],[0,0],[t,v],Math.min(t,v)*0.2),raMark([t,v],[t,0],[t+a,v],Math.min(v,a)*0.15)],
+    dots:[{x:0,y:0},{x:t,y:0},{x:t,y:v},{x:t+a,y:v,c:'#e11d48'}],
+    labels:[{x:t/2,y:-1,t:fmtN(t),c:'#0284c7'},{x:t-1.5,y:v/2,t:'v',c:'#64748b'},{x:t/2-1.5,y:v/2-1,t:fmtN(m),c:'#0284c7'},{x:t+a/2,y:v+1.5,t:fmtN(a),c:'#0284c7'},{x:(t+t+a)/2+1,y:v/2-1,t:'x = ?',c:'#e11d48'},{x:-1,y:1.5,t:'L'},{x:t,y:1.5,t:'T'},{x:t-1.5,y:v+1.5,t:'M'},{x:t+a+1,y:v,t:'R'}]
+  });
+  return{type:'fin',total:2,ans:[v,x],html:qShellRaw(8,`<div class="svg-container bg-white rounded-xl border mb-2 py-2">${svg}</div><div class="text-xs text-slate-500 mb-1 italic">Gambar ilustrasi, tidak berskala tepat.</div><div class="step-row"><span>v =</span>${INP}<span> ; x =</span>${INP}</div>`)};
+}
+function genT9(diff){
+  const seeds=[[12,9,15,17,8],[3,4,5,13,12],[6,8,10,26,24],[9,12,15,39,36],[1.2,0.9,1.5,1.7,0.8]];
+  const [ab,bc,ac,ad,cd]=PICK(seeds);
+  const cax=-bc,cay=ab,calen=ac;
+  const px=-cay/calen,py=cax/calen;
+  const dx=bc+px*cd,dy=py*cd;
+  const svg=svgBuild({
+    lines:[{p:[0,0,0,-ab]},{p:[0,0,bc,0]},{p:[0,-ab,bc,0],stroke:'#0284c7',w:2.5},{p:[bc,0,dx,dy],stroke:'#e11d48',w:2.5,dash:1},{p:[0,-ab,dx,dy],stroke:'#0284c7',w:2.5}],
+    polys:[{pts:[[0,0],[0,-ab],[bc,0]]}],
+    marks:[raMark([0,0],[0,-ab],[bc,0],Math.min(ab,bc)*0.15),raMark([bc,0],[0,-ab],[dx,dy],cd*0.18)],
+    dots:[{x:0,y:-ab},{x:0,y:0},{x:bc,y:0},{x:dx,y:dy,c:'#e11d48'}],
+    labels:[{x:-1.5,y:-ab/2,t:fmtN(ab),c:'#0284c7'},{x:bc/2,y:1.5,t:fmtN(bc),c:'#0284c7'},{x:(0+dx)/2-1.5,y:(-ab+dy)/2-1,t:fmtN(ad),c:'#0284c7'},{x:bc/2-2,y:-ab/2-0.5,t:'AC = ?',c:'#e11d48'},{x:(bc+dx)/2+1,y:dy/2+1,t:'CD = ?',c:'#e11d48'},{x:0,y:-ab-1,t:'A'},{x:-1,y:1.5,t:'B'},{x:bc+0.5,y:1.5,t:'C'},{x:dx+1,y:dy,t:'D'}]
+  });
+  return{type:'fin',total:2,ans:[ac,cd],html:qShellRaw(9,`<div class="svg-container bg-white rounded-xl border mb-2 py-2">${svg}</div><div class="text-xs text-slate-500 mb-1 italic">Gambar ilustrasi, tidak berskala tepat.</div><div class="step-row"><span>AC =</span>${INP}<span> ; CD =</span>${INP}</div>`)};
+}
+function genT10(diff){
+  const seeds=[[5,6,4],[10,12,8],[13,10,12],[15,18,12],[17,16,15],[25,30,20],[1.3,1.6,1.2]];
+  const [sl,b,t]=PICK(seeds);
+  const svg=svgBuild({
+    lines:[{p:[0,0,b,0]},{p:[0,0,b/2,-t]},{p:[b/2,-t,b,0]},{p:[b/2,-t,b/2,0],dash:1,stroke:'#64748b',w:2}],
+    polys:[{pts:[[0,0],[b,0],[b/2,-t]]}],
+    marks:[raMark([b/2,0],[0,0],[b/2,-t],Math.min(b/2,t)*0.15)],
+    dots:[{x:0,y:0},{x:b,y:0},{x:b/2,y:-t}],
+    labels:[{x:b*0.25-0.8,y:-t/2-0.8,t:fmtN(sl),c:'#0284c7'},{x:b*0.75+0.8,y:-t/2-0.8,t:fmtN(sl),c:'#0284c7'},{x:b/2,y:1.5,t:fmtN(b),c:'#0284c7'},{x:b/2+1.2,y:-t/2,t:'t = ?',c:'#e11d48'},{x:-1,y:1.5,t:'A'},{x:b+1,y:1.5,t:'B'},{x:b/2,y:-t-1,t:'P'}]
+  });
+  return{type:'fin',total:1,ans:[t],html:qShellRaw(10,`<div class="svg-container bg-white rounded-xl border mb-2 py-2">${svg}</div><div class="text-xs text-slate-500 mb-1 italic">Gambar ilustrasi, tidak berskala tepat.</div><div class="step-row"><span>tinggi t =</span>${INP}</div>`)};
+}
+
+  function qShell(tn,tex,key,alts){return qShellRaw(tn,`<div class="text-lg mb-2 q-tex" data-tex="${tex}"></div><div class="step-row"><span>Jawab:</span><input type="text" inputmode="decimal" maxlength="12" class="q-ans q-math w-40 p-2 bg-white border rounded-lg text-center font-bold" id="qin-${tn}"></div>${previewWrap('pv-'+tn)}`);}
 function qShellRaw(tn,inner){return `<div class="bg-white rounded-2xl p-4 border">${inner}</div>`;}
 
 /* ============ KUIS STATE & FLOW ============ */
-let G={current:1,timeLeft:GC.TOTAL,timer:null,scores:Array(10).fill(null),status:Array(10).fill('open'),fill:Array(10).fill(null),order:[],phase:'lobby',currentQ:null,ot:false,otLeft:0,used:0};
-const gKey=()=>sKey()+'_game';
+let G={current:1,timeLeft:GC.TOTAL,timer:null,scores:Array(TOTAL_SOAL).fill(null),status:Array(TOTAL_SOAL).fill('open'),fill:Array(TOTAL_SOAL).fill(null),order:[],phase:'lobby',currentQ:null,ot:false,otLeft:0,used:0};
+const gKey=()=>sKey()+'_game2';
 function saveGS(){try{localStorage.setItem(gKey(),JSON.stringify({q:G.current,t:G.timeLeft,s:G.scores,p:G.phase,o:G.order,ot:G.ot,ol:G.otLeft,st:G.status,fl:G.fill,u:G.used}));}catch(e){}}
-function loadGS(){try{const o=JSON.parse(localStorage.getItem(gKey())||'null');if(o){G.current=o.q||1;G.timeLeft=o.t||GC.TOTAL;G.scores=(o.s&&o.s.length===10)?o.s:Array(10).fill(null);G.phase=o.p||'lobby';G.order=o.o||[];G.ot=!!o.ot;G.otLeft=o.ol||0;G.status=(o.st&&o.st.length===10)?o.st:Array(10).fill('open');G.fill=(o.fl&&o.fl.length===10)?o.fl:Array(10).fill(null);G.used=o.u||0;}}catch(e){}}
+function loadGS(){try{const o=JSON.parse(localStorage.getItem(gKey())||'null');if(o){G.current=o.q||1;G.timeLeft=o.t||GC.TOTAL;G.scores=(o.s&&o.s.length===TOTAL_SOAL)?o.s:Array(TOTAL_SOAL).fill(null);G.phase=o.p||'lobby';G.order=(o.o&&o.o.length===TOTAL_SOAL)?o.o:[];G.ot=!!o.ot;G.otLeft=o.ol||0;G.status=(o.st&&o.st.length===TOTAL_SOAL)?o.st:Array(TOTAL_SOAL).fill('open');G.fill=(o.fl&&o.fl.length===TOTAL_SOAL)?o.fl:Array(TOTAL_SOAL).fill(null);G.used=o.u||0;}}catch(e){}}
 function showGS(id){['#g-game-screen','#g-success-screen'].forEach(s=>$(s).classList.remove('active'));$(id).classList.add('active');}
-function weightedTotal(){return Math.round(G.scores.reduce((sum,p,i)=>sum+(p===null?0:p*BOBOT[i+1]),0));}
+function weightedTotal(){return Math.round(G.scores.reduce((sum,p,i)=>sum+(p===null?0:p*bobotPos(i)),0));}
 function initGame(){
   if(loadState().submittedKuis){$('#g-saved-score').textContent=loadState().kuisScore||0;showGS('#g-success-screen');return;}
-  G.pattern=QPAT[TK.kategori];loadGS();$('#g-student-info').innerText=TK.nama+' - '+TK.kelas;
+  loadGS();$('#g-student-info').innerText=TK.nama+' - '+TK.kelas;
+    if(!Array.isArray(G.scores)||G.scores.length!==TOTAL_SOAL)G.scores=Array(TOTAL_SOAL).fill(null);
+  if(!Array.isArray(G.status)||G.status.length!==TOTAL_SOAL)G.status=Array(TOTAL_SOAL).fill('open');
+  if(!Array.isArray(G.fill)||G.fill.length!==TOTAL_SOAL)G.fill=Array(TOTAL_SOAL).fill(null);
+  if(!Array.isArray(G.order)||G.order.length!==TOTAL_SOAL)G.order=shuffle([...Array(TOTAL_SOAL).keys()]);
+  if(!G.order.length)G.order=shuffle([...Array(TOTAL_SOAL).keys()]);
   if(G.phase==='game'){showGS('#g-game-screen');dots();tDisp();if(G.ot)otDisp();startT();loadQ(G.current-1);}
   else{showGS('#g-game-screen');dots();tDisp();startT();loadQ(0);}
 }
-function dots(){const c=$('#g-progress-dots');c.innerHTML='';for(let i=0;i<10;i++){const st=G.status[i];const b=document.createElement('button');b.type='button';let cl='pbtn',txt=String(i+1);if(st==='checked'){cl+=' done';txt='🔒'+(i+1);}else if(st==='tunda'){cl+=' tunda';txt='⏸'+(i+1);}if(i===G.current-1&&st!=='checked')cl+=' active';b.className=cl;b.textContent=txt;b.onclick=()=>navTo(i);c.appendChild(b);}}
+function dots(){
+  const c=$('#g-progress-dots');c.innerHTML='';
+  for(let i=0;i<TOTAL_SOAL;i++){
+    const st=G.status[i];const b=document.createElement('button');b.type='button';
+    let cl='pbtn',txt=String(i+1);
+    if(st==='checked'){cl+=' done';txt='✓';}
+    else if(st==='tunda'){cl+=' tunda';txt='⏸';}
+    if(i===G.current-1&&st!=='checked')cl+=' active';
+    b.className=cl;b.textContent=txt;b.title=`#${i+1} ${TIPE_LABEL[SOAL_DEFS[i].t]}`;
+    b.onclick=(()=>{const idx=i;return()=>navTo(idx);})();
+    c.appendChild(b);
+  }
+}
+function nextOpen(from){for(let k=1;k<=TOTAL_SOAL;k++){const i=(from+k)%TOTAL_SOAL;if(G.status[i]!=='checked')return i;}return -1;}
 function navTo(i){if(G.phase!=='game'||i===G.current-1)return;if(G.status[i]==='checked'){showToast('🔒 Soal nomor '+(i+1)+' sudah dikunci.',true,3000);return;}captureFill(G.current-1);loadQ(i);}
 function captureFill(pos){const ins=[...$$('#g-question-area .q-ans')].map(e=>e.value);const bs={};$$('#g-question-area .q-bs.sel').forEach(x=>{bs[x.dataset.i]=x.dataset.v;});const sel=$$('#g-question-area .q-sel').length?[...$$('#g-question-area .q-sel')].map(e=>e.value):null;G.fill[pos]={ins,bs,sel};saveGS();}
 function restoreFill(pos){const f=G.fill[pos];if(!f)return;const ins=$$('#g-question-area .q-ans');(f.ins||[]).forEach((v,i)=>{if(ins[i])ins[i].value=v;});Object.entries(f.bs||{}).forEach(([i,v])=>{const b=document.querySelector(`#g-question-area .q-bs[data-i="${i}"][data-v="${v}"]`);if(b)b.classList.add('sel','ring-4','ring-teal-300');});if(f.sel)$$('#g-question-area .q-sel').forEach((e,i)=>{e.value=f.sel[i]||'';});}
@@ -384,18 +480,20 @@ function loadQ(pos){
   if(pos===undefined)pos=G.current-1;
   G.current=pos+1;
   $('#g-btn-group-play').style.display='flex';$('#g-btn-group-next').style.display='none';
-  const type=G.order[pos];const diff={C:1,B:2,A:3}[G.pattern[pos]||'C'];
+  const def=SOAL_DEFS[G.order[pos]];
+    const diff=def.d?{C:1,B:2,A:3}[def.d]:({C:1,B:2,A:3}[TK.kategori]||1);
   setRNG((getSalt()^((pos+1)*7919))>>>0);
   const gens={1:genT1,2:genT2,3:genT3,4:genT4,5:genT5,6:genT6,7:genT7,8:genT8,9:genT9,10:genT10};
-  const r=gens[type](diff);
-  G.currentQ={...r,type};
-  $('#g-question-area').innerHTML=`<h3 class="font-extrabold text-lg text-indigo-800 mb-3">Soal ${pos+1}/10 • Tipe ${type} <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full">Bobot ${BOBOT[type]}</span></h3>${r.html}`;
+  let r;
+  if(def.t===3){r=genT3_specific(def.q);} else r=gens[def.t](diff);
+  G.currentQ={...r,type:def.t,pos};
+  $('#g-question-area').innerHTML=`<h3 class="font-extrabold text-lg text-indigo-800 mb-3">Soal ${pos+1}/${TOTAL_SOAL} • ${TIPE_LABEL[def.t]} <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full">Bobot ${bobotPos(pos).toFixed(2)}</span></h3>${r.html}`;
   $$('#g-question-area .q-tex').forEach(el=>{try{katex.render(el.dataset.tex,el,{throwOnError:false});}catch(e){el.innerText=el.dataset.tex;}});
   $$('#g-question-area .q-bs').forEach(b=>b.addEventListener('click',()=>{const i=b.dataset.i;$$('#g-question-area .q-bs').forEach(x=>{if(x.dataset.i===i)x.classList.remove('sel','ring-4','ring-teal-300');});b.classList.add('sel','ring-4','ring-teal-300');updateBtn();}));
   $$('#g-question-area .q-ans').forEach(e=>e.addEventListener('input',updateBtn));
-  if($('#qin-1')){attachToolbar($('#qin-1'));bindPreview('qin-1','pv-1');}
-  if($('#qin-2')){attachToolbar($('#qin-2'));bindPreview('qin-2','pv-2');}
-  if($('#pv-3')){const ins=$$('#g-question-area .q-ans');if(ins.length>=2){const upd=()=>{try{katex.render((ins[0].value||'?')+'\\times 10^{'+(ins[1].value||'?')+'}',$('#pv-3'),{throwOnError:false});}catch(e){}};ins[0].addEventListener('input',upd);ins[1].addEventListener('input',upd);upd();}}
+  if(def.t===1&&$('#qin-1')){attachToolbar($('#qin-1'));bindPreview('qin-1','pv-1');}
+  if(def.t===2&&$('#qin-2')){attachToolbar($('#qin-2'));bindPreview('qin-2','pv-2');}
+  if(def.t===3&&$('#pv-3')){const ins=$$('#g-question-area .q-ans');if(ins.length>=2){const upd=()=>{try{katex.render((ins[0].value||'?')+'\\times 10^{'+(ins[1].value||'?')+'}',$('#pv-3'),{throwOnError:false});}catch(e){}};ins[0].addEventListener('input',upd);ins[1].addEventListener('input',upd);upd();}}
   restoreFill(pos);
   if(G.phase==='game')startT();
   updateBtn();dots();saveGS();
@@ -411,15 +509,16 @@ function updateBtn(){
 }
 function partialOf(q){
   if(q.type==='bs'){let c=0;q.items.forEach((it,i)=>{const sel=document.querySelector(`#g-question-area .q-bs.sel[data-i="${i}"]`);if(sel&&sel.dataset.v===(it.ok?'Benar':'Salah'))c++;});return c/10;}
-  if(q.type==='t5'){let c=0;q.rows.forEach((r,i)=>{const ins=$$('#g-question-area .q-ans').length?$$('#g-question-area .q-ans'):[];const base=i*3;const all=$$('#g-question-area .q-ans');const kv=[...r.s].sort((a,b)=>a-b).map(v=>v*v);for(let k=0;k<3;k++){const n=normNum(all[base+k]?all[base+k].value:'');if(n!==null&&near(n,r.s.map(v=>v*v)[k]))c++;}const sel=$$('#g-question-area .q-sel')[i];const map={siku:'Siku-siku',lancip:'Lancip',tumpul:'Tumpul'};if(sel&&sel.value===map[r.ans])c++;});return c/40;}
+  if(q.type==='t5'){let c=0;const all=$$('#g-question-area .q-ans');const sels=$$('#g-question-area .q-sel');q.rows.forEach((r,i)=>{const base=i*3;const sq=r.s.map(v=>r6(v*v));for(let k=0;k<3;k++){const e=all[base+k];if(!e)continue;const n=normNum(e.value);if(n!==null&&near(n,sq[k]))c++;}const sel=sels[i];const map={siku:'Siku-siku',lancip:'Lancip',tumpul:'Tumpul'};if(sel&&sel.value===map[r.ans])c++;});return c/40;}
   if(q.type==='fin'){const ins=$$('#g-question-area .q-ans');let c=0;[...ins].forEach((e,i)=>{const n=normNum(e.value);if(n!==null&&near(n,q.ans[i]))c++;});return c/q.total;}
   if(q.q3){const ins=$$('#g-question-area .q-ans');let c=0;[...ins].forEach((e,i)=>{const nv=normNum(e.value);const nk=normNum(q.ans[i]);if(nv!==null&&nk!==null&&near(nv,nk))c++;else if(String(e.value).trim()===q.ans[i])c++;});return c/q.total;}
-  const n=normExpr($('#g-question-area .q-ans').value);const k=normExpr(q.key);let ok=n===k;if(!ok)ok=(q.alts||[]).some(a=>normExpr(a)===n);return ok?1:0;
+  const e=$('#g-question-area .q-ans');if(!e)return 0;
+  const n=normExpr(e.value);const k=normExpr(q.key);let ok=n===k;if(!ok)ok=(q.alts||[]).some(a=>normExpr(a)===n);return ok?1:0;
 }
 function markInputs(){
   const q=G.currentQ;
   if(q.type==='fin'||q.q3){[...$$('#g-question-area .q-ans')].forEach((e,i)=>{const n=normNum(e.value);const nk=normNum(q.ans[i]);const ok=(n!==null&&nk!==null&&near(n,nk))||String(e.value).trim()===q.ans[i];e.classList.add(ok?'input-correct':'input-wrong');e.insertAdjacentHTML('afterend',`<span class="ans-mark">${ok?'✅':'❌'}</span>`);});}
-  else if(q.type==='t5'){const all=$$('#g-question-area .q-ans');q.rows.forEach((r,i)=>{const base=i*3;const sq=r.s.map(v=>r6(v*v));for(let k=0;k<3;k++){const e=all[base+k];if(!e)continue;const n=normNum(e.value);const ok=n!==null&&near(n,sq[k]);e.classList.add(ok?'input-correct':'input-wrong');e.insertAdjacentHTML('afterend',`<span class="ans-mark">${ok?'✅':'❌'}</span>`);}const sel=$$('#g-question-area .q-sel')[i];const map={siku:'Siku-siku',lancip:'Lancip',tumpul:'Tumpul'};if(sel){const ok=sel.value===map[r.ans];sel.classList.add(ok?'input-correct':'input-wrong');}});}
+  else if(q.type==='t5'){const all=$$('#g-question-area .q-ans');const sels=$$('#g-question-area .q-sel');q.rows.forEach((r,i)=>{const base=i*3;const sq=r.s.map(v=>r6(v*v));for(let k=0;k<3;k++){const e=all[base+k];if(!e)continue;const n=normNum(e.value);const ok=n!==null&&near(n,sq[k]);e.classList.add(ok?'input-correct':'input-wrong');e.insertAdjacentHTML('afterend',`<span class="ans-mark">${ok?'✅':'❌'}</span>`);}const sel=sels[i];const map={siku:'Siku-siku',lancip:'Lancip',tumpul:'Tumpul'};if(sel){const ok=sel.value===map[r.ans];sel.classList.add(ok?'input-correct':'input-wrong');}});}
   else if(q.type==='bs'){q.items.forEach((it,i)=>{const btns=[...document.querySelectorAll(`#g-question-area .q-bs[data-i="${i}"]`)];const sel=btns.find(b=>b.classList.contains('sel'));const ok=!!sel&&sel.dataset.v===(it.ok?'Benar':'Salah');if(sel)sel.style.boxShadow=ok?'0 0 0 4px #86efac':'0 0 0 4px #fca5a5';const row=(sel||btns[0]).closest('div.flex');if(row)row.insertAdjacentHTML('beforeend',`<span class="ans-mark">${ok?'✅':'❌'}</span>`);});}
   else{const e=$('#g-question-area .q-ans');const n=normExpr(e.value);const ok=n===normExpr(q.key)||(q.alts||[]).some(a=>normExpr(a)===n);e.classList.add(ok?'input-correct':'input-wrong');e.insertAdjacentHTML('afterend',`<span class="ans-mark">${ok?'✅':'❌'}</span>`);}
 }
@@ -427,15 +526,16 @@ function checkAns(){
   if(!confirm('Yakin? Tidak ada perbaikan setelah CEK.'))return;
   const pos=G.current-1;const partial=partialOf(G.currentQ);
   G.scores[pos]=partial;G.status[pos]='checked';
-  const benar=Math.round(partial*G.currentQ.total);const skor=Math.round(partial*BOBOT[pos+1]);
-  const m=$('#g-message');m.style.color=partial===1?'#16a34a':'#dc2626';m.innerText=`Benar ${benar}/${G.currentQ.total} • Skor +${skor}/${BOBOT[pos+1]}`;
+  const benar=Math.round(partial*(G.currentQ.total||1));const skor=+(partial*bobotPos(pos)).toFixed(2);
+  const m=$('#g-message');m.style.color=partial===1?'#16a34a':'#dc2626';
+  m.innerText=`Benar ${benar}/${G.currentQ.total||1} • Skor +${skor}/${bobotPos(pos).toFixed(2)}`;
   $$('#g-question-area input,#g-question-area select,#g-question-area button').forEach(e=>e.disabled=true);
   markInputs();saveGS();dots();
   $('#g-btn-group-play').style.display='none';$('#g-btn-group-next').style.display='flex';
-  if(G.scores.every(s=>s!==null))showToast('✅ Semua soal selesai — kirim tersedia setelah 20:00 terpakai.',false,4000);
+  if(G.scores.every(s=>s!==null))showToast('✅ Semua 23 soal selesai — kirim tersedia setelah 20:00 terpakai.',false,4000);
 }
 function tundaQ(){const pos=G.current-1;if(G.status[pos]==='open')G.status[pos]='tunda';captureFill(pos);const nxt=nextOpen(pos);if(nxt===-1){showToast('⏸ Semua soal tertunda — pilih lewat palet.',true,3000);dots();saveGS();return;}loadQ(nxt);}
-function nextQ(){const nxt=nextOpen(G.current-1);if(nxt===-1){showToast('Semua soal selesai — tunggu waktu minimal untuk kirim.',false,4000);}else loadQ(nxt);}
+function nextQ(){const nxt=nextOpen(G.current-1);if(nxt===-1){showToast('Semua 23 soal selesai — tunggu waktu minimal untuk kirim.',false,4000);}else loadQ(nxt);}
 function startT(){if(!G.timer)G.timer=setInterval(()=>{
   G.used++;
   if(!G.ot){G.timeLeft--;tDisp();if(G.timeLeft<=0){mainTimeUp();return;}}
@@ -450,7 +550,7 @@ function mainTimeUp(){pauseT();G.ot=true;G.otLeft=GC.OT;tDisp();otDisp();saveGS(
 async function autoSubmit(byOvertime){
   G.phase='result';saveGS();
   const f=weightedTotal();
-  const detail=G.scores.map((s,i)=>`T${i+1}:${Math.round((s||0)*BOBOT[i+1])}`).join(' | ');
+  const detail=G.scores.map((s,i)=>{const def=SOAL_DEFS[G.order[i]];return `${TIPE_LABEL[def.t]}#${i+1}:${Math.round((s||0)*bobotPos(i))}`;}).join(' | ');
   const payload={tipe:'KUIS',kode:KODE,nama1:TK.nama,kelas:TK.kelas,kategori:TK.kategori,username:TK.username,skor:f,jawaban:(byOvertime?'[WAKTU-TAMBAHAN] ':'')+detail,waktuPengerjaan:fmtSec(G.used),percobaan:TK.gen,waktuTambahan:G.ot?fmtSec(GC.OT-Math.max(0,G.otLeft)):'-'};
   showToast('📤 Mengirim Nilai Kuis ke Guru...');
   try{await postAction(payload);saveState({submittedKuis:true,kuisScore:f});try{localStorage.removeItem(gKey());}catch(e){}hideToast();$('#g-saved-score').textContent=f;$('#g-success-note').textContent=byOvertime?'⏰ Nilai dikirim otomatis karena waktu tambahan habis.':'Nilai LKPD & Kuis tersimpan di Rekap Guru.';showGS('#g-success-screen');}
@@ -467,7 +567,7 @@ let lkpdAccMs=0,lkpdResume=null;
 function startLKPD(){
   $('#student-name').value=TK.nama;$('#student-class').value=TK.kelas;$('#student-cat').value='Kategori '+TK.kategori;
   setRNG(getSalt());
-  generateK1();generateK2();
+  pickK2();generateK1();generateK2();
   const st=loadState();
   restoreAnswers(st.answers);restoreBS(st.bsSel);
   if(st.locked1)applyLock('k1',true);if(st.locked2)applyLock('k2',true);
@@ -477,7 +577,8 @@ function startLKPD(){
   setInterval(()=>{if(!submitted&&lkpdResume)$('#timer-lkpd').textContent=fmtMs(lkpdAccMs+(Date.now()-lkpdResume));},500);
   document.addEventListener('visibilitychange',()=>{if(submitted)return;if(document.hidden){if(lkpdResume){lkpdAccMs+=Date.now()-lkpdResume;lkpdResume=null;}}else lkpdResume=Date.now();});
 }
-$('#btn-reshuffle').onclick=()=>{if((locked.k1&&locked.k2)||submitted)return alert('Terkunci/sudah dikirim.');if(!confirm('Acak soal baru? Jawaban belum dikunci dihapus.'))return;const s=(Date.now()%2147483647)^(Math.floor(Math.random()*1e9));saveState({salt:s,answers:{},bsSel:{}});setRNG(s);generateK1();generateK2();};
+$('#btn-reshuffle').onclick=()=>{if((locked.k1&&locked.k2)||submitted)return alert('Terkunci/sudah dikirim.');if(!confirm('Acak soal baru? Jawaban belum dikunci dihapus.'))return;const s=(Date.now()%2147483647)^(Math.floor(Math.random()*1e9));saveState({salt:s,answers:{},bsSel:{}});
+setRNG(s);pickK2();generateK1();generateK2();};
 $('#lock-1').onclick=()=>{if(submitted)return;if(!locked.k1&&!confirm('Kunci Kegiatan 1?'))return;applyLock('k1',!locked.k1);};
 $('#lock-2').onclick=()=>{if(submitted)return;if(!locked.k2&&!confirm('Kunci Kegiatan 2?'))return;applyLock('k2',!locked.k2);};
 $('#btn-evaluate').onclick=()=>evaluateAll();
@@ -490,9 +591,15 @@ $('#btn-kirim-lkpd').onclick=async()=>{
   try{await postAction(payload);submitted=true;saveState({submittedLKPD:true,finalScore});$('#btn-kirim-lkpd').classList.add('hidden');$('#kirim-lkpd-status').textContent='✅ Nilai LKPD terkirim.';hideToast();unlockKuis(false);}
   catch(e){hideToast();showToast('❌ Gagal mengirim Nilai LKPD — coba lagi',true,3500);}
 };
-G.order=shuffle([1,2,3,4,5,6,7,8,9,10]);
+G.order=shuffle([...Array(TOTAL_SOAL).keys()]);
 startLKPD();
 $('#loader-overlay').classList.add('hidden');
+/* PATCH-NAV: menimpa navigasi versi lama (modulo 10) — WAJIB di akhir */
+nextOpen=function(from){for(let k=1;k<=TOTAL_SOAL;k++){const i=(from+k)%TOTAL_SOAL;if(G.status[i]!=='checked')return i;}return -1;};
+tundaQ=function(){const pos=G.current-1;if(G.status[pos]==='open')G.status[pos]='tunda';captureFill(pos);const nxt=nextOpen(pos);if(nxt===-1){showToast('⏸ Semua soal tertunda — pilih lewat palet.',true,3000);dots();saveGS();return;}loadQ(nxt);};
+nextQ=function(){const nxt=nextOpen(G.current-1);if(nxt===-1){showToast('Semua 23 soal selesai — tunggu waktu minimal untuk kirim.',false,4000);}else loadQ(nxt);};
+$('#g-btn-tunda-play').onclick=tundaQ;
+$('#g-btn-next').onclick=nextQ;
 });
 </script>
 </body>
