@@ -111,7 +111,36 @@ function seeded(pos){const old=Math.random;Math.random=mulberry32((SALT^((pos+1)
 // ===== GENERATOR LOKAL (kunci eksak) =====
 function mkOpts(correct,spread){const s=spread||[2,3,5];const set=[correct];const out=[{val:correct,correct:true}];s.forEach(d=>{const v=SC.r6(correct+d);if(!set.includes(v)){set.push(v);out.push({val:v,correct:false});}});let e=1;while(out.length<4){const v=SC.r6(correct-e);if(!set.includes(v)){set.push(v);out.push({val:v,correct:false});}e++;}return shuffle(out);}
 const gPangkat=d=>{const p=PICK([2,3,5]);const e1=RI(2,4),e2=RI(1,3),e3=RI(1,4);const N=e1*e2+e3;return{type:'mc',tex:`(${p}^{${e1}})^{${e2}}\\times ${p}^{${e3}}`,options:mkOpts(N,[1,2,3]).map(o=>({val:`${p}^{${o.val===N?N:o.val}}`,correct:o.correct}))};};
-const gAkar=d=>{const pool=DATA_POOL.m013.pool[d]||DATA_POOL.m013.pool.M;const it=PICK(pool);const opts=[{val:it.key,correct:true}];(it.alts||[]).slice(0,3).forEach(a=>opts.push({val:a,correct:false}));while(opts.length<4)opts.push({val:it.key+'+',correct:false});return{type:'mc',tex:it.t,options:shuffle(opts)};};
+// ===== PENGECOH AKAR MANDIRI (dijamin 4 opsi berbeda) =====
+function akarAlts(key) {
+  const out = [];
+  const m = String(key).match(/^(\d+)\\sqrt\{(\d+)\}$/);      // bentuk c√r
+  if (m) {
+    const c = +m[1], r = +m[2];
+    out.push((c + 2) + '\\sqrt{' + r + '}');
+    if (c > 2) out.push((c - 2) + '\\sqrt{' + r + '}');
+    out.push(c + '\\sqrt{' + (r + 1) + '}');
+    out.push((c * 2) + '\\sqrt{' + r + '}');
+  } else if (/\\sqrt/.test(key) && /[+-]/.test(key)) {         // binomial akar
+    out.push(key.includes('-') ? key.replace('-', '+') : key.replace('+', '-'));
+    out.push(key.replace(/(\d+)\\sqrt\{/, (mm, d) => (2 * +d) + '\\sqrt{'));
+    out.push(key.replace(/\\sqrt\{(\d+)\}/, (mm, r) => '\\sqrt{' + (+r + 2) + '}'));
+  } else {
+    const n = +key;                                            // bilangan bulat
+    if (!isNaN(n)) out.push(String(n + 5), String(n * 2), n + '\\sqrt{2}', String(n - 5 > 0 ? n - 5 : n + 10));
+  }
+  const seen = [key], res = [];
+  out.forEach(a => { if (a && a !== key && !seen.includes(a)) { seen.push(a); res.push(a); } });
+  return res.slice(0, 3);
+}
+
+const gAkar = d => {
+  const pool = DATA_POOL.m013.pool[d] || DATA_POOL.m013.pool.M;
+  const it = PICK(pool);
+  const opts = [{ val: it.key, correct: true }];
+  akarAlts(it.key).forEach(a => opts.push({ val: a, correct: false }));
+  return { type: 'mc', tex: it.t, options: shuffle(opts), total: 1 };
+};
 const gBaku=q=>{const m=RI(1,9)+'.'+RI(10,99);const n=RI(3,7);const val=Math.round(parseFloat(m)*Math.pow(10,n));const key=m+'\\times10^{'+n+'}';const alts=[(parseFloat(m)*10).toFixed(1)+'\\times10^{'+(n-1)+'}',(parseFloat(m)/10).toFixed(2)+'\\times10^{'+(n+1)+'}',parseFloat(m).toFixed(1)+'\\times10^{'+(n+1)+'}'];return{type:'mc',tex:String(val),options:shuffle([{val:key,correct:true},...alts.map(a=>({val:a,correct:false}))])};};
 const gRumus=()=>{const cor={C:['a²+b²=c²','c=√(a²+b²)'],B:['a²+c²=b²','b=√(a²+c²)'],A:['b²+c²=a²','a=√(b²+c²)']};const V=['A','B','C'];const items=[];for(let i=0;i<10;i++){const v=PICK(V);const ok=i<5;items.push({txt:`Siku di ${v}: ${ok?PICK(cor[v]):PICK(cor[PICK(V.filter(x=>x!==v))])}`,ok});}return{type:'bs',items:shuffle(items),total:10};};
 const gJenis=()=>{const P=DATA_POOL.m022.pool;const all=[...P.M,...P.S,...P.U];const rows=[];for(let i=0;i<10;i++)rows.push(PICK(all));return{type:'t5',rows,total:40};};
