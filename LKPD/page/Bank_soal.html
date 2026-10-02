@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bank Soal & Kisi-kisi — Audit Guru</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+<style>
+.kunci-box{background:#ecfdf5;border:1px solid #10b981;border-radius:6px;padding:2px 8px;font-weight:700;color:#047857}
+.hidden-kunci .kunci-box{filter:blur(6px);user-select:none}
+@media print{.noprint{display:none}}
+</style>
+</head>
+<body class="bg-slate-100 p-4">
+<div class="max-w-4xl mx-auto">
+  <div class="noprint bg-white rounded-xl p-4 shadow mb-4 space-y-3">
+    <h1 class="text-lg font-extrabold">📚 Bank Soal & Kisi-kisi (Audit Guru)</h1>
+ <div class="flex flex-wrap gap-2">
+  <button id="tab-kisi"  class="px-4 py-2 rounded-lg font-bold bg-indigo-600 text-white">Kisi-kisi</button>
+  <button id="tab-bank"  class="px-4 py-2 rounded-lg font-bold bg-slate-200">Bank Soal</button>
+  <button id="tab-paket" class="px-4 py-2 rounded-lg font-bold bg-slate-200">Paket (60)</button>
+</div>
+    <div id="filter-bank" class="flex flex-wrap gap-2 items-center">
+      <label class="text-sm font-bold">Materi:</label>
+      <select id="sel-materi" class="border rounded-lg p-2 text-sm"></select>
+      <button id="toggle-kunci" class="px-3 py-1 rounded-lg text-sm bg-emerald-100 text-emerald-700 font-bold">👁 Kunci: ON</button>
+      <button onclick="window.print()" class="px-3 py-1 rounded-lg text-sm bg-slate-800 text-white font-bold">🖨️ Cetak</button>
+    </div>
+    <div id="filter-paket" class="hidden flex flex-wrap gap-2 items-center">
+  <label class="text-sm font-bold">Kelas</label><select id="p-kelas" class="border rounded-lg p-2 text-sm"></select>
+  <label class="text-sm font-bold">Kategori</label><select id="p-kat" class="border rounded-lg p-2 text-sm"></select>
+  <label class="text-sm font-bold">Paket</label><select id="p-paket" class="border rounded-lg p-2 text-sm"></select>
+  <button id="p-go" class="bg-indigo-600 text-white font-bold px-3 py-2 rounded-lg text-sm">🔄 Muat</button>
+  <span id="p-kode" class="text-xs font-mono bg-slate-100 border rounded px-2 py-1"></span>
+</div>
+<div id="out-paket" class="space-y-3 hidden"></div>
+  </div>
+  <div id="out-kisi" class="space-y-3"></div>
+  <div id="out-bank" class="space-y-3 hidden"></div>
+</div>
+
+<script src="../lib/config.js"></script>
+<script src="../data/DATA_POOL.js"></script>
+<script src="../data/Mesin_Kisi.js"></script>
+<script src="../core/SVG_GENERATORS.js"></script>
+<script src="../core/SCORING_LOGIC.js"></script>
+<script src="../core/FUNCTIONS_RENDER.js"></script>
+<script src="../core/GENERATORS.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+let showKunci=true, tab='kisi', materi='m011';
+
+// Isi dropdown materi
+$('#sel-materi').innerHTML=Object.keys(DATA_POOL).map(k=>`<option value="${k}">${k} — ${DATA_POOL[k].judul}</option>`).join('');
+$('#sel-materi').onchange=e=>{materi=e.target.value;renderBank();};
+$('#tab-kisi').onclick=()=>{tab='kisi';$('#out-kisi').classList.remove('hidden');$('#out-bank').classList.add('hidden');$('#filter-bank').classList.add('hidden');setTab();};
+$('#tab-bank').onclick=()=>{tab='bank';$('#out-bank').classList.remove('hidden');$('#out-kisi').classList.add('hidden');$('#filter-bank').classList.remove('hidden');setTab();renderBank();};
+$('#toggle-kunci').onclick=()=>{showKunci=!showKunci;$('#toggle-kunci').textContent='👁 Kunci: '+(showKunci?'ON':'OFF');document.body.classList.toggle('hidden-kunci',!showKunci);};
+function setTab(){
+  $('#tab-kisi').className='px-4 py-2 rounded-lg font-bold '+(tab==='kisi'?'bg-indigo-600 text-white':'bg-slate-200');
+  $('#tab-bank').className='px-4 py-2 rounded-lg font-bold '+(tab==='bank'?'bg-indigo-600 text-white':'bg-slate-200');
+}
+
+function renderKisi(){
+  const M=MESIN_KISI.materi;
+  $('#out-kisi').innerHTML=Object.keys(M).map(k=>{
+    const m=M[k];
+    return `<div class="bg-white rounded-xl p-4 border">
+      <div class="flex justify-between"><b class="text-indigo-700">${k} — ${DATA_POOL[k]?DATA_POOL[k].judul:''}</b><span class="text-xs">${m.level.join(', ')}</span></div>
+      <p class="text-sm mt-1"><b>TP:</b> ${m.tp}</p>
+      <p class="text-sm"><b>Indikator:</b> ${m.indikator}</p>
+      <p class="text-xs text-slate-500 mt-1">Bentuk: ${m.bentuk.join(', ')} | Bank: M${m.bank.M}/S${m.bank.S}/U${m.bank.U} | Figure: ${m.figure||'-'}</p>
+    </div>`;
+  }).join('');
+}
+
+function renderBank(){
+  const d=DATA_POOL[materi];
+  let html=`<div class="bg-white rounded-xl p-4 border"><h2 class="font-extrabold">${materi} — ${d.judul}</h2><p class="text-xs text-slate-500">${d.penjelasan||''}</p></div>`;
+  ['M','S','U'].forEach(lvl=>{
+    const arr=d.pool[lvl]||[];
+    if(!arr.length)return;
+    html+=`<h3 class="font-bold mt-4">${{M:'MUDAH',S:'SEDANG',U:'SULIT'}[lvl]} (${arr.length})</h3>`;
+    arr.forEach((it,i)=>{
+      const key=it.key||it.k||it.ans||it.labels||'';
+      const keyStr=Array.isArray(key)?key.join(', '):String(key);
+      html+=`<div class="bg-white rounded-xl p-3 border mt-2">
+        <div class="text-sm"><b>#${i+1}</b> <span class="tex" data-tex="${it.t||''}">${it.t||JSON.stringify(it.s||it.seed||'')}</span></div>
+        <div class="text-sm mt-1">Kunci: <span class="kunci-box">${keyStr}</span></div>
+      </div>`;
+    });
+  });
+  $('#out-bank').innerHTML=html;
+  document.querySelectorAll('#out-bank .tex').forEach(el=>{if(el.dataset.tex){try{katex.render(el.dataset.tex,el,{throwOnError:false});}catch(e){}}});
+}
+
+renderKisi();
+
+</script>
+<script src="../core/PACKET_GENERATOR.js"></script>
+<script>
+// Isi filter paket
+$('#p-kelas').innerHTML=CFG.KELAS.map(k=>`<option>${k}</option>`).join('');
+$('#p-kat').innerHTML=CFG.KATEGORI.map(k=>`<option>${k}</option>`).join('');
+$('#p-paket').innerHTML=CFG.PAKET.map(p=>`<option>${p}</option>`).join('');
+
+// Wiring tab (perluas setTab)
+const tabs={kisi:['#out-kisi','#filter-bank',0],bank:['#out-bank','#filter-bank',1],paket:['#out-paket','#filter-paket',2]};
+let curTab='kisi';
+function setTabActive(t){
+  curTab=t;
+  ['kisi','bank','paket'].forEach(k=>{
+    const btn=$('#tab-'+k);
+    btn.className='px-4 py-2 rounded-lg font-bold '+(k===t?'bg-indigo-600 text-white':'bg-slate-200');
+    $(tabs[k][0]).classList.toggle('hidden',k!==t);
+  });
+  $('#filter-bank').classList.toggle('hidden',!(t==='bank'));
+  $('#filter-paket').classList.toggle('hidden',!(t==='paket'));
+  if(t==='paket')renderPaket();
+}
+$('#tab-kisi').onclick=()=>setTabActive('kisi');
+$('#tab-bank').onclick=()=>setTabActive('bank');
+$('#tab-paket').onclick=()=>setTabActive('paket');
+$('#p-go').onclick=renderPaket;
+
+function renderPaket(){
+  const kelas=$('#p-kelas').value,kat=$('#p-kat').value,paket=+$('#p-paket').value;
+  const pkg=PACKET.buildPaket(kelas,paket,kat);
+  $('#p-kode').textContent=pkg.kode;
+  let h=`<div class="bg-white rounded-xl p-4 border"><h2 class="font-extrabold">${pkg.kode}</h2>
+  <p class="text-xs text-slate-500">Kelas ${kelas} • Kategori ${kat} • Paket ${paket} • K1:${pkg.k1.cards.length} kartu • K2:1 • Kuis:23</p></div>`;
+  // K1
+  h+=`<div class="bg-white rounded-xl p-3 border"><b>K1 Rasionalisasi:</b> `+
+     pkg.k1.cards.map((c,i)=>`<div class="text-sm mt-1">${'ABCDEF'[i]}. <span class="tex" data-tex="${c.t}"></span> → <span class="kunci-box">${fmtK(c)}</span></div>`).join('')+`</div>`;
+  // K2
+  const [ea,ed,od]=pkg.k2.seed;const eo=Math.sqrt(ed*ed-od*od),ao=Math.sqrt(ea*ea-eo*eo),ad=ao+od;
+  h+=`<div class="bg-white rounded-xl p-3 border text-sm"><b>K2 Bukit:</b> EA=${ea} ED=${ed} OD=${od} → EO=<span class="kunci-box">${r6(eo)}</span> AO=<span class="kunci-box">${r6(ao)}</span> AD=<span class="kunci-box">${r6(ad)}</span> Biaya=<span class="kunci-box">${r6(ad*2)}</span></div>`;
+  $('#out-paket').innerHTML=h;
+  document.querySelectorAll('#out-paket .tex').forEach(el=>{if(el.dataset.tex){try{katex.render(el.dataset.tex,el,{throwOnError:false});}catch(e){}}});
+}
+function r6(v){return Math.round(v*1e6)/1e6;}
+function fmtK(c){let i=0;return (c.tpl||'').replace(/\{(\d+)\}/g,()=>c.k[i++]);}
+</script>
+</body>
+</html>

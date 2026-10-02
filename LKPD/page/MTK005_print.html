@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MTK005 — Paket Cetak (Siswa/Guru)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<style>
+.kunci{background:#ecfdf5;border:1px solid #10b981;color:#047857;font-weight:700;border-radius:6px;padding:0 6px}
+.box{display:inline-block;min-width:44px;height:26px;border:1.5px solid #666;border-radius:6px;vertical-align:middle}
+@media print{.noprint{display:none}}
+</style>
+</head>
+<body class="bg-slate-100 p-4">
+<div class="max-w-4xl mx-auto">
+  <!-- GERBANG PIN (hanya ?kunci) -->
+  <div id="pin-gate" class="hidden noprint bg-white rounded-xl p-6 shadow max-w-sm mx-auto mt-10 text-center">
+    <div class="text-4xl mb-2">🔐</div><h2 class="font-extrabold">Mode Kunci Jawaban</h2>
+    <input id="pin-in" type="password" placeholder="PIN Guru" class="border rounded-lg p-2 w-full mt-3">
+    <button id="pin-ok" class="w-full mt-2 bg-emerald-600 text-white font-bold py-2 rounded-lg">Buka Kunci</button>
+    <p id="pin-err" class="text-red-600 text-xs mt-2 hidden">PIN salah.</p>
+  </div>
+
+  <!-- FILTER -->
+  <div id="filter" class="noprint bg-white rounded-xl p-4 shadow mb-4 flex flex-wrap gap-2 items-center">
+    <label class="text-sm font-bold">Kelas</label><select id="f-kelas" class="border rounded-lg p-2 text-sm"></select>
+    <label class="text-sm font-bold">Paket</label><select id="f-paket" class="border rounded-lg p-2 text-sm"></select>
+    <label class="text-sm font-bold">Kategori</label><select id="f-kat" class="border rounded-lg p-2 text-sm"></select>
+    <button id="f-go" class="bg-indigo-600 text-white font-bold px-4 py-2 rounded-lg">🔄 Tampilkan</button>
+    <button onclick="window.print()" class="bg-slate-800 text-white font-bold px-4 py-2 rounded-lg">🖨️ Cetak</button>
+    <span id="mode-badge" class="ml-auto text-xs font-bold px-3 py-1 rounded-full bg-slate-200">MODE SISWA</span>
+  </div>
+
+  <div id="out" class="space-y-4"></div>
+</div>
+
+<script src="../lib/config.js"></script>
+<script src="../data/DATA_POOL.js"></script>
+<script src="../data/Mesin_Kisi.js"></script>
+<script src="../core/SVG_GENERATORS.js"></script>
+<script src="../core/SCORING_LOGIC.js"></script>
+<script src="../core/FUNCTIONS_RENDER.js"></script>
+<script src="../core/GENERATORS.js"></script>
+<script src="../core/PACKET_GENERATOR.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const isKunci=new URLSearchParams(location.search).has('kunci');
+let unlocked=!isKunci;
+
+// Isi filter
+$('#f-kelas').innerHTML=CFG.KELAS.map(k=>`<option>${k}</option>`).join('');
+$('#f-paket').innerHTML=CFG.PAKET.map(p=>`<option>${p}</option>`).join('');
+$('#f-kat').innerHTML=CFG.KATEGORI.map(k=>`<option>${k}</option>`).join('');
+
+// Gerbang PIN
+if(isKunci){
+  unlocked=!!sessionStorage.getItem('lkpd_kunci_ok');
+  if(!unlocked){$('#pin-gate').classList.remove('hidden');$('#filter').classList.add('hidden');$('#out').innerHTML='';}
+  $('#pin-ok').onclick=()=>{
+    const pin=$('#pin-in').value;
+    if(atob(CFG.KUNCI_PIN_B64)===pin){sessionStorage.setItem('lkpd_kunci_ok','1');unlocked=true;$('#pin-gate').classList.add('hidden');$('#filter').classList.remove('hidden');render();}
+    else $('#pin-err').classList.remove('hidden');
+  };
+}
+$('#mode-badge').textContent=isKunci?'MODE GURU (KUNCI)':'MODE SISWA';
+$('#mode-badge').className='ml-auto text-xs font-bold px-3 py-1 rounded-full '+(isKunci?'bg-emerald-100 text-emerald-700':'bg-slate-200');
+$('#f-go').onclick=render;
+
+function tex(el){if(el.dataset&&el.dataset.tex){try{katex.render(el.dataset.tex,el,{throwOnError:false});}catch(e){}}}
+
+function render(){
+  if(!unlocked)return;
+  const kelas=$('#f-kelas').value,paket=+$('#f-paket').value,kat=$('#f-kat').value;
+  const pkg=PACKET.buildPaket(kelas,paket,kat);
+  let html='';
+
+  // Header + QR + kode
+  html+=`<div class="bg-white rounded-xl p-4 border flex items-center gap-4">
+    <div><h1 class="font-extrabold">LKPD MTK-005 • ${pkg.kode}</h1>
+    <p class="text-xs text-slate-500">Kelas ${kelas} • Kategori ${kat} • Paket ${paket}</p></div>
+    <canvas id="qr" class="ml-auto"></canvas></div>`;
+
+  // Keg 1
+  html+=`<div class="bg-white rounded-xl p-4 border"><h2 class="font-bold">Kegiatan 1 — Rasionalisasi</h2>`;
+  pkg.k1.cards.forEach((c,i)=>{
+    html+=`<div class="mt-2"><b>Kartu ${'ABCDEF'[i]}</b> <span class="tex" data-tex="${c.t}"></span> = `;
+    if(unlocked&&isKunci)html+=`<span class="kunci">${fmtTpl(c.tpl,c.k)}</span>`;
+    else html+=`<span class="box"></span>`;
+    html+=`</div>`;
+  });
+  html+=`<h3 class="font-bold mt-3">Pernyataan B/S</h3>`;
+  pkg.k1.bs.forEach(s=>{
+    html+=`<div class="text-sm mt-1">${s.txt} → ${isKunci?`<span class="kunci">${s.ok?'Benar':'Salah'}</span>`:'<span class="box"></span>'}</div>`;
+  });
+  html+=`</div>`;
+
+  // Keg 2
+  const [ea,ed,od]=pkg.k2.seed;
+  html+=`<div class="bg-white rounded-xl p-4 border"><h2 class="font-bold">Kegiatan 2 — Bukit & Terowongan</h2>
+  <p class="text-sm">EA=${ea}, ED=${ed}, OD=${od}. Hitung EO, AO, AD, Biaya.</p>`;
+  if(isKunci){const eo=Math.sqrt(ed*ed-od*od),ao=Math.sqrt(ea*ea-eo*eo),ad=ao+od;
+    html+=`<p class="text-sm mt-1">Kunci: EO=<span class="kunci">${r6(eo)}</span> AO=<span class="kunci">${r6(ao)}</span> AD=<span class="kunci">${r6(ad)}</span> Biaya=<span class="kunci">${r6(ad*2)}</span> juta</p>`;}
+  else html+=`<p class="text-sm mt-1">EO=<span class="box"></span> AO=<span class="box"></span> AD=<span class="box"></span> Biaya=<span class="box"></span></p>`;
+  html+=`</div>`;
+
+  // Kuis (ringkas untuk cetak)
+  html+=`<div class="bg-white rounded-xl p-4 border"><h2 class="font-bold">Kuis</h2>`;
+  html+=kuisHTML(pkg);
+  html+=`</div>`;
+
+  $('#out').innerHTML=html;
+  document.querySelectorAll('#out .tex').forEach(tex);
+  try{new QRious({element:$('#qr'),value:location.origin+location.pathname+'?kunci&kode='+pkg.kode,size:84});}catch(e){}
+}
+function r6(v){return Math.round(v*1e6)/1e6;}
+function fmtTpl(tpl,k){let i=0;return tpl.replace(/\{(\d+)\}/g,()=>k[i++]);}
+function kuisHTML(pkg){
+  let h='';
+  const mc=(arrQ,label)=>{arrQ.forEach((q,i)=>{h+=`<div class="text-sm mt-1"><b>${label}#${i+1}</b> <span class="tex" data-tex="${q.tex||''}"></span> `;
+    (q.options||[]).forEach((o,j)=>{const val=o.val||o;const cor=o.correct;h+=`${'ABCD'[j]}.<span class="${isKunci&&cor?'kunci':''}">${val}</span> `;});h+=`</div>`;});};
+  mc(pkg.kuis.q1,'Pangkat');mc(pkg.kuis.q2,'Akar');mc(pkg.kuis.q3,'Baku');
+  h+=`<div class="text-sm mt-2"><b>Rumus B/S:</b> ${pkg.kuis.q4.items.map((it,i)=>`${i+1}.${it.V}:${isKunci?`<span class="kunci">${it.ok?'B':'S'}</span>`:'<span class="box"></span>'}`).join(' ')}</div>`;
+  h+=`<div class="text-sm mt-1"><b>Jenis Segitiga:</b> ${pkg.kuis.q5.rows.map((r,i)=>`${i+1}[${r.s.join(',')}]=${isKunci?`<span class="kunci">${r.ans}</span>`:'<span class="box"></span>'}`).join(' ')}</div>`;
+  ['q6','q7','q8','q9','q10'].forEach((k,i)=>{const q=pkg.kuis[k];if(q&&q.questions)q.questions.forEach((qq,j)=>{h+=`<div class="text-sm mt-1"><b>Gab${i+1}.${qq.label}</b> `;(qq.options||[]).forEach((o,x)=>{h+=`${'ABCD'[x]}.<span class="${isKunci&&o.correct?'kunci':''}">${o.val}</span> `;});h+=`</div>`;});});
+  return h;
+}
+if(unlocked)render();
+</script>
+</body>
+</html>
