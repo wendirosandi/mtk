@@ -28,6 +28,12 @@
 .pbtn.done{background:#dcfce7;color:#15803d}
 .ans-mark{font-size:11px;margin-left:2px}
 .timer{font-weight:700;font-size:18px;color:#dc2626}
+.radwrap{display:inline-flex;align-items:stretch;font-weight:700;color:#0f172a}
+.rad{display:inline-block;border-top:2px solid #334155;padding:0 4px;margin-left:1px}
+.rad .q-ans{width:46px}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 6px}
+.frac .num{border-bottom:2px solid #334155;padding:2px 8px;display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.frac .den{padding:2px 8px}
 </style>
 </head>
 <body class="bg-slate-100 min-h-screen p-3 md:p-6">
@@ -180,12 +186,30 @@ function gGab(fig){
 // ===== KEGIATAN 1 =====
 const K1PAT={A:['M','S','U','U','S','U'],B:['M','M','S','S','S','U'],C:['M','M','M','S','S','U']};
 let k1Cards=[],k1BS=[];
+// ===== RENDER TEMPLATE JAWABAN SEBAGAI HTML BIASA =====
+function tplToHTML(tpl, ci) {
+  let i = 0;
+  // 1) √{2} → √{{2}}  (angka di dalam √ adalah placeholder kunci, bukan literal)
+  let h = tpl.replace(/\\sqrt\{(\d+)\}/g, '\\sqrt{{$1}}');
+  // 2) {n} → input jawaban
+  h = h.replace(/\{(\d+)\}/g, () =>
+    `<input type="text" inputmode="decimal" class="q-ans" id="k1-c${ci}-k${i++}">`);
+  // 3) \sqrt{...} → √ dengan garis atas (vinculum)
+  h = h.replace(/\\sqrt\{([^{}]*)\}/g,
+    '<span class="radwrap">√<span class="rad">$1</span></span>');
+  // 4) \frac{...}{...} → pecahan bertumpuk
+  h = h.replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g,
+    '<span class="frac"><span class="num">$1</span><span class="den">$2</span></span>');
+  return h;
+}
 function renderK1(){
   k1Cards=K1PAT[KAT].map(d=>PICK(DATA_POOL.m014.pool[d]));
-  $('#k1-cards').innerHTML=k1Cards.map((c,ci)=>{
-    let i=0;const inputs=c.tpl.replace(/\{(\d+)\}/g,()=>`<input type="text" inputmode="decimal" class="q-ans" id="k1-c${ci}-k${i++}">`);
-    return `<div class="bg-slate-50 border rounded-2xl p-4"><b>Kartu ${'ABCDEF'[ci]}</b> <span class="k1t" data-tex="${c.t}"></span><div class="step-row mt-2">= ${inputs}</div></div>`;
-  }).join('');
+ $('#k1-cards').innerHTML = k1Cards.map((c, ci) => {
+  return `<div class="bg-slate-50 border rounded-2xl p-4">
+    <b>Kartu ${'ABCDEF'[ci]}</b> <span class="k1t" data-tex="${c.t}"></span>
+    <div class="step-row mt-2" style="font-size:16px">= ${tplToHTML(c.tpl, ci)}</div>
+  </div>`;
+}).join('');
   $$('.k1t').forEach(el=>{try{katex.render(el.dataset.tex,el,{throwOnError:false});}catch(e){}});
   const vals=k1Cards.map(c=>c.v);const L='ABCDEF';
   const mi=vals.indexOf(Math.min(...vals)),ma=vals.indexOf(Math.max(...vals));
