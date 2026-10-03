@@ -92,6 +92,7 @@
 <script src="core/FUNCTIONS_RENDER.js"></script>
 <script src="data/DATA_POOL.js"></script>
 <script src="data/Mesin_Kisi.js"></script>
+<script src="core/PLAIN.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded',async()=>{
 const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
@@ -316,7 +317,7 @@ $('#btn-kirim-lkpd').onclick = async () => {
     kategori: LKPD.state.user.kategori,
     nama2: (LKPD.state.access && LKPD.state.access.pair) ? LKPD.state.access.pair.nama2 : '-',
     username2: (LKPD.state.access && LKPD.state.access.pair) ? LKPD.state.access.pair.username2 : '',
-    jawaban: 'K1+K2',
+    jawaban:buildK1Jawaban(),
     waktuPengerjaan: '-',
     percobaan: 1,
     autoNilai: finalScore,
@@ -370,7 +371,132 @@ const BOBOT=i=>{const t=DEFS[i].t;return{q1:10/6,q2:10/6,q3:10/4,q4:10,q5:10,q6:
 // MODE DEBUG: aktif hanya bila URL memuat ?debug=W2026 (ganti rahasia Anda)
 const DEBUG = new URLSearchParams(location.search).get('debug') === 'W2026';
 const GC = DEBUG ? { TOTAL: 120, MIN: 0, OT: 60 } : { TOTAL: 2400, MIN: 1200, OT: 600 };
-let G={cur:0,timeLeft:GC.TOTAL,timer:null,used:0,ot:false,otLeft:0,scores:Array(23).fill(null),status:Array(23).fill('open'),fill:Array(23).fill(null),order:shuffle([...Array(23).keys()]),curQ:null,phase:'game'};
+let G={cur:0,timeLeft:GC.TOTAL,timer:null,used:0,ot:false,otLeft:0,scores:Array(23).fill(null),status:Array(23).fill('open'),fill:Array(23).fill(null),order:shuffle([...Array(23).keys()]),curQ:null,audit:{},phase:'game'};
+// ===== LKPD: K1 kartu + KP pernyataan + K2 scaffold =====
+const k2label = { K21: 'EO²=ED²−OD²', K22: 'AO²=EA²−EO²', K23: 'AD=AO+OD;Biaya=AD×2' };
+function buildK1Jawaban() {
+  const P = window.PLAIN, SC = LKPD_SCORING, parts = [];
+  k1Cards.forEach((c, ci) => {
+    const flds = []; let all = true;
+    c.k.forEach((kv, k) => {
+      const el = document.getElementById('k1-c' + ci + '-k' + k);
+      const v = el ? el.value.trim() : '';
+      const n = SC.normNum(v); const ok = n !== null && SC.near(n, kv);
+      if (!ok) all = false;
+      flds.push((v || '_') + P.fmark(ok));
+    });
+    parts.push('K1' + 'ABCDEF'[ci] + ':' + P.S(P.plainTex(c.t)) + ':' + flds.join(',') + ',' + P.qmark(all));
+  });
+  k1BS.forEach((s, i) => {
+    const sel = document.querySelector('#k1-bs .q-bs.sel[data-i="' + i + '"]');
+    const ch = sel ? sel.dataset.v : '_';
+    const ok = !!sel && ch === (s.ok ? 'Benar' : 'Salah');
+    parts.push('KP' + (i + 1) + ':' + P.S(s.txt) + ':' + (ch === 'Benar' ? 'B' : ch === 'Salah' ? 'S' : '_') + P.fmark(ok) + ',' + P.qmark(ok));
+  });
+  const els = [...document.querySelectorAll('#k2-scaffold .q-ans')];
+  [[0, 6, 'K21'], [7, 14, 'K22'], [15, 17, 'K23']].forEach(g => {
+    const st = []; let all = true;
+    for (let i = g[0]; i <= g[1]; i++) {
+      const v = els[i] ? els[i].value.trim() : '';
+      const n = SC.normNum(v); const ok = n !== null && SC.near(n, k2keys[i]);
+      if (!ok) all = false;
+      st.push((v || '_') + P.fmark(ok));
+    }
+    parts.push(g[2] + ':' + P.S(k2label[g[2]]) + ':' + st.join(';') + ',' + P.qmark(all));
+  });
+  return parts.join('|');
+}
+
+// ===== KUIS: tangkap per soal saat CEK (indeks = urutan awal) =====
+function captureAudit(fixed) {
+  G.audit = G.audit || {}; 
+  const P = window.PLAIN, SC = LKPD_SCORING, q = G.curQ, num = fixed + 1, E = [];
+  if (q.type === 'mc') {
+    const sel = document.querySelector('#g-area .mc-radio:checked');
+    const opt = sel ? q.options[+sel.value] : null;
+    const ok = !!opt && opt.correct;
+    E.push({ id: 'Q' + num, body: P.S(P.plainTex(q.tex || '')) + ':' + (opt ? P.plainTex(opt.val) : '_') + P.fmark(ok) + ',' + P.qmark(ok) });
+  } else if (q.type === 'mc2' || q.type === 'mc3') {
+    q.questions.forEach((qq, i) => {
+      const sel = document.querySelector('#g-area [name="mc' + (i + 1) + '"]:checked');
+      const opt = sel ? qq.options[+sel.value] : null;
+      const ok = !!opt && opt.correct;
+      E.push({ id: 'Q' + num + 'ABC'[i], body: P.S(qq.label + '=') + ':' + (opt ? String(opt.val) : '_') + P.fmark(ok) + ',' + P.qmark(ok) });
+    });
+  } else if (q.type === 'bs') {
+    q.items.forEach((it, i) => {
+      const sel = document.querySelector('#g-area [data-bs-row="' + i + '"] .q-bs.sel');
+      const ch = sel ? sel.dataset.v : '_';
+      const ok = !!sel && ch === (it.ok ? 'Benar' : 'Salah');
+      E.push({ id: 'Q' + num + (i + 1), body: P.S(it.txt) + ':' + (ch === 'Benar' ? 'B' : ch === 'Salah' ? 'S' : '_') + P.fmark(ok) + ',' + P.qmark(ok) });
+    });
+  } else if (q.type === 't5') {
+    const all = $$('#g-area .q-ans'), sels = $$('#g-area .q-sel');
+    q.rows.forEach((r, i) => {
+      const sq = r.s.map(v => SC.r6(v * v)); const flds = []; let okAll = true;
+      for (let k = 0; k < 3; k++) {
+        const n = SC.normNum(all[i * 3 + k].value); const ok = n !== null && SC.near(n, sq[k]);
+        if (!ok) okAll = false; flds.push((all[i * 3 + k].value.trim() || '_') + P.fmark(ok));
+      }
+      const map = { siku: 'Siku-siku', lancip: 'Lancip', tumpul: 'Tumpul' };
+      const jok = sels[i].value === map[r.ans]; if (!jok) okAll = false;
+      flds.push((sels[i].value || '_') + P.fmark(jok));
+      E.push({ id: 'Q' + num + (i + 1), body: P.S('sisi ' + r.s.join(',')) + ':' + flds.join(',') + ',' + P.qmark(okAll) });
+    });
+  }
+  G.audit[fixed] = E;
+}
+
+function buildKuisJawaban() {
+  const out = [];
+  for (let d = 0; d < 23; d++) (G.audit[d] || []).forEach(e => out.push(e.id + ':' + e.body));
+  return out.join('|');
+}
+
+// ===== KUIS: tangkap per soal saat CEK (indeks = urutan awal) =====
+function captureAudit(fixed) {
+  const P = window.PLAIN, SC = LKPD_SCORING, q = G.curQ, num = fixed + 1, E = [];
+  if (q.type === 'mc') {
+    const sel = document.querySelector('#g-area .mc-radio:checked');
+    const opt = sel ? q.options[+sel.value] : null;
+    const ok = !!opt && opt.correct;
+    E.push({ id: 'Q' + num, body: P.S(P.plainTex(q.tex || '')) + ':' + (opt ? P.plainTex(opt.val) : '_') + P.fmark(ok) + ',' + P.qmark(ok) });
+  } else if (q.type === 'mc2' || q.type === 'mc3') {
+    q.questions.forEach((qq, i) => {
+      const sel = document.querySelector('#g-area [name="mc' + (i + 1) + '"]:checked');
+      const opt = sel ? qq.options[+sel.value] : null;
+      const ok = !!opt && opt.correct;
+      E.push({ id: 'Q' + num + 'ABC'[i], body: P.S(qq.label + '=') + ':' + (opt ? String(opt.val) : '_') + P.fmark(ok) + ',' + P.qmark(ok) });
+    });
+  } else if (q.type === 'bs') {
+    q.items.forEach((it, i) => {
+      const sel = document.querySelector('#g-area [data-bs-row="' + i + '"] .q-bs.sel');
+      const ch = sel ? sel.dataset.v : '_';
+      const ok = !!sel && ch === (it.ok ? 'Benar' : 'Salah');
+      E.push({ id: 'Q' + num + (i + 1), body: P.S(it.txt) + ':' + (ch === 'Benar' ? 'B' : ch === 'Salah' ? 'S' : '_') + P.fmark(ok) + ',' + P.qmark(ok) });
+    });
+  } else if (q.type === 't5') {
+    const all = $$('#g-area .q-ans'), sels = $$('#g-area .q-sel');
+    q.rows.forEach((r, i) => {
+      const sq = r.s.map(v => SC.r6(v * v)); const flds = []; let okAll = true;
+      for (let k = 0; k < 3; k++) {
+        const n = SC.normNum(all[i * 3 + k].value); const ok = n !== null && SC.near(n, sq[k]);
+        if (!ok) okAll = false; flds.push((all[i * 3 + k].value.trim() || '_') + P.fmark(ok));
+      }
+      const map = { siku: 'Siku-siku', lancip: 'Lancip', tumpul: 'Tumpul' };
+      const jok = sels[i].value === map[r.ans]; if (!jok) okAll = false;
+      flds.push((sels[i].value || '_') + P.fmark(jok));
+      E.push({ id: 'Q' + num + (i + 1), body: P.S('sisi ' + r.s.join(',')) + ':' + flds.join(',') + ',' + P.qmark(okAll) });
+    });
+  }
+  G.audit[fixed] = E;
+}
+
+function buildKuisJawaban() {
+  const out = [];
+  for (let d = 0; d < 23; d++) (G.audit[d] || []).forEach(e => out.push(e.id + ':' + e.body));
+  return out.join('|');
+}
 const diffN={A:3,B:2,C:1}[KAT];
 function loadQ(pos){
   G.cur=pos;$('#g-play').classList.remove('hidden');$('#g-next').classList.add('hidden');
@@ -431,7 +557,7 @@ $('#g-cek').onclick=()=>{
   const tot=G.curQ.total||1;const benar=Math.round(p*tot);
   $('#g-msg').innerText=`Benar ${benar}/${tot} • Skor +${(p*BOBOT(G.cur)).toFixed(2)}`;
   $$('#g-area input,#g-area select,#g-area button').forEach(e=>e.disabled=true);
-  markInputs(G.curQ);dots();
+  markInputs(G.curQ);captureAudit(G.order[G.cur]);dots();
   $('#g-play').classList.add('hidden');$('#g-next').classList.remove('hidden');
 };
 $('#g-tunda').onclick=()=>{if(G.status[G.cur]==='open')G.status[G.cur]='tunda';captureFill(G.cur);const n=nextOpen();if(n>=0)loadQ(n);else dots();};
@@ -458,7 +584,7 @@ async function autoSubmit(byOT) {
     username: LKPD.state.user.username,
     nama2: (LKPD.state.access && LKPD.state.access.pair) ? LKPD.state.access.pair.nama2 : '-',
     username2: (LKPD.state.access && LKPD.state.access.pair) ? LKPD.state.access.pair.username2 : '',
-    jawaban: (byOT ? '[WAKTU-TAMBAHAN] ' : '') + G.scores.map((s, i) => Math.round((s || 0) * BOBOT(i))).join('|'),
+    jawaban:(byOT?'[WAKTU-TAMBAHAN] ':'')+buildKuisJawaban(),
     waktuPengerjaan: fmtSec(G.used),
     percobaan: 1,
     skor: f,
@@ -499,5 +625,6 @@ $('#lock-1').onclick=()=>{const on=!$('#lock-1').dataset.on;$('#lock-1').dataset
 $('#lock-2').onclick=()=>{const on=!$('#lock-2').dataset.on;$('#lock-2').dataset.on=on?'1':'';$$('#k2-scaffold input').forEach(e=>e.disabled=!!on);};
 });
 </script>
+
 </body>
 </html>
