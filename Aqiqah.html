@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Undangan Interaktif</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        /* Styles Panel Rekap Ringkasan */
+        .rekap-summary-card {
+            background: #eef2f7;
+            border: 1px solid #d0d7de;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .total-box {
+            display: flex;
+            justify-content: space-around;
+            background: #2c3e50;
+            color: #fff;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+        .total-item span {
+            display: block;
+            font-size: 18px;
+            color: #f1c40f;
+            margin-top: 2px;
+        }
+        .kategori-list-rekap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .kategori-badge-item {
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            flex: 1 1 calc(50% - 8px);
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+        }
+        .kategori-badge-item strong {
+            color: #27ae60;
+        }
+
+        /* Style Control Panel Auto Hide */
+        .control-panel {
+            margin-bottom: 20px;
+            padding: 12px;
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .control-panel label {
+            font-weight: bold;
+            cursor: pointer;
+            color: #856404;
+        }
+
+        /* Style Accordion Header Kategori */
+        .category-header {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 12px 15px;
+            margin-top: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .category-header:hover {
+            background-color: #34495e;
+        }
+        .rekap-badge {
+            background-color: #3498db;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+
+        /* Style List Konten Nama */
+        .category-content {
+            display: none;
+            padding: 10px 5px;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+            background: #fafafa;
+        }
+        .category-content.active {
+            display: block;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            padding: 10px;
+            background: #fff;
+            border: 1px solid #eee;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+        li label {
+            margin-left: 10px;
+            cursor: pointer;
+            width: 100%;
+        }
+        li.done label {
+            text-decoration: line-through;
+            color: #aaa;
+        }
+        .global-hide-done li.done {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Daftar Undangan Syukuran Aqiqah</h2>
+
+    <!-- PANEL REKAP TOTAL & PER KATEGORI (TEPAT DI BAWAH HEADER) -->
+    <div class="rekap-summary-card">
+        <div class="total-box">
+            <div class="total-item">
+                Total Undangan
+                <span id="rekap-total-semua">0 Orang</span>
+            </div>
+            <div class="total-item">
+                Selesai Dihubungi
+                <span id="rekap-total-selesai">0 Orang</span>
+            </div>
+            <div class="total-item">
+                Sisa Undangan
+                <span id="rekap-total-sisa">0 Orang</span>
+            </div>
+        </div>
+        <div class="kategori-list-rekap" id="kategori-list-rekap">
+            <!-- Rincian Jumlah Perkategori di-render di sini -->
+        </div>
+    </div>
+
+    <!-- FITUR GLOBAL AUTO HIDE -->
+    <div class="control-panel">
+        <input type="checkbox" id="toggle-hide" onchange="AplikasiUndangan.toggleAutoHide()">
+        <label for="toggle-hide">Sembunyikan nama yang sudah dicentang (Auto Hide)</label>
+    </div>
+
+    <!-- Container Utama List Undangan -->
+    <div id="main-container"></div>
+</div>
+
+<script>
+
+/**
+ * FORMAT DATA SEDERHANA:
+ * "Kode | Nama Kategori | Nama1, Nama2, Nama3 | Status T/F (Opsional)"
+ * 
+ * Keterangan:
+ * - Gunakan tanda pemisah pipa "|"
+ * - Nama dipisah koma ","
+ * - Bagian ke-4 (Status) opsional. T = True (Sudah), F = False (Belum). Jika dikosongkan, otomatis F (Belum).
+ */
+const dataSederhanaText = [
+    "A | Guru SMPN 2 | Bu Hj Nina, Bu Hj Ida, Bu Herni, Bu Hj Ria, Bu Leli, Bu Cicih",
+    "B | Keluarga Wendi | Sherin/ Calon, Mg Mad/ Bi Santi",
+    "C | Teman Kuliah | Anas/Istri",
+    "D | Keluarga Arien | Wa Enkom/ Wa Cecep, Wa Encop, Teh Eneng, Teh Fitri, A Eki/Fira, Teh Neng, Fitri, Esa, Uci, Bi Ani, Wa Uum, Bi Isti, Bu Agus, Ika",
+    "E | Teman Arien | Vera, Sinka",
+    "F | Sekolah Mamah | Mg Idir, Anak Mg Idir, Bu Lilis, Bu Ade, Bu AdeWati, Bu Ati, Bu Ugih, Bu Nisa, Arin, Neneng",
+    "G | Temen Mamah | Kilin, Iyob, Jineng, Ji Ati",
+    "H | Blok B11-13 | B11-1, B11-2, B11-3, B11-4, B11-5, B12-6, B12-7, B13-8, B13-9, B13-10, Pak RT",
+];
+
+const AplikasiUndangan = {
+    data: [],
+
+    // Fungsi Pengonversi Data Sederhana menjadi Objek Aplikasi
+    parseDataSederhana: function(arrayTeks) {
+        return arrayTeks.map(baris => {
+            const bagian = baris.split('|').map(item => item.trim());
+            const kode = bagian[0] || '';
+            const kategori = bagian[1] || '';
+            const daftarNama = bagian[2] ? bagian[2].split(',') : [];
+            const daftarStatus = bagian[3] ? bagian[3].split(',') : [];
+
+            const peserta = daftarNama.map((nama, index) => {
+                const statusChar = daftarStatus[index] ? daftarStatus[index].trim().toUpperCase() : 'F';
+                const selesai = (statusChar === 'T' || statusChar === 'TRUE' || statusChar === '1');
+                return {
+                    nama: nama.trim(),
+                    selesai: selesai
+                };
+            }).filter(p => p.nama !== '');
+
+            return { kode, kategori, peserta };
+        });
+    },
+
+    // Memperbarui UI Ringkasan Rekap Total & Per Kategori
+    updateRekapSummary: function() {
+        let totalSemua = 0;
+        let totalSelesai = 0;
+        const rekapKategoriContainer = document.getElementById('kategori-list-rekap');
+        rekapKategoriContainer.innerHTML = '';
+
+        this.data.forEach(cat => {
+            const totalCat = cat.peserta.length;
+            const selesaiCat = cat.peserta.filter(p => p.selesai).length;
+
+            totalSemua += totalCat;
+            totalSelesai += selesaiCat;
+
+            const badge = document.createElement('div');
+            badge.className = 'kategori-badge-item';
+            badge.innerHTML = `
+                <span>${cat.kategori}</span>
+                <strong>${selesaiCat} / ${totalCat}</strong>
+            `;
+            rekapKategoriContainer.appendChild(badge);
+        });
+
+        document.getElementById('rekap-total-semua').innerText = `${totalSemua} Orang`;
+        document.getElementById('rekap-total-selesai').innerText = `${totalSelesai} Orang`;
+        document.getElementById('rekap-total-sisa').innerText = `${totalSemua - totalSelesai} Orang`;
+    },
+
+    render: function() {
+        const container = document.getElementById('main-container');
+        container.innerHTML = '';
+
+        this.data.forEach((cat, catIndex) => {
+            const total = cat.peserta.length;
+            const selesai = cat.peserta.filter(p => p.selesai).length;
+            const sisa = total - selesai;
+
+            // Accordion Header
+            const header = document.createElement('div');
+            header.className = 'category-header';
+            header.innerHTML = `
+                <span>${cat.kode}. ${cat.kategori} (${sisa} / ${total} Orang Sisa)</span>
+                <span class="rekap-badge" id="badge-${catIndex}">Dihubungi: ${selesai}</span>
+            `;
+            header.onclick = () => this.toggleCategory(catIndex);
+
+            // Accordion Content
+            const content = document.createElement('div');
+            content.className = 'category-content';
+            content.id = `content-${catIndex}`;
+
+            const ul = document.createElement('ul');
+            cat.peserta.forEach((orang, orangIndex) => {
+                const li = document.createElement('li');
+                if (orang.selesai) li.className = 'done';
+
+                li.innerHTML = `
+                    <input type="checkbox" id="check-${catIndex}-${orangIndex}" ${orang.selesai ? 'checked' : ''} 
+                        onchange="AplikasiUndangan.updateStatus(${catIndex}, ${orangIndex}, this)">
+                    <label for="check-${catIndex}-${orangIndex}">${orang.nama}</label>
+                `;
+                ul.appendChild(li);
+            });
+
+            content.appendChild(ul);
+            container.appendChild(header);
+            container.appendChild(content);
+        });
+
+        this.updateRekapSummary();
+    },
+
+    toggleCategory: function(index) {
+        const content = document.getElementById(`content-${index}`);
+        content.classList.toggle('active');
+    },
+
+    updateStatus: function(catIndex, orangIndex, checkbox) {
+        this.data[catIndex].peserta[orangIndex].selesai = checkbox.checked;
+        
+        const li = checkbox.parentElement;
+        if (checkbox.checked) {
+            li.classList.add('done');
+        } else {
+            li.classList.remove('done');
+        }
+
+        const cat = this.data[catIndex];
+        const total = cat.peserta.length;
+        const selesai = cat.peserta.filter(p => p.selesai).length;
+        const sisa = total - selesai;
+
+        const headerSpan = document.querySelectorAll('.category-header')[catIndex].querySelector('span:first-child');
+        headerSpan.innerText = `${cat.kode}. ${cat.kategori} (${sisa} / ${total} Orang Sisa)`;
+        
+        document.getElementById(`badge-${catIndex}`).innerText = `Dihubungi: ${selesai}`;
+
+        this.updateRekapSummary();
+    },
+
+    toggleAutoHide: function() {
+        const mainContainer = document.getElementById('main-container');
+        const toggleHide = document.getElementById('toggle-hide');
+
+        if (toggleHide.checked) {
+            mainContainer.classList.add('global-hide-done');
+        } else {
+            mainContainer.classList.remove('global-hide-done');
+        }
+    },
+
+    init: function() {
+        // Konversi data sederhana teks menjadi struktur data internal
+        this.data = this.parseDataSederhana(dataSederhanaText);
+        this.render();
+    }
+};
+
+// Jalankan Aplikasi
+AplikasiUndangan.init();
+</script>
+
+</body>
+</html>
