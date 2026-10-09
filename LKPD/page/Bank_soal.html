@@ -21,6 +21,7 @@
   <button id="tab-kisi"  class="px-4 py-2 rounded-lg font-bold bg-indigo-600 text-white">Kisi-kisi</button>
   <button id="tab-bank"  class="px-4 py-2 rounded-lg font-bold bg-slate-200">Bank Soal</button>
   <button id="tab-paket" class="px-4 py-2 rounded-lg font-bold bg-slate-200">Paket (60)</button>
+  <button id="tab-tpl" class="px-4 py-2 rounded-lg font-bold bg-slate-200">Template</button>
 </div>
     <div id="filter-bank" class="flex flex-wrap gap-2 items-center">
       <label class="text-sm font-bold">Materi:</label>
@@ -28,6 +29,12 @@
       <button id="toggle-kunci" class="px-3 py-1 rounded-lg text-sm bg-emerald-100 text-emerald-700 font-bold">👁 Kunci: ON</button>
       <button onclick="window.print()" class="px-3 py-1 rounded-lg text-sm bg-slate-800 text-white font-bold">🖨️ Cetak</button>
     </div>
+    <div id="filter-tpl" class="hidden flex gap-2 items-center">
+  <select id="t-mat" class="border rounded-lg p-2 text-sm"><option value="m013">m013 Kolam</option><option value="m012">m012 Darah</option></select>
+  <select id="t-lvl" class="border rounded-lg p-2 text-sm"><option>M</option><option>S</option><option>U</option></select>
+  <button id="t-go" class="bg-indigo-600 text-white font-bold px-3 py-2 rounded-lg text-sm">🔄 Muat</button>
+</div>
+<div id="out-tpl" class="space-y-2 hidden"></div>
     <div id="filter-paket" class="hidden flex flex-wrap gap-2 items-center">
   <label class="text-sm font-bold">Kelas</label><select id="p-kelas" class="border rounded-lg p-2 text-sm"></select>
   <label class="text-sm font-bold">Kategori</label><select id="p-kat" class="border rounded-lg p-2 text-sm"></select>

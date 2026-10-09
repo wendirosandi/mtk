@@ -117,8 +117,7 @@ window.LKPD = (function () {
       else { hideLoader(); return { ok: false, msg: 'Server tak terjangkau.' }; }
     }
     if (!va || !va.ok) { hideLoader(); return { ok: false, msg: (va && va.msg) || 'Akses ditolak.' }; }
-        const uname =
-      va.username ||
+        const uname = va.username ||
       (id && id.username) ||
       (id && id.direct ? id.direct.username : '') ||
       '';
