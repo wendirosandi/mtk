@@ -85,7 +85,12 @@ function fig(pts,names,segs,ras,W=300,H=210,pad=32){
 }
 
 /* ===== SEED TRIPLE (semua bulat) ===== */
-const T1={C:[[3,4,5],[6,8,10],[5,12,13],[9,12,15],[8,15,17]],B:[[12,16,20],[15,20,25],[10,24,26],[7,24,25],[18,24,30]],A:[[20,21,29],[21,28,35],[12,35,37],[15,36,39],[9,40,41]]};
+const T1={
+  C:[[3,4,5],[6,8,10],[9,12,15],[8,15,17],[12,16,20]],
+  B:[[15,20,25],[18,24,30],[16,30,34],[21,28,35],[20,21,29]],
+  A:[[24,32,40],[27,36,45],[30,40,50],[28,45,53],[33,56,65]]
+};
+// (T2 Keg2 tidak berubah — sudah selalu a>b)
 const T2={C:[[6,8,10],[12,16,20],[10,24,26],[16,30,34],[24,32,40]],B:[[30,40,50],[14,48,50],[20,48,52],[36,48,60],[40,42,58]],A:[[48,64,80],[18,80,82],[60,80,100],[66,112,130],[50,120,130]]};
 function genTwoSq(KAT){
   const k={A:'A',B:'B',C:'C'}[KAT]||'C';
@@ -94,17 +99,31 @@ function genTwoSq(KAT){
   return{k1:{a,b,apb,L1:a*a,L2:b*b,N1:a*a+apb*apb,x1},k2:{a:a2,b:b2,p,q,L1:a2*a2,L2:b2*b2,N2:p*p+q*q,x2}};
 }
 function svgTwoSq(a,b,mode){
-  const W=280,H=200,pad=24;const s=Math.min((W-2*pad)/(a+b),(H-2*pad)/a);
-  const T=(x,y)=>[pad+x*s,H-pad-y*s];
+  const W=300,H=210,pad=26;
+  const s=Math.min((W-2*pad)/(a+b),(H-2*pad)/a);
+  const T=(x,y)=>[Math.round((pad+x*s)*10)/10, Math.round((H-pad-y*s)*10)/10];
+  const B1=T(0,0),B2=T(a,0),B3=T(a,a),B4=T(0,a);
+  const S2=T(a+b,0),S3=T(a+b,b),S4=T(a,b);
   let out='';
-  const B1=T(0,0),B2=T(a,0),B3=T(a,a),B4=T(0,a),S2=T(a+b,0),S3=T(a+b,b),S4=T(a,b);
-  out+=`<polygon points="${B1},${B2},${B3},${B4}".replace? `;
-  out=`<polygon points="${B1.join(',')},${B2.join(',')},${B3.join(',')},${B4.join(',')}" fill="#fde68a" stroke="#334155" stroke-width="2"/>`;
-  out+=`<polygon points="${S4.join(',')},${S2.join(',')},${S3.join(',')}" fill="#bae6fd" stroke="#334155" stroke-width="2"/>`;
-  out+=`<rect x="${S4[0]}" y="${S3[1]}" width="${S2[0]-S4[0]}" height="${S4[1]-S3[1]}" fill="#bae6fd" stroke="#334155" stroke-width="2"/>`;
-  if(mode===1){out+=ln(...T(0,a),...T(a+b,0),'#dc2626',2.5,1);out+=raMark(T(0,0),T(0,a),T(a+b,0));out+=dt(...T(0,a).map((v,i)=>i?v-6:v-6),'A');out+=dt(T(a+b,0)[0]+8,T(a+b,0)[1]+4,'X');}
-  else{out+=ln(...T(0,a),...T(a+b,b),'#dc2626',2.5,1);out+=ln(...T(0,a),...T(0,b),'#94a3b8',1.5,1);out+=ln(...T(0,b),...T(a+b,b),'#94a3b8',1.5,1);out+=raMark(T(0,b),T(0,a),T(a+b,b));out+=dt(T(0,a)[0]-8,T(0,a)[1]-4,'A');out+=dt(T(a+b,b)[0]+8,T(a+b,b)[1],'X');}
-  out+=dt(T(0,a/2)[0]-10,T(0,a/2)[1],'a','#0284c7');out+=dt(T(a+b,b/2)[0]+10,T(a+b,b/2)[1],'b','#0284c7');
+  // persegi BESAR (4 titik)
+  out+=`<polygon points="${B1.join(',')},${B2.join(',')},${B3.join(',')},${B4.join(',')}" fill="#fde68a" stroke="#334155" stroke-width="2"/>`;
+  // persegi KECIL (4 titik, sertakan B2!)
+  out+=`<polygon points="${B2.join(',')},${S2.join(',')},${S3.join(',')},${S4.join(',')}" fill="#bae6fd" stroke="#334155" stroke-width="2"/>`;
+  if(mode===1){ // Keg1: x dari puncak-kiri besar ke pojok-kanan-bawah kecil
+    out+=ln(...T(0,a),...T(a+b,0),'#dc2626',2.5,1);
+    out+=raMark(T(0,0),T(0,a),T(a+b,0));
+    out+=dt(T(0,a)[0]-8,T(0,a)[1]-6,'A');
+    out+=dt(T(a+b,0)[0]+8,T(a+b,0)[1]+4,'X');
+  }else{        // Keg2: x dari puncak-kiri besar ke puncak-kanan kecil
+    out+=ln(...T(0,a),...T(a+b,b),'#dc2626',2.5,1);
+    out+=ln(...T(0,a),...T(0,b),'#94a3b8',1.5,1);
+    out+=ln(...T(0,b),...T(a+b,b),'#94a3b8',1.5,1);
+    out+=raMark(T(0,b),T(0,a),T(a+b,b));
+    out+=dt(T(0,a)[0]-8,T(0,a)[1]-6,'A');
+    out+=dt(T(a+b,b)[0]+8,T(a+b,b)[1],'X');
+  }
+  out+=dt(T(0,a/2)[0]-10,T(0,a/2)[1],'a','#0284c7');
+  out+=dt(T(a+b,b/2)[0]+10,T(a+b,b/2)[1],'b','#0284c7');
   return svgWrap(out,W,H);
 }
 
