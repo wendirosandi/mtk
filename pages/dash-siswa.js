@@ -18,10 +18,15 @@ Router.register('siswa-dash', async () => {
     </div>
   `;
 });
-window.init_siswa_dash = async () => {
-  window.openToolsMath = () => {
-    const m = API.getMeta();
-    const p = new URLSearchParams({nama:m.nama,kelas:m.kelas,username:API.sess()});
-    window.open('https://wendirosandi.github.io/mtk/toolsmathpro/index.html?'+p.toString());
-  };
+/* global, tidak bergantung init */
+window.openToolsMath = () => {
+  const m = API.getMeta();
+  const p = new URLSearchParams({
+    nama: m.nama || '',
+    kelas: m.kelas || '',
+    username: m.username || '',
+    sekolah: (m.info && m.info.namaSekolah) || ''
+  });
+  window.open('https://wendirosandi.github.io/mtk/toolsmathpro/index.html?' + p.toString(), '_blank');
 };
+window.init_siswa_dash = async () => {};
