@@ -1,0 +1,27 @@
+# supabase/config.toml — konfigurasi proyek LMS untuk Supabase CLI
+# project_id = referensi proyek Supabase (bukan rahasia, boleh di repo)
+project_id = "wotszlppzfvlsvrqxbgh"
+
+[api]
+enabled = true
+schemas = ["public"]
+extra_search_path = ["public"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "https://wendirosandi.github.io"
+additional_redirect_urls = ["https://wendirosandi.github.io/mtk"]
+jwt_expiry = 3600
+
+[storage]
+enabled = true
