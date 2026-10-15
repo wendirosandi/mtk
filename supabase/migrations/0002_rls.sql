@@ -232,6 +232,8 @@ create policy nr_wrt on public.notification_reads for insert to authenticated wi
 
 -- ---------- audit & crosswalk ----------
 create policy ad_sel on public.audit_logs for select to authenticated
+   create policy ad_ins on public.audit_logs for insert to authenticated
+     with check (actor_id = auth.uid());
   using (public.app_is_guru() and (school_id = public.app_school() or school_id is null));
 create policy lc_sel on public.legacy_crosswalk for select to authenticated using (true);
 create policy lc_wrt on public.legacy_crosswalk for all to authenticated

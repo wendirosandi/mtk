@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uji Alur Pengerjaan — LMS</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>body{font-family:sans-serif}</style>
+</head>
+<body class="bg-slate-100 min-h-screen p-6">
+<div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-6 space-y-4">
+  <h1 class="text-xl font-extrabold text-slate-800">📝 Uji Alur Pengerjaan (MTK-8202)</h1>
+
+  <div id="box-login" class="space-y-3">
+    <p class="text-sm text-slate-600">Login sebagai siswa untuk menguji:</p>
+    <input id="in-user" class="w-full border rounded-xl px-3 py-2 text-sm" value="8-f-syakirah">
+    <input id="in-pass" type="password" class="w-full border rounded-xl px-3 py-2 text-sm" value="TestSiswa123!">
+    <button id="btn-login" class="w-full bg-sky-600 text-white font-bold py-2.5 rounded-xl">Masuk sebagai Siswa</button>
+  </div>
+
+  <div id="box-flow" class="hidden space-y-3">
+    <div id="info-user" class="bg-teal-50 border border-teal-200 rounded-xl p-3 text-sm"></div>
+    
+    <div class="grid grid-cols-2 gap-3">
+      <button id="btn-start" class="bg-indigo-600 text-white font-bold py-2 rounded-xl">1️⃣ Mulai Percobaan</button>
+      <button id="btn-save" class="bg-blue-600 text-white font-bold py-2 rounded-xl" disabled>2️ Simpan Jawaban</button>
+      <button id="btn-score" class="bg-purple-600 text-white font-bold py-2 rounded-xl" disabled>3️⃣ Nilai Otomatis</button>
+      <button id="btn-grade" class="bg-amber-600 text-white font-bold py-2 rounded-xl" disabled>4️⃣ Cek Gradebook</button>
+    </div>
+
+    <div id="result-start" class="hidden bg-indigo-50 border border-indigo-200 rounded-xl p-3 text-sm"></div>
+    <div id="result-save" class="hidden bg-blue-50 border border-blue-200 rounded-xl p-3 text-sm"></div>
+    <div id="result-score" class="hidden bg-purple-50 border border-purple-200 rounded-xl p-3 text-sm"></div>
+    <div id="result-grade" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm"></div>
+  </div>
+
+  <pre id="log" class="text-[11px] bg-slate-900 text-green-300 rounded-xl p-3 max-h-40 overflow-auto"></pre>
+</div>
+
+<script src="../src/lib/supabase.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const log=m=>{ $('#log').textContent += m+'\n'; $('#log').scrollTop=$('#log').scrollHeight; };
+let attemptId = null;
+
+document.addEventListener('lms:ready', ()=>{ log('✔ supabase.js siap'); });
+
+$('#btn-login').onclick=async()=>{
+  const u=$('#in-user').value.trim(), p=$('#in-pass').value;
+  const email=window.LMS.loginId(u, 'siswa');
+  log('login: '+email);
+  const r=await window.LMS.supabase.auth.signInWithPassword({email, password:p});
+  if(r.error){ log('✘ '+r.error.message); alert('Gagal: '+r.error.message); return; }
+  log('✔ sesi dibuat');
+  
+  // Query profil manual (lebih robust)
+  const user = (await window.LMS.supabase.auth.getUser()).data.user;
+  log('  auth.getUser: '+user.id);
+  
+  const prof = await window.LMS.supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+  
+  log('  profiles query: '+JSON.stringify({
+    data: prof.data ? {id:prof.data.id, username:prof.data.username, role:prof.data.role} : null,
+    error: prof.error?.message || null
+  }));
+  
+  if(prof.error || !prof.data){
+    log('✘ Profil tidak ditemukan: '+(prof.error?.message || 'null'));
+    alert('Gagal memuat profil: '+(prof.error?.message || 'Data tidak ditemukan'));
+    return;
+  }
+  
+  $('#info-user').innerHTML='Login sebagai: <b>'+prof.data.full_name+'</b> ('+prof.data.username+')';
+  $('#box-login').classList.add('hidden'); $('#box-flow').classList.remove('hidden');
+};
+
+$('#btn-start').onclick=async()=>{
+  log('→ app_start_attempt(MTK-8202)');
+  const r=await window.LMS.supabase.rpc('app_start_attempt', {
+    p_code: 'MTK-8202',
+    p_partner: null,
+    p_source: 'portal'
+  });
+  log('  result: '+JSON.stringify(r));
+  if(r.error){ alert('Gagal: '+r.error.message); return; }
+  attemptId = r.data.attemptId;
+  $('#result-start').classList.remove('hidden');
+  $('#result-start').innerHTML='✔ Percobaan dibuat! ID: <b>'+attemptId+'</b> (No: '+r.data.attemptNo+')';
+  $('#btn-start').disabled=true; $('#btn-save').disabled=false;
+};
+
+$('#btn-save').onclick=async()=>{
+  log('→ app_save_answers(...)');
+  const answers = {
+    'k1.hyp': {value: 15},
+    'k1.shape': {value: 'segitiga_siku_siku'},
+    'k2.types': {values: ['Segitiga Siku-siku','Segitiga Lancip','Segitiga Tumpul']},
+    'k1.steps': {values: [9,12,15,81,144,225]}
+  };
+  // Gunakan named parameters untuk memastikan urutan benar
+  const r=await window.LMS.supabase.rpc('app_save_answers', {
+    p_attempt: attemptId,
+    p_answers: answers
+  });
+  log('  result: '+JSON.stringify(r));
+  if(r.error){ alert('Gagal: '+r.error.message); return; }
+  $('#result-save').classList.remove('hidden');
+  $('#result-save').innerHTML='✔ Jawaban tersimpan!';
+  $('#btn-save').disabled=true; $('#btn-score').disabled=false;
+};
+
+$('#btn-score').onclick=async()=>{
+  log('→ app_score_attempt(...)');
+  const r=await window.LMS.supabase.rpc('app_score_attempt', {p_attempt: attemptId});
+  log('  result: '+JSON.stringify(r));
+  if(r.error){ alert('Gagal: '+r.error.message); return; }
+  $('#result-score').classList.remove('hidden');
+  $('#result-score').innerHTML='✔ Dinilai server! Skor: <b>'+r.data.score+'</b> (Raw: '+r.data.raw+'/'+r.data.max+')';
+  $('#btn-score').disabled=true; $('#btn-grade').disabled=false;
+};
+
+$('#btn-grade').onclick=async()=>{
+  log('→ query gradebook_entries');
+  
+  // 1. Ambil ID user dengan cara yang paling aman
+  const { data: { user } } = await window.LMS.supabase.auth.getUser();
+  if (!user) {
+    log('✘ Sesi user tidak ditemukan');
+    return;
+  }
+
+  // 2. Ambil ID asesmen MTK-8202
+  const { data: assessData } = await window.LMS.supabase
+    .from('assessments')
+    .select('id')
+    .eq('code', 'MTK-8202')
+    .single();
+
+  if (!assessData) {
+    log('✘ Asesmen MTK-8202 tidak ditemukan');
+    return;
+  }
+
+  // 3. Query gradebook berdasarkan profile_id dan assessment_id
+  const r = await window.LMS.supabase
+    .from('gradebook_entries')
+    .select('*')
+    .eq('profile_id', user.id)
+    .eq('assessment_id', assessData.id);
+
+  log('  result: '+JSON.stringify(r.data));
+  
+  $('#result-grade').classList.remove('hidden');
+  if(r.data && r.data.length > 0){
+    const g = r.data[0];
+    $('#result-grade').innerHTML='✔ Gradebook terisi! Nilai: <b>'+g.score+'</b>, Sumber: '+g.source;
+  } else {
+    $('#result-grade').innerHTML='✘ Gradebook kosong! (Cek log di atas)';
+  }
+};
+</script>
+</body>
+</html>
