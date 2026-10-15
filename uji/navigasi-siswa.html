@@ -122,9 +122,9 @@ async function renderDashboard() {
 
   let html = '<h2 class="font-bold text-lg text-slate-700">Pilih Mata Pelajaran</h2><div class="grid grid-cols-1 sm:grid-cols-2 gap-3">';
   data.forEach(s => {
-    html += `<button class="bg-white border-2 border-sky-100 hover:border-sky-500 rounded-xl p-4 text-left transition" data-sid="${s.id}">
-      <div class="font-bold text-sky-700">${s.code}</div>
-      <div class="text-sm text-slate-600">${s.name}</div>
+    html += `<button class="bg-white border-2 border-sky-100 hover:border-sky-500 rounded-xl p-4 text-left transition" data-sid="${s.subject_id}">
+      <div class="font-bold text-sky-700">${s.subject_code}</div>
+      <div class="text-sm text-slate-600">${s.subject_name}</div>
       <div class="text-xs text-slate-400 mt-1">Tingkat ${s.grade_level_label}</div>
     </button>`;
   });
@@ -147,13 +147,13 @@ async function renderModules() {
   }
 
   let html = '<h2 class="font-bold text-lg text-slate-700">Pilih Modul / BAB</h2><div class="space-y-3">';
-  data.forEach(m => {
-    html += `<button class="w-full bg-white border border-slate-200 hover:bg-slate-50 rounded-xl p-4 text-left transition" data-mid="${m.id}">
+   data.forEach(m => {
+    html += `<button class="w-full bg-white border border-slate-200 hover:bg-slate-50 rounded-xl p-4 text-left transition" data-mid="${m.module_id}">
       <div class="flex justify-between items-center">
-        <div class="font-bold text-slate-800">${m.title}</div>
+        <div class="font-bold text-slate-800">${m.module_title}</div>
         <div class="text-xs bg-sky-100 text-sky-700 px-2 py-1 rounded-full">${m.assessment_count} Asesmen</div>
       </div>
-      <div class="text-sm text-slate-500 mt-1">${m.description || 'Tidak ada deskripsi'}</div>
+      <div class="text-sm text-slate-500 mt-1">${m.module_description || 'Tidak ada deskripsi'}</div>
       <div class="text-xs text-slate-400 mt-2">${m.topic_count} Topik • ${m.material_count} Materi</div>
     </button>`;
   });
@@ -175,52 +175,88 @@ async function renderMaterials() {
     return;
   }
 
-  // Group by topic
+  // Pisahkan materi dan asesmen agar tidak duplikat
   const topics = {};
+  const assessments = {}; // Simpan asesmen unik
+
   data.forEach(row => {
-    if (!topics[row.topic_title]) topics[row.topic_title] = [];
-    topics[row.topic_title].push(row);
+    // Kelompokkan materi per topik
+    if (row.topic_id && !topics[row.topic_title]) {
+      topics[row.topic_title] = [];
+    }
+    if (row.material_id) {
+      topics[row.topic_title].push({
+        type: 'material',
+        kind: row.material_kind,
+        title: row.material_title,
+        url: row.material_url
+      });
+    }
+    
+    // Simpan asesmen unik (hanya sekali per kode)
+    if (row.assessment_code && !assessments[row.assessment_code]) {
+      assessments[row.assessment_code] = {
+        code: row.assessment_code,
+        title: row.assessment_title,
+        kind: row.assessment_kind,
+        status: row.assessment_status
+      };
+    }
   });
 
+  // Render HTML
   let html = '<h2 class="font-bold text-lg text-slate-700">Materi & Asesmen</h2><div class="space-y-4">';
+  
+  // 1. Tampilkan Materi per Topik
   for (const [topicTitle, items] of Object.entries(topics)) {
     html += `<div class="bg-slate-50 rounded-xl p-4">
       <h3 class="font-bold text-slate-700 mb-3">📚 ${topicTitle}</h3>
       <div class="space-y-2">`;
     
     items.forEach(item => {
-      if (item.material_id) {
-        const icon = item.material_kind === 'video' ? '' : item.material_kind === 'pdf' ? '📄' : '📦';
-        html += `<div class="bg-white border border-slate-200 rounded-lg p-3 flex items-center gap-3">
-          <span class="text-2xl">${icon}</span>
-          <div class="flex-1">
-            <div class="font-semibold text-sm text-slate-800">${item.material_title}</div>
-            <div class="text-xs text-slate-500 capitalize">${item.material_kind}</div>
-          </div>
-          ${item.material_url ? `<a href="${item.material_url}" target="_blank" class="text-sky-600 text-xs font-bold">Buka</a>` : ''}
-        </div>`;
-      }
-      if (item.assessment_code) {
-        html += `<div class="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-center gap-3">
-          <span class="text-2xl">📝</span>
-          <div class="flex-1">
-            <div class="font-semibold text-sm text-amber-900">${item.assessment_title} (${item.assessment_code})</div>
-            <div class="text-xs text-amber-700 capitalize">${item.assessment_kind} • ${item.assessment_status}</div>
-          </div>
-          <button class="bg-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg kerjakan-btn" data-code="${item.assessment_code}">Kerjakan</button>
-        </div>`;
-      }
+      const icon = item.kind === 'video' ? '' : item.kind === 'pdf' ? '📄' : '📦';
+      html += `<div class="bg-white border border-slate-200 rounded-lg p-3 flex items-center gap-3">
+        <span class="text-2xl">${icon}</span>
+        <div class="flex-1">
+          <div class="font-semibold text-sm text-slate-800">${item.title}</div>
+          <div class="text-xs text-slate-500 capitalize">${item.kind}</div>
+        </div>
+        ${item.url ? `<a href="${item.url}" target="_blank" class="text-sky-600 text-xs font-bold">Buka</a>` : ''}
+      </div>`;
     });
     html += `</div></div>`;
   }
+
+  // 2. Tampilkan Asesmen (sekali saja, di bagian bawah)
+  const assessmentList = Object.values(assessments);
+  if (assessmentList.length > 0) {
+    html += `<div class="bg-amber-50 border-2 border-amber-200 rounded-xl p-4">
+      <h3 class="font-bold text-lg text-amber-900 mb-3"> Asesmen & LKPD</h3>
+      <div class="space-y-2">`;
+    
+    assessmentList.forEach(a => {
+      html += `<div class="bg-white border border-amber-200 rounded-lg p-3 flex items-center gap-3">
+        <span class="text-2xl">📝</span>
+        <div class="flex-1">
+          <div class="font-semibold text-sm text-amber-900">${a.title} (${a.code})</div>
+          <div class="text-xs text-amber-700 capitalize">${a.kind} • ${a.status}</div>
+        </div>
+        <button class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-2 rounded-lg kerjakan-btn" data-code="${a.code}">Kerjakan</button>
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+  
   html += '</div>';
   $('#content').innerHTML = html;
 
+  // Event listener untuk tombol Kerjakan
   $('#content').querySelectorAll('.kerjakan-btn').forEach(btn => {
     btn.onclick = () => {
       log(`→ Membuka LKPD: ${btn.dataset.code}`);
-      alert(`Di Tahap 4D, tombol ini akan membuka halaman LKPD untuk kode: ${btn.dataset.code}`);
-      // Nanti diarahkan ke: window.location.href = `../LKPD/MTK8202.html?code=${btn.dataset.code}`;
+      // Nanti diarahkan ke:
+      window.location.href = `../LKPD/MTK8202.html?code=${btn.dataset.code}`;
+      alert(`Tombol ini akan membuka halaman LKPD untuk kode: ${btn.dataset.code}`);
     };
   });
 }
