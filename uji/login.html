@@ -50,15 +50,35 @@ $('#btn-login').onclick=async()=>{
 };
 
 async function tampilkan(){
-  const p=await window.LMS.currentProfile();
-  if(!p){ log('✘ profil tidak ditemukan'); return; }
+  log('→ memanggil currentProfile...');
+  const u = await window.LMS.supabase.auth.getUser();
+  log('  auth.getUser: '+JSON.stringify({
+    user: u.data?.user?.id,
+    error: u.error?.message || null
+  }));
+  if(u.error){ log('✘ '+u.error.message); return; }
+
+  const r = await window.LMS.supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', u.data.user.id)
+    .single();
+  log('  profiles query: '+JSON.stringify({
+    data: r.data ? {id:r.data.id, username:r.data.username, role:r.data.role} : null,
+    error: r.error?.message || null,
+    code: r.error?.code || null
+  }));
+
+  const p = r.data;
+  if(!p){ log('✘ profil tidak ditemukan'); $('#info-profil').innerHTML='<b class="text-rose-600">Profil tidak ditemukan. Lihat log di bawah.</b>'; return; }
+
   $('#box-login').classList.add('hidden'); $('#box-info').classList.remove('hidden');
   $('#info-profil').innerHTML='<b>'+p.full_name+'</b><br>role: '+p.role+' • username: '+p.username;
   log('✔ profil: '+p.role+'/'+p.username);
 
-  // kelas sesuai role
   const fn = p.role==='guru' ? 'app_teacher_class_ids' : 'app_my_class_ids';
   const ids = await window.LMS.supabase.rpc(fn);
+  log('  rpc '+fn+': '+JSON.stringify({data:ids.data, error:ids.error?.message}));
   let labels=[];
   if(ids.data && ids.data.length){
     const c=await window.LMS.supabase.from('classes').select('label').in('id', ids.data);
@@ -67,12 +87,10 @@ async function tampilkan(){
   $('#info-kelas').innerHTML='Kelas lingkup Anda: <b>'+(labels.join(', ')||'(tidak ada)')+'</b>';
   log('✔ kelas: '+(labels.join(',')||'-'));
 
-  // asesmen yang terlihat (bukti RLS select)
   const a=await window.LMS.supabase.from('assessments').select('code,title,status');
   $('#info-ases').innerHTML='Asesmen terlihat: <b>'+((a.data||[]).map(x=>x.code).join(', ')||'(tidak ada)')+'</b>';
   log('✔ asesmen terlihat: '+(a.data||[]).length);
 }
-
 $('#btn-rls').onclick=async()=>{
   const q=await window.LMS.supabase.from('question_items').select('item_key');
   const n=(q.data||[]).length;
