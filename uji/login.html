@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uji Login & RLS — LMS</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>body{font-family:sans-serif}</style>
+</head>
+<body class="bg-slate-100 min-h-screen p-6">
+<div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl p-6 space-y-4">
+  <h1 class="text-xl font-extrabold text-slate-800">🔐 Uji Login & RLS</h1>
+
+  <div id="box-login" class="space-y-3">
+    <select id="in-role" class="w-full border rounded-xl px-3 py-2 text-sm">
+      <option value="siswa">Login sebagai SISWA</option>
+      <option value="guru">Login sebagai GURU</option>
+    </select>
+    <input id="in-user" class="w-full border rounded-xl px-3 py-2 text-sm" placeholder="username (mis. 8-f-syakirah)">
+    <input id="in-pass" type="password" class="w-full border rounded-xl px-3 py-2 text-sm" placeholder="password">
+    <button id="btn-login" class="w-full bg-sky-600 text-white font-bold py-2.5 rounded-xl">Masuk</button>
+  </div>
+
+  <div id="box-info" class="hidden space-y-3">
+    <div id="info-profil" class="bg-teal-50 border border-teal-200 rounded-xl p-3 text-sm"></div>
+    <div id="info-kelas" class="bg-sky-50 border border-sky-200 rounded-xl p-3 text-sm"></div>
+    <div id="info-ases" class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm"></div>
+    <button id="btn-rls" class="w-full bg-purple-600 text-white font-bold py-2.5 rounded-xl">🧪 Uji RLS: baca question_items</button>
+    <div id="info-rls" class="bg-purple-50 border border-purple-200 rounded-xl p-3 text-sm hidden"></div>
+    <button id="btn-logout" class="w-full bg-rose-600 text-white font-bold py-2.5 rounded-xl">Keluar</button>
+  </div>
+
+  <pre id="log" class="text-[11px] bg-slate-900 text-green-300 rounded-xl p-3 max-h-40 overflow-auto"></pre>
+</div>
+
+<script src="../src/lib/supabase.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const log=m=>{ $('#log').textContent += m+'\n'; $('#log').scrollTop=$('#log').scrollHeight; };
+document.addEventListener('lms:ready', ()=>{ log('✔ supabase.js siap'); });
+
+$('#btn-login').onclick=async()=>{
+  const role=$('#in-role').value, u=$('#in-user').value.trim(), p=$('#in-pass').value;
+  const email=window.LMS.loginId(u, role);
+  log('login: '+email);
+  const r=await window.LMS.supabase.auth.signInWithPassword({email, password:p});
+  if(r.error){ log('✘ '+r.error.message); alert('Gagal: '+r.error.message); return; }
+  log('✔ sesi dibuat');
+  await tampilkan();
+};
+
+async function tampilkan(){
+  const p=await window.LMS.currentProfile();
+  if(!p){ log('✘ profil tidak ditemukan'); return; }
+  $('#box-login').classList.add('hidden'); $('#box-info').classList.remove('hidden');
+  $('#info-profil').innerHTML='<b>'+p.full_name+'</b><br>role: '+p.role+' • username: '+p.username;
+  log('✔ profil: '+p.role+'/'+p.username);
+
+  // kelas sesuai role
+  const fn = p.role==='guru' ? 'app_teacher_class_ids' : 'app_my_class_ids';
+  const ids = await window.LMS.supabase.rpc(fn);
+  let labels=[];
+  if(ids.data && ids.data.length){
+    const c=await window.LMS.supabase.from('classes').select('label').in('id', ids.data);
+    labels=(c.data||[]).map(x=>x.label);
+  }
+  $('#info-kelas').innerHTML='Kelas lingkup Anda: <b>'+(labels.join(', ')||'(tidak ada)')+'</b>';
+  log('✔ kelas: '+(labels.join(',')||'-'));
+
+  // asesmen yang terlihat (bukti RLS select)
+  const a=await window.LMS.supabase.from('assessments').select('code,title,status');
+  $('#info-ases').innerHTML='Asesmen terlihat: <b>'+((a.data||[]).map(x=>x.code).join(', ')||'(tidak ada)')+'</b>';
+  log('✔ asesmen terlihat: '+(a.data||[]).length);
+}
+
+$('#btn-rls').onclick=async()=>{
+  const q=await window.LMS.supabase.from('question_items').select('item_key');
+  const n=(q.data||[]).length;
+  $('#info-rls').classList.remove('hidden');
+  $('#info-rls').innerHTML='Baris question_items yang bisa Anda baca: <b>'+n+'</b><br>'
+    +(n===0?'✔ Benar: siswa TIDAK boleh melihat kunci jawaban.':'✔ Benar: guru boleh melihat kunci jawaban.');
+  log('ℹ RLS question_items: '+n+' baris');
+};
+
+$('#btn-logout').onclick=async()=>{
+  await window.LMS.supabase.auth.signOut();
+  $('#box-info').classList.add('hidden'); $('#box-login').classList.remove('hidden');
+  $('#info-rls').classList.add('hidden');
+  log('✔ keluar');
+};
+</script>
+</body>
+</html>
