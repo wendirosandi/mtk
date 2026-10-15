@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Navigasi Siswa — LMS</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>body{font-family:sans-serif}</style>
+</head>
+<body class="bg-slate-100 min-h-screen p-6">
+<div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6 space-y-4">
+  <h1 class="text-xl font-extrabold text-slate-800">🧭 Navigasi Pembelajaran</h1>
+
+  <!-- LOGIN -->
+  <div id="box-login" class="space-y-3 max-w-md">
+    <p class="text-sm text-slate-600">Login untuk menavigasi LMS:</p>
+    <input id="in-user" class="w-full border rounded-xl px-3 py-2 text-sm" value="8-f-syakirah">
+    <input id="in-pass" type="password" class="w-full border rounded-xl px-3 py-2 text-sm" value="TestSiswa123!">
+    <button id="btn-login" class="w-full bg-sky-600 text-white font-bold py-2.5 rounded-xl">Masuk</button>
+  </div>
+
+  <!-- APLIKASI -->
+  <div id="box-app" class="hidden space-y-4">
+    <div id="header-info" class="bg-teal-50 border border-teal-200 rounded-xl p-3 text-sm flex justify-between items-center">
+      <span id="user-greeting"></span>
+      <button id="btn-logout" class="text-rose-600 text-xs font-bold">Keluar</button>
+    </div>
+
+    <!-- BREADCRUMB -->
+    <div id="breadcrumb" class="text-sm text-sky-600 font-bold space-x-2 hidden">
+      <button id="bc-dash" class="hover:underline">Dashboard</button>
+      <span id="bc-sep1" class="hidden">/</span>
+      <button id="bc-mod" class="hover:underline hidden"></button>
+    </div>
+
+    <!-- KONTEN DINAMIS -->
+    <div id="content" class="space-y-3"></div>
+  </div>
+
+  <pre id="log" class="text-[11px] bg-slate-900 text-green-300 rounded-xl p-3 max-h-32 overflow-auto"></pre>
+</div>
+
+<script src="../src/lib/supabase.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const log=m=>{ $('#log').textContent += m+'\n'; $('#log').scrollTop=$('#log').scrollHeight; };
+let currentUser = null;
+let state = { view: 'dashboard', subjectId: null, moduleId: null };
+
+document.addEventListener('lms:ready', ()=> log('✔ supabase.js siap'));
+
+$('#btn-login').onclick = async () => {
+  const u=$('#in-user').value.trim(), p=$('#in-pass').value;
+  const email=window.LMS.loginId(u, 'siswa');
+  log('login: '+email);
+  const r=await window.LMS.supabase.auth.signInWithPassword({email, password:p});
+  if(r.error){ log('✘ '+r.error.message); alert('Gagal: '+r.error.message); return; }
+  
+  const user = (await window.LMS.supabase.auth.getUser()).data.user;
+  const prof = await window.LMS.supabase.from('profiles').select('*').eq('id', user.id).single();
+  if(prof.error || !prof.data){ log('✘ Profil error'); return; }
+  
+  currentUser = prof.data;
+  $('#user-greeting').innerHTML = `Halo, <b>${currentUser.full_name}</b> (${currentUser.username}) • Kelas: ${currentUser.settings?.kelas || '-'}`;
+  $('#box-login').classList.add('hidden'); $('#box-app').classList.remove('hidden');
+  state.view = 'dashboard';
+  render();
+};
+
+$('#btn-logout').onclick = async () => {
+  await window.LMS.supabase.auth.signOut();
+  $('#box-app').classList.add('hidden'); $('#box-login').classList.remove('hidden');
+  log('✔ keluar');
+};
+
+$('#bc-dash').onclick = () => { state.view = 'dashboard'; state.subjectId = null; state.moduleId = null; render(); };
+$('#bc-mod').onclick = () => { state.view = 'modules'; state.moduleId = null; render(); };
+
+async function render() {
+  $('#content').innerHTML = '<p class="text-center text-slate-500 py-4">Memuat...</p>';
+  updateBreadcrumb();
+
+  try {
+    if (state.view === 'dashboard') await renderDashboard();
+    else if (state.view === 'modules') await renderModules();
+    else if (state.view === 'materials') await renderMaterials();
+  } catch(e) {
+    $('#content').innerHTML = `<p class="text-rose-600">Error: ${e.message}</p>`;
+    log('✘ '+e.message);
+  }
+}
+
+function updateBreadcrumb() {
+  const bc = $('#breadcrumb');
+  const sep = $('#bc-sep1');
+  const modBtn = $('#bc-mod');
+  
+  if (state.view === 'dashboard') {
+    bc.classList.add('hidden');
+  } else {
+    bc.classList.remove('hidden');
+    if (state.view === 'modules' || state.view === 'materials') {
+      sep.classList.remove('hidden');
+      modBtn.classList.remove('hidden');
+      modBtn.textContent = 'Modul'; // Bisa diperkaya dengan judul modul nanti
+    } else {
+      sep.classList.add('hidden');
+      modBtn.classList.add('hidden');
+    }
+  }
+}
+
+async function renderDashboard() {
+  log('→ app_get_subjects()');
+  const { data, error } = await window.LMS.supabase.rpc('app_get_subjects');
+  if (error) throw error;
+  
+  if (!data || data.length === 0) {
+    $('#content').innerHTML = '<p class="text-slate-500 text-center py-4">Belum ada mata pelajaran tersedia.</p>';
+    return;
+  }
+
+  let html = '<h2 class="font-bold text-lg text-slate-700">Pilih Mata Pelajaran</h2><div class="grid grid-cols-1 sm:grid-cols-2 gap-3">';
+  data.forEach(s => {
+    html += `<button class="bg-white border-2 border-sky-100 hover:border-sky-500 rounded-xl p-4 text-left transition" data-sid="${s.id}">
+      <div class="font-bold text-sky-700">${s.code}</div>
+      <div class="text-sm text-slate-600">${s.name}</div>
+      <div class="text-xs text-slate-400 mt-1">Tingkat ${s.grade_level_label}</div>
+    </button>`;
+  });
+  html += '</div>';
+  $('#content').innerHTML = html;
+
+  $('#content').querySelectorAll('button[data-sid]').forEach(btn => {
+    btn.onclick = () => { state.subjectId = btn.dataset.sid; state.view = 'modules'; render(); };
+  });
+}
+
+async function renderModules() {
+  log(`→ app_get_modules(${state.subjectId})`);
+  const { data, error } = await window.LMS.supabase.rpc('app_get_modules', { p_subject_id: state.subjectId });
+  if (error) throw error;
+
+  if (!data || data.length === 0) {
+    $('#content').innerHTML = '<p class="text-slate-500 text-center py-4">Belum ada modul untuk mapel ini.</p>';
+    return;
+  }
+
+  let html = '<h2 class="font-bold text-lg text-slate-700">Pilih Modul / BAB</h2><div class="space-y-3">';
+  data.forEach(m => {
+    html += `<button class="w-full bg-white border border-slate-200 hover:bg-slate-50 rounded-xl p-4 text-left transition" data-mid="${m.id}">
+      <div class="flex justify-between items-center">
+        <div class="font-bold text-slate-800">${m.title}</div>
+        <div class="text-xs bg-sky-100 text-sky-700 px-2 py-1 rounded-full">${m.assessment_count} Asesmen</div>
+      </div>
+      <div class="text-sm text-slate-500 mt-1">${m.description || 'Tidak ada deskripsi'}</div>
+      <div class="text-xs text-slate-400 mt-2">${m.topic_count} Topik • ${m.material_count} Materi</div>
+    </button>`;
+  });
+  html += '</div>';
+  $('#content').innerHTML = html;
+
+  $('#content').querySelectorAll('button[data-mid]').forEach(btn => {
+    btn.onclick = () => { state.moduleId = btn.dataset.mid; state.view = 'materials'; render(); };
+  });
+}
+
+async function renderMaterials() {
+  log(`→ app_get_materials(${state.moduleId})`);
+  const { data, error } = await window.LMS.supabase.rpc('app_get_materials', { p_module_id: state.moduleId });
+  if (error) throw error;
+
+  if (!data || data.length === 0) {
+    $('#content').innerHTML = '<p class="text-slate-500 text-center py-4">Modul ini masih kosong.</p>';
+    return;
+  }
+
+  // Group by topic
+  const topics = {};
+  data.forEach(row => {
+    if (!topics[row.topic_title]) topics[row.topic_title] = [];
+    topics[row.topic_title].push(row);
+  });
+
+  let html = '<h2 class="font-bold text-lg text-slate-700">Materi & Asesmen</h2><div class="space-y-4">';
+  for (const [topicTitle, items] of Object.entries(topics)) {
+    html += `<div class="bg-slate-50 rounded-xl p-4">
+      <h3 class="font-bold text-slate-700 mb-3">📚 ${topicTitle}</h3>
+      <div class="space-y-2">`;
+    
+    items.forEach(item => {
+      if (item.material_id) {
+        const icon = item.material_kind === 'video' ? '' : item.material_kind === 'pdf' ? '📄' : '📦';
+        html += `<div class="bg-white border border-slate-200 rounded-lg p-3 flex items-center gap-3">
+          <span class="text-2xl">${icon}</span>
+          <div class="flex-1">
+            <div class="font-semibold text-sm text-slate-800">${item.material_title}</div>
+            <div class="text-xs text-slate-500 capitalize">${item.material_kind}</div>
+          </div>
+          ${item.material_url ? `<a href="${item.material_url}" target="_blank" class="text-sky-600 text-xs font-bold">Buka</a>` : ''}
+        </div>`;
+      }
+      if (item.assessment_code) {
+        html += `<div class="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-center gap-3">
+          <span class="text-2xl">📝</span>
+          <div class="flex-1">
+            <div class="font-semibold text-sm text-amber-900">${item.assessment_title} (${item.assessment_code})</div>
+            <div class="text-xs text-amber-700 capitalize">${item.assessment_kind} • ${item.assessment_status}</div>
+          </div>
+          <button class="bg-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg kerjakan-btn" data-code="${item.assessment_code}">Kerjakan</button>
+        </div>`;
+      }
+    });
+    html += `</div></div>`;
+  }
+  html += '</div>';
+  $('#content').innerHTML = html;
+
+  $('#content').querySelectorAll('.kerjakan-btn').forEach(btn => {
+    btn.onclick = () => {
+      log(`→ Membuka LKPD: ${btn.dataset.code}`);
+      alert(`Di Tahap 4D, tombol ini akan membuka halaman LKPD untuk kode: ${btn.dataset.code}`);
+      // Nanti diarahkan ke: window.location.href = `../LKPD/MTK8202.html?code=${btn.dataset.code}`;
+    };
+  });
+}
+</script>
+</body>
+</html>
