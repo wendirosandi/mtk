@@ -11,397 +11,621 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         .animation-wrapper { background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
-        .animation-controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 16px 0; }
-        .animation-controls button { padding: 10px 18px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; color: #fff; transition: all .2s; }
-        .btn-start { background: #27ae60; } .btn-start:hover { background: #219653; }
-        .btn-pause { background: #f39c12; } .btn-pause:hover { background: #d68910; }
-        .btn-skip { background: #9b59b6; } .btn-skip:hover { background: #8e44ad; }
-        .btn-reset { background: #e74c3c; } .btn-reset:hover { background: #c0392b; }
-        .speed-control { display: flex; align-items: center; gap: 8px; margin-left: 10px; }
-        .speed-control input[type=range] { width: 100px; }
+        .stage-wrap { position: relative; width: 100%; background: #fff; border: 2px solid #e0e0e0; border-radius: 12px; overflow: hidden; margin-bottom: 16px; }
+        
+        /* Step Dots */
+        .step-dots { display: flex; justify-content: center; gap: 8px; margin: 12px 0; }
+        .dot { width: 14px; height: 14px; border-radius: 50%; background: #cbd5e1; transition: all 0.3s; cursor: pointer; border: 2px solid transparent; }
+        .dot.active { background: #5a67d8; border-color: #4c51bf; transform: scale(1.3); }
+        .dot.done { background: #27ae60; }
+        
+        /* Controls */
+        .animation-controls { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 16px 0; }
+        .animation-controls button { padding: 10px 16px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; color: #fff; transition: all .2s; font-size: 13px; }
+        .animation-controls button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .animation-controls button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-start { background: #27ae60; }
+        .btn-pause { background: #f39c12; }
+        .btn-skip { background: #9b59b6; }
+        .btn-reset { background: #e74c3c; }
+        .btn-back { background: #3498db; }
+        .btn-fwd { background: #2ecc71; }
+        
+        .speed-control { display: flex; align-items: center; gap: 8px; justify-content: center; margin: 10px 0; }
+        .speed-control input[type=range] { width: 120px; }
+        .speed-control strong { color: #5a67d8; font-weight: 700; min-width: 90px; }
+        
         .pbar { width: 100%; background: #e0e0e0; border-radius: 8px; height: 12px; overflow: hidden; margin-top: 10px; }
         .pfill { height: 100%; background: #27ae60; width: 0%; transition: width 0.1s linear; }
         .ptext { text-align: center; font-size: 13px; color: #7f8c8d; margin-top: 6px; }
+        
         .formula-display { margin-top: 16px; background: #fff; border-radius: 8px; padding: 12px; border: 1px solid #e2e8f0; }
         .formula-step { display: none; padding: 8px; border-left: 3px solid transparent; font-size: 14px; color: #4a5568; }
         .formula-step.active { display: block; border-left-color: #5a67d8; background: #f0f4ff; font-weight: 600; color: #2d3748; border-radius: 0 4px 4px 0; }
+        
+        /* Box Perhitungan Aljabar */
+        .calc-box {
+            background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 10px;
+            padding: 16px; margin-top: 16px; font-family: 'Courier New', monospace;
+            font-size: 14px; line-height: 1.8; color: #1e293b;
+        }
+        .calc-box h4 {
+            margin: 0 0 12px 0; font-size: 15px; color: #5a67d8;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 700; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;
+        }
+        .calc-line { padding: 4px 0; }
+        .calc-line.highlight { background: #f0f4ff; padding: 6px 8px; border-radius: 4px; margin: 4px 0; }
+        .calc-comment { color: #718096; font-size: 12px; font-style: italic; }
+        .calc-result { background: #dcfce7; padding: 8px; border-radius: 6px; margin-top: 8px; font-weight: 700; color: #166534; }
+        
+        .historical-note { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 8px; margin: 16px 0; font-size: 13px; color: #92400e; line-height: 1.6; }
     </style>
 </head>
 <body>
-    <header class="proof-header no-print">
-        <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
-        <div class="proof-info">
-            <h1>Bukti #4: Puzzle Diagram Tali Zhao Shuang (5-12-13)</h1>
-            <div class="proof-meta">
-                <span class="meta-item">📅 April 2027</span>
-                <span class="meta-item">👥 Kelompok 2</span>
-                <span class="meta-item">🎯 Level: Dasar (Kelas 8)</span>
-            </div>
+
+<script src="../assets/js/calendar-template.js?v=3"></script>
+<script src="../assets/js/pdf-export.js?v=42"></script>
+
+<header class="proof-header no-print">
+    <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
+    <div class="proof-info">
+        <h1>Bukti #4: Puzzle Diagram Tali Zhao Shuang (5-12-13)</h1>
+        <div class="proof-meta">
+            <span class="meta-item">📅 April 2027</span>
+            <span class="meta-item"> Kelompok 2</span>
+            <span class="meta-item">🎯 Level: Dasar (Kelas 8)</span>
         </div>
-        <div class="export-buttons">
-            <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 PDF Gambar (Print/Arsip)</button>
-            <button class="btn-print" onclick="printPDF()">🖨 Print / Save as PDF</button>
-        </div>
-    </header>
-
-    <nav class="proof-nav no-print">
-        <a href="bukti-03-maret.html" class="prev-btn">← Maret (Bukti #3)</a>
-        <span class="nav-indicator">4 / 12</span>
-        <a href="bukti-05-mei.html" class="next-btn">Mei (Bukti #5) →</a>
-    </nav>
-
-    <main class="proof-content" id="proofContent">
-        <section class="section introduction no-print">
-            <h2>📖 Pengenalan: Menyusun Puzzle Geometri</h2>
-            <p class="intro-text">
-                Bayangkan sebuah persegi besar dengan sisi <strong>c</strong>. Di dalamnya, kita pasangkan 
-                <strong>4 segitiga siku-siku yang sama persis</strong> (dengan kaki a dan b) di setiap sudutnya. 
-                Sisa ruang di bagian tengah akan membentuk sebuah <strong>persegi kecil</strong> dengan sisi <strong>(b − a)</strong>. 
-                Karena luas persegi besar tidak berubah, kita bisa menghitungnya dengan dua cara dan membuktikan bahwa 
-                <strong>a² + b² = c²</strong>. Ini seperti menyusun puzzle matematika yang elegan!
-            </p>
-            <div class="historical-note"><strong>💡 Sejarah Singkat:</strong> Metode ini dikenal sebagai <em>Diagram Tali (Xian Tu)</em> 
-               oleh matematikawan Tiongkok kuno, Zhao Shuang (abad ke-3 M). Satu gambar ini sudah cukup untuk membuktikan teorema tanpa kata-kata!</div>
-        </section>
-
-        <section class="section animation no-print">
-            <h2>🎬 Animasi Interaktif</h2>
-            <div class="animation-wrapper">
-                <div class="stage-wrap" style="position:relative;width:100%;background:#fff;border:2px solid #e0e0e0;border-radius:12px;overflow:hidden;">
-                    <svg id="stageSvg" viewBox="0 0 560 520" style="display:block;width:100%;height:auto;"></svg>
-                </div>
-                <div class="animation-controls">
-                    <button class="btn-start" id="btnStart">▶ Mulai</button>
-                    <button class="btn-pause" id="btnPause" style="display:none">⏸ Pause</button>
-                    <button class="btn-skip" id="btnSkip">⏭ Selesai</button>
-                    <button class="btn-reset" id="btnReset">↺ Reset</button>
-                    <div class="speed-control">
-                        <label for="speedSlider">⚡ Kecepatan:</label>
-                        <input type="range" id="speedSlider" min="0.5" max="3" step="0.5" value="1">
-                        <span class="speed-value" id="speedValue">1×</span>
-                    </div>
-                </div>
-                <div class="pbar"><div class="pfill" id="pfill"></div></div>
-                <div class="ptext" id="ptext">Progres: 0%</div>
-                <div class="formula-display">
-                    <div class="formula-step active" id="step0">Siap memulai… tekan ▶ Mulai</div>
-                    <div class="formula-step" id="step1">Persegi besar: sisi c = 13 → luas c² = 169</div>
-                    <div class="formula-step" id="step2">4 segitiga siku-siku (kaki 5 & 12): masing-masing ½·5·12 = 30</div>
-                    <div class="formula-step" id="step3">Rongga tengah: (b−a)² = (12−5)² = 49</div>
-                    <div class="formula-step" id="step4">169 = 4·30 + 49 = 120 + 49 ✓</div>
-                    <div class="formula-step" id="step5">c² = 4·(½ab) + (b−a)² = a² + b² → 169 = 25 + 144 ✓</div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section no-print">
-            <div class="ai-prompt-box collapsed" id="aiPromptBox">
-                <button class="ai-prompt-toggle" onclick="document.getElementById('aiPromptBox').classList.toggle('collapsed')">
-                    <span>💡 Panduan Presentasi</span>
-                    <span class="chevron">▼</span>
-                </button>
-                <div class="ai-prompt-content">
-                    <p style="margin:0 0 12px 0;font-size:14px;line-height:1.6;color:#4a5568;">
-                      Jika kamu kesulitan menyiapkan presentasi, gunakan contoh prompt AI berikut.
-                      Sertakan <strong>screenshot</strong> atau <strong>upload PDF</strong> halaman ini saat bertanya ke AI.
-                    </p>
-                    <div class="prompt-text" id="promptText">"Saya seorang siswa SMP akan mempresentasikan Pembuktian Teorema Pythagoras [NAMA BUKTI] mulai dari Pendahuluan, Penjelasan Visual/Animasi, Contoh, hingga Kesimpulan dalam waktu 3-4 menit. Bantu saya menyusun naskah presentasi yang mudah dipahami, menarik, dan sesuai untuk audiens teman sekelas."</div>
-                    <button class="btn-copy" id="btnCopyPrompt">📋 Copy Teks</button>
-                    <p style="font-size:12px;color:#718096;margin:8px 0 0 0;">⏱️ Durasi 3-4 menit sudah memperhitungkan jeda.</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="section external-resources no-print">
-            <h2>🔗 Rujukan Interaktif</h2>
-            <div class="embed-container" style="text-align:center;padding:24px;">
-                <div style="font-size:40px;">🧵</div>
-                <p style="margin:10px 0;color:#555;">Applet GeoGebra <strong>"Zhao Shuang String Diagram"</strong>
-                   — geser sisi a & b untuk melihat rongga (b−a)² berubah secara dinamis.</p>
-                <a class="external-link" target="_blank" rel="noopener"
-                   href="https://www.geogebra.org/search?query=zhao%20shuang%20string%20diagram"
-                   style="display:inline-block;background:#667eea;color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;text-decoration:none;">
-                   🔗 Cari Applet GeoGebra: Zhao Shuang</a>
-            </div>
-        </section>
-
-        <section class="section export-section no-print-screen">
-            <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">👁 Tampilkan Pratinjau PDF (1 halaman)</button>
-            <label class="capture-mode-label no-print" title="Jika dicentang, gambar di sheet memakai zoom/pan yang sedang aktif. Jika tidak, gambar selalu di-reset ke tampilan penuh (konsisten untuk cetak).">
-              <input type="checkbox" id="chkCaptureCurrent"> 📸 Capture sesuai tampilan saat ini
-            </label>
-            <div class="preview-collapse collapsed" id="previewCollapse">
-              <div class="a4-viewport" id="a4Viewport">
-                <div id="exportArea" class="a4-sheet">
-                    <div class="export-header">
-                        <h2>Bukti #4: Puzzle Diagram Tali Zhao Shuang</h2>
-                        <p>Kalender Pythagoras 2027 • April • Kelompok 2 • Level: Dasar</p>
-                    </div>
-                    <div id="calBlock" class="cal-block"></div>
-                    <hr class="cal-divider">
-                    <div class="proof-figures">
-                        <figure class="proof-figure"><span class="state-badge initial">AWAL</span>
-                            <div class="scene" id="figInitial"></div>
-                            <figcaption><strong>Gbr 1:</strong> persegi c² kosong; 4 segitiga menunggu di luar.</figcaption></figure>
-                        <figure class="proof-figure"><span class="state-badge final">AKHIR</span>
-                            <div class="scene" id="figFinal"></div>
-                            <figcaption><strong>Gbr 2:</strong> c² terisi 4 segitiga; rongga tengah = (b−a)².</figcaption></figure>
-                    </div>
-                    <div class="export-explain">
-                        <p><strong>Penjelasan:</strong> Persegi sisi c memuat tepat 4 segitiga siku-siku
-                           (kaki a, b; hipotenusa = sisi persegi) dan satu rongga persegi sisi (b−a).
-                           Maka c² = 4·(½ab) + (b−a)² = 2ab + b² − 2ab + a² = a² + b².</p>
-                        <div class="export-formula">
-                          <span class="formula-calc">c² = 4·(½ab) + (b−a)² → 169 = 120 + 49 → 169 = 25 + 144</span>
-                          <span class="formula-verified">✓ TERBUKTI!</span>
-                        </div>
-                    </div>
-                    <div class="pythagoras-container">
-                        <span class="pythagoras-label">KESIMPULAN:</span>
-                        <span class="pythagoras-rumus" id="py-rumus">a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup></span>
-                        <span class="pythagoras-sep">│</span>
-                        <span class="pythagoras-teks" id="py-kesimpulan">"Jumlah kuadrat sisi tegak sama dengan kuadrat sisi miring (sisi terpanjang)"</span>
-                        <button class="pythagoras-refresh-btn" onclick="acakKesimpulanPythagoras()" title="Acak Kesimpulan">
-                            <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-                        </button>
-                    </div>
-                    <div class="group-info-compact">
-                        <div class="group-names-col">
-                            <strong>Nama Anggota Kelompok:</strong>
-                            <div class="name-grid">
-                                <div class="name-line">1. .......................................</div>
-                                <div class="name-line">3. .......................................</div>
-                                <div class="name-line">2. .......................................</div>
-                                <div class="name-line">4. .......................................</div>
-                                <div class="name-line">5. .......................................</div>
-                            </div>
-                        </div>
-                        <div class="qr-col">
-                            <div class="qr-box" id="qrcode"></div>
-                            <div class="qr-caption">Scan untuk animasi</div>
-                        </div>
-                    </div>
-                </div>
-              </div>
-            </div>
-        </section>
-    </main>
-
-    <nav class="proof-nav bottom no-print">
-        <a href="bukti-03-maret.html" class="prev-btn">← Sebelumnya</a>
-        <a href="../index.html" class="home-btn">🏠 Kalender</a>
-        <a href="bukti-05-mei.html" class="next-btn">Selanjutnya →</a>
-    </nav>
-    <footer class="no-print"><p><strong>Kelompok 2</strong> - Pembuktian #4</p><p>Projek Kalender Pythagoras 2027</p></footer>
-
-    <div class="modal-overlay" id="downloadModal">
-      <div class="modal-content">
-        <h3>📄 Konfirmasi Download PDF</h3>
-        <p>Sebelum mengunduh PDF, pastikan Anda sudah memahami petunjuk proyek dan checklist persiapan.</p>
-        <div class="modal-warning" id="modalWarning"></div>
-        <label class="ack-checkbox" for="modalAck">
-          <input type="checkbox" id="modalAck">
-          <span>Saya sudah paham petunjuk dan checklist semua Persiapan.</span>
-        </label>
-        <div class="modal-actions">
-          <button id="btnModalDownload" disabled>📄 Download PDF</button>
-          <button id="btnModalCancel">Batal</button>
-        </div>
-      </div>
     </div>
+    <div class="export-buttons">
+        <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 PDF Gambar (Print/Arsip)</button>
+        <button class="btn-print" onclick="printPDF()">🖨 Print / Save as PDF</button>
+    </div>
+</header>
 
-    <script>
-    window.PROOF_NAME = 'Puzzle Diagram Tali Zhao Shuang (5-12-13)';
+<nav class="proof-nav no-print">
+    <a href="bukti-03-maret.html" class="prev-btn">← Maret (Bukti #3)</a>
+    <span class="nav-indicator">4 / 12</span>
+    <a href="bukti-05-mei.html" class="next-btn">Mei (Bukti #5) →</a>
+</nav>
+
+<main class="proof-content" id="proofContent">
+    <section class="section introduction no-print">
+        <h2>📖 Pengenalan: Puzzle Geometri dari Tiongkok Kuno</h2>
+        <p class="intro-text">
+            Bayangkan sebuah persegi besar dengan sisi <strong>c = 13</strong>. Di setiap sisinya, kita letakkan
+            satu <strong>segitiga siku-siku</strong> (kaki <strong>a = 5</strong> dan <strong>b = 12</strong>)
+            sehingga <strong>hipotenusanya menempel tepat pada sisi persegi</strong>. Keempat segitiga ini
+            sama persis, dan titik sudut siku-sikunya menghadap ke dalam. Hasilnya: empat segitiga tersebut
+            menyisakan sebuah <strong>persegi kecil di tengah</strong> dengan sisi <strong>(b − a) = 7</strong>.
+            Dengan menghitung luas persegi besar dengan dua cara berbeda, kita peroleh
+            <strong>a² + b² = c²</strong>. Seperti puzzle yang elegan!
+        </p>
+        <div class="historical-note">
+            <strong>📜 Sejarah:</strong> Metode ini dikenal sebagai <em>Xian Tu</em> (Diagram Tali) oleh
+            matematikawan Tiongkok kuno <strong>Zhao Shuang</strong> (abad ke-3 M) dalam karyanya
+            <em>Zhou Bi Suan Jing</em>. Satu gambar cukup untuk membuktikan teorema tanpa kata-kata!
+        </div>
+    </section>
+
+    <section class="section animation no-print">
+        <h2>🎬 Animasi Interaktif (Step-by-Step)</h2>
+        <div class="animation-wrapper">
+            <div class="stage-wrap">
+                <svg id="stageSvg" viewBox="0 0 560 520" style="display:block;width:100%;height:auto;"></svg>
+            </div>
+            
+            <!-- Step Dots -->
+            <div class="step-dots" id="stepDots"></div>
+            
+            <!-- Kontrol Animasi -->
+            <div class="animation-controls">
+                <button class="btn-back" id="btnBack" onclick="goBack()"> Awal</button>
+                <button class="btn-back" id="btnPrev" onclick="prevStep()">⏪ Mundur</button>
+                <button class="btn-start" id="btnPlay" onclick="playAnim()">▶ Play</button>
+                <button class="btn-pause" id="btnPause" onclick="pauseAnim()" style="display:none">⏸ Pause</button>
+                <button class="btn-fwd" id="btnNext" onclick="nextStep()">Maju ⏭</button>
+                <button class="btn-skip" id="btnSkip" onclick="skipToEnd()">⏭ Selesai</button>
+                <button class="btn-reset" id="btnReset" onclick="resetAnim()">🔄 Reset</button>
+            </div>
+            
+            <div class="speed-control">
+                <label for="speedSlider">⚡ Kecepatan:</label>
+                <input type="range" id="speedSlider" min="0.5" max="3" step="0.5" value="1">
+                <strong id="speedValue">1×</strong>
+            </div>
+            
+            <div class="pbar"><div class="pfill" id="pfill"></div></div>
+            <div class="ptext" id="ptext">Progres: 0%</div>
+            
+            <!-- Formula Step-by-Step -->
+            <div class="formula-display">
+                <div class="formula-step active" id="step0">Siap memulai… tekan ▶ Play atau ⏭ Maju untuk langkah pertama</div>
+                <div class="formula-step" id="step1">Langkah 1: Persegi besar sisi c = 13 → luas c² = 169</div>
+                <div class="formula-step" id="step2">Langkah 2: 4 segitiga siku-siku (kaki 5 & 12) masing-masing luas ½·5·12 = 30</div>
+                <div class="formula-step" id="step3">Langkah 3: Rongga tengah = (b−a)² = (12−5)² = 7² = 49</div>
+                <div class="formula-step" id="step4">Langkah 4: Total = 4·30 + 49 = 120 + 49 = 169 ✓</div>
+                <div class="formula-step" id="step5">Langkah 5: Terbukti! c² = 4·(½ab) + (b−a)² → a² + b² = c² → 25 + 144 = 169 ✓</div>
+            </div>
+            
+            <!-- Box Perhitungan Aljabar -->
+            <div class="calc-box">
+                <h4>📐 Perhitungan Lengkap (Aljabar + Angka)</h4>
+                <div class="calc-line"><strong>Rumus umum:</strong></div>
+                <div class="calc-line highlight">c² = 4·(½ab) + (b−a)²</div>
+                
+                <div class="calc-line" style="margin-top:12px;"><strong>Substitusi a=5, b=12, c=13:</strong></div>
+                <div class="calc-line">13² = 4·(½·5·12) + (12−5)²</div>
+                <div class="calc-line">169 = 4·30 + 7²</div>
+                <div class="calc-line">169 = 120 + 49</div>
+                <div class="calc-line">169 = 169 ✓</div>
+                
+                <div class="calc-line" style="margin-top:12px;"><strong>Pembuktian aljabar (umum):</strong></div>
+                <div class="calc-line">c² = 4·(½ab) + (b−a)²</div>
+                <div class="calc-line">&nbsp;&nbsp;&nbsp;= 2ab + (b² − 2ab + a²) <span class="calc-comment">← ekspansi (b−a)²</span></div>
+                <div class="calc-line">&nbsp;&nbsp;&nbsp;= 2ab + b² − 2ab + a²</div>
+                <div class="calc-line">&nbsp;&nbsp;&nbsp;= a² + b² <span class="calc-comment">← 2ab saling menghilangkan</span></div>
+                
+                <div class="calc-result">
+                    ∴ a² + b² = c² → 5² + 12² = 13² → 25 + 144 = 169 ✓ TERBUKTI!
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section no-print">
+        <div class="ai-prompt-box collapsed" id="aiPromptBox">
+            <button class="ai-prompt-toggle" onclick="document.getElementById('aiPromptBox').classList.toggle('collapsed')">
+                <span>💡 Panduan Presentasi</span>
+                <span class="chevron">▼</span>
+            </button>
+            <div class="ai-prompt-content">
+                <p style="margin:0 0 12px 0;font-size:14px;line-height:1.6;color:#4a5568;">
+                  Jika kamu kesulitan menyiapkan presentasi, gunakan contoh prompt AI berikut.
+                  Sertakan <strong>screenshot</strong> atau <strong>upload PDF</strong> halaman ini saat bertanya ke AI.
+                </p>
+                <div class="prompt-text" id="promptText">"Saya seorang siswa SMP akan mempresentasikan Pembuktian Teorema Pythagoras [NAMA BUKTI] mulai dari Pendahuluan, Penjelasan Visual/Animasi, Contoh, hingga Kesimpulan dalam waktu 3-4 menit. Bantu saya menyusun naskah presentasi yang mudah dipahami, menarik, dan sesuai untuk audiens teman sekelas."</div>
+                <button class="btn-copy" id="btnCopyPrompt">📋 Copy Teks</button>
+                <p style="font-size:12px;color:#718096;margin:8px 0 0 0;">⏱️ Durasi 3-4 menit sudah memperhitungkan jeda.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section external-resources no-print">
+        <h2>🔗 Rujukan Interaktif</h2>
+        <div class="embed-container" style="text-align:center;padding:24px;">
+            <div style="font-size:40px;">🧵</div>
+            <p style="margin:10px 0;color:#555;">Applet GeoGebra <strong>"Zhao Shuang String Diagram"</strong>
+               — geser sisi a & b untuk melihat rongga (b−a)² berubah secara dinamis.</p>
+            <a class="external-link" target="_blank" rel="noopener"
+               href="https://www.geogebra.org/search?query=zhao%20shuang%20string%20diagram"
+               style="display:inline-block;background:#667eea;color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;text-decoration:none;">
+               🔗 Cari Applet GeoGebra: Zhao Shuang</a>
+        </div>
+    </section>
+
+    <section class="section export-section no-print-screen">
+        <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">👁 Tampilkan Pratinjau PDF (1 halaman)</button>
+        <label class="capture-mode-label no-print" title="Jika dicentang, gambar di sheet memakai zoom/pan yang sedang aktif. Jika tidak, gambar selalu di-reset ke tampilan penuh (konsisten untuk cetak).">
+          <input type="checkbox" id="chkCaptureCurrent"> 📸 Capture sesuai tampilan saat ini
+        </label>
+        <div class="preview-collapse collapsed" id="previewCollapse">
+          <div class="a4-viewport" id="a4Viewport">
+            <div id="exportArea" class="a4-sheet">
+                <div class="export-header">
+                    <h2>Bukti #4: Puzzle Diagram Tali Zhao Shuang</h2>
+                    <p>Kalender Pythagoras 2027 • April • Kelompok 2 • Level: Dasar</p>
+                </div>
+                <div id="calBlock" class="cal-block"></div>
+                <hr class="cal-divider">
+                <div class="proof-figures">
+                    <figure class="proof-figure"><span class="state-badge initial">AWAL</span>
+                        <div class="scene" id="figInitial"></div>
+                        <figcaption><strong>Gbr 1:</strong> persegi c² = 169; 4 segitiga (kaki 5 & 12) menunggu di luar.</figcaption></figure>
+                    <figure class="proof-figure"><span class="state-badge final">AKHIR</span>
+                        <div class="scene" id="figFinal"></div>
+                        <figcaption><strong>Gbr 2:</strong> c² terisi 4 segitiga; rongga tengah = (b−a)² = 49.</figcaption></figure>
+                </div>
+                <div class="export-explain">
+                    <p><strong>Penjelasan:</strong> Persegi sisi <strong>c = 13</strong> memuat tepat 4 segitiga siku-siku
+                       (kaki a = 5, b = 12; hipotenusa = sisi persegi) dan satu rongga persegi dengan sisi (b−a) = 7.
+                       Hitung luas persegi besar dengan dua cara:</p>
+                    <ul style="margin:8px 0 8px 20px;font-size:14px;line-height:1.8;color:#475569;">
+                      <li><strong>Cara 1:</strong> langsung → c² = 13² = 169</li>
+                      <li><strong>Cara 2:</strong> 4 segitiga + rongga → 4·(½·5·12) + (12−5)² = 120 + 49 = 169</li>
+                    </ul>
+                    <p style="margin-top:8px;"><strong>Secara umum (aljabar):</strong></p>
+                    <div style="background:#f8fafc;padding:10px;border-radius:6px;font-family:monospace;font-size:13px;line-height:1.7;color:#1e293b;margin:8px 0;">
+                      c² = 4·(½ab) + (b−a)²<br>
+                      &nbsp;&nbsp;&nbsp;= 2ab + (b² − 2ab + a²) &nbsp;&nbsp;← ekspansi (b−a)²<br>
+                      &nbsp;&nbsp;&nbsp;= 2ab + b² − 2ab + a²<br>
+                      &nbsp;&nbsp;&nbsp;= a² + b² &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← 2ab saling menghilangkan
+                    </div>
+                    <div class="export-formula">
+                      <span class="formula-calc">c² = 4·(½ab) + (b−a)² → 169 = 120 + 49 → 169 = 25 + 144</span>
+                      <span class="formula-verified">✓ TERBUKTI!</span>
+                    </div>
+                </div>
+                <div class="pythagoras-container">
+                    <span class="pythagoras-label">KESIMPULAN:</span>
+                    <span class="pythagoras-rumus" id="py-rumus">a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup></span>
+                    <span class="pythagoras-sep">│</span>
+                    <span class="pythagoras-teks" id="py-kesimpulan">"Jumlah kuadrat sisi tegak sama dengan kuadrat sisi miring (sisi terpanjang)"</span>
+                    <button class="pythagoras-refresh-btn" onclick="acakKesimpulanPythagoras()" title="Acak Kesimpulan">
+                        <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                    </button>
+                </div>
+                <div class="group-info-compact">
+                    <div class="group-names-col">
+                        <strong>Nama Anggota Kelompok:</strong>
+                        <div class="name-grid">
+                            <div class="name-line">1. .......................................</div>
+                            <div class="name-line">3. .......................................</div>
+                            <div class="name-line">2. .......................................</div>
+                            <div class="name-line">4. .......................................</div>
+                            <div class="name-line">5. .......................................</div>
+                        </div>
+                    </div>
+                    <div class="qr-col">
+                        <div class="qr-box" id="qrcode"></div>
+                        <div class="qr-caption">Scan untuk animasi</div>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+    </section>
+</main>
+
+<nav class="proof-nav bottom no-print">
+    <a href="bukti-03-maret.html" class="prev-btn">← Sebelumnya</a>
+    <a href="../index.html" class="home-btn">🏠 Kalender</a>
+    <a href="bukti-05-mei.html" class="next-btn">Selanjutnya →</a>
+</nav>
+<footer class="no-print"><p><strong>Kelompok 2</strong> - Pembuktian #4</p><p>Projek Kalender Pythagoras 2027</p></footer>
+
+<div class="modal-overlay" id="downloadModal">
+  <div class="modal-content">
+    <h3>📄 Konfirmasi Download PDF</h3>
+    <p>Sebelum mengunduh PDF, pastikan Anda sudah memahami petunjuk proyek dan checklist persiapan.</p>
+    <div class="modal-warning" id="modalWarning"></div>
+    <label class="ack-checkbox" for="modalAck">
+      <input type="checkbox" id="modalAck">
+      <span>Saya sudah paham petunjuk dan checklist semua Persiapan.</span>
+    </label>
+    <div class="modal-actions">
+      <button id="btnModalDownload" disabled>📄 Download PDF</button>
+      <button id="btnModalCancel">Batal</button>
+    </div>
+  </div>
+</div>
+
+<script>
+window.PROOF_NAME = 'Puzzle Diagram Tali Zhao Shuang (5-12-13)';
+
+/* ================= GEOMETRI EKSAK ZHAO SHUANG ================= */
+var A = 5, B = 12, C = 13;
+var D = 0.15 * C;
+var V1 = { x: B*B/C, y: A*B/C };
+function rot90(p) { return { x: C - p.y, y: p.x }; }
+var V2 = rot90(V1), V3 = rot90(V2), V4 = rot90(V3);
+var TRIS = [
+    { poly: [{x:0,y:0},{x:C,y:0},V1], out: {x:0, y:-D} },
+    { poly: [{x:C,y:0},{x:C,y:C},V2], out: {x:D, y:0}  },
+    { poly: [{x:C,y:C},{x:0,y:C},V3], out: {x:0, y:D}  },
+    { poly: [{x:0,y:C},{x:0,y:0},V4], out: {x:-D,y:0}  }
+];
+var INNER = [V1, V2, V3, V4];
+
+(function(){
+    var lhs = 4*(A*B/2) + (B-A)*(B-A);
+    console.log(Math.abs(lhs - C*C) < 1e-9 ? '✅ ZHAO SHUANG OK: ' + A + ',' + B + ',' + C + ' → ' + (4*(A*B/2)) + ' + ' + ((B-A)*(B-A)) + ' = ' + lhs + ' = c²' : '️ GAGAL');
+})();
+
+/* ================= pemetaan layar ================= */
+var VW = 560, VH = 520, PAD = 24;
+var span = C + 2*D;
+var U = Math.min((VW-2*PAD)/span, (VH-2*PAD)/span);
+var OX = PAD + D*U + ((VW-2*PAD) - span*U)/2;
+var OY = PAD + (C+D)*U + ((VH-2*PAD) - span*U)/2;
+function S(x,y) { return { x: OX + x*U, y: OY - y*U }; }
+function pts(poly) { return poly.map(function(p){ var q = S(p.x,p.y); return q.x.toFixed(1)+','+q.y.toFixed(1); }).join(' '); }
+
+var NS = 'http://www.w3.org/2000/svg';
+var svg = document.getElementById('stageSvg');
+function mk(t,at,pa){ var e=document.createElementNS(NS,t); for(var k in at) e.setAttribute(k,at[k]); (pa||svg).appendChild(e); return e; }
+var COL = ['#f16a7a','#5b5bee','#5bf17a','#f1d95b'];
+
+var gSq   = mk('polygon', { points: pts([{x:0,y:0},{x:C,y:0},{x:C,y:C},{x:0,y:C}]), fill:'#eef4fb', stroke:'#2f7bd9', 'stroke-width':2.5, opacity:0 });
+var gInner = mk('polygon', { points: pts(INNER), fill:'#ee55ee', stroke:'#b02ab0', 'stroke-width':2, opacity:0 });
+var triGs = TRIS.map(function(t,i){ var g = mk('g', {}); mk('polygon', { points: pts(t.poly), fill: COL[i], stroke:'rgba(0,0,0,.35)', 'stroke-width':1.5 }, g); return g; });
+var ghostGs = TRIS.map(function(t,i){ return mk('polygon', { points: pts(t.poly.map(function(p){return {x:p.x+t.out.x,y:p.y+t.out.y};})), fill:'none', stroke: COL[i], 'stroke-width':2, 'stroke-dasharray':'6 5', opacity:0 }); });
+var labC = mk('text', { x:S(C/2, C+0.9).x, y:S(C/2, C+0.9).y, 'text-anchor':'middle', fill:'#1565c0', 'font-size':16, 'font-weight':'bold', opacity:0 });
+labC.textContent = 'c = 13';
+var labGap = mk('text', { x:S(C/2,C/2).x, y:S(C/2,C/2).y+5, 'text-anchor':'middle', fill:'#ffffff', 'font-size':15, 'font-weight':'bold', opacity:0 });
+labGap.textContent = '(b−a)² = 49';
+
+/* ================= STEP-BY-STEP CONTROL ================= */
+var totalSteps = 6;
+var currentStep = 0;
+var isPlaying = false;
+var animTimer = null;
+var speed = 1;
+
+/* Create step dots */
+function createDots() {
+    var container = document.getElementById('stepDots');
+    container.innerHTML = '';
+    for (var i = 0; i < totalSteps; i++) {
+        var dot = document.createElement('div');
+        dot.className = 'dot' + (i === 0 ? ' active' : '');
+        (function(idx){ dot.onclick = function(){ goToStep(idx); }; })(i);
+        container.appendChild(dot);
+    }
+}
+
+function updateDots() {
+    var dots = document.querySelectorAll('.dot');
+    for (var i = 0; i < dots.length; i++) {
+        dots[i].className = 'dot';
+        if (i < currentStep) dots[i].classList.add('done');
+        if (i === currentStep) dots[i].classList.add('active');
+    }
+}
+
+function goToStep(step) {
+    currentStep = Math.max(0, Math.min(totalSteps - 1, step));
+    drawStep(currentStep);
+    updateInfo();
+}
+
+function nextStep() {
+    if (currentStep < totalSteps - 1) {
+        goToStep(currentStep + 1);
+    } else {
+        pauseAnim();
+    }
+}
+
+function prevStep() {
+    if (currentStep > 0) {
+        goToStep(currentStep - 1);
+    }
+}
+
+function goBack() {
+    goToStep(0);
+}
+
+function skipToEnd() {
+    goToStep(totalSteps - 1);
+    pauseAnim();
+}
+
+function playAnim() {
+    isPlaying = true;
+    document.getElementById('btnPlay').style.display = 'none';
+    document.getElementById('btnPause').style.display = 'inline-block';
+    if (currentStep >= totalSteps - 1) currentStep = -1;
+    animateStep();
+}
+
+function pauseAnim() {
+    isPlaying = false;
+    document.getElementById('btnPlay').style.display = 'inline-block';
+    document.getElementById('btnPause').style.display = 'none';
+    if (animTimer) { clearTimeout(animTimer); animTimer = null; }
+}
+
+function resetAnim() {
+    pauseAnim();
+    currentStep = 0;
+    drawStep(0);
+    updateInfo();
+}
+
+function animateStep() {
+    if (!isPlaying) return;
+    if (currentStep < totalSteps - 1) {
+        currentStep++;
+        drawStep(currentStep);
+        updateInfo();
+        var delay = 1500 / speed;
+        animTimer = setTimeout(animateStep, delay);
+    } else {
+        pauseAnim();
+    }
+}
+
+function updateSpeed(val) {
+    speed = parseFloat(val);
+    document.getElementById('speedValue').textContent = speed + '×';
+}
+
+/* ================= TIMELINE & DRAWING ================= */
+var tweens = [];
+var TOTAL = 5000;
+
+function addTween(t0,t1,fn){ var tw={t0:t0,t1:t1,fn:fn,last:-1}; tweens.push(tw); return tw; }
+function fade(el,t0,d,to,from){ from=from||0; return addTween(t0,t0+d,function(p){ el.setAttribute('opacity', from+(to-from)*p); }); }
+function ease(t){ return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2; }
+function offScreen(o) { return { x: o.x*U, y: -o.y*U }; }
+
+function buildTimeline(){
+    tweens.length=0;
+    fade(gSq,0,400,1); fade(labC,200,400,1);
+    triGs.forEach(function(g,i){ var o=offScreen(TRIS[i].out);
+        g.setAttribute('transform','translate('+o.x+','+o.y+')');
+        g.setAttribute('opacity',0);
+        fade(g,400+i*150,300,1); });
+    triGs.forEach(function(g,i){ var o=offScreen(TRIS[i].out);
+        addTween(1400+i*250, 2200+i*250, function(p){ var e=ease(p);
+            g.setAttribute('transform','translate('+(o.x*(1-e))+','+(o.y*(1-e))+')'); }); });
+    fade(gInner,2600,400,1); fade(labGap,2800,400,1);
+    ghostGs.forEach(function(g,i){fade(g,3000+i*100,400,1);});
+    addTween(4400,4800,function(p){ svg.style.transform='scale('+(1+0.03*Math.sin(Math.PI*p))+')'; });
+}
+
+function drawStep(step) {
+    /* Reset semua elemen */
+    gSq.setAttribute('opacity', 0);
+    labC.setAttribute('opacity', 0);
+    gInner.setAttribute('opacity', 0);
+    labGap.setAttribute('opacity', 0);
+    triGs.forEach(function(g) { g.setAttribute('opacity', 0); });
+    ghostGs.forEach(function(g) { g.setAttribute('opacity', 0); });
+    svg.style.transform = 'none';
     
-    /* ================= GEOMETRI EKSAK ZHAO SHUANG ================= */
-    var A = 5, B = 12, C = 13;
-    var D = 0.15 * C;
-    var V1 = { x: B*B/C, y: A*B/C };
-    function rot90(p) { return { x: C - p.y, y: p.x }; }
-    var V2 = rot90(V1), V3 = rot90(V2), V4 = rot90(V3);
-    var TRIS = [
-        { poly: [{x:0,y:0},{x:C,y:0},V1], out: {x:0, y:-D} },
-        { poly: [{x:C,y:0},{x:C,y:C},V2], out: {x:D, y:0}  },
-        { poly: [{x:C,y:C},{x:0,y:C},V3], out: {x:0, y:D}  },
-        { poly: [{x:0,y:C},{x:0,y:0},V4], out: {x:-D,y:0}  }
-    ];
-    var INNER = [V1, V2, V3, V4];
-
-    (function(){
-        var lhs = 4*(A*B/2) + (B-A)*(B-A);
-        console.log(Math.abs(lhs - C*C) < 1e-9 ? '✅ LUAS OK (Zhao Shuang ' + A + ',' + B + ',' + C + ')' : '⚠️ LUAS GAGAL');
-    })();
-
-    /* ================= pemetaan layar ================= */
-    var VW = 560, VH = 520, PAD = 24;
-    var span = C + 2*D;
-    var U = Math.min((VW-2*PAD)/span, (VH-2*PAD)/span);
-    var OX = PAD + D*U + ((VW-2*PAD) - span*U)/2;
-    var OY = PAD + (C+D)*U + ((VH-2*PAD) - span*U)/2;
-    function S(x,y) { return { x: OX + x*U, y: OY - y*U }; }
-    function pts(poly) { return poly.map(function(p){ var q = S(p.x,p.y); return q.x.toFixed(1)+','+q.y.toFixed(1); }).join(' '); }
-
-    var NS = 'http://www.w3.org/2000/svg';
-    var svg = document.getElementById('stageSvg');
-    function mk(t,at,pa){ var e=document.createElementNS(NS,t); for(var k in at) e.setAttribute(k,at[k]); (pa||svg).appendChild(e); return e; }
-    var COL = ['#f16a7a','#5b5bee','#5bf17a','#f1d95b'];
-
-    var gSq   = mk('polygon', { points: pts([{x:0,y:0},{x:C,y:0},{x:C,y:C},{x:0,y:C}]), fill:'#eef4fb', stroke:'#2f7bd9', 'stroke-width':2.5, opacity:0 });
-    var gInner = mk('polygon', { points: pts(INNER), fill:'#ee55ee', stroke:'#b02ab0', 'stroke-width':2, opacity:0 });
-    var triGs = TRIS.map(function(t,i){ var g = mk('g', {}); mk('polygon', { points: pts(t.poly), fill: COL[i], stroke:'rgba(0,0,0,.35)', 'stroke-width':1.5 }, g); return g; });
-    var ghostGs = TRIS.map(function(t,i){ return mk('polygon', { points: pts(t.poly.map(function(p){return {x:p.x+t.out.x,y:p.y+t.out.y};})), fill:'none', stroke: COL[i], 'stroke-width':2, 'stroke-dasharray':'6 5', opacity:0 }); });
-    var labC = mk('text', { x:S(C/2, C+0.9).x, y:S(C/2, C+0.9).y, 'text-anchor':'middle', fill:'#1565c0', 'font-size':16, 'font-weight':'bold', opacity:0 }); 
-    labC.textContent = 'c = 13';
-    var labGap = mk('text', { x:S(C/2,C/2).x, y:S(C/2,C/2).y+5, 'text-anchor':'middle', fill:'#ffffff', 'font-size':15, 'font-weight':'bold', opacity:0 }); 
-    labGap.textContent = '(b−a)² = 49';
-
-    /* ================= timeline ================= */
-    var tweens = []; var TOTAL = 5000;
-    function addTween(t0,t1,fn){ var tw={t0:t0,t1:t1,fn:fn,last:-1}; tweens.push(tw); return tw; }
-    function fade(el,t0,d,to,from){ from=from||0; return addTween(t0,t0+d,function(p){ el.setAttribute('opacity', from+(to-from)*p); }); }
-    function ease(t){ return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2; }
-    function offScreen(o) { return { x: o.x*U, y: -o.y*U }; }
-
-    function buildTimeline(){
-        tweens.length=0;
-        fade(gSq,0,400,1); fade(labC,200,400,1);
-        triGs.forEach(function(g,i){ var o=offScreen(TRIS[i].out);
-            g.setAttribute('transform','translate('+o.x+','+o.y+')');
-            g.setAttribute('opacity',0);
-            fade(g,400+i*150,300,1); });
-        triGs.forEach(function(g,i){ var o=offScreen(TRIS[i].out);
-            addTween(1400+i*250, 2200+i*250, function(p){ var e=ease(p);
-                g.setAttribute('transform','translate('+(o.x*(1-e))+','+(o.y*(1-e))+')'); }); });
-        fade(gInner,2600,400,1); fade(labGap,2800,400,1);
-        ghostGs.forEach(function(g,i){fade(g,3000+i*100,400,1);});
-        addTween(4400,4800,function(p){ svg.style.transform='scale('+(1+0.03*Math.sin(Math.PI*p))+')'; });
+    /* Step 0: Persegi c² */
+    if (step >= 1) {
+        gSq.setAttribute('opacity', 1);
+        labC.setAttribute('opacity', 1);
     }
-    buildTimeline();
-
-    var vt=0, playing=false, speed=1, lastTs=null;
-    var stepTimes=[[0,1],[400,2],[2600,3],[3000,4],[4400,5]];
-    function frame(ts){
-        if(lastTs===null)lastTs=ts; var dt=Math.min(50,ts-lastTs); lastTs=ts;
-        if(playing) vt=Math.min(TOTAL,vt+dt*speed);
-        for(var i=0;i<tweens.length;i++){ var tw=tweens[i]; var p=Math.max(0,Math.min(1,(vt-tw.t0)/(tw.t1-tw.t0)));
-            if(p!==tw.last){ tw.fn(p); tw.last=p; } }
-        var pct=Math.round(vt/TOTAL*100);
-        document.getElementById('ptext').textContent='Progres: '+pct+'%';
-        document.getElementById('pfill').style.width=pct+'%';
-        var n=0; for(var j=0;j<stepTimes.length;j++) if(vt>=stepTimes[j][0]) n=stepTimes[j][1];
-        var steps=document.querySelectorAll('.formula-step');
-        for(var k=0;k<steps.length;k++) steps[k].classList.remove('active');
-        var el=document.getElementById('step'+n); if(el) el.classList.add('active');
-        if(playing&&vt>=TOTAL){ playing=false;
-            var b=document.getElementById('btnStart');
-            b.textContent='▶ Ulangi'; b.style.display='inline-block';
-            document.getElementById('btnPause').style.display='none'; }
-        requestAnimationFrame(frame);
+    
+    /* Step 1: Segitiga di posisi parkir */
+    if (step >= 2) {
+        triGs.forEach(function(g, i) {
+            var o = offScreen(TRIS[i].out);
+            g.setAttribute('transform', 'translate(' + o.x + ',' + o.y + ')');
+            g.setAttribute('opacity', 1);
+        });
     }
-    function resetState(){ vt=0; playing=false; svg.style.transform='none';
-        for(var i=0;i<tweens.length;i++) tweens[i].last=-1; buildTimeline();
-        var b=document.getElementById('btnStart');
-        b.textContent='▶ Mulai'; b.style.display='inline-block';
-        document.getElementById('btnPause').style.display='none'; }
-    document.getElementById('btnStart').addEventListener('click',function(){ if(vt>=TOTAL)resetState();
-        playing=true; this.style.display='none';
-        document.getElementById('btnPause').style.display='inline-block'; });
-    document.getElementById('btnPause').addEventListener('click',function(){ playing=false;
-        var b=document.getElementById('btnStart'); b.textContent='▶ Lanjut';
-        b.style.display='inline-block'; this.style.display='none'; });
-    document.getElementById('btnSkip').addEventListener('click',function(){ vt=TOTAL; playing=false;
-        for(var i=0;i<tweens.length;i++){ tweens[i].fn(1); tweens[i].last=1; } });
-    document.getElementById('btnReset').addEventListener('click',resetState);
-    document.getElementById('speedSlider').addEventListener('input',function(e){
-        speed=parseFloat(e.target.value); document.getElementById('speedValue').textContent=speed+'×'; });
+    
+    /* Step 2: Segitiga bergerak masuk */
+    if (step >= 3) {
+        triGs.forEach(function(g, i) {
+            g.setAttribute('transform', 'translate(0,0)');
+            g.setAttribute('opacity', 1);
+        });
+    }
+    
+    /* Step 3: Rongga tengah muncul */
+    if (step >= 4) {
+        gInner.setAttribute('opacity', 1);
+        labGap.setAttribute('opacity', 1);
+    }
+    
+    /* Step 4: Ghost segitiga (posisi awal) */
+    if (step >= 5) {
+        ghostGs.forEach(function(g) { g.setAttribute('opacity', 1); });
+        svg.style.transform = 'scale(1.02)';
+    }
+    
+    /* Update progress */
+    var pct = Math.round((step / (totalSteps - 1)) * 100);
+    document.getElementById('ptext').textContent = 'Progres: ' + pct + '%';
+    document.getElementById('pfill').style.width = pct + '%';
+}
 
-    /* ================= gambar statis sheet A4 ================= */
-    function zhaoScene(state, w){
-        var sp = C + 2*D;
-        var u = (w - 20) / sp;
-        var ox = 10 + D*u, oy = 10 + (C+D)*u;
-        function s(x,y){ return { x: ox + x*u, y: oy - y*u }; }
-        function P(poly) { return poly.map(function(p){ var q=s(p.x,p.y); return q.x.toFixed(1)+','+q.y.toFixed(1); }).join(' '); }
-        var hh = Math.round(w * 0.93);
-        var out = '<svg viewBox="0 0 '+w+' '+hh+'" width="'+w+'" height="'+hh+'" style="display:block;margin:auto;">';
-        out += '<polygon points="'+P([{x:0,y:0},{x:C,y:0},{x:C,y:C},{x:0,y:C}])+'" fill="#eef4fb" stroke="#2f7bd9" stroke-width="2"/>';
-        if(state==='initial'){
-            TRIS.forEach(function(t,i){ out += '<polygon points="'+P(t.poly.map(function(p){return {x:p.x+t.out.x,y:p.y+t.out.y};}))+'" fill="'+COL[i]+'" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/>'; });
-        } else {
-            TRIS.forEach(function(t,i){ out += '<polygon points="'+P(t.poly)+'" fill="'+COL[i]+'" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/>'; });
-            out += '<polygon points="'+P(INNER)+'" fill="#ee55ee" stroke="#b02ab0" stroke-width="2"/>';
-            out += '<text x="'+s(C/2,C/2).x+'" y="'+(s(C/2,C/2).y+4)+'" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">(b−a)²=49</text>';
-            TRIS.forEach(function(t,i){ out += '<polygon points="'+P(t.poly.map(function(p){return {x:p.x+t.out.x,y:p.y+t.out.y};}))+'" fill="none" stroke="'+COL[i]+'" stroke-width="1.5" stroke-dasharray="5 4"/>'; });
-        }
+function updateInfo() {
+    var steps = document.querySelectorAll('.formula-step');
+    for (var k = 0; k < steps.length; k++) steps[k].classList.remove('active');
+    var el = document.getElementById('step' + currentStep);
+    if (el) el.classList.add('active');
+    updateDots();
+}
+
+/* ================= gambar statis sheet A4 ================= */
+function zhaoScene(state, w){
+    var sp = C + 2*D;
+    var u = (w - 20) / sp;
+    var ox = 10 + D*u, oy = 10 + (C+D)*u;
+    function s(x,y){ return { x: ox + x*u, y: oy - y*u }; }
+    function P(poly) { return poly.map(function(p){ var q=s(p.x,p.y); return q.x.toFixed(1)+','+q.y.toFixed(1); }).join(' '); }
+    var hh = Math.round(w * 0.93);
+    var out = '<svg viewBox="0 0 '+w+' '+hh+'" width="'+w+'" height="'+hh+'" style="display:block;margin:auto;">';
+    out += '<polygon points="'+P([{x:0,y:0},{x:C,y:0},{x:C,y:C},{x:0,y:C}])+'" fill="#eef4fb" stroke="#2f7bd9" stroke-width="2"/>';
+    if(state==='initial'){
+        TRIS.forEach(function(t,i){ out += '<polygon points="'+P(t.poly.map(function(p){return {x:p.x+t.out.x,y:p.y+t.out.y};}))+'" fill="'+COL[i]+'" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/>'; });
         out += '<text x="'+s(C/2,C+0.9).x+'" y="'+s(C/2,C+0.9).y+'" text-anchor="middle" font-size="13" font-weight="bold" fill="#1565c0">c = 13</text>';
-        return out + '</svg>';
+        out += '<text x="'+(w/2)+'" y="'+(hh-8)+'" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e293b">c² = 169; 4 segitiga siap disusun</text>';
+    } else {
+        TRIS.forEach(function(t,i){ out += '<polygon points="'+P(t.poly)+'" fill="'+COL[i]+'" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/>'; });
+        out += '<polygon points="'+P(INNER)+'" fill="#ee55ee" stroke="#b02ab0" stroke-width="2"/>';
+        out += '<text x="'+s(C/2,C/2).x+'" y="'+(s(C/2,C/2).y+4)+'" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">(b−a)² = 49</text>';
+        TRIS.forEach(function(t,i){ out += '<polygon points="'+P(t.poly.map(function(p){return {x:p.x+t.out.x,y:p.y+t.out.y};}))+'" fill="none" stroke="'+COL[i]+'" stroke-width="1.5" stroke-dasharray="5 4"/>'; });
+        out += '<text x="'+s(C/2,C+0.9).x+'" y="'+s(C/2,C+0.9).y+'" text-anchor="middle" font-size="13" font-weight="bold" fill="#1565c0">c = 13</text>';
+        out += '<text x="'+(w/2)+'" y="'+(hh-8)+'" text-anchor="middle" font-size="12" font-weight="bold" fill="#27ae60">c² = 4·(½ab) + (b−a)² → 169 = 120 + 49 ✓</text>';
     }
-    document.getElementById('figInitial').innerHTML = zhaoScene('initial', 260);
-    document.getElementById('figFinal').innerHTML   = zhaoScene('final', 260);
+    return out + '</svg>';
+}
+document.getElementById('figInitial').innerHTML = zhaoScene('initial', 260);
+document.getElementById('figFinal').innerHTML   = zhaoScene('final', 260);
 
-    /* ================= sheet / kalender / QR ================= */
-    function fitSheet(){ var vp=document.getElementById('a4Viewport');
-        var sh=document.querySelector('.a4-sheet'); if(!vp||!sh)return;
-        var sc=Math.min(1, vp.clientWidth/794);
-        sh.style.transform='scale('+sc+')'; sh.style.transformOrigin='top left';
-        vp.style.height=(1123*sc)+'px'; }
-    window.fitSheet=fitSheet; window.addEventListener('resize',fitSheet);
-    window.togglePreview=function(){ var col=document.getElementById('previewCollapse');
-        col.classList.toggle('collapsed');
-        document.getElementById('btnPreview').textContent = col.classList.contains('collapsed')
-            ? '👁 Tampilkan Pratinjau PDF (1 halaman)' : '🙈 Sembunyikan Pratinjau PDF';
-        if(!col.classList.contains('collapsed')) setTimeout(fitSheet,60); };
+/* ================= sheet / kalender / QR ================= */
+function fitSheet(){ var vp=document.getElementById('a4Viewport');
+    var sh=document.querySelector('.a4-sheet'); if(!vp||!sh)return;
+    var sc=Math.min(1, vp.clientWidth/794);
+    sh.style.transform='scale('+sc+')'; sh.style.transformOrigin='top left';
+    vp.style.height=(1123*sc)+'px'; }
+window.fitSheet=fitSheet; window.addEventListener('resize',fitSheet);
+window.togglePreview=function(){ var col=document.getElementById('previewCollapse');
+    col.classList.toggle('collapsed');
+    document.getElementById('btnPreview').textContent = col.classList.contains('collapsed')
+        ? '👁 Tampilkan Pratinjau PDF (1 halaman)' : ' Sembunyikan Pratinjau PDF';
+    if(!col.classList.contains('collapsed')) setTimeout(fitSheet,60); };
 
-    var daftarKesimpulanPythagoras = [
-      { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi siku-siku sama dengan kuadrat sisi miring" },
-      { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi tegak sama dengan kuadrat sisi miring" },
-      { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi siku-siku sama dengan kuadrat sisi miring (hipotenusa)" },
-      { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi tegak sama dengan kuadrat sisi miring (sisi terpanjang)" },
-      { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring sama dengan jumlah kuadrat sisi tegaknya" },
-      { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring sama dengan jumlah kuadrat sisi siku-sikunya" },
-      { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring (hipotenusa) sama dengan jumlah kuadrat sisi tegaknya" },
-      { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring (sisi terpanjang) sama dengan jumlah kuadrat sisi siku-sikunya" },
-      { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Pada segitiga siku-siku, kuadrat panjang sisi miring sama dengan jumlah kuadrat panjang sisi-sisi lainnya" }
-    ];
-    var BULAN_KE = 4;
-    var indexKesimpulan = (BULAN_KE - 1) % daftarKesimpulanPythagoras.length;
-    function acakKesimpulanPythagoras(){
-      indexKesimpulan = (indexKesimpulan + 1) % daftarKesimpulanPythagoras.length;
-      document.getElementById("py-rumus").innerHTML = daftarKesimpulanPythagoras[indexKesimpulan].rumus;
-      document.getElementById("py-kesimpulan").innerText = '"' + daftarKesimpulanPythagoras[indexKesimpulan].teks + '"';
-    }
-    window.addEventListener('load', function(){
-      var i=(BULAN_KE - 1) % daftarKesimpulanPythagoras.length;
-      document.getElementById("py-rumus").innerHTML = daftarKesimpulanPythagoras[i].rumus;
-      document.getElementById("py-kesimpulan").innerText = '"' + daftarKesimpulanPythagoras[i].teks + '"';
-      indexKesimpulan = i;
-    });
+var daftarKesimpulanPythagoras = [
+  { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi siku-siku sama dengan kuadrat sisi miring" },
+  { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi tegak sama dengan kuadrat sisi miring" },
+  { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi siku-siku sama dengan kuadrat sisi miring (hipotenusa)" },
+  { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi tegak sama dengan kuadrat sisi miring (sisi terpanjang)" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring sama dengan jumlah kuadrat sisi tegaknya" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring sama dengan jumlah kuadrat sisi siku-sikunya" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring (hipotenusa) sama dengan jumlah kuadrat sisi tegaknya" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring (sisi terpanjang) sama dengan jumlah kuadrat sisi siku-sikunya" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Pada segitiga siku-siku, kuadrat panjang sisi miring sama dengan jumlah kuadrat panjang sisi-sisi lainnya" }
+];
+var BULAN_KE = 4;
+var indexKesimpulan = (BULAN_KE - 1) % daftarKesimpulanPythagoras.length;
+function acakKesimpulanPythagoras(){
+  indexKesimpulan = (indexKesimpulan + 1) % daftarKesimpulanPythagoras.length;
+  document.getElementById("py-rumus").innerHTML = daftarKesimpulanPythagoras[indexKesimpulan].rumus;
+  document.getElementById("py-kesimpulan").innerText = '"' + daftarKesimpulanPythagoras[indexKesimpulan].teks + '"';
+}
+window.addEventListener('load', function(){
+  var i=(BULAN_KE - 1) % daftarKesimpulanPythagoras.length;
+  document.getElementById("py-rumus").innerHTML = daftarKesimpulanPythagoras[i].rumus;
+  document.getElementById("py-kesimpulan").innerText = '"' + daftarKesimpulanPythagoras[i].teks + '"';
+  indexKesimpulan = i;
+});
 
-    if(typeof renderCalendar==='function') renderCalendar(document.getElementById('calBlock'), 4);
-    try {
-      var qrContainer = document.getElementById('qrcode');
-      qrContainer.innerHTML = '';
-      new QRCode(qrContainer, { text: window.location.href, width: 84, height: 84, correctLevel: QRCode.CorrectLevel.M, colorDark: "#1a202c", colorLight: "#ffffff" });
-    } catch (e) {
-      document.getElementById('qrcode').innerHTML = '<div style="font-size:10px;color:#666;text-align:center;">QR Error</div>';
-    }
-    
-    var btnCopy=document.getElementById('btnCopyPrompt');
-    var pt=document.getElementById('promptText');
-    var raw=pt.textContent.replace('[NAMA BUKTI]', window.PROOF_NAME);
-    pt.textContent=raw;
-    btnCopy.onclick=async function(){
-      try{
-        await navigator.clipboard.writeText(raw);
-        btnCopy.textContent='✅ Tersalin!'; btnCopy.classList.add('copied');
-        setTimeout(function(){ btnCopy.textContent='📋 Copy Teks'; btnCopy.classList.remove('copied'); },2000);
-      }catch(e){ alert('Gagal: '+e.message); }
-    };
+try {
+  if (typeof renderCalendar === 'function') {
+    var calBlock = document.getElementById('calBlock');
+    if (calBlock) renderCalendar(calBlock, 4);
+  } else {
+    document.getElementById('calBlock').innerHTML = '<div style="padding:20px;text-align:center;color:#c53030;">⚠ calendar-template.js tidak termuat</div>';
+  }
+} catch (e) {
+  document.getElementById('calBlock').innerHTML = '<div style="padding:20px;text-align:center;color:#c53030;"> Gagal render kalender: ' + e.message + '</div>';
+}
 
-    fitSheet();
-    requestAnimationFrame(frame);
-    </script>
-    <script src="../assets/js/calendar-template.js?v=3"></script>
-    <script src="../assets/js/pdf-export.js?v=42"></script>
+try {
+  var qrContainer = document.getElementById('qrcode');
+  qrContainer.innerHTML = '';
+  new QRCode(qrContainer, { text: window.location.href, width: 84, height: 84, correctLevel: QRCode.CorrectLevel.M, colorDark: "#1a202c", colorLight: "#ffffff" });
+} catch (e) {
+  document.getElementById('qrcode').innerHTML = '<div style="font-size:10px;color:#666;text-align:center;">QR Error</div>';
+}
+
+var btnCopy=document.getElementById('btnCopyPrompt');
+var pt=document.getElementById('promptText');
+var raw=pt.textContent.replace('[NAMA BUKTI]', window.PROOF_NAME);
+pt.textContent=raw;
+btnCopy.onclick=async function(){
+  try{
+    await navigator.clipboard.writeText(raw);
+    btnCopy.textContent='✅ Tersalin!'; btnCopy.classList.add('copied');
+    setTimeout(function(){ btnCopy.textContent='📋 Copy Teks'; btnCopy.classList.remove('copied'); },2000);
+  }catch(e){ alert('Gagal: '+e.message); }
+};
+
+/* Init */
+createDots();
+drawStep(0);
+updateInfo();
+fitSheet();
+</script>
 </body>
 </html>

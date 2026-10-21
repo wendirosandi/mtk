@@ -3,193 +3,205 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bukti #12: Animasi Klasik Pythagoras - Kalender Pythagoras 2027</title>
+<title>Bukti #12: Rearansemen Minimal Penutup Tahun - Kalender Pythagoras 2027</title>
 <link rel="stylesheet" href="../assets/css/main.css">
 <link rel="stylesheet" href="../assets/css/proof.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="../assets/js/calendar-template.js?v=3"></script>
+<script src="../assets/js/pdf-export.js?v=42"></script>
 <style>
-  .wiki-anim-container {
-    max-width: 500px;
-    margin: 0 auto;
-    background: #fff;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    text-align: center;
-  }
-  .wiki-anim-container img {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-    border: 2px solid #e2e8f0;
-    transition: opacity 0.3s;
-  }
-  .wiki-controls {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 15px;
-  }
-  .wiki-controls button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    background: #5a67d8;
-    color: #fff;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .wiki-controls button:hover {
-    background: #4c51bf;
-    transform: translateY(-2px);
-  }
-  .anim-caption {
-    margin-top: 12px;
-    font-size: 14px;
-    color: #4a5568;
-    line-height: 1.6;
-  }
-  /* AI Prompt Box */
-  .ai-prompt-box {
-    background: #f0f4ff;
-    border: 2px solid #5a67d8;
-    border-radius: 10px;
-    padding: 16px;
-    margin: 20px auto;
-    max-width: 600px;
-  }
-  .ai-prompt-box h4 { margin: 0 0 10px 0; color: #5a67d8; font-size: 16px; }
-  .prompt-text {
-    background: #fff; border: 1px solid #e2e8f0; border-radius: 6px;
-    padding: 12px; font-family: 'Courier New', monospace; font-size: 13px;
-    line-height: 1.6; color: #2d3748; margin: 10px 0; white-space: pre-wrap;
-  }
-  .btn-copy {
-    background: #5a67d8; color: #fff; border: none; border-radius: 6px;
-    padding: 8px 16px; font-size: 13px; font-weight: 700; cursor: pointer;
-  }
-  .btn-copy.copied { background: #48bb78; }
+  .animation-wrapper { background:#f8f9fa; border:1px solid #e2e8f0; border-radius:14px; padding:16px; margin-bottom:12px; }
+  .dec-stage-wrap { position:relative; background:#f5f2da; border:2px solid #e0e0e0; border-radius:12px; padding:8px; max-width:620px; margin:0 auto 14px; }
+  .dec-stage-wrap svg { display:block; width:100%; height:auto; }
+  .badge { position:absolute; top:14px; right:16px; background:#2c3e50; color:#f1c40f; font-weight:700; font-size:.8em; padding:3px 10px; border-radius:6px; }
+  .dots { display:flex; gap:8px; justify-content:center; margin:8px 0; }
+  .dot { width:13px; height:13px; border-radius:50%; background:#cbd5e1; cursor:pointer; transition:all .2s; border:2px solid transparent; }
+  .dot.on { background:#5a67d8; border-color:#4c51bf; transform:scale(1.25); }
+  .dot.done { background:#27ae60; }
+  .dec-controls { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:12px 0; }
+  .dec-controls button { padding:10px 16px; border:0; border-radius:8px; font-weight:700; cursor:pointer; color:#fff; transition:all .2s; }
+  .dec-controls button:hover:not(:disabled){ transform:translateY(-2px); box-shadow:0 4px 10px rgba(0,0,0,.15); }
+  .dec-controls button:disabled{ opacity:.5; cursor:not-allowed; }
+  .c-awal{background:#16a085;} .c-back{background:#3498db;} .c-play{background:#27ae60;}
+  .c-pause{background:#f39c12;} .c-fwd{background:#9b59b6;} .c-reset{background:#e74c3c;} .c-auto{background:#8e44ad;}
+  .rowctl { display:flex; align-items:center; gap:8px; justify-content:center; font-size:13px; color:#475569; margin:6px 0; }
+  .rowctl input[type=range]{ width:200px; cursor:pointer; }
+  .pbar { width:100%; background:#e0e0e0; border-radius:8px; height:12px; overflow:hidden; margin-top:10px; }
+  .pfill { height:100%; background:#27ae60; width:0%; transition:width .2s linear; }
+  .ptext { text-align:center; font-size:13px; color:#7f8c8d; margin-top:6px; }
+  .info-panel { background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 16px; margin-top:12px; }
+  .info-panel h3 { color:#5a67d8; margin:0 0 6px; font-size:15px; }
+  .info-panel p { color:#475569; margin:0; font-size:13.5px; line-height:1.6; }
+  .calc-box { background:#fff; border:2px solid #e2e8f0; border-radius:10px; padding:14px; margin-top:14px; font-family:'Courier New',monospace; font-size:13px; line-height:1.7; color:#1e293b; }
+  .calc-title { font-weight:700; color:#5a67d8; margin-bottom:8px; font-size:14px; text-align:center; }
+  .calc-line { padding:4px 0; border-bottom:1px dashed #e2e8f0; }
+  .calc-line:last-child { border-bottom:none; font-weight:700; color:#27ae60; background:#f0fdf4; padding:6px 8px; border-radius:4px; margin-top:6px; }
+  .calc-highlight { color:#e11d48; font-weight:600; }
+  .a4-sheet .proof-figures .proof-figure .scene { min-height:170px; }
+  .a4-sheet .proof-figures .proof-figure .scene svg { width:100%; height:auto; display:block; }
 </style>
 </head>
 <body>
 <header class="proof-header no-print">
-    <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
-    <div class="proof-info">
-        <h1>Bukti #12: Animasi Klasik Pythagoras</h1>
-        <div class="proof-meta">
-            <span class="meta-item">📅 Desember 2027</span>
-            <span class="meta-item">👥 Kelompok 10</span>
-            <span class="meta-item">🎯 Level: Penutup Tahun</span>
-        </div>
+  <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
+  <div class="proof-info">
+    <h1>Bukti #12: Rearansemen Minimal (Penutup Tahun)</h1>
+    <div class="proof-meta">
+      <span class="meta-item">📅 Desember 2027</span>
+      <span class="meta-item">👥 Kelompok 10</span>
+      <span class="meta-item">🎯 Level: Penutup Tahun</span>
     </div>
-    <div class="export-buttons">
-        <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 Download PDF (1 hal)</button>
-        <button class="btn-print" onclick="printPDF()">🖨 Print / Save as PDF</button>
-    </div>
+  </div>
+  <div class="export-buttons">
+    <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 PDF Gambar (Print/Arsip)</button>
+    <button class="btn-print" onclick="printPDF()">🖨 Print / Save as PDF</button>
+  </div>
 </header>
 
 <nav class="proof-nav no-print">
-    <a href="bukti-11-november.html" class="prev-btn">← November (Bukti #11)</a>
-    <span class="nav-indicator">12 / 12</span>
-    <a href="../index.html" class="next-btn">🏁 Kalender 2027 →</a>
+  <a href="bukti-11-november.html" class="prev-btn">← November (Bukti #11)</a>
+  <span class="nav-indicator">12 / 12</span>
+  <a href="../index.html" class="next-btn">🏁 Kalender 2027 →</a>
 </nav>
 
 <main class="proof-content" id="proofContent">
-    <section class="section introduction no-print">
-        <h2>📖 Pengenalan: Penutup Tahun yang Ikonik</h2>
-        <p class="intro-text">Sebagai penutup tahun, kita kembali ke visualisasi paling ikonik dari Teorema Pythagoras. 
-           Animasi klasik ini menunjukkan bagaimana persegi pada sisi-sisi segitiga siku-siku saling berhubungan. 
-           Meskipun sederhana, animasi ini telah membantu jutaan siswa di seluruh dunia memahami bahwa <strong>a² + b² = c²</strong>.</p>
-    </section>
+  <section class="section introduction no-print">
+    <h2>📖 Pengenalan: Penutup Tahun yang Elegan</h2>
+    <p class="intro-text">
+      Sebagai penutup tahun, Kelompok 10 mempersembahkan <strong>"Rearansemen Minimal"</strong>:
+      hanya bermodalkan <strong>dua ayunan 90°</strong>, empat segitiga kuning menyusun bayangan persegi c²
+      (bersama lubang kecil (b−a)²), lalu dua segitiga atas diayun turun untuk <strong>langsung membentuk
+      persegi a² dan b²</strong>. Tidak ada potongan yang hilang atau bertumpuk — maka
+      <strong>c² = a² + b²</strong>. ∎
+    </p>
+  </section>
 
-    <section class="section animation no-print">
-        <h2>🎬 Animasi Klasik</h2>
-        <div class="wiki-anim-container">
-          <!-- Ganti src dengan '../assets/images/pythagoras-proof.gif' jika sudah didownload lokal -->
-          <img id="wikiAnim" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Pythagoras-2a.gif/500px-Pythagoras-2a.gif" alt="Pythagoras Proof Animation">
-          
-          <div class="wiki-controls">
-            <button id="btnReplay">↺ Putar Ulang (Replay)</button>
+  <section class="section animation no-print">
+    <h2>🎬 Animasi Interaktif (6 Fase)</h2>
+    <div class="animation-wrapper">
+      <div class="dec-stage-wrap">
+        <svg id="cv" width="560" height="470" viewBox="0 0 560 470"></svg>
+        <div class="badge" id="badge">GAMBAR 01</div>
+      </div>
+
+      <div class="dots" id="dots"></div>
+
+      <div class="dec-controls">
+        <button class="c-awal"  id="btnAwal"  onclick="goAwal()">⏮ Awal</button>
+        <button class="c-back"  id="btnBack"  onclick="stepBack()">⏪ Mundur</button>
+        <button class="c-play"  id="bP"       onclick="play()">▶ Putar</button>
+        <button class="c-pause" id="bS"       onclick="pause()" style="display:none">⏸ Jeda</button>
+        <button class="c-fwd"   id="btnFwd"   onclick="stepFwd()">Maju ⏭</button>
+        <button class="c-reset" id="btnReset" onclick="reset()">🔄 Reset</button>
+        <button class="c-auto"  id="bA"       onclick="toggleAuto()">🔁 Auto</button>
+      </div>
+
+      <div class="pbar"><div class="pfill" id="pfill"></div></div>
+      <div class="ptext" id="ptext">Langkah 0 dari 5</div>
+
+      <div class="rowctl"><span>⏩ Scrub:</span><input type="range" id="scrub" min="0" max="600" value="0" oninput="scrubTo(this.value)"><span id="pL">0%</span></div>
+      <div class="rowctl"><span>⚡ Kecepatan:</span><input type="range" id="spd" min="25" max="250" value="100" style="width:130px"><span id="sL">1.0×</span></div>
+
+      <div class="info-panel"><h3 id="iT"></h3><p id="iD"></p></div>
+
+      <div class="calc-box">
+        <div class="calc-title">📐 Perhitungan (skala 30 px/unit → a=3, b=4, c=5)</div>
+        <div class="calc-line">Fase 0–2: 4 segitiga (masing-masing ½ab = 6) + lubang (b−a)² = 1</div>
+        <div class="calc-line">Fase 3: bayangan c² terisi penuh → c² = 4·6 + 1 = <span class="calc-highlight">25</span></div>
+        <div class="calc-line">Fase 4–5: dua segitiga atas diayun turun → persegi a² = <span class="calc-highlight">9</span> dan b² = <span class="calc-highlight">16</span></div>
+        <div class="calc-line">Luas tak berubah: 25 = 9 + 16</div>
+        <div class="calc-line">✓ Terbukti: c² = a² + b²</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section no-print">
+    <div class="ai-prompt-box collapsed" id="aiPromptBox">
+      <button class="ai-prompt-toggle" onclick="document.getElementById('aiPromptBox').classList.toggle('collapsed')">
+        <span>💡 Panduan Presentasi</span><span class="chevron">▼</span>
+      </button>
+      <div class="ai-prompt-content">
+        <p style="margin:0 0 12px 0;font-size:14px;line-height:1.6;color:#4a5568;">
+          Gunakan prompt AI berikut untuk menyusun naskah presentasi 3-4 menit.
+          Sertakan screenshot/PDF halaman ini saat bertanya ke AI.</p>
+        <div class="prompt-text" id="promptText">"Saya seorang siswa SMP akan mempresentasikan Pembuktian Teorema Pythagoras [NAMA BUKTI] mulai dari Pendahuluan, Penjelasan Visual/Animasi, Contoh, hingga Kesimpulan dalam waktu 3-4 menit. Bantu saya menyusun naskah presentasi yang mudah dipahami, menarik, dan sesuai untuk audiens teman sekelas."</div>
+        <button class="btn-copy" id="btnCopyPrompt">📋 Copy Teks</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section export-section no-print-screen">
+    <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">👁 Tampilkan Pratinjau PDF (1 halaman)</button>
+    <div class="preview-collapse collapsed" id="previewCollapse">
+      <div class="a4-viewport" id="a4Viewport">
+        <div id="exportArea" class="a4-sheet">
+          <div class="export-header">
+            <h2>Bukti #12: Rearansemen Minimal</h2>
+            <p>Kalender Pythagoras 2027 • Desember • Kelompok 10 • Level: Penutup Tahun</p>
           </div>
-          <div class="anim-caption">
-            <strong>Catatan:</strong> Karena format GIF, tombol "Putar Ulang" akan memuat ulang animasi dari awal. 
-            Amati bagaimana luas persegi pada sisi a dan b secara visual "mengisi" persegi pada sisi c.
+          <div id="calBlock" class="cal-block"></div>
+          <hr class="cal-divider">
+          <div class="proof-figures">
+            <figure class="proof-figure"><span class="state-badge initial">AWAL</span>
+              <div class="scene" id="figInitial"></div>
+              <figcaption><strong>Gbr 1:</strong> kincir: 4 segitiga + lubang (b−a)² mengisi bayangan c².</figcaption></figure>
+            <figure class="proof-figure"><span class="state-badge final">AKHIR</span>
+              <div class="scene" id="figFinal"></div>
+              <figcaption><strong>Gbr 2:</strong> setelah dua ayunan: persegi a² dan b² tepat menutup c².</figcaption></figure>
           </div>
-        </div>
-    </section>
-
-    <section class="section no-print">
-        <div class="ai-prompt-box">
-            <h4>💡 Panduan Presentasi</h4>
-            <p style="margin:0 0 12px 0;font-size:14px;line-height:1.6;color:#4a5568;">
-              Jika kamu kesulitan menyiapkan presentasi, gunakan contoh prompt AI berikut. 
-              Sertakan <strong>screenshot</strong> atau <strong>upload PDF</strong> halaman ini saat bertanya ke AI.
-            </p>
-            <div class="prompt-text" id="promptText">"Saya seorang siswa SMP akan mempresentasikan Pembuktian Teorema Pythagoras [NAMA BUKTI] mulai dari Pendahuluan, Penjelasan Visual/Animasi, Contoh, hingga Kesimpulan dalam waktu 3-4 menit. Bantu saya menyusun naskah presentasi yang mudah dipahami, menarik, dan sesuai untuk audiens teman sekelas."</div>
-            <button class="btn-copy" id="btnCopyPrompt">📋 Copy Teks</button>
-            <p style="font-size:12px;color:#718096;margin:8px 0 0 0;">⏱️ Durasi 3-4 menit sudah memperhitungkan jeda.</p>
-        </div>
-    </section>
-
-    <section class="section export-section no-print-screen">
-        <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">👁 Tampilkan Pratinjau PDF (1 halaman)</button>
-        <div class="preview-collapse collapsed" id="previewCollapse">
-          <div class="a4-viewport" id="a4Viewport">
-            <div id="exportArea" class="a4-sheet">
-                <div class="export-header">
-                    <h2>Bukti #12: Animasi Klasik Pythagoras</h2>
-                    <p>Kalender Pythagoras 2027 • Desember • Kelompok 10 • Level: Penutup Tahun</p>
-                </div>
-                <div id="calBlock" class="cal-block"></div>
-                <hr class="cal-divider">
-                <div class="proof-figures">
-                    <figure class="proof-figure" style="flex:1;">
-                        <span class="state-badge initial">ANIMASI</span>
-                        <div class="scene">
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Pythagoras-2a.gif/500px-Pythagoras-2a.gif" style="max-width:100%;border-radius:6px;">
-                        </div>
-                        <figcaption><strong>Gbr:</strong> Visualisasi klasik hubungan luas a², b², dan c².</figcaption>
-                    </figure>
-                </div>
-                <div class="export-explain">
-                    <p><strong>Penjelasan:</strong> Animasi ini menunjukkan bahwa jumlah luas persegi pada kedua kaki segitiga siku-siku (a² + b²) sama dengan luas persegi pada sisi miring (c²).</p>
-                    <div class="export-formula">a² + b² = c²</div>
-                </div>
-                <div class="export-conclusion" style="margin-bottom:0;">
-                    <div class="export-conclusion-text">KESIMPULAN:<br>a² + b² = c²</div>
-                </div>
-                <div class="group-info-compact">
-                    <div class="group-names-col">
-                        <strong>Nama Anggota Kelompok:</strong>
-                        <div class="name-grid">
-                            <div class="name-line">1. .......................................</div>
-                            <div class="name-line">3. .......................................</div>
-                            <div class="name-line">2. .......................................</div>
-                            <div class="name-line">4. .......................................</div>
-                            <div class="name-line">5. .......................................</div>
-                        </div>
-                    </div>
-                    <div class="qr-col">
-                        <div class="qr-box" id="qrcode"></div>
-                        <div class="qr-caption">Scan untuk animasi</div>
-                    </div>
-                </div>
+          <div class="export-explain">
+            <p><strong>Penjelasan:</strong> empat segitiga siku-siku (½ab) bersama lubang (b−a)² menyusun bayangan
+               persegi c². Mengayun turun dua segitiga atas (rotasi 90°) mengubah susunan menjadi persegi a² dan b²
+               tanpa mengubah luas total.</p>
+            <div style="background:#f8fafc;padding:10px;border-radius:6px;font-family:monospace;font-size:12px;line-height:1.7;color:#1e293b;margin:8px 0;">
+              c² = 4·(½ab) + (b−a)² = 24 + 1 = 25<br>
+              a² + b² = 9 + 16 = 25<br>
+              ∴ c² = a² + b²
+            </div>
+            <div class="export-formula">
+              <span class="formula-calc">a² + b² = c² → 9 + 16 = 25</span>
+              <span class="formula-verified">✓ TERBUKTI!</span>
+            </div>
+          </div>
+          <div class="pythagoras-container">
+            <span class="pythagoras-label">KESIMPULAN:</span>
+            <span class="pythagoras-rumus" id="py-rumus">a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup></span>
+            <span class="pythagoras-sep">│</span>
+            <span class="pythagoras-teks" id="py-kesimpulan">"Jumlah kuadrat sisi siku-siku sama dengan kuadrat sisi miring (hipotenusa)"</span>
+            <button class="pythagoras-refresh-btn" onclick="acakKesimpulanPythagoras()" title="Acak Kesimpulan">
+              <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+            </button>
+          </div>
+          <div class="group-info-compact">
+            <div class="group-names-col">
+              <strong>Nama Anggota Kelompok:</strong>
+              <div class="name-grid">
+                <div class="name-line">1. .......................................</div>
+                <div class="name-line">3. .......................................</div>
+                <div class="name-line">2. .......................................</div>
+                <div class="name-line">4. .......................................</div>
+                <div class="name-line">5. .......................................</div>
+              </div>
+            </div>
+            <div class="qr-col">
+              <div class="qr-box" id="qrcode"></div>
+              <div class="qr-caption">Scan untuk animasi</div>
             </div>
           </div>
         </div>
-    </section>
+      </div>
+    </div>
+  </section>
 </main>
 
 <nav class="proof-nav bottom no-print">
-    <a href="bukti-11-november.html" class="prev-btn">← Sebelumnya</a>
-    <a href="../index.html" class="home-btn">🏁 Kalender 2027</a>
+  <a href="bukti-11-november.html" class="prev-btn">← Sebelumnya</a>
+  <a href="../index.html" class="home-btn">🏁 Kalender 2027</a>
 </nav>
 <footer class="no-print"><p><strong>Kelompok 10</strong> - Pembuktian #12 — Penutup Tahun</p><p>Projek Kalender Pythagoras 2027</p></footer>
 
-<!-- ============ MODAL KONFIRMASI DOWNLOAD ============ -->
 <div class="modal-overlay" id="downloadModal">
   <div class="modal-content">
     <h3>📄 Konfirmasi Download PDF</h3>
@@ -206,85 +218,207 @@
   </div>
 </div>
 
-<script src="../assets/js/calendar-template.js?v=3"></script>
-<script src="../assets/js/pdf-export.js?v=34"></script>
+<!-- ============ MESIN ANIMASI (global, tanpa IIFE agar onclick inline bekerja) ============ -->
+<script>
+var NS='http://www.w3.org/2000/svg', svg=document.getElementById('cv');
+var DUR=[2.0,1.8,2.6,2.0,3.2,3.4];
+var FR=[[1,3],[4,5],[6,8],[9,9],[10,22],[23,23]];
+var INFO=[
+["Fase 0 (Gbr 1–3) — Segitiga a,b,c di kiri bawah","Segitiga muncul langsung di posisi finalnya (kiri bawah), skala final: kaki a vertikal, kaki b horizontal, hipotenusa c."],
+["Fase 1 (Gbr 4–5) — Ayun naik","Segitiga berayun −90° terhadap poros V1(95,310) naik ke slot atas-kiri kincir."],
+["Fase 2 (Gbr 6–8) — Kincir lengkap","Segitiga atas-kanan berayun masuk (+90° poros V3). Dua segitiga bawah & lubang (b−a) hanya muncul — sudah di rumah finalnya."],
+["Fase 3 (Gbr 9) — area = c²","Persegi besar bersisi c (puncak menonjol ke atas) berisi 4 segitiga + lubang: c² = 4·(½ab)+(b−a)²."],
+["Fase 4 (Gbr 10–22) — Dua ayunan ke bawah","Hanya 2 segitiga ATAS yang bergerak: atas-kiri → kiri-bawah (−90° poros V1), atas-kanan → kanan-bawah (+90° poros V3). Yang bawah DIAM."],
+["Fase 5 (Gbr 23) — Fokus akhir","Garis pembantu (seam, lubang) memudar jadi transparan. Tersisa: persegi a² biru muda, persegi b² hijau muda, bayangan miring c², dan c² = a² + b²  ∎"]];
+var V1=[95,310],V3=[305,280];
+var F1=[[95,400],[95,310],[215,400]],F2=[[305,400],[215,400],[305,280]],
+    F3=[[215,310],[215,400],[95,310]],F4=[[215,280],[305,280],[215,400]],
+    HS=[[185,280],[215,280],[215,310],[185,310]];
+var PIV1=V1,PIV2=V3;
+function rot(p,q,ad){ var r=ad*Math.PI/180,cc=Math.cos(r),ss=Math.sin(r),d=[p[0]-q[0],p[1]-q[1]]; return [q[0]+cc*d[0]-ss*d[1], q[1]+ss*d[0]+cc*d[1]]; }
+function mk(t,at,par){ var n=document.createElementNS(NS,t); for(var k in at) n.setAttribute(k,at[k]); (par||svg).appendChild(n); return n; }
+
+var ghost=mk('polygon',{points:'95,310 185,190 305,280 215,400',fill:'none',stroke:'#2c3e50','stroke-width':2,opacity:0});
+var sqAf=mk('rect',{x:95,y:310,width:90,height:90,fill:'#aed6f1',stroke:'#2980b9','stroke-width':2.5,opacity:0});
+var sqBf=mk('rect',{x:185,y:280,width:120,height:120,fill:'#a9dfbf',stroke:'#27ae60','stroke-width':2.5,opacity:0});
+var unionO=mk('path',{d:'M95,310 H185 V280 H305 V400 H95 Z',fill:'none',stroke:'#2c3e50','stroke-width':2.5,opacity:0});
+var pc1=mk('polygon',{points:'95,400 95,310 215,400',fill:'#f2c500',stroke:'#2c3e50','stroke-width':2,opacity:0});
+var pc2=mk('polygon',{points:'305,400 215,400 305,280',fill:'#f2c500',stroke:'#2c3e50','stroke-width':2,opacity:0});
+var pc3=mk('polygon',{points:'215,280 305,280 215,400',fill:'#f2c500',stroke:'#2c3e50','stroke-width':2,opacity:0});
+var pc4=mk('polygon',{points:'215,310 215,400 95,310',fill:'#f2c500',stroke:'#2c3e50','stroke-width':2,opacity:0});
+var hole=mk('polygon',{points:'185,280 215,280 215,310 185,310',fill:'#f5f2da',stroke:'#2c3e50','stroke-width':2,opacity:0});
+var gIntLab=mk('g',{opacity:0});
+[['a',83,358,'end'],['b',155,422,'middle'],['c',166,346,'middle']].forEach(function(L){ mk('text',{x:L[1],y:L[2],'font-size':18,'font-style':'italic','font-weight':'bold',fill:'#2c3e50','text-anchor':L[3]},gIntLab).textContent=L[0]; });
+var gPinLab=mk('g',{opacity:0});
+[['a',140,302],['b',195,250],['c',128,241],['c',272,349]].forEach(function(L){ mk('text',{x:L[1],y:L[2],'font-size':15,'font-style':'italic','font-weight':'bold',fill:'#2c3e50'},gPinLab).textContent=L[0]; });
+var gSqLab=mk('g',{opacity:0});
+[['a',82,360,'end'],['a',140,422,'middle'],['b',245,422,'middle'],['b',318,345,'start']].forEach(function(L){ mk('text',{x:L[1],y:L[2],'font-size':17,'font-style':'italic','font-weight':'bold',fill:'#2c3e50','text-anchor':L[3]},gSqLab).textContent=L[0]; });
+var gSq2=mk('g',{opacity:0});
+mk('text',{x:140,y:364,'font-size':26,'font-style':'italic','font-weight':'bold',fill:'#1a5276','text-anchor':'middle'},gSq2).textContent='a²';
+mk('text',{x:252,y:352,'font-size':26,'font-style':'italic','font-weight':'bold',fill:'#145a32','text-anchor':'middle'},gSq2).textContent='b²';
+var tC2=mk('text',{x:200,y:250,'font-size':22,'font-style':'italic','font-weight':'bold',fill:'#8a8f98','text-anchor':'middle',opacity:0}); tC2.textContent='c²';
+var tArea=mk('text',{x:38,y:52,'font-size':17,'font-style':'italic','font-weight':'bold',fill:'#2c3e50',opacity:0}); tArea.textContent='area = c²';
+var tEq=mk('text',{x:330,y:52,'font-size':17,'font-style':'italic','font-weight':'bold',fill:'#2c3e50',opacity:0}); tEq.textContent='c² = a² + b²';
+
+function clamp(v){ return Math.max(0,Math.min(1,v)); }
+function ease(t){ return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2; }
+function set(n,v){ n.setAttribute('opacity',v); }
+
+var P=0, playing=false, auto=false, last=-1, raf=null, prev=0;
+var ST=[0.999,1.999,2.999,3.999,4.999,5.999];
+
+function render(Pv){
+  var s=Math.min(5,Math.floor(Pv)), t=clamp(Pv-s), e=ease(t);
+  [pc1,pc2,pc3,pc4].forEach(function(p){ set(p,0); p.setAttribute('fill-opacity',1); p.setAttribute('stroke-opacity',1); p.setAttribute('stroke','#2c3e50'); p.setAttribute('stroke-width',2); });
+  hole.setAttribute('fill-opacity',1); hole.setAttribute('stroke-opacity',1); hole.setAttribute('stroke','#2c3e50'); hole.setAttribute('stroke-width',2);
+  set(hole,0); set(ghost,0); set(unionO,0); set(gIntLab,0); set(gPinLab,0); set(gSqLab,0); set(gSq2,0); set(tC2,0); set(tArea,0); set(tEq,0);
+  set(sqAf,0); set(sqBf,0);
+  ghost.setAttribute('fill','none'); ghost.setAttribute('stroke','#2c3e50'); ghost.setAttribute('stroke-width',2);
+  var a1=0,a2=0;
+  if(s===0){ set(pc1,clamp(t*4)); set(gIntLab,clamp((t-.25)/.4)); }
+  else if(s===1){ set(pc1,1); set(gIntLab,clamp(1-t*3)); a1=-90*e; }
+  else if(s===2){ set(pc1,1); a1=-90;
+    var e2=ease(clamp((t-.25)/.55)); set(pc2,clamp((t-.25)/.2)); a2=180-90*e2;
+    set(pc3,clamp((t-.05)/.2)); set(pc4,clamp((t-.2)/.2)); set(hole,clamp((t-.55)/.3)); }
+  else if(s===3){ [pc1,pc2,pc3,pc4].forEach(function(p){set(p,1);}); set(hole,1); a1=-90; a2=90;
+    set(ghost,1); set(gPinLab,Math.min(1,t*2)); set(tArea,clamp((t-.4)/.5)); }
+  else if(s===4){ [pc1,pc2,pc3,pc4].forEach(function(p){set(p,1);}); set(hole,1); set(tArea,1);
+    a1=-90*(1-ease(clamp(t/.45))); a2=90*(1-ease(clamp((t-.25)/.45)));
+    ghost.setAttribute('fill','#f2c500'); ghost.setAttribute('fill-opacity',.28);
+    ghost.setAttribute('stroke','#b9bdc4'); ghost.setAttribute('stroke-width',1.5); set(ghost,1);
+    set(gPinLab,1-clamp(t/.3)); set(unionO,clamp((t-.75)/.25)); }
+  else { [pc1,pc2,pc3,pc4].forEach(function(p){set(p,1);}); set(hole,1); set(tArea,1);
+    var ec=ease(clamp(t/.55)), fo=1-ec;
+    set(sqAf,ec); set(sqBf,ec);
+    var pw=2.5+1.2*Math.sin(clamp(t)*Math.PI);
+    sqAf.setAttribute('stroke-width',pw); sqBf.setAttribute('stroke-width',pw);
+    [pc1,pc2,pc3,pc4].forEach(function(p){ p.setAttribute('fill-opacity',fo); p.setAttribute('stroke-opacity',fo); });
+    hole.setAttribute('fill-opacity',fo); hole.setAttribute('stroke-opacity',fo);
+    ghost.setAttribute('fill','#f2c500'); ghost.setAttribute('fill-opacity',.3);
+    ghost.setAttribute('stroke','#b9bdc4'); ghost.setAttribute('stroke-width',1.5);
+    set(ghost,.95); set(tC2,ec);
+    set(unionO,1-ec); set(gSqLab,Math.min(1,t*2)); set(gSq2,clamp((t-.45)/.4)); set(tEq,Math.min(1,t*2)); }
+  pc1.setAttribute('transform','rotate('+a1+' '+PIV1[0]+' '+PIV1[1]+')');
+  pc2.setAttribute('transform','rotate('+a2+' '+PIV2[0]+' '+PIV2[1]+')');
+  var f=FR[s], fr=Math.min(f[1], f[0]+Math.floor(t*(f[1]-f[0]+1)));
+  document.getElementById('badge').textContent='GAMBAR '+String(fr).padStart(2,'0');
+  document.getElementById('scrub').value=Math.round(Pv*100);
+  document.getElementById('pL').textContent=Math.round(Pv/6*100)+'%';
+  document.getElementById('pfill').style.width=(Pv/6*100)+'%';
+  document.getElementById('ptext').textContent='Langkah '+s+' dari 5 ('+Math.round(Pv/6*100)+'%)';
+  document.getElementById('btnAwal').disabled = (Pv<=ST[0]);
+  document.getElementById('btnBack').disabled = (Pv<=ST[0]);
+  document.getElementById('btnFwd').disabled  = (Pv>=ST[5]);
+  if(s!==last){ last=s;
+    document.getElementById('iT').textContent=INFO[s][0];
+    document.getElementById('iD').textContent=INFO[s][1];
+    document.querySelectorAll('.dot').forEach(function(d,i){ d.className='dot'+(i<s?' done':'')+(i===s?' on':''); });
+  }
+}
+function tick(ts){ if(!playing) return; var dt=(ts-prev)/1000; prev=ts;
+  P+=dt*(document.getElementById('spd').value/100)/DUR[Math.min(5,Math.floor(P))];
+  if(P>=6){ if(auto) P=0; else { P=5.999; pause(); } }
+  render(P); if(playing) raf=requestAnimationFrame(tick); }
+function play(){ if(P>=5.99) P=0; playing=true; prev=performance.now();
+  document.getElementById('bP').style.display='none'; document.getElementById('bS').style.display='';
+  raf=requestAnimationFrame(tick); }
+function pause(){ playing=false; cancelAnimationFrame(raf);
+  document.getElementById('bP').style.display=''; document.getElementById('bS').style.display='none'; }
+function stepFwd(){ pause(); if(P<0.5){ P=ST[0]; } else { P=ST[Math.min(Math.floor(P)+1,5)]; } render(P); }
+function stepBack(){ pause(); if(P<=ST[0]){ P=0; } else { P=ST[Math.max(Math.ceil(P-1e-4)-1,0)]; } render(P); }
+function goAwal(){ pause(); P=ST[0]; render(P); }
+function reset(){ pause(); P=0; render(P); }
+function toggleAuto(){ auto=!auto; document.getElementById('bA').textContent=auto?'🔁 Auto ON':'🔁 Auto'; if(auto) play(); else pause(); }
+function scrubTo(v){ pause(); P=v/100; render(P); }
+document.getElementById('spd').oninput=function(ev){ document.getElementById('sL').textContent=(ev.target.value/100).toFixed(1)+'×'; };
+for(var di=0; di<6; di++){
+  (function(i){ var d=document.createElement('div'); d.className='dot';
+    d.onclick=function(){ pause(); P=ST[i]; render(P); };
+    document.getElementById('dots').appendChild(d); })(di);
+}
+render(0);
+</script>
+
+<!-- ============ INIT HALAMAN ============ -->
 <script>
 (function(){
 "use strict";
+var $=function(id){ return document.getElementById(id); };
+window.PROOF_NAME='Rearansemen Minimal (Penutup Tahun)';
 
-window.PROOF_NAME = "Animasi Klasik Pythagoras";
-
-/* GIF Replay Logic */
-const wikiAnim = document.getElementById('wikiAnim');
-const btnReplay = document.getElementById('btnReplay');
-
-btnReplay.onclick = () => {
-  // Fade out
-  wikiAnim.style.opacity = '0';
-  setTimeout(() => {
-    // Cache buster untuk memaksa reload GIF dari awal
-    const baseUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Pythagoras-2a.gif/500px-Pythagoras-2a.gif";
-    wikiAnim.src = baseUrl + '?t=' + Date.now();
-    wikiAnim.onload = () => {
-      wikiAnim.style.opacity = '1';
-    };
-  }, 300);
-};
-
-/* AI Prompt Copy */
-const btnCopyPrompt = document.getElementById('btnCopyPrompt');
-const promptText = document.getElementById('promptText');
-const rawPrompt = promptText.textContent.replace('[NAMA BUKTI]', window.PROOF_NAME);
-promptText.textContent = rawPrompt;
-
-btnCopyPrompt.onclick = async () => {
-  try {
-    await navigator.clipboard.writeText(rawPrompt);
-    btnCopyPrompt.textContent = '✅ Tersalin!';
-    btnCopyPrompt.classList.add('copied');
-    setTimeout(() => {
-      btnCopyPrompt.textContent = '📋 Copy Teks';
-      btnCopyPrompt.classList.remove('copied');
-    }, 2000);
-  } catch (e) {
-    alert('❌ Gagal menyalin: ' + e.message);
+/* gambar statis sheet A4 */
+function decScene(state,w){
+  var hh=Math.round(w*290/280);
+  var o='<svg viewBox="60 165 280 290" width="'+w+'" height="'+hh+'" style="display:block;margin:auto;">';
+  if(state==='initial'){
+    o+='<polygon points="95,310 185,190 305,280 215,400" fill="#f2c500" fill-opacity=".28" stroke="#b9bdc4" stroke-width="1.5"/>';
+    o+='<polygon points="185,310 95,310 185,190" fill="#f2c500" stroke="#2c3e50" stroke-width="2"/>';
+    o+='<polygon points="185,280 185,190 305,280" fill="#f2c500" stroke="#2c3e50" stroke-width="2"/>';
+    o+='<polygon points="215,280 305,280 215,400" fill="#f2c500" stroke="#2c3e50" stroke-width="2"/>';
+    o+='<polygon points="215,310 215,400 95,310" fill="#f2c500" stroke="#2c3e50" stroke-width="2"/>';
+    o+='<polygon points="185,280 215,280 215,310 185,310" fill="#f5f2da" stroke="#2c3e50" stroke-width="2"/>';
+    o+='<text x="200" y="182" text-anchor="middle" font-size="16" font-style="italic" font-weight="bold" fill="#2c3e50">area = c²</text>';
+    o+='<text x="200" y="448" text-anchor="middle" font-size="13" font-weight="bold" fill="#2c3e50">c² = 4·(½ab) + (b−a)² = 24 + 1 = 25</text>';
+  } else {
+    o+='<polygon points="95,310 185,190 305,280 215,400" fill="#f2c500" fill-opacity=".3" stroke="#b9bdc4" stroke-width="1.5"/>';
+    o+='<rect x="95" y="310" width="90" height="90" fill="#aed6f1" stroke="#2980b9" stroke-width="2.5"/>';
+    o+='<rect x="185" y="280" width="120" height="120" fill="#a9dfbf" stroke="#27ae60" stroke-width="2.5"/>';
+    o+='<text x="140" y="364" text-anchor="middle" font-size="22" font-style="italic" font-weight="bold" fill="#1a5276">a²</text>';
+    o+='<text x="252" y="352" text-anchor="middle" font-size="22" font-style="italic" font-weight="bold" fill="#145a32">b²</text>';
+    o+='<text x="200" y="250" text-anchor="middle" font-size="20" font-style="italic" font-weight="bold" fill="#8a8f98">c²</text>';
+    o+='<text x="200" y="448" text-anchor="middle" font-size="13" font-weight="bold" fill="#145a32">c² = a² + b² → 25 = 9 + 16 ✓</text>';
   }
+  return o+'</svg>';
+}
+$('figInitial').innerHTML=decScene('initial',260);
+$('figFinal').innerHTML=decScene('final',260);
+
+function fitSheet(){ var vp=$('a4Viewport'), sh=document.querySelector('.a4-sheet'); if(!vp||!sh)return;
+  var s=Math.min(1,vp.clientWidth/794); sh.style.transform='scale('+s+')'; sh.style.transformOrigin='top left'; vp.style.height=(1123*s)+'px'; }
+window.fitSheet=fitSheet; window.addEventListener('resize',fitSheet);
+window.togglePreview=function(){ var col=$('previewCollapse'); col.classList.toggle('collapsed');
+  $('btnPreview').textContent=col.classList.contains('collapsed')?'👁 Tampilkan Pratinjau PDF (1 halaman)':'🙈 Sembunyikan Pratinjau PDF';
+  if(!col.classList.contains('collapsed')) setTimeout(fitSheet,60); };
+
+try { if(typeof renderCalendar==='function') renderCalendar($('calBlock'),12);
+      else $('calBlock').innerHTML='<div style="padding:20px;text-align:center;color:#c53030;">⚠ calendar-template.js tidak termuat</div>';
+} catch(e){ $('calBlock').innerHTML='<div style="padding:20px;text-align:center;color:#c53030;">⚠ Gagal render kalender</div>'; }
+
+try { var qc=$('qrcode'); qc.innerHTML='';
+  new QRCode(qc,{text:window.location.href,width:84,height:84,correctLevel:QRCode.CorrectLevel.M,colorDark:"#1a202c",colorLight:"#ffffff"});
+} catch(e){ $('qrcode').innerHTML='<div style="font-size:10px;color:#666;text-align:center;">QR Error</div>'; }
+
+var btnCopy=$('btnCopyPrompt'), pt=$('promptText');
+var raw=pt.textContent.replace('[NAMA BUKTI]', window.PROOF_NAME);
+pt.textContent=raw;
+btnCopy.onclick=async function(){
+  try{ await navigator.clipboard.writeText(raw);
+    btnCopy.textContent='✅ Tersalin!'; btnCopy.classList.add('copied');
+    setTimeout(function(){ btnCopy.textContent='📋 Copy Teks'; btnCopy.classList.remove('copied'); },2000);
+  }catch(e){ alert('Gagal: '+e.message); }
 };
 
-/* PDF & QR Init */
-function fitSheet() {
-  const vp = document.getElementById('a4Viewport');
-  const sh = document.querySelector('.a4-sheet');
-  if (!vp || !sh) return;
-  const s = Math.min(1, vp.clientWidth / 794);
-  sh.style.transform = `scale(${s})`;
-  sh.style.transformOrigin = 'top left';
-  vp.style.height = (1123 * s) + 'px';
+var daftarKesimpulanPythagoras = [
+  { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi siku-siku sama dengan kuadrat sisi miring" },
+  { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi tegak sama dengan kuadrat sisi miring" },
+  { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi siku-siku sama dengan kuadrat sisi miring (hipotenusa)" },
+  { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi tegak sama dengan kuadrat sisi miring (sisi terpanjang)" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring sama dengan jumlah kuadrat sisi tegaknya" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring sama dengan jumlah kuadrat sisi siku-sikunya" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring (hipotenusa) sama dengan jumlah kuadrat sisi tegaknya" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring (sisi terpanjang) sama dengan jumlah kuadrat sisi siku-sikunya" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Pada segitiga siku-siku, kuadrat panjang sisi miring sama dengan jumlah kuadrat panjang sisi-sisi lainnya" }
+];
+var idxK=(12-1)%daftarKesimpulanPythagoras.length;
+function acakKesimpulanPythagoras(){
+  idxK=(idxK+1)%daftarKesimpulanPythagoras.length;
+  $('py-rumus').innerHTML=daftarKesimpulanPythagoras[idxK].rumus;
+  $('py-kesimpulan').innerText='"'+daftarKesimpulanPythagoras[idxK].teks+'"';
 }
-window.fitSheet = fitSheet;
-window.addEventListener('resize', fitSheet);
+window.acakKesimpulanPythagoras=acakKesimpulanPythagoras;
+$('py-rumus').innerHTML=daftarKesimpulanPythagoras[idxK].rumus;
+$('py-kesimpulan').innerText='"'+daftarKesimpulanPythagoras[idxK].teks+'"';
 
-window.togglePreview = function() {
-  const col = document.getElementById('previewCollapse');
-  col.classList.toggle('collapsed');
-  document.getElementById('btnPreview').textContent = col.classList.contains('collapsed')
-    ? '👁 Tampilkan Pratinjau PDF (1 halaman)' : '🙈 Sembunyikan Pratinjau PDF';
-  if (!col.classList.contains('collapsed')) setTimeout(fitSheet, 60);
-};
-
-if (typeof renderCalendar === 'function') renderCalendar(document.getElementById('calBlock'), 12);
-try {
-  const qrContainer = document.getElementById('qrcode');
-  qrContainer.innerHTML = '';
-  new QRCode(qrContainer, {
-    text: window.location.href,
-    width: 84, height: 84,
-    correctLevel: QRCode.CorrectLevel.M,
-    colorDark: "#1a202c", colorLight: "#ffffff"
-  });
-} catch (e) {
-  document.getElementById('qrcode').innerHTML = '<div style="font-size:10px;color:#666;text-align:center;">QR Error</div>';
-}
 fitSheet();
 })();
 </script>

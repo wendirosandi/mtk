@@ -1,364 +1,406 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bukti #9: Trapesium Garfield (8-15-17) - Kalender Pythagoras 2027</title>
-    <link rel="stylesheet" href="../assets/css/main.css">
-    <link rel="stylesheet" href="../assets/css/proof.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bukti #9: Trapesium Garfield (8-15-17) - Kalender Pythagoras 2027</title>
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/proof.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="../assets/js/calendar-template.js?v=3"></script>
+<script src="../assets/js/pdf-export.js?v=42"></script>
+<style>
+  .animation-wrapper { background:#f8f9fa; border:1px solid #e2e8f0; border-radius:14px; padding:16px; margin-bottom:12px; }
+  .stage-wrap { position:relative; width:100%; background:#fff; border:2px solid #e0e0e0; border-radius:12px; overflow:hidden; margin-bottom:16px; }
+  .stage-wrap svg { display:block; width:100%; height:auto; }
+  .anim-g { transition: transform .7s cubic-bezier(.4,0,.2,1), opacity .5s ease; }
+  .animation-controls { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:16px 0; }
+  .animation-controls button { padding:10px 18px; border:none; border-radius:8px; font-weight:700; cursor:pointer; color:#fff; transition:all .2s; }
+  .animation-controls button:hover:not(:disabled){ transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,.15); }
+  .animation-controls button:disabled{ opacity:.5; cursor:not-allowed; }
+  .btn-back{background:#3498db;} .btn-play{background:#27ae60;} .btn-fwd{background:#9b59b6;} .btn-reset{background:#e74c3c;}
+  .pbar { width:100%; background:#e0e0e0; border-radius:8px; height:12px; overflow:hidden; margin-top:10px; }
+  .pfill { height:100%; background:#27ae60; width:0%; transition:width .3s linear; }
+  .ptext { text-align:center; font-size:13px; color:#7f8c8d; margin-top:6px; }
+  .formula-display { margin-top:16px; background:#fff; border-radius:8px; padding:12px; border:1px solid #e2e8f0; }
+  .formula-step { display:none; padding:8px; border-left:3px solid transparent; font-size:14px; color:#4a5568; }
+  .formula-step.active { display:block; border-left-color:#5a67d8; background:#f0f4ff; font-weight:600; color:#2d3748; border-radius:0 4px 4px 0; }
+  .calc-box { background:#fff; border:2px solid #e2e8f0; border-radius:10px; padding:14px; margin-top:14px; font-family:'Courier New',monospace; font-size:13px; line-height:1.7; color:#1e293b; }
+  .calc-title { font-weight:700; color:#5a67d8; margin-bottom:8px; font-size:14px; text-align:center; }
+  .calc-line { padding:4px 0; border-bottom:1px dashed #e2e8f0; }
+  .calc-line:last-child { border-bottom:none; font-weight:700; color:#27ae60; background:#f0fdf4; padding:6px 8px; border-radius:4px; margin-top:6px; }
+  .calc-highlight { color:#e11d48; font-weight:600; }
+  .historical-note { background:#fef3c7; border-left:4px solid #f59e0b; padding:12px 16px; border-radius:8px; margin:16px 0; font-size:13px; color:#92400e; line-height:1.6; }
+  .a4-sheet .proof-figures .proof-figure .scene { min-height:170px; }
+  .a4-sheet .proof-figures .proof-figure .scene svg { width:100%; height:auto; display:block; }
+</style>
 </head>
 <body>
-    <header class="proof-header no-print">
-        <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
-        <div class="proof-info">
-            <h1>Bukti #9: Trapesium Garfield (8-15-17)</h1>
-            <div class="proof-meta">
-                <span class="meta-item">📅 September 2027</span>
-                <span class="meta-item">👥 Kelompok 7</span>
-                <span class="meta-item">🎯 Level: Dasar</span>
-            </div>
-        </div>
-        <div class="export-buttons">
-            <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 Download PDF (1 hal)</button>
-            <button class="btn-print" onclick="printPDF()">🖨 Print / Save as PDF</button>
-        </div>
-    </header>
-
-    <nav class="proof-nav no-print">
-        <a href="bukti-08-agustus.html" class="prev-btn">← Agustus (Bukti #8)</a>
-        <span class="nav-indicator">9 / 12</span>
-        <a href="#" class="next-btn disabled" onclick="alert('Oktober masih dalam tahap pengembangan');return false;">Oktober (Bukti #10) →</a>
-    </nav>
-
-    <main class="proof-content" id="proofContent">
-
-        <section class="section introduction no-print">
-            <h2>📖 Pengenalan</h2>
-            <p class="intro-text">
-                Tahun <strong>1876</strong>, <strong>James A. Garfield</strong> (saat itu anggota DPR AS,
-                kemudian Presiden ke-20) menemukan pembuktian elegan berbasis
-                <strong>trapesium siku-siku**: dua segitiga siku-siku kongruen (kaki a & b) plus
-                satu segitiga siku-siku sama kaki (kaki c & c) menyusun trapesium dengan sisi sejajar
-                a dan b serta tinggi (a+b). Menghitung luas trapesium <em>dua cara</em> langsung
-                menghasilkan a² + b² = c².
-            </p>
-            <div class="historical-note">
-                <strong>🎩 Fakta menarik:</strong> pembuktian ini dipublikasikan Garfield di
-                <em>New England Journal of Education</em> — dan tetap menjadi favorit kelas karena
-                hanya membutuhkan rumus luas trapesium & segitiga.
-            </div>
-        </section>
-
-        <!-- ============ ANIMASI ============ -->
-        <section class="section animation no-print">
-            <h2>🎬 Animasi Interaktif</h2>
-            <div class="animation-wrapper">
-                <div class="stage-wrap" style="position:relative;width:100%;background:#f4f6fb;border:3px solid #e0e0e0;border-radius:15px;overflow:hidden;">
-                    <svg id="stageSvg" viewBox="0 0 560 520" style="display:block;width:100%;height:auto;"></svg>
-                </div>
-                <div class="animation-controls">
-                    <button class="btn-start" id="btnStart">▶ Mulai</button>
-                    <button class="btn-pause" id="btnPause" style="display:none">⏸ Pause</button>
-                    <button class="btn-skip" id="btnSkip">⏭ Selesai</button>
-                    <button class="btn-reset" id="btnReset">↺ Reset</button>
-                    <div class="speed-control">
-                        <label for="speedSlider">⚡ Kecepatan:</label>
-                        <input type="range" id="speedSlider" min="0.5" max="3" step="0.5" value="1">
-                        <span class="speed-value" id="speedValue">1×</span>
-                    </div>
-                </div>
-                <div class="progress-box">
-                    <div class="pbar"><div class="pfill" id="pfill"></div></div>
-                    <div class="ptext" id="ptext">Progres: 0%</div>
-                </div>
-                <div class="formula-display" style="margin-top:15px;">
-                    <div class="formula-step active" id="step0">Siap memulai… tekan ▶ Mulai</div>
-                    <div class="formula-step" id="step1">Trapesium: sisi sejajar a = 8 & b = 15, tinggi (a+b) = 23</div>
-                    <div class="formula-step" id="step2">Cara 1: L = ½·(a+b)·(a+b) = ½·(a+b)²</div>
-                    <div class="formula-step" id="step3">Cara 2: L = ½ab + ½ab + ½c² (dua segitiga + segitiga miring)</div>
-                    <div class="formula-step" id="step4">Samakan ×2: (a+b)² = 2ab + c² → 529 = 240 + 289 ✓</div>
-                    <div class="formula-step" id="step5">∴ a² + b² = c² → 64 + 225 = 289 ✓</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ============ RUJUKAN ============ -->
-        <section class="section external-resources no-print">
-            <h2>🔗 Rujukan Interaktif</h2>
-            <div class="embed-container" style="text-align:center;padding:24px;">
-                <div style="font-size:40px;">🎩</div>
-                <p style="margin:10px 0;color:#555;">Applet GeoGebra <strong>"Garfield's Trapezoid Proof"</strong> —
-                   geser sisi a & b untuk melihat trapesium tetap terurai menjadi 3 segitiga.</p>
-                <a class="external-link" target="_blank" rel="noopener"
-                   href="https://www.geogebra.org/search?query=garfield%20trapezoid%20pythagoras"
-                   style="display:inline-block;background:#667eea;color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;text-decoration:none;">
-                   🔗 Cari Applet GeoGebra: Garfield</a>
-            </div>
-        </section>
-
-        <!-- ============ AREA EXPORT (sheet A4) ============ -->
-        <section class="section export-section no-print-screen">
-            <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">
-                👁 Tampilkan Pratinjau PDF (1 halaman)</button>
-            <div class="preview-collapse collapsed" id="previewCollapse">
-              <div class="a4-viewport" id="a4Viewport">
-                <div id="exportArea" class="a4-sheet">
-                    <div class="export-header">
-                        <h2>Bukti #9: Trapesium Garfield</h2>
-                        <p>Kalender Pythagoras 2027 • September • Kelompok 7 • Level: Dasar</p>
-                    </div>
-                    <div id="calBlock" class="cal-block"></div>
-                    <hr class="cal-divider">
-                    <div class="proof-figures">
-                        <figure class="proof-figure"><span class="state-badge initial">AWAL</span>
-                            <div class="scene" id="figInitial"></div>
-                            <figcaption><strong>Gbr 1:</strong> trapesium kosong; 3 segitiga menunggu di luar.</figcaption></figure>
-                        <figure class="proof-figure"><span class="state-badge final">AKHIR</span>
-                            <div class="scene" id="figFinal"></div>
-                            <figcaption><strong>Gbr 2:</strong> trapesium terisi 3 segitiga; sudut siku-siku di titik tengah.</figcaption></figure>
-                    </div>
-                    <div class="export-explain">
-                        <p><strong>Penjelasan:</strong> trapesium dengan sisi sejajar a dan b serta tinggi
-                           (a+b) dapat disusun dari dua segitiga siku-siku (kaki a, b) dan satu segitiga
-                           siku-siku sama kaki (kaki c). Menghitung luas dengan dua cara lalu menyamakannya
-                           memberikan (a+b)² = 2ab + c², sehingga a² + b² = c².</p>
-                        <div class="export-formula">(a+b)² = 2ab + c² → 23² = 2·120 + 289 → 529 = 529 ✓</div>
-                    </div>
-<div class="export-conclusion" style="margin-bottom:0;">
-    <div class="export-conclusion-text">KESIMPULAN:<br>a² + b² = c²</div>
-</div>
-
-<div class="group-info-compact">
-    <div class="group-names-col">
-        <strong>Nama Anggota Kelompok:</strong>
-        <div class="name-grid">
-            <div class="name-line">1. .......................................</div>
-            <div class="name-line">3. .......................................</div>
-            <div class="name-line">2. .......................................</div>
-            <div class="name-line">4. .......................................</div>
-            <div class="name-line">5. .......................................</div>
-        </div>
+<header class="proof-header no-print">
+  <a href="../index.html" class="back-btn">← Kembali ke Kalender</a>
+  <div class="proof-info">
+    <h1>Bukti #9: Trapesium Garfield (8-15-17)</h1>
+    <div class="proof-meta">
+      <span class="meta-item">📅 September 2027</span>
+      <span class="meta-item">👥 Kelompok 7</span>
+      <span class="meta-item">🎯 Level: Dasar</span>
     </div>
-    <div class="qr-col">
-        <div class="qr-box" id="qrcode"></div>
-        <div class="qr-caption">Scan untuk animasi</div>
+  </div>
+  <div class="export-buttons">
+    <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 PDF Gambar (Print/Arsip)</button>
+    <button class="btn-print" onclick="printPDF()">🖨 Print / Save as PDF</button>
+  </div>
+</header>
+
+<nav class="proof-nav no-print">
+  <a href="bukti-08-agustus.html" class="prev-btn">← Agustus (Bukti #8)</a>
+  <span class="nav-indicator">9 / 12</span>
+  <a href="#" class="next-btn disabled" onclick="alert('Oktober masih dalam tahap pengembangan');return false;">Oktober (Bukti #10) →</a>
+</nav>
+
+<main class="proof-content" id="proofContent">
+  <section class="section introduction no-print">
+    <h2>📖 Pengenalan: Trapesium Sang Presiden</h2>
+    <p class="intro-text">
+      Tahun <strong>1876</strong>, <strong>James A. Garfield</strong> (kelak Presiden AS ke-20) menemukan bukti elegan:
+      sebuah <strong>trapesium siku-siku BERDIRI</strong> dengan sisi sejajar <strong>a = 8 (atas)</strong> dan
+      <strong>b = 15 (bawah)</strong> serta <strong>tinggi (a+b) = 23</strong>. Trapesium ini tersusun pas dari
+      <strong>dua segitiga siku-siku kongruen</strong> (kaki a & b) plus <strong>satu segitiga siku-siku sama kaki</strong>
+      (kaki c & c). Menghitung luasnya dengan <em>dua cara</em> langsung menghasilkan <strong>a² + b² = c²</strong>.
+    </p>
+    <div class="historical-note">
+      <strong>🎩 Fakta menarik:</strong> bukti ini dipublikasikan Garfield di <em>New England Journal of Education</em>
+      — tetap favorit kelas karena hanya memakai rumus luas trapesium & segitiga.
     </div>
-</div>
-                </div>
+  </section>
+
+  <section class="section animation no-print">
+    <h2>🎬 Animasi Interaktif (Step-by-Step)</h2>
+    <div class="animation-wrapper">
+      <div class="stage-wrap">
+        <svg id="stageSvg" viewBox="0 0 560 520"></svg>
+      </div>
+
+      <div class="animation-controls">
+        <button class="btn-back" id="btnBack" onclick="goBack()">⏪ Mundur</button>
+        <button class="btn-play" id="btnPlay" onclick="playStep()">▶ Langkah</button>
+        <button class="btn-fwd" id="btnFwd" onclick="goForward()">Maju ⏭</button>
+        <button class="btn-reset" id="btnReset" onclick="resetAnim()">🔄 Reset</button>
+      </div>
+
+      <div class="pbar"><div class="pfill" id="pfill"></div></div>
+      <div class="ptext" id="ptext">Langkah 0 dari 5 — Klik "▶ Langkah" untuk memulai</div>
+
+      <div class="formula-display">
+        <div class="formula-step active" id="step0">Langkah 0: Stage kosong — siap menyusun trapesium berdiri</div>
+        <div class="formula-step" id="step1">Langkah 1: Trapesium berdiri: sisi sejajar a = 8 (atas) & b = 15 (bawah), tinggi (a+b) = 23</div>
+        <div class="formula-step" id="step2">Langkah 2: 3 segitiga menunggu di luar: 2 siku-siku (kaki 8 & 15) + 1 sama kaki (kaki 17 & 17)</div>
+        <div class="formula-step" id="step3">Langkah 3: Ketiganya digeser masuk — trapesium terisi penuh tanpa celah & tumpang-tindih</div>
+        <div class="formula-step" id="step4">Langkah 4: Di titik (0, a) dua hipotenusa c saling tegak lurus → segitiga tengah siku-siku sama kaki</div>
+        <div class="formula-step" id="step5">Langkah 5: Dua cara hitung luas sama → (a+b)² = 2ab + c² → 529 = 240 + 289 ✓ → a² + b² = c²</div>
+      </div>
+
+      <div class="calc-box">
+        <div class="calc-title">📐 Perhitungan Luas (a=8, b=15, c=17)</div>
+        <div class="calc-line">Cara 1 (rumus trapesium): L = ½·(a+b)·tinggi = ½·23·23 = <span class="calc-highlight">264,5</span></div>
+        <div class="calc-line">Cara 2 (jumlah 3 segitiga): ½·8·15 + ½·8·15 + ½·17·17</div>
+        <div class="calc-line">&nbsp;&nbsp;&nbsp;= 60 + 60 + 144,5 = <span class="calc-highlight">264,5</span></div>
+        <div class="calc-line">Samakan ×2: (a+b)² = 2ab + c² → 529 = 240 + 289 = <span class="calc-highlight">529</span></div>
+        <div class="calc-line">Kurangi 2ab: a² + b² = c² → 64 + 225 = <span class="calc-highlight">289</span></div>
+        <div class="calc-line">✓ Terbukti: c² = a² + b² → 289 = 64 + 225</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section no-print">
+    <div class="ai-prompt-box collapsed" id="aiPromptBox">
+      <button class="ai-prompt-toggle" onclick="document.getElementById('aiPromptBox').classList.toggle('collapsed')">
+        <span>💡 Panduan Presentasi</span><span class="chevron">▼</span>
+      </button>
+      <div class="ai-prompt-content">
+        <p style="margin:0 0 12px 0;font-size:14px;line-height:1.6;color:#4a5568;">
+          Gunakan prompt AI berikut untuk menyusun naskah presentasi 3-4 menit.
+          Sertakan screenshot/PDF halaman ini saat bertanya ke AI.</p>
+        <div class="prompt-text" id="promptText">"Saya seorang siswa SMP akan mempresentasikan Pembuktian Teorema Pythagoras [NAMA BUKTI] mulai dari Pendahuluan, Penjelasan Visual/Animasi, Contoh, hingga Kesimpulan dalam waktu 3-4 menit. Bantu saya menyusun naskah presentasi yang mudah dipahami, menarik, dan sesuai untuk audiens teman sekelas."</div>
+        <button class="btn-copy" id="btnCopyPrompt">📋 Copy Teks</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section external-resources no-print">
+    <h2>🔗 Rujukan Interaktif</h2>
+    <div class="embed-container" style="text-align:center;padding:24px;">
+      <div style="font-size:40px;">🎩</div>
+      <p style="margin:10px 0;color:#555;">Applet GeoGebra <strong>"Garfield's Trapezoid Proof"</strong> —
+         geser sisi a & b untuk melihat trapesium tetap terurai menjadi 3 segitiga.</p>
+      <a class="external-link" target="_blank" rel="noopener"
+         href="https://www.geogebra.org/search?query=garfield%20trapezoid%20pythagoras"
+         style="display:inline-block;background:#667eea;color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;text-decoration:none;">
+         🔗 Cari Applet GeoGebra: Garfield</a>
+    </div>
+  </section>
+
+  <section class="section export-section no-print-screen">
+    <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">👁 Tampilkan Pratinjau PDF (1 halaman)</button>
+    <div class="preview-collapse collapsed" id="previewCollapse">
+      <div class="a4-viewport" id="a4Viewport">
+        <div id="exportArea" class="a4-sheet">
+          <div class="export-header">
+            <h2>Bukti #9: Trapesium Garfield</h2>
+            <p>Kalender Pythagoras 2027 • September • Kelompok 7 • Level: Dasar</p>
+          </div>
+          <div id="calBlock" class="cal-block"></div>
+          <hr class="cal-divider">
+          <div class="proof-figures">
+            <figure class="proof-figure"><span class="state-badge initial">AWAL</span>
+              <div class="scene" id="figInitial"></div>
+              <figcaption><strong>Gbr 1:</strong> trapesium berdiri (a atas, b bawah); 3 segitiga menunggu di luar.</figcaption></figure>
+            <figure class="proof-figure"><span class="state-badge final">AKHIR</span>
+              <div class="scene" id="figFinal"></div>
+              <figcaption><strong>Gbr 2:</strong> trapesium terisi 3 segitiga; siku-siku di titik (0, a).</figcaption></figure>
+          </div>
+          <div class="export-explain">
+            <p><strong>Penjelasan:</strong> trapesium berdiri dengan sisi sejajar a (atas) dan b (bawah) serta tinggi
+               (a+b) tersusun dari 2 segitiga siku-siku (kaki a, b) + 1 segitiga sama kaki (kaki c).
+               Dua cara menghitung luas memberi hasil sama:</p>
+            <div style="background:#f8fafc;padding:10px;border-radius:6px;font-family:monospace;font-size:12px;line-height:1.7;color:#1e293b;margin:8px 0;">
+              Cara 1: ½·(a+b)·(a+b) = ½·529 = 264,5<br>
+              Cara 2: 60 + 60 + 144,5 = 264,5<br>
+              ×2: (a+b)² = 2ab + c² → 529 = 240 + 289 ✓<br>
+              ∴ a² + b² = c² → 64 + 225 = 289
+            </div>
+            <div class="export-formula">
+              <span class="formula-calc">(a+b)² = 2ab + c² → 23² = 240 + 289 → 529 = 529</span>
+              <span class="formula-verified">✓ TERBUKTI!</span>
+            </div>
+          </div>
+          <div class="pythagoras-container">
+            <span class="pythagoras-label">KESIMPULAN:</span>
+            <span class="pythagoras-rumus" id="py-rumus">a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup></span>
+            <span class="pythagoras-sep">│</span>
+            <span class="pythagoras-teks" id="py-kesimpulan">"Pada segitiga siku-siku, kuadrat panjang sisi miring sama dengan jumlah kuadrat panjang sisi-sisi lainnya"</span>
+            <button class="pythagoras-refresh-btn" onclick="acakKesimpulanPythagoras()" title="Acak Kesimpulan">
+              <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+            </button>
+          </div>
+          <div class="group-info-compact">
+            <div class="group-names-col">
+              <strong>Nama Anggota Kelompok:</strong>
+              <div class="name-grid">
+                <div class="name-line">1. .......................................</div>
+                <div class="name-line">3. .......................................</div>
+                <div class="name-line">2. .......................................</div>
+                <div class="name-line">4. .......................................</div>
+                <div class="name-line">5. .......................................</div>
               </div>
             </div>
-        </section>
-    </main>
+            <div class="qr-col">
+              <div class="qr-box" id="qrcode"></div>
+              <div class="qr-caption">Scan untuk animasi</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
 
-    <nav class="proof-nav bottom no-print">
-        <a href="bukti-08-agustus.html" class="prev-btn">← Sebelumnya</a>
-        <a href="../index.html" class="home-btn">🏠 Kalender</a>
-        <a href="#" class="next-btn disabled" onclick="alert('Oktober masih dalam tahap pengembangan');return false;">Selanjutnya →</a>
-    </nav>
+<nav class="proof-nav bottom no-print">
+  <a href="bukti-08-agustus.html" class="prev-btn">← Sebelumnya</a>
+  <a href="../index.html" class="home-btn">🏠 Kalender</a>
+  <a href="#" class="next-btn disabled" onclick="alert('Oktober masih dalam tahap pengembangan');return false;">Selanjutnya →</a>
+</nav>
+<footer class="no-print"><p><strong>Kelompok 7</strong> - Pembuktian #9</p><p>Projek Kalender Pythagoras 2027</p></footer>
 
-    <footer class="no-print">
-        <p><strong>Kelompok 7</strong> - Pembuktian #9</p>
-        <p>Projek Kalender Pythagoras 2027</p>
-    </footer>
-
-    <script src="../assets/js/calendar-template.js?v=3"></script>
-    <script src="../assets/js/pdf-export.js?v=33"></script>
-    <script>
-    /* ================= GEOMETRI EKSAK GARFIELD ================= */
-    const A = 8, B = 15, C = 17;
-    /* Trapesium: kiri sejajar a, kanan sejajar b, alas (a+b) */
-    const T1 = [{x:0,y:0},{x:B,y:0},{x:0,y:A}];                 // kaki b (alas kiri) & a (kiri)
-    const T2 = [{x:B,y:0},{x:A+B,y:0},{x:A+B,y:B}];             // kaki a (alas kanan) & b (kanan)
-    const T3 = [{x:0,y:A},{x:B,y:0},{x:A+B,y:B}];               // siku-siku sama kaki, kaki c & c
-    const TRAP = [{x:0,y:0},{x:A+B,y:0},{x:A+B,y:B},{x:0,y:A}];
-    const TRIS = [
-        { poly: T1, park: {x:-5, y:-3} },
-        { poly: T2, park: {x: 5, y:-3} },
-        { poly: T3, park: {x: 0, y: 6} }
-    ];
-    /* penanda siku-siku di (B,0) antara arah ke (0,A) dan ke (A+B,B) */
-    const u1 = { x:(0-B)/C, y:(A-0)/C }, u2 = { x:(A+B-B)/C, y:(B-0)/C }, MS = 1.3;
-    const MARK = [ {x:B+u1.x*MS, y:0+u1.y*MS},
-                   {x:B+(u1.x+u2.x)*MS, y:(u1.y+u2.y)*MS},
-                   {x:B+u2.x*MS, y:0+u2.y*MS} ];
-
-    /* SELF-TEST: ½(a+b)² == ab + c²/2 */
-    (function(){
-        const lhs = 0.5*(A+B)*(A+B), rhs = A*B + 0.5*C*C;
-        if (Math.abs(lhs-rhs) < 1e-9) console.log('✅ LUAS OK (Garfield ' + A + ',' + B + ',' + C + ')');
-        else console.warn('⚠️ LUAS GAGAL', { lhs, rhs });
-    })();
-
-    /* ================= pemetaan layar (auto-bounds) ================= */
-    const VW = 560, VH = 520, PAD = 24;
-    let mnx=Infinity,mxx=-Infinity,mny=Infinity,mxy=-Infinity;
-    TRIS.forEach(t=>{ [t.poly, t.poly.map(p=>({x:p.x+t.park.x,y:p.y+t.park.y}))].forEach(poly=>
-        poly.forEach(p=>{ mnx=Math.min(mnx,p.x); mxx=Math.max(mxx,p.x);
-                          mny=Math.min(mny,p.y); mxy=Math.max(mxy,p.y); })); });
-    const U = Math.min((VW-2*PAD)/(mxx-mnx), (VH-2*PAD)/(mxy-mny));
-    const OX = PAD + ((VW-2*PAD) - (mxx-mnx)*U)/2 - mnx*U;
-    const OY = PAD + ((VH-2*PAD) - (mxy-mny)*U)/2 + mxy*U;
-    const S = (x,y) => ({ x: OX + x*U, y: OY - y*U });
-    const pts = poly => poly.map(p=>{ const q=S(p.x,p.y); return q.x.toFixed(1)+','+q.y.toFixed(1); }).join(' ');
-
-    const NS = 'http://www.w3.org/2000/svg';
-    const svg = document.getElementById('stageSvg');
-    const mk = (t,at,pa)=>{ const e=document.createElementNS(NS,t); for(const k in at) e.setAttribute(k,at[k]); (pa||svg).appendChild(e); return e; };
-    const COL = ['#f16a7a','#f1d95b','#5bf17a'];
-
-    const gTrap = mk('polygon', { points: pts(TRAP), fill:'#eef4fb', stroke:'#2f7bd9', 'stroke-width':2.5, opacity:0 });
-    const triGs = TRIS.map((t,i)=>{ const g=mk('g',{});
-        mk('polygon', { points: pts(t.poly), fill: COL[i], stroke:'rgba(0,0,0,.35)', 'stroke-width':1.5 }, g);
-        return g; });
-    const gMark = mk('polyline', { points: pts(MARK), fill:'none', stroke:'#b02ab0', 'stroke-width':2.5, opacity:0 });
-    const ghostGs = TRIS.map((t,i)=> mk('polygon', { points: pts(t.poly.map(p=>({x:p.x+t.park.x,y:p.y+t.park.y}))),
-        fill:'none', stroke: COL[i], 'stroke-width':2, 'stroke-dasharray':'6 5', opacity:0 }));
-    function lab(x,y,txt,col,sz){ const e=mk('text',{ x:S(x,y).x, y:S(x,y).y, 'text-anchor':'middle',
-        fill:col, 'font-size':sz||15, 'font-weight':'bold', opacity:0 }); e.textContent=txt; return e; }
-    const labs = [
-        lab(-0.9, A/2, 'a = 8', '#c62828'),
-        lab(A+B+1.1, B/2, 'b = 15', '#2e7d32'),
-        lab((A+B)/2, -1.1, 'a + b = 23', '#1565c0'),
-        lab(B/2 - 1.2, A/2 + 1.0, 'c = 17', '#0d47a1', 13),
-        lab((B+A+B)/2 + 1.0, B/2 + 1.0, 'c = 17', '#0d47a1', 13)
-    ];
-
-    /* ================= timeline ================= */
-    const tweens=[]; const TOTAL=5000;
-    const addTween=(t0,t1,fn)=>{ const tw={t0,t1,fn,last:-1}; tweens.push(tw); return tw; };
-    const fade=(el,t0,d,to,from=0)=>addTween(t0,t0+d,p=>el.setAttribute('opacity',from+(to-from)*p));
-    const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
-    const offS=o=>({x:o.x*U, y:-o.y*U});
-    function buildTimeline(){
-        tweens.length=0;
-        fade(gTrap,0,400,1); labs.forEach((l,i)=>fade(l,150+i*80,300,1));
-        triGs.forEach((g,i)=>{ const o=offS(TRIS[i].park);
-            g.setAttribute('transform',`translate(${o.x},${o.y})`); g.setAttribute('opacity',0);
-            fade(g,400+i*150,300,1); });
-        triGs.forEach((g,i)=>{ const o=offS(TRIS[i].park);
-            addTween(1400+i*250, 2200+i*250, p=>{ const e=ease(p);
-                g.setAttribute('transform',`translate(${o.x*(1-e)},${o.y*(1-e)})`); }); });
-        fade(gMark,2600,400,1);
-        ghostGs.forEach((g,i)=>fade(g,3000+i*100,400,1));
-        addTween(4400,4800,p=>{ svg.style.transform=`scale(${1+0.03*Math.sin(Math.PI*p)})`; });
-    }
-    buildTimeline();
-
-    let vt=0, playing=false, speed=1, lastTs=null;
-    const stepTimes=[[0,1],[400,2],[1400,3],[2600,4],[4400,5]];
-    function frame(ts){
-        if(lastTs===null)lastTs=ts; const dt=Math.min(50,ts-lastTs); lastTs=ts;
-        if(playing) vt=Math.min(TOTAL,vt+dt*speed);
-        for(const tw of tweens){ const p=Math.max(0,Math.min(1,(vt-tw.t0)/(tw.t1-tw.t0)));
-            if(p!==tw.last){ tw.fn(p); tw.last=p; } }
-        const pct=Math.round(vt/TOTAL*100);
-        document.getElementById('ptext').textContent='Progres: '+pct+'%';
-        document.getElementById('pfill').style.width=pct+'%';
-        let n=0; for(const [t,s] of stepTimes) if(vt>=t) n=s;
-        document.querySelectorAll('.formula-step').forEach(el=>el.classList.remove('active'));
-        const el=document.getElementById('step'+n); if(el) el.classList.add('active');
-        if(playing&&vt>=TOTAL){ playing=false;
-            const b=document.getElementById('btnStart');
-            b.textContent='▶ Ulangi'; b.style.display='inline-block';
-            document.getElementById('btnPause').style.display='none'; }
-        requestAnimationFrame(frame);
-    }
-    function resetState(){ vt=0; playing=false; svg.style.transform='none';
-        for(const tw of tweens) tw.last=-1; buildTimeline();
-        const b=document.getElementById('btnStart');
-        b.textContent='▶ Mulai'; b.style.display='inline-block';
-        document.getElementById('btnPause').style.display='none'; }
-    document.getElementById('btnStart').addEventListener('click',()=>{ if(vt>=TOTAL)resetState();
-        playing=true; document.getElementById('btnStart').style.display='none';
-        document.getElementById('btnPause').style.display='inline-block'; });
-    document.getElementById('btnPause').addEventListener('click',()=>{ playing=false;
-        const b=document.getElementById('btnStart'); b.textContent='▶ Lanjut';
-        b.style.display='inline-block'; document.getElementById('btnPause').style.display='none'; });
-    document.getElementById('btnSkip').addEventListener('click',()=>{ vt=TOTAL; playing=false;
-        for(const tw of tweens){ tw.fn(1); tw.last=1; } });
-    document.getElementById('btnReset').addEventListener('click',resetState);
-    document.getElementById('speedSlider').addEventListener('input',e=>{
-        speed=parseFloat(e.target.value); document.getElementById('speedValue').textContent=speed+'×'; });
-
-    /* ================= gambar statis sheet A4 ================= */
-    function garfieldScene(state, w){
-        let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity;
-        [TRAP, ...TRIS.map(t=>t.poly.map(p=>({x:p.x+t.park.x,y:p.y+t.park.y})))].forEach(poly=>
-            poly.forEach(p=>{ x0=Math.min(x0,p.x); x1=Math.max(x1,p.x);
-                              y0=Math.min(y0,p.y); y1=Math.max(y1,p.y); }));
-        const u=(w-20)/(x1-x0); const ox=10-x0*u; const oy=10+y1*u;
-        const s=(x,y)=>({x:ox+x*u, y:oy-y*u});
-        const P=poly=>poly.map(p=>{const q=s(p.x,p.y);return q.x.toFixed(1)+','+q.y.toFixed(1);}).join(' ');
-        const hh=Math.round(w*0.93);
-        let out=`<svg viewBox="0 0 ${w} ${hh}" width="${w}" height="${hh}" style="display:block;margin:auto;">`;
-        out+=`<polygon points="${P(TRAP)}" fill="#eef4fb" stroke="#2f7bd9" stroke-width="2"/>`;
-        if(state==='initial'){
-            TRIS.forEach((t,i)=> out+=`<polygon points="${P(t.poly.map(p=>({x:p.x+t.park.x,y:p.y+t.park.y})))}" fill="${COL[i]}" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/>`);
-        } else {
-            TRIS.forEach((t,i)=> out+=`<polygon points="${P(t.poly)}" fill="${COL[i]}" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/>`);
-            out+=`<polyline points="${P(MARK)}" fill="none" stroke="#b02ab0" stroke-width="2"/>`;
-            TRIS.forEach((t,i)=> out+=`<polygon points="${P(t.poly.map(p=>({x:p.x+t.park.x,y:p.y+t.park.y})))}" fill="none" stroke="${COL[i]}" stroke-width="1.5" stroke-dasharray="5 4"/>`);
-        }
-        out+=`<text x="${s((A+B)/2,-1.1).x}" y="${s((A+B)/2,-1.1).y}" text-anchor="middle" font-size="12" font-weight="bold" fill="#1565c0">a + b = 23</text>`;
-        return out+`</svg>`;
-    }
-    document.getElementById('figInitial').innerHTML = garfieldScene('initial', 260);
-    document.getElementById('figFinal').innerHTML   = garfieldScene('final', 260);
-
-    /* ================= sheet / kalender / QR ================= */
-    function fitSheet(){ const vp=document.getElementById('a4Viewport');
-        const sh=document.querySelector('.a4-sheet'); if(!vp||!sh)return;
-        const s=Math.min(1, vp.clientWidth/794);
-        sh.style.transform=`scale(${s})`; sh.style.transformOrigin='top left';
-        vp.style.height=(1123*s)+'px'; }
-    window.fitSheet=fitSheet; window.addEventListener('resize',fitSheet);
-    window.togglePreview=function(){ const col=document.getElementById('previewCollapse');
-        col.classList.toggle('collapsed');
-        document.getElementById('btnPreview').textContent = col.classList.contains('collapsed')
-            ? '👁 Tampilkan Pratinjau PDF (1 halaman)' : '🙈 Sembunyikan Pratinjau PDF';
-        if(!col.classList.contains('collapsed')) setTimeout(fitSheet,60); };
-    renderCalendar(document.getElementById('calBlock'), 9);
-try {
-  const qrContainer = document.getElementById('qrcode');
-  qrContainer.innerHTML = ''; // Hapus konten lama
-  new QRCode(qrContainer, {
-    text: window.location.href,
-    width: 84,
-    height: 84,
-    correctLevel: QRCode.CorrectLevel.M,
-    colorDark: "#1a202c",
-    colorLight: "#ffffff"
-  });
-} catch (e) {
-  const qrContainer = document.getElementById('qrcode');
-  qrContainer.innerHTML = '<div style="font-size:10px;color:#666;text-align:center;">QR Error</div>';
-}
-    fitSheet();
-    requestAnimationFrame(frame);
-    </script>
-
-    <!-- ============ MODAL KONFIRMASI DOWNLOAD ============ -->
 <div class="modal-overlay" id="downloadModal">
   <div class="modal-content">
     <h3>📄 Konfirmasi Download PDF</h3>
     <p>Sebelum mengunduh PDF, pastikan Anda sudah memahami petunjuk proyek dan checklist persiapan.</p>
-    
     <div class="modal-warning" id="modalWarning"></div>
-    
     <label class="ack-checkbox" for="modalAck">
       <input type="checkbox" id="modalAck">
       <span>Saya sudah paham petunjuk dan checklist semua Persiapan.</span>
     </label>
-    
     <div class="modal-actions">
       <button id="btnModalDownload" disabled>📄 Download PDF</button>
       <button id="btnModalCancel">Batal</button>
     </div>
   </div>
 </div>
-    
+
+<script>
+window.PROOF_NAME = 'Trapesium Garfield (8-15-17)';
+var $ = function(id){ return document.getElementById(id); };
+
+/* ============ GEOMETRI TRAPESIUM BERDIRI ============
+   bawah b=15 (horizontal), atas a=8 (horizontal), tinggi (a+b)=23 (vertikal kiri)
+   titik belah di (0, a) = (0,8)                                       */
+var A = 8, B = 15, C = 17, H = A + B;
+var TRAP = [{x:0,y:0},{x:B,y:0},{x:A,y:H},{x:0,y:H}];
+var T1 = [{x:0,y:H},{x:0,y:A},{x:A,y:H}];          /* segitiga ATAS  : kaki b (kiri-atas) & a (atas) */
+var T2 = [{x:0,y:A},{x:0,y:0},{x:B,y:0}];          /* segitiga BAWAH : kaki a (kiri-bawah) & b (alas) */
+var T3 = [{x:0,y:A},{x:B,y:0},{x:A,y:H}];          /* segitiga TENGAH: sama kaki c & c, siku di (0,A) */
+var TRIS = [
+  { poly:T1, park:{x:3,  y:5} },
+  { poly:T2, park:{x:-7, y:-5} },
+  { poly:T3, park:{x:7,  y:1} }
+];
+/* penanda siku-siku di (0,A) */
+var u1 = { x:(A-0)/C, y:(H-A)/C }, u2 = { x:(B-0)/C, y:(0-A)/C }, MS = 1.3;
+var MARK = [ {x:0+u1.x*MS, y:A+u1.y*MS},
+             {x:(u1.x+u2.x)*MS, y:A+(u1.y+u2.y)*MS},
+             {x:0+u2.x*MS, y:A+u2.y*MS} ];
+
+(function(){
+  var lhs = 0.5*H*H, rhs = A*B + 0.5*C*C;
+  console.log(Math.abs(lhs-rhs)<1e-9 ? '✅ LUAS OK (Garfield '+A+','+B+','+C+')' : '⚠️ LUAS GAGAL');
+})();
+
+/* ============ pemetaan layar (auto-bounds termasuk park) ============ */
+var VW=560, VH=520, PAD=24;
+var mnx=Infinity,mxx=-Infinity,mny=Infinity,mxy=-Infinity;
+TRIS.forEach(function(t){
+  [t.poly, t.poly.map(function(p){return {x:p.x+t.park.x,y:p.y+t.park.y};})].forEach(function(poly){
+    poly.forEach(function(p){ mnx=Math.min(mnx,p.x); mxx=Math.max(mxx,p.x);
+                              mny=Math.min(mny,p.y); mxy=Math.max(mxy,p.y); });
+  });
+});
+var U = Math.min((VW-2*PAD)/(mxx-mnx), (VH-2*PAD)/(mxy-mny));
+var OX = PAD + ((VW-2*PAD)-(mxx-mnx)*U)/2 - mnx*U;
+var OY = PAD + ((VH-2*PAD)-(mxy-mny)*U)/2 + mxy*U;
+function S(x,y){ return { x: OX + x*U, y: OY - y*U }; }
+function pts(poly){ return poly.map(function(p){ var q=S(p.x,p.y); return q.x.toFixed(1)+','+q.y.toFixed(1); }).join(' '); }
+
+var NS='http://www.w3.org/2000/svg';
+var svg=$('stageSvg');
+function mk(t,at,pa){ var e=document.createElementNS(NS,t); for(var k in at) e.setAttribute(k,at[k]); (pa||svg).appendChild(e); return e; }
+var COL=['#f1d95b','#f16a7a','#5bf17a'];
+
+var gTrap = mk('polygon',{points:pts(TRAP),fill:'#eef4fb',stroke:'#2f7bd9','stroke-width':2.5,opacity:0});
+var triGs = TRIS.map(function(t,i){
+  var g = mk('g',{ 'class':'anim-g' });
+  mk('polygon',{points:pts(t.poly),fill:COL[i],stroke:'rgba(0,0,0,.35)','stroke-width':1.5},g);
+  g.style.opacity = 0;
+  g.style.transform = 'translate('+(t.park.x*U)+'px,'+(-t.park.y*U)+'px)';
+  return g;
+});
+var gMark = mk('polyline',{points:pts(MARK),fill:'none',stroke:'#b02ab0','stroke-width':2.5,opacity:0});
+var ghostGs = TRIS.map(function(t,i){ return mk('polygon',{points:pts(t.poly.map(function(p){return {x:p.x+t.park.x,y:p.y+t.park.y};})),fill:'none',stroke:COL[i],'stroke-width':2,'stroke-dasharray':'6 5',opacity:0}); });
+
+function lab(x,y,txt,col,sz,anchor){ var e=mk('text',{x:S(x,y).x,y:S(x,y).y,'text-anchor':anchor||'middle',fill:col,'font-size':sz||15,'font-weight':'bold',opacity:0}); e.textContent=txt; return e; }
+var labA = lab(A/2, H+1.4, 'a = 8 (atas)', '#c62828');
+var labB = lab(B/2, -1.4, 'b = 15 (bawah)', '#2e7d32');
+var labH = lab(-1.6, H/2, 'tinggi (a+b) = 23', '#1565c0', 13, 'end');
+var labC1 = lab(B/2+1.1, A/2-0.6, 'c = 17', '#0d47a1', 13);
+var labC2 = lab(A/2+1.2, (A+H)/2, 'c = 17', '#0d47a1', 13);
+
+/* ============ STEP-BY-STEP ============ */
+var currentStep=0, maxStep=5;
+function setOp(el,v){ el.setAttribute ? el.setAttribute('opacity',v) : (el.style.opacity=v); }
+function updateStep(step){
+  currentStep = Math.max(0, Math.min(maxStep, step));
+  $('pfill').style.width = (currentStep/maxStep*100)+'%';
+  $('ptext').textContent = 'Langkah '+currentStep+' dari '+maxStep + (currentStep===0?' — Klik "▶ Langkah" untuk memulai':'');
+  for (var i=0;i<=maxStep;i++){ var el=$('step'+i); if(el){ el.classList.remove('active'); if(i===currentStep) el.classList.add('active'); } }
+  $('btnBack').disabled = (currentStep===0);
+  $('btnPlay').textContent = (currentStep>=maxStep)?'🔄 Ulangi':'▶ Langkah';
+  $('btnFwd').disabled = (currentStep>=maxStep);
+
+  /* visual */
+  setOp(gTrap, currentStep>=1?1:0);
+  setOp(labA, currentStep>=1?1:0); setOp(labB, currentStep>=1?1:0); setOp(labH, currentStep>=1?1:0);
+  triGs.forEach(function(g,i){
+    var t=TRIS[i];
+    g.style.opacity = (currentStep>=2)?1:0;
+    g.style.transform = (currentStep>=3)
+      ? 'translate(0px,0px)'
+      : 'translate('+(t.park.x*U)+'px,'+(-t.park.y*U)+'px)';
+  });
+  setOp(gMark, currentStep>=4?1:0);
+  setOp(labC1, currentStep>=4?1:0); setOp(labC2, currentStep>=4?1:0);
+  ghostGs.forEach(function(g){ setOp(g, currentStep>=5?1:0); });
+}
+function playStep(){ (currentStep>=maxStep)?updateStep(0):updateStep(currentStep+1); }
+function goForward(){ if(currentStep<maxStep) updateStep(currentStep+1); }
+function goBack(){ if(currentStep>0) updateStep(currentStep-1); }
+function resetAnim(){ updateStep(0); }
+
+/* ============ gambar statis sheet A4 ============ */
+function garfieldScene(state,w){
+  var x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity;
+  [TRAP].concat(TRIS.map(function(t){return t.poly.map(function(p){return {x:p.x+t.park.x,y:p.y+t.park.y};});})).forEach(function(poly){
+    poly.forEach(function(p){ x0=Math.min(x0,p.x); x1=Math.max(x1,p.x); y0=Math.min(y0,p.y); y1=Math.max(y1,p.y); });
+  });
+  var u=(w-20)/(x1-x0), ox=10-x0*u, oy=10+y1*u;
+  function s(x,y){ return {x:ox+x*u, y:oy-y*u}; }
+  function P(poly){ return poly.map(function(p){ var q=s(p.x,p.y); return q.x.toFixed(1)+','+q.y.toFixed(1); }).join(' '); }
+  var hh=Math.round(w*0.93);
+  var out='<svg viewBox="0 0 '+w+' '+hh+'" width="'+w+'" height="'+hh+'" style="display:block;margin:auto;">';
+  out+='<polygon points="'+P(TRAP)+'" fill="#eef4fb" stroke="#2f7bd9" stroke-width="2"/>';
+  if(state==='initial'){
+    TRIS.forEach(function(t,i){ out+='<polygon points="'+P(t.poly.map(function(p){return {x:p.x+t.park.x,y:p.y+t.park.y};}))+'" fill="'+COL[i]+'" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/>'; });
+  } else {
+    TRIS.forEach(function(t,i){ out+='<polygon points="'+P(t.poly)+'" fill="'+COL[i]+'" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/>'; });
+    out+='<polyline points="'+P(MARK)+'" fill="none" stroke="#b02ab0" stroke-width="2"/>';
+    TRIS.forEach(function(t,i){ out+='<polygon points="'+P(t.poly.map(function(p){return {x:p.x+t.park.x,y:p.y+t.park.y};}))+'" fill="none" stroke="'+COL[i]+'" stroke-width="1.5" stroke-dasharray="5 4"/>'; });
+  }
+  out+='<text x="'+s(B/2,-1.4).x+'" y="'+s(B/2,-1.4).y+'" text-anchor="middle" font-size="12" font-weight="bold" fill="#2e7d32">b = 15 (bawah)</text>';
+  out+='<text x="'+s(A/2,H+1.4).x+'" y="'+s(A/2,H+1.4).y+'" text-anchor="middle" font-size="12" font-weight="bold" fill="#c62828">a = 8 (atas)</text>';
+  return out+'</svg>';
+}
+$('figInitial').innerHTML = garfieldScene('initial',260);
+$('figFinal').innerHTML   = garfieldScene('final',260);
+
+/* ============ sheet / kalender / QR / kesimpulan ============ */
+function fitSheet(){ var vp=$('a4Viewport'), sh=document.querySelector('.a4-sheet'); if(!vp||!sh)return;
+  var s=Math.min(1,vp.clientWidth/794); sh.style.transform='scale('+s+')'; sh.style.transformOrigin='top left'; vp.style.height=(1123*s)+'px'; }
+window.fitSheet=fitSheet; window.addEventListener('resize',fitSheet);
+window.togglePreview=function(){ var col=$('previewCollapse'); col.classList.toggle('collapsed');
+  $('btnPreview').textContent = col.classList.contains('collapsed')?'👁 Tampilkan Pratinjau PDF (1 halaman)':'🙈 Sembunyikan Pratinjau PDF';
+  if(!col.classList.contains('collapsed')) setTimeout(fitSheet,60); };
+
+try { if (typeof renderCalendar==='function') renderCalendar($('calBlock'),9);
+      else $('calBlock').innerHTML='<div style="padding:20px;text-align:center;color:#c53030;">⚠ calendar-template.js tidak termuat</div>';
+} catch(e){ $('calBlock').innerHTML='<div style="padding:20px;text-align:center;color:#c53030;">⚠ Gagal render kalender</div>'; }
+
+try { var qc=$('qrcode'); qc.innerHTML='';
+  new QRCode(qc,{text:window.location.href,width:84,height:84,correctLevel:QRCode.CorrectLevel.M,colorDark:"#1a202c",colorLight:"#ffffff"});
+} catch(e){ $('qrcode').innerHTML='<div style="font-size:10px;color:#666;text-align:center;">QR Error</div>'; }
+
+var btnCopy=$('btnCopyPrompt'), pt=$('promptText');
+var raw=pt.textContent.replace('[NAMA BUKTI]', window.PROOF_NAME);
+pt.textContent=raw;
+btnCopy.onclick=async function(){
+  try{ await navigator.clipboard.writeText(raw);
+    btnCopy.textContent='✅ Tersalin!'; btnCopy.classList.add('copied');
+    setTimeout(function(){ btnCopy.textContent='📋 Copy Teks'; btnCopy.classList.remove('copied'); },2000);
+  }catch(e){ alert('Gagal: '+e.message); }
+};
+
+var daftarKesimpulanPythagoras = [
+  { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi siku-siku sama dengan kuadrat sisi miring" },
+  { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi tegak sama dengan kuadrat sisi miring" },
+  { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi siku-siku sama dengan kuadrat sisi miring (hipotenusa)" },
+  { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi tegak sama dengan kuadrat sisi miring (sisi terpanjang)" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring sama dengan jumlah kuadrat sisi tegaknya" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring sama dengan jumlah kuadrat sisi siku-sikunya" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring (hipotenusa) sama dengan jumlah kuadrat sisi tegaknya" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring (sisi terpanjang) sama dengan jumlah kuadrat sisi siku-sikunya" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Pada segitiga siku-siku, kuadrat panjang sisi miring sama dengan jumlah kuadrat panjang sisi-sisi lainnya" }
+];
+var idxK = (9-1) % daftarKesimpulanPythagoras.length;   /* September = bulan 9 → index 8 */
+function acakKesimpulanPythagoras(){
+  idxK = (idxK+1) % daftarKesimpulanPythagoras.length;
+  $('py-rumus').innerHTML = daftarKesimpulanPythagoras[idxK].rumus;
+  $('py-kesimpulan').innerText = '"'+daftarKesimpulanPythagoras[idxK].teks+'"';
+}
+$('py-rumus').innerHTML = daftarKesimpulanPythagoras[idxK].rumus;
+$('py-kesimpulan').innerText = '"'+daftarKesimpulanPythagoras[idxK].teks+'"';
+
+updateStep(0);
+fitSheet();
+</script>
 </body>
 </html>

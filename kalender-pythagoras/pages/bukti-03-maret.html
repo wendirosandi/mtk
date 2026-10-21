@@ -9,6 +9,30 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="../assets/js/calendar-template.js?v=3"></script>
+    <script src="../assets/js/pdf-export.js?v=42"></script>
+    <style>
+        .animation-wrapper { background:#f8f9fa; border:1px solid #e2e8f0; border-radius:14px; padding:16px; margin-bottom:12px; }
+        .stage-wrap { position:relative; width:100%; background:#fff; border:2px solid #e0e0e0; border-radius:12px; overflow:hidden; margin-bottom:16px; }
+        .stage { position:relative; width:420px; height:400px; transform-origin:0 0; margin:0 auto; }
+        .tri, .pink-box, .label-box { transition: all .6s cubic-bezier(.4,0,.2,1) !important; }
+        .animation-controls { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:16px 0; }
+        .animation-controls button { padding:10px 18px; border:none; border-radius:8px; font-weight:700; cursor:pointer; color:#fff; transition:all .2s; }
+        .animation-controls button:hover:not(:disabled){ transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,.15); }
+        .animation-controls button:disabled{ opacity:.5; cursor:not-allowed; }
+        .btn-back{background:#3498db;} .btn-play{background:#27ae60;} .btn-fwd{background:#9b59b6;} .btn-reset{background:#e74c3c;}
+        .pbar { width:100%; background:#e0e0e0; border-radius:8px; height:12px; overflow:hidden; margin-top:10px; }
+        .pfill { height:100%; background:#27ae60; width:0%; transition:width .3s linear; }
+        .ptext { text-align:center; font-size:13px; color:#7f8c8d; margin-top:6px; }
+        .formula-display { margin-top:16px; background:#fff; border-radius:8px; padding:12px; border:1px solid #e2e8f0; }
+        .formula-step { display:none; padding:8px; border-left:3px solid transparent; font-size:14px; color:#4a5568; }
+        .formula-step.active { display:block; border-left-color:#5a67d8; background:#f0f4ff; font-weight:600; color:#2d3748; border-radius:0 4px 4px 0; }
+        .calc-box { background:#fff; border:2px solid #e2e8f0; border-radius:10px; padding:14px; margin-top:14px; font-family:'Courier New',monospace; font-size:13px; line-height:1.7; color:#1e293b; }
+        .calc-title { font-weight:700; color:#5a67d8; margin-bottom:8px; font-size:14px; text-align:center; }
+        .calc-line { padding:4px 0; border-bottom:1px dashed #e2e8f0; }
+        .calc-line:last-child { border-bottom:none; font-weight:700; color:#27ae60; background:#f0fdf4; padding:6px 8px; border-radius:4px; margin-top:6px; }
+        .calc-highlight { color:#e11d48; font-weight:600; }
+    </style>
 </head>
 <body>
     <header class="proof-header no-print">
@@ -22,7 +46,7 @@
             </div>
         </div>
         <div class="export-buttons">
-            <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 Download PDF (1 hal)</button>
+            <button class="export-pdf-btn" id="btnDownloadPDF" onclick="exportToPDF()">📄 PDF Gambar (Print/Arsip)</button>
             <button class="btn-print" onclick="printPDF()">🖨 Print / Save as PDF</button>
         </div>
     </header>
@@ -35,61 +59,91 @@
 
     <main class="proof-content" id="proofContent">
         <section class="section introduction no-print">
-            <h2>📖 Pengenalan</h2>
+            <h2>📖 Pengenalan: Membuktikan dengan Menggeser</h2>
             <p class="intro-text">
-                Empat segitiga siku-siku identik disusun di dalam persegi besar sisi (a+b).
-                <strong>Susunan 1:</strong> rongga tengah = c². <strong>Susunan 2:</strong> segitiga
-                dipasangkan menjadi 2 persegi panjang, rongga = a² + b². Karena luas total & luas
-                4 segitiga tidak berubah, sisanya pasti sama → <strong>c² = a² + b²</strong>.
+                Empat segitiga siku-siku identik (sisi 3, 4, 5) disusun di dalam persegi besar bersisi (a+b) = 7.
+                <strong>Susunan 1:</strong> segitiga di sudut, menyisakan rongga miring di tengah = <strong>c²</strong>.
+                <strong>Susunan 2:</strong> segitiga digeser dan dipasangkan menjadi 2 persegi panjang, menyisakan rongga = <strong>a² + b²</strong>.
+                Karena luas persegi besar dan luas 4 segitiga tidak berubah, maka sisa rongganya pasti sama → <strong>c² = a² + b²</strong>.
             </p>
         </section>
 
         <section class="section animation no-print">
-            <h2>🎬 Animasi Interaktif</h2>
+            <h2>🎬 Animasi Interaktif (Step-by-Step)</h2>
             <div class="animation-wrapper">
-                <div class="stage-wrap" style="position:relative;width:100%;background:#f4f6fb;border:3px solid #e0e0e0;border-radius:15px;overflow:hidden;">
-                    <div class="stage" id="stage" style="position:absolute;top:0;left:0;width:420px;height:400px;transform-origin:0 0;">
-                        <div id="r2Outline" style="position:absolute;left:60px;top:50px;width:280px;height:280px;border:3px solid #444;opacity:0;"></div>
-                        <div id="pink1" style="position:absolute;left:0;top:0;width:420px;height:400px;background:#f9c9de;opacity:0;clip-path:polygon(180px 50px,340px 170px,220px 330px,60px 210px);"></div>
-                        <div id="pink2a" style="position:absolute;left:220px;top:50px;width:120px;height:120px;background:#f9c9de;opacity:0;"></div>
-                        <div id="pink2b" style="position:absolute;left:60px;top:170px;width:160px;height:160px;background:#f9c9de;opacity:0;"></div>
-                        <div id="labC2" style="position:absolute;left:182px;top:172px;width:56px;height:36px;border:2px dashed #c2185b;border-radius:6px;color:#c2185b;font-weight:bold;display:flex;align-items:center;justify-content:center;opacity:0;background:rgba(255,255,255,.75);">c²</div>
-                        <div id="labA2" style="position:absolute;left:252px;top:92px;width:56px;height:36px;border:2px dashed #c2185b;border-radius:6px;color:#c2185b;font-weight:bold;display:flex;align-items:center;justify-content:center;opacity:0;background:rgba(255,255,255,.75);">a²</div>
-                        <div id="labB2" style="position:absolute;left:112px;top:232px;width:56px;height:36px;border:2px dashed #c2185b;border-radius:6px;color:#c2185b;font-weight:bold;display:flex;align-items:center;justify-content:center;opacity:0;background:rgba(255,255,255,.75);">b²</div>
-                        <span style="position:absolute;left:105px;top:30px;font-weight:bold;color:#37474f;">a</span>
-                        <span style="position:absolute;left:245px;top:30px;font-weight:bold;color:#37474f;">b</span>
-                        <span style="position:absolute;left:348px;top:95px;font-weight:bold;color:#37474f;">a</span>
-                        <span style="position:absolute;left:348px;top:240px;font-weight:bold;color:#37474f;">b</span>
+                <div class="stage-wrap" id="stageWrap">
+                    <div class="stage" id="stage">
+                        <div id="r2Outline" style="position:absolute;left:60px;top:50px;width:280px;height:280px;border:3px solid #444;opacity:1;"></div>
+
+                        <div class="tri" id="tri0" style="position:absolute;left:0;top:0;width:120px;height:160px;background:#5b9bd5;clip-path:polygon(0 0,100% 0,0 100%);transform-origin:0 0;opacity:0;"></div>
+                        <div class="tri" id="tri1" style="position:absolute;left:0;top:0;width:120px;height:160px;background:#5b9bd5;clip-path:polygon(0 0,100% 0,0 100%);transform-origin:0 0;opacity:0;"></div>
+                        <div class="tri" id="tri2" style="position:absolute;left:0;top:0;width:120px;height:160px;background:#5b9bd5;clip-path:polygon(0 0,100% 0,0 100%);transform-origin:0 0;opacity:0;"></div>
+                        <div class="tri" id="tri3" style="position:absolute;left:0;top:0;width:120px;height:160px;background:#5b9bd5;clip-path:polygon(0 0,100% 0,0 100%);transform-origin:0 0;opacity:0;"></div>
+
+                        <div id="pink1" class="pink-box" style="position:absolute;left:0;top:0;width:420px;height:400px;background:#f9c9de;opacity:0;clip-path:polygon(180px 50px,340px 170px,220px 330px,60px 210px);"></div>
+                        <div id="labC2" class="label-box" style="position:absolute;left:182px;top:172px;width:56px;height:36px;border:2px dashed #c2185b;border-radius:6px;color:#c2185b;font-weight:bold;display:flex;align-items:center;justify-content:center;opacity:0;background:rgba(255,255,255,.85);">c²</div>
+
+                        <div id="pink2a" class="pink-box" style="position:absolute;left:220px;top:50px;width:120px;height:120px;background:#f9c9de;opacity:0;"></div>
+                        <div id="pink2b" class="pink-box" style="position:absolute;left:60px;top:170px;width:160px;height:160px;background:#f9c9de;opacity:0;"></div>
+                        <div id="labA2" class="label-box" style="position:absolute;left:252px;top:92px;width:56px;height:36px;border:2px dashed #c2185b;border-radius:6px;color:#c2185b;font-weight:bold;display:flex;align-items:center;justify-content:center;opacity:0;background:rgba(255,255,255,.85);">a²</div>
+                        <div id="labB2" class="label-box" style="position:absolute;left:112px;top:232px;width:56px;height:36px;border:2px dashed #c2185b;border-radius:6px;color:#c2185b;font-weight:bold;display:flex;align-items:center;justify-content:center;opacity:0;background:rgba(255,255,255,.85);">b²</div>
+
+                        <span style="position:absolute;left:100px;top:28px;font-weight:bold;color:#37474f;">a=3</span>
+                        <span style="position:absolute;left:245px;top:28px;font-weight:bold;color:#37474f;">b=4</span>
+                        <span style="position:absolute;left:348px;top:95px;font-weight:bold;color:#37474f;">a=3</span>
+                        <span style="position:absolute;left:348px;top:240px;font-weight:bold;color:#37474f;">b=4</span>
                     </div>
                 </div>
+
                 <div class="animation-controls">
-                    <button class="btn-start" id="btnStart">▶ Mulai</button>
-                    <button class="btn-pause" id="btnPause" style="display:none">⏸ Pause</button>
-                    <button class="btn-skip" id="btnSkip">⏭ Selesai</button>
-                    <button class="btn-reset" id="btnReset">↺ Reset</button>
-                    <div class="speed-control">
-                        <label for="speedSlider">⚡ Kecepatan:</label>
-                        <input type="range" id="speedSlider" min="0.5" max="3" step="0.5" value="1">
-                        <span class="speed-value" id="speedValue">1×</span>
-                    </div>
+                    <button class="btn-back" id="btnBack" onclick="goBack()">⏪ Mundur</button>
+                    <button class="btn-play" id="btnPlay" onclick="playStep()">▶ Langkah</button>
+                    <button class="btn-fwd" id="btnFwd" onclick="goForward()">Maju ⏭</button>
+                    <button class="btn-reset" id="btnReset" onclick="resetAnim()">🔄 Reset</button>
                 </div>
-                <div class="progress-box">
-                    <div class="pbar"><div class="pfill" id="pfill"></div></div>
-                    <div class="ptext" id="ptext">Progres: 0%</div>
+
+                <div class="pbar"><div class="pfill" id="pfill"></div></div>
+                <div class="ptext" id="ptext">Langkah 0 dari 4 — Klik "▶ Langkah" untuk memulai</div>
+
+                <!-- PENJELASAN PROGRES (dulu) -->
+                <div class="formula-display">
+                    <div class="formula-step active" id="step0">Langkah 0: Persegi besar sisi (a+b) = 7 siap diisi</div>
+                    <div class="formula-step" id="step1">Langkah 1: 4 segitiga siku-siku ditempatkan di sudut-sudut persegi</div>
+                    <div class="formula-step" id="step2">Langkah 2: Terbentuk rongga miring di tengah dengan luas c² = 25</div>
+                    <div class="formula-step" id="step3">Langkah 3: Segitiga digeser & dipasangkan menjadi 2 persegi panjang</div>
+                    <div class="formula-step" id="step4">Langkah 4: Rongga kini terpisah menjadi a² (9) dan b² (16). Total = 25. ∴ c² = a² + b² ✓</div>
                 </div>
-                <div class="formula-display" style="margin-top:15px;">
-                    <div class="formula-step active" id="step0">Siap memulai… tekan ▶ Mulai</div>
-                    <div class="formula-step" id="step1">Persegi besar sisi (a+b): luas = (a+b)²</div>
-                    <div class="formula-step" id="step2">Susunan 1: (a+b)² = 4·(½ab) + c²</div>
-                    <div class="formula-step" id="step3">Susunan 2: (a+b)² = 4·(½ab) + a² + b²</div>
-                    <div class="formula-step" id="step4">∴ c² = a² + b² → 25 = 9 + 16 ✓</div>
+
+                <!-- PERHITUNGAN (di bawah penjelasan progres) -->
+                <div class="calc-box">
+                    <div class="calc-title">📐 Perhitungan Luas (a=3, b=4, c=5)</div>
+                    <div class="calc-line">Luas persegi besar = (a+b)² = (3+4)² = <span class="calc-highlight">7² = 49</span></div>
+                    <div class="calc-line">Luas 1 segitiga = ½·a·b = ½·3·4 = <span class="calc-highlight">6</span></div>
+                    <div class="calc-line">Luas 4 segitiga = 4 × 6 = <span class="calc-highlight">24</span></div>
+                    <div class="calc-line">Susunan 1: Rongga c² = 49 − 24 = <span class="calc-highlight">25</span></div>
+                    <div class="calc-line">Susunan 2: Rongga a²+b² = 49 − 24 = 9 + 16 = <span class="calc-highlight">25</span></div>
+                    <div class="calc-line">✓ Terbukti: c² = a² + b² → 25 = 9 + 16</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section no-print">
+            <div class="ai-prompt-box collapsed" id="aiPromptBox">
+                <button class="ai-prompt-toggle" onclick="document.getElementById('aiPromptBox').classList.toggle('collapsed')">
+                    <span>💡 Panduan Presentasi</span><span class="chevron">▼</span>
+                </button>
+                <div class="ai-prompt-content">
+                    <p style="margin:0 0 12px 0;font-size:14px;line-height:1.6;color:#4a5568;">
+                      Gunakan prompt AI berikut untuk menyusun naskah presentasi 3-4 menit.
+                      Sertakan screenshot/ PDF halaman ini saat bertanya ke AI.</p>
+                    <div class="prompt-text" id="promptText">"Saya seorang siswa SMP akan mempresentasikan Pembuktian Teorema Pythagoras [NAMA BUKTI] mulai dari Pendahuluan, Penjelasan Visual/Animasi, Contoh, hingga Kesimpulan dalam waktu 3-4 menit. Bantu saya menyusun naskah presentasi yang mudah dipahami, menarik, dan sesuai untuk audiens teman sekelas."</div>
+                    <button class="btn-copy" id="btnCopyPrompt">📋 Copy Teks</button>
                 </div>
             </div>
         </section>
 
         <section class="section export-section no-print-screen">
-            <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">
-                👁 Tampilkan Pratinjau PDF (1 halaman)</button>
+            <button class="preview-toggle no-print" id="btnPreview" onclick="togglePreview()">👁 Tampilkan Pratinjau PDF (1 halaman)</button>
             <div class="preview-collapse collapsed" id="previewCollapse">
               <div class="a4-viewport" id="a4Viewport">
                 <div id="exportArea" class="a4-sheet">
@@ -102,37 +156,49 @@
                     <div class="proof-figures">
                         <figure class="proof-figure"><span class="state-badge initial">AWAL</span>
                             <div class="scene" id="figInitial"></div>
-                            <figcaption><strong>Gbr 1:</strong> 4 segitiga di sudut; rongga = c².</figcaption></figure>
+                            <figcaption><strong>Gbr 1:</strong> 4 segitiga di sudut; rongga tengah = c².</figcaption></figure>
                         <figure class="proof-figure"><span class="state-badge final">AKHIR</span>
                             <div class="scene" id="figFinal"></div>
-                            <figcaption><strong>Gbr 2:</strong> segitiga dipasangkan; rongga = a²+b².</figcaption></figure>
+                            <figcaption><strong>Gbr 2:</strong> segitiga dipasangkan; rongga = a² + b².</figcaption></figure>
                     </div>
                     <div class="export-explain">
-                        <p><strong>Penjelasan:</strong> persegi besar sisi (a+b) berisi 4 segitiga siku-siku;
-                           susunan 1 menyisakan rongga c², susunan 2 menyisakan rongga a²+b²;
-                           karena luas total & luas segitiga sama, sisanya sama.</p>
-                        <div class="export-formula">c² = a² + b² → 5² = 3² + 4² → 25 = 9 + 16 ✓</div>
+                        <p><strong>Penjelasan:</strong> Persegi besar sisi (a+b) = 7 berisi 4 segitiga siku-siku (luas total 24).
+                           Dua susunan berbeda memberi rongga yang berbeda bentuk tetapi sama luas:</p>
+                        <div style="background:#f8fafc;padding:10px;border-radius:6px;font-family:monospace;font-size:12px;line-height:1.7;color:#1e293b;margin:8px 0;">
+                          Susunan 1: 49 = 24 + c² → c² = 25<br>
+                          Susunan 2: 49 = 24 + a² + b² → a² + b² = 9 + 16 = 25<br>
+                          ∴ c² = a² + b²
+                        </div>
+                        <div class="export-formula">
+                          <span class="formula-calc">c² = a² + b² → 5² = 3² + 4² → 25 = 9 + 16</span>
+                          <span class="formula-verified">✓ TERBUKTI!</span>
+                        </div>
                     </div>
-<div class="export-conclusion" style="margin-bottom:0;">
-    <div class="export-conclusion-text">KESIMPULAN:<br>a² + b² = c²</div>
-</div>
-
-<div class="group-info-compact">
-    <div class="group-names-col">
-        <strong>Nama Anggota Kelompok:</strong>
-        <div class="name-grid">
-            <div class="name-line">1. .......................................</div>
-            <div class="name-line">3. .......................................</div>
-            <div class="name-line">2. .......................................</div>
-            <div class="name-line">4. .......................................</div>
-            <div class="name-line">5. .......................................</div>
-        </div>
-    </div>
-    <div class="qr-col">
-        <div class="qr-box" id="qrcode"></div>
-        <div class="qr-caption">Scan untuk animasi</div>
-    </div>
-</div>
+                    <div class="pythagoras-container">
+                        <span class="pythagoras-label">KESIMPULAN:</span>
+                        <span class="pythagoras-rumus" id="py-rumus">a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup></span>
+                        <span class="pythagoras-sep">│</span>
+                        <span class="pythagoras-teks" id="py-kesimpulan">"Kuadrat sisi miring sama dengan jumlah kuadrat sisi siku-sikunya"</span>
+                        <button class="pythagoras-refresh-btn" onclick="acakKesimpulanPythagoras()" title="Acak Kesimpulan">
+                            <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                        </button>
+                    </div>
+                    <div class="group-info-compact">
+                        <div class="group-names-col">
+                            <strong>Nama Anggota Kelompok:</strong>
+                            <div class="name-grid">
+                                <div class="name-line">1. .......................................</div>
+                                <div class="name-line">3. .......................................</div>
+                                <div class="name-line">2. .......................................</div>
+                                <div class="name-line">4. .......................................</div>
+                                <div class="name-line">5. .......................................</div>
+                            </div>
+                        </div>
+                        <div class="qr-col">
+                            <div class="qr-box" id="qrcode"></div>
+                            <div class="qr-caption">Scan untuk animasi</div>
+                        </div>
+                    </div>
                 </div>
               </div>
             </div>
@@ -146,131 +212,180 @@
     </nav>
     <footer class="no-print"><p><strong>Kelompok 1</strong> - Pembuktian #3</p><p>Projek Kalender Pythagoras 2027</p></footer>
 
-    <script src="../assets/js/calendar-template.js?v=3"></script>
-    <script src="../assets/js/pdf-export.js?v=33"></script>
-    <script>
-    const TOTAL=4500;
-    const stage=document.getElementById('stage'),wrap=stage.parentElement;
-    function fitStage(){const s=Math.min(1,wrap.clientWidth/420);
-        stage.style.transform=`scale(${s})`;wrap.style.height=(400*s)+'px';}
-    window.addEventListener('resize',fitStage);
-    const lerp=(a,b,t)=>a+(b-a)*t;
-    const easeInOutCubic=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
-    const easeOutBack=t=>{const c=1.70158;return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2);};
-    const P1=[{x:60,y:50,r:0},{x:340,y:50,r:90},{x:340,y:330,r:180},{x:60,y:330,r:270}];
-    const P2=[{x:220,y:170,r:0},{x:220,y:50,r:90},{x:340,y:330,r:180},{x:60,y:170,r:270}];
-    const tris=[];
-    for(let i=0;i<4;i++){const d=document.createElement('div');
-        d.style.cssText='position:absolute;left:0;top:0;width:120px;height:160px;background:#5b9bd5;clip-path:polygon(0 0,100% 0,0 100%);transform-origin:0 0;opacity:0;';
-        d.style.transform=`translate(${P1[i].x}px,${P1[i].y}px) rotate(${P1[i].r}deg) scale(0)`;
-        stage.appendChild(d);tris.push(d);}
-    const tweens=[];
-    const addTween=(t0,t1,fn)=>{const tw={t0,t1,fn,last:-1};tweens.push(tw);return tw;};
-    const fade=(el,t0,d,to,from=0)=>addTween(t0,t0+d,p=>{el.style.opacity=from+(to-from)*p;});
-    const $=id=>document.getElementById(id);
-    fade($('r2Outline'),0,400,1);
-    tris.forEach((el,i)=>addTween(500+i*150,760+i*150,p=>{const e=easeOutBack(p);
-        el.style.opacity=Math.min(1,p*2.5);
-        el.style.transform=`translate(${P1[i].x}px,${P1[i].y}px) rotate(${P1[i].r}deg) scale(${Math.max(0,e)})`;}));
-    fade($('pink1'),1400,400,1); fade($('labC2'),1500,400,1);
-    tris.forEach((el,i)=>addTween(2200+i*200,3100+i*200,p=>{const e=easeInOutCubic(p);
-        el.style.transform=`translate(${lerp(P1[i].x,P2[i].x,e)}px,${lerp(P1[i].y,P2[i].y,e)}px) rotate(${P1[i].r}deg)`;}));
-    fade($('pink1'),2600,600,0,1); fade($('labC2'),2600,400,0,1);
-    fade($('pink2a'),2600,600,1); fade($('pink2b'),2600,600,1);
-    fade($('labA2'),2800,400,1); fade($('labB2'),2800,400,1);
-    let vt=0,playing=false,speed=1,lastTs=null;
-    const stepTimes=[[0,1],[400,2],[2200,3],[3600,4]];
-    function frame(ts){if(lastTs===null)lastTs=ts;const dt=Math.min(50,ts-lastTs);lastTs=ts;
-        if(playing)vt=Math.min(TOTAL,vt+dt*speed);
-        for(const tw of tweens){const p=Math.max(0,Math.min(1,(vt-tw.t0)/(tw.t1-tw.t0)));
-            if(p!==tw.last){tw.fn(p);tw.last=p;}}
-        const pct=Math.round(vt/TOTAL*100);
-        document.getElementById('ptext').textContent='Progres: '+pct+'%';
-        document.getElementById('pfill').style.width=pct+'%';
-        let n=0;for(const[t,s]of stepTimes)if(vt>=t)n=s;
-        document.querySelectorAll('.formula-step').forEach(el=>el.classList.remove('active'));
-        const el=document.getElementById('step'+n);if(el)el.classList.add('active');
-        if(playing&&vt>=TOTAL){playing=false;const b=document.getElementById('btnStart');
-            b.textContent='▶ Ulangi';b.style.display='inline-block';
-            document.getElementById('btnPause').style.display='none';}
-        requestAnimationFrame(frame);}
-    function resetState(){vt=0;playing=false;for(const tw of tweens)tw.last=-1;
-        const b=document.getElementById('btnStart');b.textContent='▶ Mulai';
-        b.style.display='inline-block';document.getElementById('btnPause').style.display='none';}
-    document.getElementById('btnStart').addEventListener('click',()=>{if(vt>=TOTAL)resetState();
-        playing=true;document.getElementById('btnStart').style.display='none';
-        document.getElementById('btnPause').style.display='inline-block';});
-    document.getElementById('btnPause').addEventListener('click',()=>{playing=false;
-        const b=document.getElementById('btnStart');b.textContent='▶ Lanjut';
-        b.style.display='inline-block';document.getElementById('btnPause').style.display='none';});
-    document.getElementById('btnSkip').addEventListener('click',()=>{vt=TOTAL;playing=false;
-        for(const tw of tweens){tw.fn(1);tw.last=1;}});
-    document.getElementById('btnReset').addEventListener('click',resetState);
-    document.getElementById('speedSlider').addEventListener('input',e=>{
-        speed=parseFloat(e.target.value);document.getElementById('speedValue').textContent=speed+'×';});
-
-    function rearrangeSVG(state){
-        const TRI='fill="#5b9bd5" stroke="#2e6da4" stroke-width="1.5"';
-        const PINK='fill="#f9c9de" stroke="#e39bb8" stroke-width="1.5"';
-        const DASH='fill="none" stroke="#c2185b" stroke-width="2" stroke-dasharray="5 4"';
-        let inner='';
-        if(state==='initial'){
-            inner=`<polygon points="0,0 120,0 0,160" ${TRI}/><polygon points="120,0 280,0 280,120" ${TRI}/><polygon points="280,120 280,280 160,280" ${TRI}/><polygon points="160,280 0,280 0,160" ${TRI}/><polygon points="120,0 280,120 160,280 0,160" ${PINK}/><rect x="112" y="120" width="56" height="38" ${DASH}/><text x="140" y="145" text-anchor="middle" font-size="20" font-weight="bold" fill="#c2185b">c²</text>`;
-        } else {
-            inner=`<polygon points="160,0 160,120 0,0" ${TRI}/><polygon points="0,0 160,120 0,120" ${TRI}/><polygon points="160,120 280,120 160,280" ${TRI}/><polygon points="280,120 280,280 160,280" ${TRI}/><rect x="160" y="0" width="120" height="120" ${PINK}/><rect x="0" y="120" width="160" height="160" ${PINK}/><rect x="192" y="42" width="56" height="38" ${DASH}/><text x="220" y="67" text-anchor="middle" font-size="20" font-weight="bold" fill="#c2185b">a²</text><rect x="52" y="180" width="56" height="38" ${DASH}/><text x="80" y="205" text-anchor="middle" font-size="20" font-weight="bold" fill="#c2185b">b²</text>`;
-        }
-        return `<svg viewBox="0 0 280 280" width="230" height="230" style="display:block;margin:auto;"><rect x="1" y="1" width="278" height="278" fill="#ffffff" stroke="#444" stroke-width="2"/>${inner}</svg>`;
-    }
-    document.getElementById('figInitial').innerHTML=rearrangeSVG('initial');
-    document.getElementById('figFinal').innerHTML=rearrangeSVG('final');
-
-    function fitSheet(){const vp=document.getElementById('a4Viewport');
-        const sh=document.querySelector('.a4-sheet');if(!vp||!sh)return;
-        const s=Math.min(1,vp.clientWidth/794);
-        sh.style.transform=`scale(${s})`;sh.style.transformOrigin='top left';
-        vp.style.height=(1123*s)+'px';}
-    window.fitSheet=fitSheet;window.addEventListener('resize',fitSheet);
-    window.togglePreview=function(){const col=document.getElementById('previewCollapse');
-        col.classList.toggle('collapsed');
-        document.getElementById('btnPreview').textContent=col.classList.contains('collapsed')
-            ?'👁 Tampilkan Pratinjau PDF (1 halaman)':'🙈 Sembunyikan Pratinjau PDF';
-        if(!col.classList.contains('collapsed'))setTimeout(fitSheet,60);};
-    renderCalendar(document.getElementById('calBlock'),3);
-try {
-  const qrContainer = document.getElementById('qrcode');
-  qrContainer.innerHTML = ''; // Hapus konten lama
-  new QRCode(qrContainer, {
-    text: window.location.href,
-    width: 84,
-    height: 84,
-    correctLevel: QRCode.CorrectLevel.M,
-    colorDark: "#1a202c",
-    colorLight: "#ffffff"
-  });
-} catch (e) {
-  const qrContainer = document.getElementById('qrcode');
-  qrContainer.innerHTML = '<div style="font-size:10px;color:#666;text-align:center;">QR Error</div>';
-}
-    fitStage();fitSheet();requestAnimationFrame(frame);
-    </script>
-    <!-- ============ MODAL KONFIRMASI DOWNLOAD ============ -->
-<div class="modal-overlay" id="downloadModal">
-  <div class="modal-content">
-    <h3>📄 Konfirmasi Download PDF</h3>
-    <p>Sebelum mengunduh PDF, pastikan Anda sudah memahami petunjuk proyek dan checklist persiapan.</p>
-    
-    <div class="modal-warning" id="modalWarning"></div>
-    
-    <label class="ack-checkbox" for="modalAck">
-      <input type="checkbox" id="modalAck">
-      <span>Saya sudah paham petunjuk dan checklist semua Persiapan.</span>
-    </label>
-    
-    <div class="modal-actions">
-      <button id="btnModalDownload" disabled>📄 Download PDF</button>
-      <button id="btnModalCancel">Batal</button>
+    <div class="modal-overlay" id="downloadModal">
+      <div class="modal-content">
+        <h3>📄 Konfirmasi Download PDF</h3>
+        <p>Sebelum mengunduh PDF, pastikan Anda sudah memahami petunjuk proyek dan checklist persiapan.</p>
+        <div class="modal-warning" id="modalWarning"></div>
+        <label class="ack-checkbox" for="modalAck">
+          <input type="checkbox" id="modalAck">
+          <span>Saya sudah paham petunjuk dan checklist semua Persiapan.</span>
+        </label>
+        <div class="modal-actions">
+          <button id="btnModalDownload" disabled>📄 Download PDF</button>
+          <button id="btnModalCancel">Batal</button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+
+<script>
+window.PROOF_NAME = 'Rearrangement 4 Segitiga';
+var $ = function(id){ return document.getElementById(id); };
+
+/* ============ GEOMETRI (TERVERIFIKASI) ============
+   Kotak besar: (60,50) s.d. (340,330) → sisi 280px = 7 unit (40px/unit)
+   a = 120px, b = 160px, c = 200px
+   P1 = susunan sudut (rongga c² miring di tengah)
+   P2 = susunan pasangan (rongga a² kanan-atas + b² kiri-bawah)      */
+var P1 = [ {x:60, y:50, r:0}, {x:340, y:50, r:90}, {x:340, y:330, r:180}, {x:60, y:330, r:270} ];
+var P2 = [ {x:220, y:170, r:0}, {x:220, y:50, r:90}, {x:340, y:330, r:180}, {x:60, y:170, r:270} ];
+
+var currentStep = 0, maxStep = 4;
+var tris = [ $('tri0'), $('tri1'), $('tri2'), $('tri3') ];
+
+function setTri(i, pos, scale, opacity){
+    tris[i].style.opacity = opacity;
+    tris[i].style.transform = 'translate(' + pos.x + 'px,' + pos.y + 'px) rotate(' + pos.r + 'deg) scale(' + scale + ')';
+}
+
+function updateStep(step){
+    currentStep = Math.max(0, Math.min(maxStep, step));
+
+    /* progress */
+    $('pfill').style.width = (currentStep / maxStep * 100) + '%';
+    $('ptext').textContent = 'Langkah ' + currentStep + ' dari ' + maxStep +
+        (currentStep === 0 ? ' — Klik "▶ Langkah" untuk memulai' : '');
+
+    /* penjelasan langkah */
+    for (var i = 0; i <= maxStep; i++){
+        var el = $('step' + i);
+        if (el){ el.classList.remove('active'); if (i === currentStep) el.classList.add('active'); }
+    }
+
+    /* tombol */
+    $('btnBack').disabled = (currentStep === 0);
+    $('btnPlay').textContent = (currentStep >= maxStep) ? '🔄 Ulangi' : '▶ Langkah';
+    $('btnFwd').disabled = (currentStep >= maxStep);
+
+    /* --- VISUAL --- */
+    if (currentStep === 0){
+        for (var k = 0; k < 4; k++) setTri(k, P1[k], 0, 0);   /* mengecil di tempatnya */
+    } else if (currentStep <= 2){
+        for (var k2 = 0; k2 < 4; k2++) setTri(k2, P1[k2], 1, 1);
+    } else {
+        for (var k3 = 0; k3 < 4; k3++) setTri(k3, P2[k3], 1, 1);
+    }
+
+    $('pink1').style.opacity  = (currentStep === 2) ? 1 : 0;
+    $('labC2').style.opacity  = (currentStep === 2) ? 1 : 0;
+    $('pink2a').style.opacity = (currentStep >= 3) ? 1 : 0;
+    $('pink2b').style.opacity = (currentStep >= 3) ? 1 : 0;
+    $('labA2').style.opacity  = (currentStep >= 3) ? 1 : 0;
+    $('labB2').style.opacity  = (currentStep >= 3) ? 1 : 0;
+}
+
+function playStep(){ (currentStep >= maxStep) ? updateStep(0) : updateStep(currentStep + 1); }
+function goForward(){ if (currentStep < maxStep) updateStep(currentStep + 1); }
+function goBack(){ if (currentStep > 0) updateStep(currentStep - 1); }
+function resetAnim(){ updateStep(0); }
+
+/* responsif stage */
+function fitStage(){
+    var wrap = $('stageWrap'), st = $('stage');
+    var s = Math.min(1, (wrap.clientWidth - 4) / 420);
+    st.style.transform = 'scale(' + s + ')';
+    wrap.style.height = (400 * s) + 'px';
+}
+window.addEventListener('resize', function(){ fitStage(); fitSheet(); });
+
+/* ============ GAMBAR STATIS SHEET ============ */
+function rearrangeSVG(state){
+    var TRI='fill="#5b9bd5" stroke="#2e6da4" stroke-width="1.5"';
+    var PINK='fill="#f9c9de" stroke="#e39bb8" stroke-width="1.5"';
+    var DASH='fill="none" stroke="#c2185b" stroke-width="2" stroke-dasharray="5 4"';
+    var inner='';
+    if(state==='initial'){
+        inner='<polygon points="0,0 120,0 0,160" '+TRI+'/><polygon points="120,0 280,0 280,120" '+TRI+'/>'+
+              '<polygon points="280,120 280,280 160,280" '+TRI+'/><polygon points="160,280 0,280 0,160" '+TRI+'/>'+
+              '<polygon points="120,0 280,120 160,280 0,160" '+PINK+'/>'+
+              '<rect x="112" y="120" width="56" height="38" '+DASH+'/>'+
+              '<text x="140" y="145" text-anchor="middle" font-size="20" font-weight="bold" fill="#c2185b">c²</text>';
+    } else {
+        inner='<polygon points="0,0 160,0 0,120" '+TRI+'/><polygon points="160,0 160,120 0,120" '+TRI+'/>'+
+              '<polygon points="160,120 280,120 280,280" '+TRI+'/><polygon points="160,120 280,280 160,280" '+TRI+'/>'+
+              '<rect x="160" y="0" width="120" height="120" '+PINK+'/>'+
+              '<rect x="0" y="120" width="160" height="160" '+PINK+'/>'+
+              '<rect x="192" y="42" width="56" height="38" '+DASH+'/>'+
+              '<text x="220" y="67" text-anchor="middle" font-size="20" font-weight="bold" fill="#c2185b">a²</text>'+
+              '<rect x="52" y="180" width="56" height="38" '+DASH+'/>'+
+              '<text x="80" y="205" text-anchor="middle" font-size="20" font-weight="bold" fill="#c2185b">b²</text>';
+    }
+    return '<svg viewBox="0 0 280 280" width="230" height="230" style="display:block;margin:auto;">'+
+           '<rect x="1" y="1" width="278" height="278" fill="#ffffff" stroke="#444" stroke-width="2"/>'+inner+'</svg>';
+}
+$('figInitial').innerHTML = rearrangeSVG('initial');
+$('figFinal').innerHTML   = rearrangeSVG('final');
+
+/* ============ SHEET / KALENDER / QR / LAIN ============ */
+function fitSheet(){
+    var vp = $('a4Viewport'), sh = document.querySelector('.a4-sheet');
+    if(!vp || !sh) return;
+    var s = Math.min(1, vp.clientWidth / 794);
+    sh.style.transform = 'scale(' + s + ')';
+    sh.style.transformOrigin = 'top left';
+    vp.style.height = (1123 * s) + 'px';
+}
+window.fitSheet = fitSheet;
+window.togglePreview = function(){
+    var col = $('previewCollapse');
+    col.classList.toggle('collapsed');
+    $('btnPreview').textContent = col.classList.contains('collapsed')
+        ? '👁 Tampilkan Pratinjau PDF (1 halaman)' : '🙈 Sembunyikan Pratinjau PDF';
+    if(!col.classList.contains('collapsed')) setTimeout(fitSheet, 60);
+};
+
+try {
+    if (typeof renderCalendar === 'function') renderCalendar($('calBlock'), 3);
+    else $('calBlock').innerHTML = '<div style="padding:20px;text-align:center;color:#c53030;">⚠ calendar-template.js tidak termuat</div>';
+} catch (e) {
+    $('calBlock').innerHTML = '<div style="padding:20px;text-align:center;color:#c53030;">⚠ Gagal render kalender</div>';
+}
+
+try {
+    var qc = $('qrcode'); qc.innerHTML = '';
+    new QRCode(qc, { text: window.location.href, width: 84, height: 84,
+        correctLevel: QRCode.CorrectLevel.M, colorDark: "#1a202c", colorLight: "#ffffff" });
+} catch (e) { $('qrcode').innerHTML = '<div style="font-size:10px;color:#666;text-align:center;">QR Error</div>'; }
+
+var btnCopy = $('btnCopyPrompt'), pt = $('promptText');
+var raw = pt.textContent.replace('[NAMA BUKTI]', window.PROOF_NAME);
+pt.textContent = raw;
+btnCopy.onclick = async function(){
+    try {
+        await navigator.clipboard.writeText(raw);
+        btnCopy.textContent = '✅ Tersalin!'; btnCopy.classList.add('copied');
+        setTimeout(function(){ btnCopy.textContent = '📋 Copy Teks'; btnCopy.classList.remove('copied'); }, 2000);
+    } catch(e){ alert('Gagal: ' + e.message); }
+};
+
+var daftarKesimpulan = [
+  { rumus:"a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup>", teks:"Jumlah kuadrat sisi siku-siku sama dengan kuadrat sisi miring" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring sama dengan jumlah kuadrat sisi siku-sikunya" },
+  { rumus:"c<sup>2</sup> = a<sup>2</sup> + b<sup>2</sup>", teks:"Kuadrat sisi miring (hipotenusa) sama dengan jumlah kuadrat sisi tegaknya" }
+];
+var idxK = 2; /* Maret = bulan 3 → index (3-1)%3 = 2 */
+function acakKesimpulanPythagoras(){
+  idxK = (idxK + 1) % daftarKesimpulan.length;
+  $('py-rumus').innerHTML = daftarKesimpulan[idxK].rumus;
+  $('py-kesimpulan').innerText = '"' + daftarKesimpulan[idxK].teks + '"';
+}
+$('py-rumus').innerHTML = daftarKesimpulan[idxK].rumus;
+$('py-kesimpulan').innerText = '"' + daftarKesimpulan[idxK].teks + '"';
+
+/* init */
+updateStep(0);
+fitStage();
+fitSheet();
+</script>
 </body>
 </html>
