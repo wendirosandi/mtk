@@ -39,8 +39,34 @@
   .calc-line { padding:4px 0; border-bottom:1px dashed #e2e8f0; }
   .calc-line:last-child { border-bottom:none; font-weight:700; color:#27ae60; background:#f0fdf4; padding:6px 8px; border-radius:4px; margin-top:6px; }
   .calc-highlight { color:#e11d48; font-weight:600; }
-  .a4-sheet .proof-figures .proof-figure .scene { min-height:170px; }
-  .a4-sheet .proof-figures .proof-figure .scene svg { width:100%; height:auto; display:block; }
+ 
+  /* ===== SHEET A4 RAPAT & ANTI-TUMPANG-TINDIH (khusus Okt & Des) ===== */
+.a4-sheet .proof-figures { display:flex; gap:8px; margin:4px 0 6px; }
+.a4-sheet .proof-figure { padding:6px; margin:0; overflow:hidden; position:relative; z-index:1; }
+.a4-sheet .proof-figure .scene {
+  height:185px; min-height:0; padding:4px;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden; background:#fff;
+}
+.a4-sheet .proof-figure .scene svg,
+.a4-sheet .proof-figure .scene img {
+  height:100%; width:auto; max-width:100%; max-height:100%;
+  display:block; margin:auto;
+}
+.a4-sheet .proof-figure figcaption { font-size:9px; line-height:1.35; margin-top:4px; }
+.a4-sheet .export-explain { margin:4px 0; padding:6px 8px; position:relative; z-index:0; }
+.a4-sheet .export-explain p { font-size:10.5px; line-height:1.45; margin:0 0 4px; }
+.a4-sheet .mono-calc { padding:6px 8px !important; font-size:10.5px !important; line-height:1.5 !important; margin:4px 0 !important; }
+.a4-sheet .export-formula { padding:5px 10px; margin-top:4px; gap:10px; }
+.a4-sheet .export-formula .formula-calc { font-size:12px; }
+.a4-sheet .export-formula .formula-verified { font-size:11px; padding:3px 8px; }
+.a4-sheet .pythagoras-container { padding:7px 12px; margin:5px 0; gap:8px; gap:8px; }
+.a4-sheet .group-info-compact { padding:8px 10px; margin-top:6px; }
+.a4-sheet .group-info-compact .name-line { font-size:10px; margin-bottom:6px; }
+.a4-sheet .cal-block { margin:2mm 0; }
+.a4-sheet hr.cal-divider { margin:4px 0; }
+.a4-sheet .export-header h2 { font-size:15px; margin:0 0 2px; }
+.a4-sheet .export-header p { font-size:9.5px; margin:0; }
 </style>
 </head>
 <body>
@@ -155,7 +181,7 @@
             <p><strong>Penjelasan:</strong> empat segitiga siku-siku (½ab) bersama lubang (b−a)² menyusun bayangan
                persegi c². Mengayun turun dua segitiga atas (rotasi 90°) mengubah susunan menjadi persegi a² dan b²
                tanpa mengubah luas total.</p>
-            <div style="background:#f8fafc;padding:10px;border-radius:6px;font-family:monospace;font-size:12px;line-height:1.7;color:#1e293b;margin:8px 0;">
+           <div class="mono-calc" style="background:#f8fafc;padding:10px;border-radius:6px;font-family:monospace;font-size:12px;line-height:1.7;color:#1e293b;margin:8px 0;">
               c² = 4·(½ab) + (b−a)² = 24 + 1 = 25<br>
               a² + b² = 9 + 16 = 25<br>
               ∴ c² = a² + b²
