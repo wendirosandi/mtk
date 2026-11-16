@@ -33,9 +33,11 @@ Router.register('login', async () => `
       </div>
 
       <div id="form-guru" class="hidden">
-        <input id="in-pin" type="password"
+        <input id="in-guru-user" class="w-full border rounded-xl px-4 py-3 mb-3"
+          placeholder="Username Guru">
+        <input id="in-guru-pass" type="password"
           class="w-full border rounded-xl px-4 py-3 mb-4"
-          placeholder="PIN Guru">
+          placeholder="Password Guru">
       </div>
 
       <button id="btn-login"
@@ -50,8 +52,10 @@ window.init_login = async () => {
   // Helper lokal, tidak membutuhkan $ global
   const $ = (selector) => document.querySelector(selector);
 
+  await API.ready;
+
   if (API.sess()) {
-    Router.go(API.getRole() === 'guru' ? 'guru-dash' : 'siswa-dash');
+    Router.go(API.getRole() === 'guru' || API.getRole() === 'admin' ? 'guru-dash' : 'siswa-dash');
     return;
   }
 
@@ -106,14 +110,17 @@ window.init_login = async () => {
           $('#in-pass').value
         );
       } else {
-        r = await API.loginGuru($('#in-pin').value);
+        r = await API.loginGuru(
+          $('#in-guru-user').value.trim(),
+          $('#in-guru-pass').value
+        );
       }
 
       if (!r.ok) {
         API.toast(
-          '❌ ' + (role === 'siswa'
+          '❌ ' + (r.msg || (role === 'siswa'
             ? 'Username/password salah'
-            : 'PIN salah')
+            : 'Username/password guru salah'))
         );
         return;
       }

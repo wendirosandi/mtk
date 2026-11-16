@@ -71,11 +71,11 @@ window.init_siswa_nilai = async () => {
       : '<span class="text-gray-300 text-sm">🔍</span>';
     const icon = x.lengkap
       ? '<span class="nl-info cursor-pointer text-green-700 font-bold text-xs bg-green-50 border border-green-200 rounded-full px-2 py-1" data-kode="'+x.kode+'">✅ LENGKAP</span>'
-      : '<span class="nl-info cursor-pointer text-amber-700 font-bold text-xs bg-amber-50 border border-amber-200 rounded-full px-2 py-1" data-kode="'+x.kode+'">⏳ '+x.lengkapCnt+'/7</span>';
+      : '<span class="nl-info cursor-pointer text-amber-700 font-bold text-xs bg-amber-50 border border-amber-200 rounded-full px-2 py-1" data-kode="'+x.kode+'">⏳ '+x.lengkapCnt+'/'+(x.lengkapOf||7)+'</span>';
     let btn = '';
     if (x.locked) btn = '<p class="text-sm text-gray-400 mt-2">🔒 Dikunci'+(x.nilaiLkpd!=='X'?' — nilai tersimpan':'')+'</p>';
     else if (x.status === 'Tidak Aktif' || x.status === 'Exambro')
-      btn = '<button class="nl-buka w-full mt-2 bg-slate-700 text-white text-sm font-bold py-2 rounded-xl" data-kode="'+x.kode+'">🔑 Via Login Ujian</button>';
+      btn = '<p class="text-sm text-gray-500 mt-2">🔒 Dibuka melalui sesi ujian yang diatur guru</p>';
     else if (x.target)
       btn = '<button class="nl-buka w-full mt-2 bg-sky-600 text-white text-sm font-bold py-2 rounded-xl" data-kode="'+x.kode+'">'
           + (x.readOnly ? '🔗 Buka (mode baca)' : (x.nilaiLkpd === 'X' ? '🔗 Kerjakan Sekarang' : '🔗 Buka LKPD'))
@@ -125,13 +125,8 @@ window.init_siswa_nilai = async () => {
   }
 
   function buka(x) {
-    if (!x) return;
-    if (x.status === 'Tidak Aktif' || x.status === 'Exambro') {
-          window.open(new URL('LKPD/LoginDirect.html', location.href).href, '_blank');
-      return;
-    }
-    /* buka dengan token sesi di URL */
-    window.open(x.target + '?s=' + API.sess(), '_blank');
+    if (!x || !x.target) return;
+    window.open(x.target, '_blank');
   }
 
   function parseDetail(str) {

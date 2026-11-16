@@ -1,0 +1,18 @@
+# ---- rahasia / environment ----
+.env
+.env.*
+!.env.example
+
+# ---- artefak Supabase CLI ----
+supabase/.temp/
+
+# ---- dependency & build ----
+node_modules/
+dist/
+
+# ---- dump/generated ----
+ringkasan-proyek.md
+
+# ---- OS ----
+.DS_Store
+Thumbs.db

@@ -1,5 +1,17 @@
 -- 0004_navigation.sql — RPC untuk navigasi pembelajaran
 -- Semua fungsi: security invoker, mematuhi RLS
+--
+-- Catatan idempoten: fungsi dari versi remote lama bisa punya OUT/return type
+-- berbeda, sehingga `create or replace` gagal (SQLSTATE 42P13). Drop dulu
+-- agar migrasi aman dijalankan ulang.
+
+drop function if exists public.app_get_subjects();
+drop function if exists public.app_get_modules(uuid);
+drop function if exists public.app_get_materials(uuid);
+drop function if exists public.app_get_assessments(uuid);
+drop function if exists public.app_get_student_progress();
+drop function if exists public.app_get_student_gradebook();
+drop function if exists public.app_get_student_activity(int);
 
 -- 1. Daftar mata pelajaran (siswa: mapel di kelasnya, guru: mapel yang diajarkan, admin: semua)
 create or replace function public.app_get_subjects()
@@ -12,7 +24,7 @@ returns table (
 ) language plpgsql stable security invoker set search_path = public as $$
 declare p public.profiles;
 begin
-  select * into p from public.profiles where id = auth.uid();
+  select * into p from public.profiles where public.profiles.id = auth.uid();
   if p.id is null then return; end if;
 
   if p.role = 'admin' then
@@ -29,8 +41,9 @@ begin
     join public.subjects s on s.id = ta.subject_id
     join public.classes c on c.id = ta.class_id or ta.class_id is null
     join public.grade_levels gl on gl.id = c.grade_level_id
-    where ta.teacher_id = p.id and ta.academic_year_id = (select id from public.academic_years where school_id = p.school_id and is_active limit 1)
-    order by s.code, gl.rank;
+    where ta.teacher_id = p.id
+      and ta.academic_year_id = (select id from public.academic_years where school_id = p.school_id and is_active limit 1)
+    order by s.code, gl.label;
   else -- siswa
     return query
     select distinct s.id, s.code, s.name, gl.id, gl.label
@@ -41,7 +54,7 @@ begin
     join public.subjects s on s.id = ta.subject_id
     where cm.profile_id = p.id and cm.left_at is null
       and ta.academic_year_id = c.academic_year_id
-    order by s.code, gl.rank;
+    order by s.code, gl.label;
   end if;
 end $$;
 
@@ -58,7 +71,7 @@ returns table (
 ) language plpgsql stable security invoker set search_path = public as $$
 declare p public.profiles; gl_id uuid;
 begin
-  select * into p from public.profiles where id = auth.uid();
+  select * into p from public.profiles where public.profiles.id = auth.uid();
   if p.id is null then return; end if;
 
   -- Ambil tingkat siswa (untuk siswa) atau semua tingkat (untuk guru/admin)
@@ -129,7 +142,7 @@ returns table (
 ) language plpgsql stable security invoker set search_path = public as $$
 declare p public.profiles;
 begin
-  select * into p from public.profiles where id = auth.uid();
+  select * into p from public.profiles where public.profiles.id = auth.uid();
   if p.id is null then return; end if;
 
   return query
@@ -215,7 +228,7 @@ returns table (
 ) language plpgsql stable security invoker set search_path = public as $$
 declare p public.profiles;
 begin
-  select * into p from public.profiles where id = auth.uid();
+  select * into p from public.profiles where public.profiles.id = auth.uid();
   if p.id is null then return; end if;
 
   return query
