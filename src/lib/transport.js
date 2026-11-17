@@ -1245,6 +1245,97 @@
     return data || { ok: false, msg: 'Tidak ada respons' };
   }
 
+  /* ---------- kolaborasi ---------- */
+  async function siswaKolabData() {
+    var meta = await currentMeta();
+    var db = await sb();
+    var a = await db.from('assessments')
+      .select('id,code,title,collab_mode,status,subject_id')
+      .neq('collab_mode', 'none')
+      .in('status', ['active', 'exambro'])
+      .order('title');
+    if (a.error) throw a.error;
+    var p = await db.from('collab_pairs')
+      .select('id,assessment_id,owner_id,partner_id,status,note,created_at,owner:profiles!collab_pairs_owner_id_fkey(username,full_name),partner:profiles!collab_pairs_partner_id_fkey(username,full_name)')
+      .order('created_at', { ascending: false });
+    if (p.error) throw p.error;
+    return {
+      ok: true,
+      assessments: a.data || [],
+      pairs: (p.data || []).map(function (x) {
+        return {
+          id: x.id, assessmentId: x.assessment_id, ownerId: x.owner_id, partnerId: x.partner_id,
+          status: x.status, note: x.note, at: fmtDate(x.created_at),
+          owner: x.owner, partner: x.partner, isOwner: x.owner_id === meta.id
+        };
+      })
+    };
+  }
+
+  async function siswaKolabRequest(payload) {
+    var meta = await currentMeta();
+    var db = await sb();
+    var username = String(payload.partnerUsername || '').trim().toLowerCase();
+    if (!payload.assessmentId || !username) return { ok: false, msg: 'Asesmen dan username pasangan wajib' };
+    var p = await db.from('profiles').select('id,username,full_name').eq('username', username).single();
+    if (p.error || !p.data) return { ok: false, msg: 'Username pasangan tidak ditemukan' };
+    if (p.data.id === meta.id) return { ok: false, msg: 'Tidak bisa memilih diri sendiri' };
+    var ex = await db.from('collab_pairs').select('id,status')
+      .eq('owner_id', meta.id).eq('assessment_id', payload.assessmentId)
+      .in('status', ['pending', 'approved']).limit(1);
+    if (ex.data && ex.data.length) return { ok: false, msg: 'Sudah ada permintaan/pasangan untuk asesmen ini' };
+    var r = await db.from('collab_pairs').insert({
+      school_id: meta.school_id,
+      assessment_id: payload.assessmentId,
+      owner_id: meta.id,
+      partner_id: p.data.id,
+      status: 'pending',
+      note: payload.note || null,
+      created_by: meta.id
+    }).select('id').single();
+    if (r.error) throw r.error;
+    return { ok: true, id: r.data.id, partner: p.data };
+  }
+
+  async function siswaKolabCancel(id) {
+    var db = await sb();
+    var r = await db.from('collab_pairs').update({ status: 'replaced', decided_at: new Date().toISOString() })
+      .eq('id', id).select('id');
+    if (r.error) throw r.error;
+    if (!r.data || !r.data.length) return { ok: false, msg: 'Tidak dapat membatalkan' };
+    return { ok: true };
+  }
+
+  async function guruKolabData() {
+    var db = await sb();
+    var r = await db.from('collab_pairs')
+      .select('id,assessment_id,status,note,created_at,decided_at,owner:profiles!collab_pairs_owner_id_fkey(username,full_name),partner:profiles!collab_pairs_partner_id_fkey(username,full_name),assessments(code,title)')
+      .order('created_at', { ascending: false }).limit(200);
+    if (r.error) throw r.error;
+    return {
+      ok: true,
+      rows: (r.data || []).map(function (x) {
+        return {
+          id: x.id, status: x.status, note: x.note,
+          at: fmtDate(x.created_at), decided: fmtDate(x.decided_at),
+          owner: x.owner, partner: x.partner,
+          assessment: x.assessments
+        };
+      })
+    };
+  }
+
+  async function guruKolabDecide(payload) {
+    var db = await sb();
+    var status = payload.decision === 'approve' ? 'approved' : 'rejected';
+    var r = await db.from('collab_pairs').update({
+      status: status, decided_at: new Date().toISOString(), note: payload.note || null
+    }).eq('id', payload.id).select('id');
+    if (r.error) throw r.error;
+    if (!r.data || !r.data.length) return { ok: false, msg: 'Tidak dapat memproses' };
+    return { ok: true };
+  }
+
   /* ---------- router aksi ---------- */
   async function route(payload) {
     var a = payload.action;
@@ -1321,6 +1412,11 @@
     if (a === 'guruKisiSave') return guruKisiSave(payload);
     if (a === 'guruKisiDelete') return guruKisiDelete(payload.id);
     if (a === 'guruBuildPackage') return guruBuildPackage(payload.id);
+    if (a === 'siswaKolabData') return siswaKolabData();
+    if (a === 'siswaKolabRequest') return siswaKolabRequest(payload);
+    if (a === 'siswaKolabCancel') return siswaKolabCancel(payload.id);
+    if (a === 'guruKolabData') return guruKolabData();
+    if (a === 'guruKolabDecide') return guruKolabDecide(payload);
 
     if (a === 'getSubjects') return { ok: true, rows: await rpc('app_get_subjects') };
     if (a === 'getModules') return { ok: true, rows: await rpc('app_get_modules', { p_subject_id: payload.subjectId }) };

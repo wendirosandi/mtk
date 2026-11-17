@@ -8,6 +8,7 @@ window.Shell = (function () {
       { route: 'siswa-mapel', label: 'Mapel', icon: 'fa-book-open' },
       { route: 'siswa-nilai', label: 'Nilai', icon: 'fa-chart-line' },
       { route: 'siswa-aktifitas', label: 'Aktivitas', icon: 'fa-wave-square' },
+      { route: 'siswa-kolab', label: 'Kolaborasi', icon: 'fa-handshake' },
       { route: 'siswa-profil', label: 'Profil', icon: 'fa-user' }
     ],
     guru: [
@@ -19,7 +20,7 @@ window.Shell = (function () {
       { route: 'guru-aktifitas', label: 'Aktivitas', icon: 'fa-wave-square' },
       { route: 'guru-asesmen', label: 'Asesmen', icon: 'fa-file-pen' },
       { route: 'guru-bank', label: 'Bank Soal', icon: 'fa-database' },
-      { route: 'guru-kolab', label: 'Kolaborasi', icon: 'fa-handshake', soon: true },
+      { route: 'guru-kolab', label: 'Kolaborasi', icon: 'fa-handshake' },
       { route: 'guru-permintaan', label: 'Permintaan', icon: 'fa-inbox', soon: true },
       { route: 'guru-profil', label: 'Profil', icon: 'fa-id-badge', soon: true }
     ],

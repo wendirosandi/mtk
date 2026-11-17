@@ -94,6 +94,7 @@ kembali → aktivitas tercatat; tanpa sesi selalu kembali ke login dengan `next`
 - [x] Role guru diuji dengan akun nyata (`guru.uji`)
 - [x] Uji negatif: guru tidak bisa kelas di luar scope (RLS 8.F/8.G di lokal)
 - [x] Dashboard guru + daftar kelas yang diampu (`guru-kelas`)
+- [x] Kolaborasi siswa + approval guru (`siswa-kolab`, `guru-kolab`)
 
 **Kriteria selesai:** guru dapat membuat satu modul + satu LKPD + satu kuis, siswa
 mengerjakan, nilai masuk, guru melihat dan mengoreksi.
