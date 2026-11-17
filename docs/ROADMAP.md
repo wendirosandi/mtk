@@ -126,9 +126,10 @@ penugasan tanpa SQL manual.
 ## Fase 4 — Bank Soal Lanjutan & AI Guru
 
 - [x] Pool, bank soal, kisi-kisi, dan susun paket (UI `guru-bank`)
+- [x] Wizard AI bank (UI `guru-ai` + Edge Function scaffold; butuh `AI_API_KEY`)
 - [ ] Generator template & paket per-siswa (snapshot attempt)
-- [ ] Paket beku + snapshot attempt per siswa
-- [ ] Wizard AI: modul/materi/LKPD/kuis/bank
+- [ ] Wizard AI: modul/materi/LKPD/kuis
+- [ ] Migrasi `0015_ai_jobs` (draft) diterapkan
 - [ ] Validasi JSON schema + moderasi
 - [ ] Draft → review → publish
 - [ ] `ai_jobs` + audit biaya/token

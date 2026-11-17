@@ -251,11 +251,13 @@ aktivitas, dan uji negatif RLS.
     builder membatasi di UI, tetapi backend belum menegakkannya.
 14. Policy bank soal (`question_pools`, `bank_items`, `kisi_kisi`) belum diperketat ke
     mapel/asesmen yang diampu; baru dibatasi role guru + sekolah.
-15. Tanpa migrasi `0014`, pemilik pasangan dapat mengubah status `collab_pairs` sendiri
-    lewat API. Draft `0014_collab_guard.sql` menutup celah ini (belum diterapkan).
+15. `0014_collab_guard.sql` sudah diterapkan: siswa tidak bisa menyetujui pasangannya
+    sendiri; persetujuan hanya guru/admin.
+16. AI Guru: Edge Function `ai-content` sudah di-deploy sebagai scaffold, tetapi
+    `AI_API_KEY` belum diatur dan migrasi `0015_ai_jobs` belum diterapkan.
 
-Draft `0011_integrity_fixes.sql` sudah **lolos `supabase db reset` + fixtures + `db lint` lokal**,
-tetapi **belum diterapkan ke database cloud** dan menunggu persetujuan.
+Seluruh migrasi `0001`–`0014` sudah diterapkan ke cloud. Rencana generator & AI:
+[`docs/AI_GURU.md`](docs/AI_GURU.md).
 
 ---
 

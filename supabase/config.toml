@@ -29,3 +29,7 @@ enabled = true
 [functions.admin-users]
 enabled = true
 verify_jwt = true
+
+[functions.ai-content]
+enabled = true
+verify_jwt = true

@@ -20,6 +20,7 @@ window.Shell = (function () {
       { route: 'guru-aktifitas', label: 'Aktivitas', icon: 'fa-wave-square' },
       { route: 'guru-asesmen', label: 'Asesmen', icon: 'fa-file-pen' },
       { route: 'guru-bank', label: 'Bank Soal', icon: 'fa-database' },
+      { route: 'guru-ai', label: 'AI Guru', icon: 'fa-wand-magic-sparkles' },
       { route: 'guru-kolab', label: 'Kolaborasi', icon: 'fa-handshake' },
       { route: 'guru-permintaan', label: 'Permintaan', icon: 'fa-inbox', soon: true },
       { route: 'guru-profil', label: 'Profil', icon: 'fa-id-badge', soon: true }
