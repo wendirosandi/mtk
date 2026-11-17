@@ -1072,6 +1072,53 @@
     return { ok: true, id: r.data.id };
   }
 
+  async function adminGradeSave(payload) {
+    var meta = await currentMeta();
+    var db = await sb();
+    var label = String(payload.label || '').trim();
+    var rank = Number(payload.rank);
+    if (!label) return { ok: false, msg: 'Label tingkat wajib' };
+    if (!Number.isInteger(rank) || rank < 1 || rank > 13) return { ok: false, msg: 'Rank tingkat harus 1–13' };
+
+    var dupQ = db.from('grade_levels').select('id').eq('label', label);
+    if (payload.id) dupQ = dupQ.neq('id', payload.id);
+    var dup = await dupQ;
+    if (dup.error) throw dup.error;
+    if (dup.data && dup.data.length) return { ok: false, msg: 'Label tingkat sudah ada' };
+
+    if (payload.id) {
+      var u = await db.from('grade_levels').update({ label: label, rank: rank }).eq('id', payload.id).select('id');
+      if (u.error) {
+        if (String(u.error.code) === '23505') return { ok: false, msg: 'Rank tingkat sudah dipakai' };
+        throw u.error;
+      }
+      if (!u.data || !u.data.length) return { ok: false, msg: 'Tingkat tidak ditemukan' };
+      return { ok: true };
+    }
+
+    var r = await db.from('grade_levels').insert({ school_id: meta.school_id, label: label, rank: rank }).select('id').single();
+    if (r.error) {
+      if (String(r.error.code) === '23505') return { ok: false, msg: 'Rank tingkat sudah dipakai' };
+      throw r.error;
+    }
+    return { ok: true, id: r.data.id };
+  }
+
+  async function adminGradeDelete(id) {
+    var db = await sb();
+    var used = await db.from('classes').select('id', { count: 'exact', head: true }).eq('grade_level_id', id);
+    if (used.error) throw used.error;
+    if (used.count) return { ok: false, msg: 'Tingkat masih dipakai ' + used.count + ' kelas' };
+
+    var d = await db.from('grade_levels').delete().eq('id', id).select('id');
+    if (d.error) {
+      if (String(d.error.code) === '23503') return { ok: false, msg: 'Tingkat masih dipakai kelas' };
+      throw d.error;
+    }
+    if (!d.data || !d.data.length) return { ok: false, msg: 'Tingkat tidak ditemukan' };
+    return { ok: true };
+  }
+
   async function adminSubjectSave(payload) {
     var meta = await currentMeta();
     var db = await sb();
@@ -1498,6 +1545,8 @@
     if (a === 'adminYearSave') return adminYearSave(payload);
     if (a === 'adminYearActivate') return adminYearActivate(payload.id);
     if (a === 'adminClassSave') return adminClassSave(payload);
+    if (a === 'adminGradeSave') return adminGradeSave(payload);
+    if (a === 'adminGradeDelete') return adminGradeDelete(payload.id);
     if (a === 'adminSubjectSave') return adminSubjectSave(payload);
     if (a === 'adminAssignmentSave') return adminAssignmentSave(payload);
     if (a === 'adminAssignmentDelete') return adminAssignmentDelete(payload.id);

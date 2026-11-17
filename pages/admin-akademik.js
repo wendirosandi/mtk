@@ -4,6 +4,7 @@ Router.register('admin-akademik', async () => `
     <div id="ak-head"></div>
     <div class="flex flex-wrap gap-2" style="margin-bottom:12px">
       <button id="ak-tab-year" type="button" class="btn btn-primary btn-sm">Tahun</button>
+      <button id="ak-tab-grade" type="button" class="btn btn-secondary btn-sm">Tingkat</button>
       <button id="ak-tab-class" type="button" class="btn btn-secondary btn-sm">Kelas</button>
       <button id="ak-tab-subject" type="button" class="btn btn-secondary btn-sm">Mapel</button>
       <button id="ak-tab-assign" type="button" class="btn btn-secondary btn-sm">Penugasan</button>
@@ -21,7 +22,7 @@ window.init_admin_akademik = async () => {
 
   $('#ak-head').innerHTML = UI.pageHeader({
     title: 'Akademik',
-    subtitle: 'Tahun pelajaran, kelas, mata pelajaran, dan penugasan guru.'
+    subtitle: 'Tahun pelajaran, tingkat, kelas, mata pelajaran, dan penugasan guru.'
   });
 
   function modal(cfg) {
@@ -89,6 +90,27 @@ window.init_admin_akademik = async () => {
       + '</tbody></table></div>';
   }
 
+  function renderGrades() {
+    const rows = state.data.grades || [];
+    if (!rows.length) {
+      return UI.empty('Belum ada tingkat', 'Tambahkan tingkat 7, 8, dan 9 agar kelas dapat dibuat.');
+    }
+    return '<div class="card" style="padding:0;overflow-x:auto"><table class="w-full text-xs"><thead><tr class="bg-slate-100">'
+      + '<th class="p-2 text-left">Label</th><th class="p-2 text-left">Rank</th>'
+      + '<th class="p-2 text-left">Kelas</th><th class="p-2"></th></tr></thead><tbody>'
+      + rows.map(g => {
+          const count = (state.data.classes || []).filter(c => c.grade_level_id === g.id).length;
+          return `<tr class="border-t"><td class="p-2"><b>${esc(g.label)}</b></td>
+            <td class="p-2">${esc(g.rank)}</td>
+            <td class="p-2">${count} kelas</td>
+            <td class="p-2 text-right"><div class="flex gap-1 justify-end">
+              <button class="btn btn-secondary btn-sm" data-edit-grade="${esc(g.id)}">Edit</button>
+              <button class="btn btn-danger btn-sm" data-del-grade="${esc(g.id)}">Hapus</button>
+            </div></td></tr>`;
+        }).join('')
+      + '</tbody></table></div>';
+  }
+
   function renderClasses() {
     const rows = state.data.classes || [];
     return '<div class="card" style="padding:0;overflow-x:auto"><table class="w-full text-xs"><thead><tr class="bg-slate-100">'
@@ -127,6 +149,7 @@ window.init_admin_akademik = async () => {
   function render() {
     const body = $('#ak-body');
     if (state.tab === 'year') body.innerHTML = renderYears();
+    if (state.tab === 'grade') body.innerHTML = renderGrades();
     if (state.tab === 'class') body.innerHTML = renderClasses();
     if (state.tab === 'subject') body.innerHTML = renderSubjects();
     if (state.tab === 'assign') body.innerHTML = renderAssignments();
@@ -147,6 +170,16 @@ window.init_admin_akademik = async () => {
     document.querySelectorAll('[data-edit-class]').forEach(b => b.onclick = () => {
       const c = (state.data.classes || []).find(x => x.id === b.dataset.editClass);
       if (c) classForm(c);
+    });
+    document.querySelectorAll('[data-edit-grade]').forEach(b => b.onclick = () => {
+      const g = (state.data.grades || []).find(x => x.id === b.dataset.editGrade);
+      if (g) gradeForm(g);
+    });
+    document.querySelectorAll('[data-del-grade]').forEach(b => b.onclick = async () => {
+      if (!confirm('Hapus tingkat ini? Tingkat yang masih dipakai kelas tidak dapat dihapus.')) return;
+      const r = await API.auth('adminGradeDelete', { id: b.dataset.delGrade });
+      if (r && r.ok) { API.toast('✅ Tingkat dihapus'); await load(); }
+      else API.toast('❌ ' + ((r && r.msg) || 'Gagal'));
     });
     document.querySelectorAll('[data-edit-subject]').forEach(b => b.onclick = () => {
       const s = (state.data.subjects || []).find(x => x.id === b.dataset.editSubject);
@@ -169,6 +202,17 @@ window.init_admin_akademik = async () => {
         { name: 'end', label: 'Selesai', type: 'date', required: true, value: y ? y.end_date : '' }
       ],
       onSubmit: v => API.auth('adminYearSave', { id: y ? y.id : null, label: v.label, start: v.start, end: v.end })
+    });
+  }
+
+  function gradeForm(g) {
+    modal({
+      title: g ? 'Edit Tingkat' : 'Tambah Tingkat',
+      fields: [
+        { name: 'label', label: 'Label tingkat', required: true, value: g ? g.label : '', placeholder: '7' },
+        { name: 'rank', label: 'Rank (1–13)', type: 'number', required: true, value: g ? g.rank : '', placeholder: '7' }
+      ],
+      onSubmit: v => API.auth('adminGradeSave', { id: g ? g.id : null, label: v.label, rank: v.rank })
     });
   }
 
@@ -220,7 +264,7 @@ window.init_admin_akademik = async () => {
   }
 
   const tabs = {
-    year: $('#ak-tab-year'), class: $('#ak-tab-class'),
+    year: $('#ak-tab-year'), grade: $('#ak-tab-grade'), class: $('#ak-tab-class'),
     subject: $('#ak-tab-subject'), assign: $('#ak-tab-assign')
   };
   function show(tab) {
@@ -233,6 +277,7 @@ window.init_admin_akademik = async () => {
   Object.keys(tabs).forEach(k => { tabs[k].onclick = () => show(k); });
   $('#ak-add').onclick = () => {
     if (state.tab === 'year') yearForm(null);
+    else if (state.tab === 'grade') gradeForm(null);
     else if (state.tab === 'class') classForm(null);
     else if (state.tab === 'subject') subjectForm(null);
     else assignmentForm();
