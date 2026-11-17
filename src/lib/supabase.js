@@ -94,6 +94,7 @@
         nama: p.full_name,
         namaGuru: p.role === 'guru' || p.role === 'admin' ? p.full_name : '',
         role: p.role,
+        status: p.status || 'aktif',
         kelas: kelas,
         kategori: kategori,
         kategoriMapel: kategoriMapel,
@@ -121,6 +122,10 @@
       if (!meta) {
         await client.auth.signOut();
         return { ok: false, msg: 'Profil tidak ditemukan untuk akun ini.' };
+      }
+      if (meta.status && meta.status !== 'aktif') {
+        await client.auth.signOut();
+        return { ok: false, msg: 'Akun tidak aktif. Hubungi Admin sekolah.' };
       }
       var allowed = role === 'guru' ? (meta.role === 'guru' || meta.role === 'admin') : (meta.role === role);
       if (!allowed) {

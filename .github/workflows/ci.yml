@@ -21,6 +21,8 @@ jobs:
         run: node tests/js-check.mjs
       - name: Generator golden test
         run: node tests/generators/harness.mjs
+      - name: Import template checks
+        run: node tests/imports/schema-check.mjs
 
   sql:
     name: Supabase migration lint

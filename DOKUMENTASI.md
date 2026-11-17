@@ -295,5 +295,8 @@ Rancangan lengkap ada di:
 - `docs/ACCOUNT_PROVISIONING.md` — akun, password sementara, deaktivasi
 - `docs/ADMIN_DATA_MANAGEMENT.md` — wizard `admin-import`, validasi, riwayat
 
-**Status:** desain selesai; implementasi (migrasi `0017`, Edge Function,
-halaman Admin) belum dilakukan. Tidak ada data sekolah nyata yang diimpor.
+**Status:** implementasi Tahap C selesai dan diuji di Supabase lokal dengan data
+fiktif. Migrasi `0017`, Edge Function `admin-import`, halaman `admin-import`,
+dan pemaksaan ganti password sudah tersedia di kode. **Belum diterapkan ke
+database/Edge Function cloud dan belum ada data sekolah nyata yang diimpor.**
+Lihat hasil uji di `docs/REAL_DATA_IMPORT_PLAN.md` bagian 11.

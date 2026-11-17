@@ -51,6 +51,7 @@ window.init_login = async () => {
 
   const next = API.nextTarget();
   if (API.sess()) {
+    if (API.getMeta().mustChangePassword) { Router.go('ganti-password'); return; }
     const role = API.getRole();
     if (next) { API.clearNext(); location.replace(next); return; }
     Router.go(role === 'admin' ? 'admin-dash' : role === 'guru' ? 'guru-dash' : 'siswa-dash');
@@ -99,6 +100,10 @@ window.init_login = async () => {
       }
 
       API.toast('✅ Masuk berhasil');
+      if (r.mustChangePassword || API.getMeta().mustChangePassword) {
+        Router.go('ganti-password');
+        return;
+      }
       const dest = API.nextTarget();
       if (dest) { API.clearNext(); location.replace(dest); return; }
       Router.go(role === 'admin' ? 'admin-dash' : role === 'guru' ? 'guru-dash' : 'siswa-dash');

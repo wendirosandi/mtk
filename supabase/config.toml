@@ -30,6 +30,10 @@ enabled = true
 enabled = true
 verify_jwt = true
 
+[functions.admin-import]
+enabled = true
+verify_jwt = true
+
 [functions.ai-content]
 enabled = true
 verify_jwt = true

@@ -33,6 +33,7 @@ window.Shell = (function () {
       { route: 'admin-sekolah', label: 'Sekolah', icon: 'fa-building' },
       { route: 'admin-monitoring', label: 'Monitoring', icon: 'fa-desktop' },
       { route: 'admin-akademik', label: 'Akademik', icon: 'fa-school' },
+      { route: 'admin-import', label: 'Import Data', icon: 'fa-file-import' },
       { route: 'admin-pengaturan', label: 'Pengaturan', icon: 'fa-sliders' }
     ]
   };
@@ -73,7 +74,7 @@ window.Shell = (function () {
     var bottom = document.getElementById('shell-bottomnav');
     if (!top || !side || !bottom) return;
 
-    if (!role || active === 'login') { hide(); return; }
+    if (!role || active === 'login' || active === 'ganti-password') { hide(); return; }
 
     var meta = (window.API && API.getMeta()) || {};
     var name = meta.nama || meta.namaGuru || meta.username || 'Pengguna';

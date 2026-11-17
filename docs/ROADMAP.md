@@ -115,7 +115,7 @@ mengerjakan, nilai masuk, guru melihat dan mengoreksi.
 | `admin-monitoring` | aktivitas + audit log | ✅ |
 | `admin-permintaan` | review permintaan akun | ✅ (di admin-pengguna) |
 | `admin-pengaturan` | feature flags, registry modul, audit UI | ✅ (sebagian) |
-| `admin-import` | import CSV sekolah, akun, akademik, konten, nilai | ⏳ desain selesai |
+| `admin-import` | import CSV sekolah, akun, akademik, konten, nilai | ✅ (lokal) |
 
 **Catatan arsitektur:** pembuatan akun Auth memakai Edge Function
 `supabase/functions/admin-users` (service role hanya di backend) + verifikasi role admin.
@@ -130,10 +130,10 @@ penugasan tanpa SQL manual.
 - [x] Audit database/Admin dan rancangan import
 - [x] Template CSV + alur validasi (`docs/CSV_IMPORT_TEMPLATE.md`)
 - [x] Rancangan akun & kredensial (`docs/ACCOUNT_PROVISIONING.md`)
-- [ ] Migrasi `0017` batch/row import
-- [ ] Edge Function `admin-import` + perluasan `admin-users`
-- [ ] Halaman `admin-import` (upload, mapping, dry-run, commit, riwayat)
-- [ ] Uji data fiktif lokal/staging
+- [x] Migrasi `0017` batch/row import
+- [x] Edge Function `admin-import` + perluasan `admin-users`
+- [x] Halaman `admin-import` (upload, mapping, dry-run, commit, riwayat)
+- [x] Uji data fiktif lokal
 - [ ] Import produksi setelah approval
 
 **Kriteria selesai:** satu sekolah fiktif lengkap dapat diimpor ulang secara

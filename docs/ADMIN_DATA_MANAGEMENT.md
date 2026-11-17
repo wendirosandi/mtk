@@ -1,6 +1,6 @@
 # ADMIN DATA MANAGEMENT
 
-**Status: rancangan halaman `admin-import`. Belum diimplementasikan.**
+**Status: diimplementasikan (lokal). Halaman `admin-import` dan backend sudah tersedia; belum di-deploy ke cloud.**
 
 ## 1. Kapabilitas Admin Saat Ini
 
@@ -60,8 +60,7 @@ Tabel `data_import_batches`:
 Aksi:
 | Aksi | Fungsi |
 |---|---|
-| `validate` | parse rows, mapping, validasi referensi, simpan batch `validated` |
-| `dry_run` | validasi + simulasi insert/update/skip, tanpa tulis |
+| `validate` | parse rows, mapping, validasi referensi, simpan batch `validated`; **dry-run** tanpa menulis data akademik/akun |
 | `commit` | konfirmasi batch, eksekusi |
 | `history` | daftar batch |
 | `batch` | detail baris + error |
@@ -125,7 +124,7 @@ Pesan error harus menyebut nomor baris dan kolom.
 
 ## 6. Konfirmasi & Transaksi
 
-- `dry_run` wajib; UI tidak boleh commit tanpa hasil validasi.
+- `validate` (dry-run) wajib; UI tidak boleh commit tanpa hasil validasi.
 - Batch `validated` menyimpan hash file/rows agar konfirmasi tidak berubah.
 - Commit ulang batch yang sama idempotent (status `committed`).
 - Kegagalan akun: baris `failed`, batch `partial`; akun yang sudah dibuat
@@ -146,18 +145,18 @@ RLS dan Edge Function sama-sama memeriksa; UI bukan pengaman utama.
 
 ## 8. Kriteria Selesai (Tahap D)
 
-- [ ] Semua 16 template dapat diunduh.
-- [ ] Upload/preview/mapping/dry-run bekerja.
-- [ ] Import 1 sekolah fiktif lengkap berhasil.
-- [ ] Re-import idempotent (tanpa duplikat).
-- [ ] Error per baris tampil + laporan.
-- [ ] Batch history + audit.
-- [ ] Akun baru login dan dipaksa ganti password.
-- [ ] Kategori/nilai tidak saling menimpa.
-- [ ] Cross-school ditolak.
-- [ ] Tidak ada password di DB/log/repo.
+- [x] Semua 16 template dapat diunduh.
+- [x] Upload/preview/mapping/dry-run bekerja.
+- [x] Import 1 sekolah fiktif lengkap berhasil (lokal).
+- [x] Re-import idempotent (tanpa duplikat).
+- [x] Error per baris tampil + laporan.
+- [x] Batch history + audit.
+- [x] Akun baru login dan dipaksa ganti password.
+- [x] Kategori/nilai tidak saling menimpa.
+- [x] Cross-school ditolak.
+- [x] Tidak ada password di DB/log/repo.
 
-## 9. Rencana File Implementasi (Tahap C)
+## 9. File Implementasi
 
 ```
 pages/admin-import.js              wizard UI

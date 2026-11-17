@@ -1,7 +1,6 @@
 # TEMPLATE CSV IMPORT
 
-**Status: rancangan. Belum ada file template yang di-generate di aplikasi.**
-Semua contoh memakai data fiktif. Jangan mencantumkan data pribadi/sebenarnya di repo.
+**Status: template dan alur import sudah diimplementasikan.** Semua contoh memakai data fiktif. Jangan mencantumkan data pribadi/sebenarnya di repo.
 
 ## Konvensi
 
@@ -166,16 +165,18 @@ MTK,7,Bilangan,Operasi bilangan,1,Bilangan Bulat,1,video,Video Bilangan,https://
 ## 13. `asesmen.csv`
 
 ```csv
-tahun_label,mapel_kode,modul_judul,topik_judul,kode,judul,jenis,status,semester,kolaborasi,pengiriman,file_url,prasyarat_kode,config_json,published_at
-2026/2027,MTK,Bilangan,Bilangan Bulat,MTK-7-001,LKPD Bilangan Bulat,lkpd,active,1,none,portal,LKPD/MTK001.html,,{},2026-07-15T08:00:00Z
+tahun_label,mapel_kode,tingkat_label,modul_judul,topik_judul,kode,judul,jenis,status,semester,kolaborasi,pengiriman,file_url,prasyarat_kode,config_json,published_at
+2026/2027,MTK,7,Bilangan,Bilangan Bulat,MTK-7-001,LKPD Bilangan Bulat,lkpd,active,1,none,portal,LKPD/MTK001.html,,{},2026-07-15T08:00:00Z
 ```
 
 - `jenis`: `lkpd|kuis|tugas|projek`; `status`: `draft|active|exambro|inactive|locked|archived`.
 - `kolaborasi`: `none|optional|optional_fixed|required|required_fixed`.
 - `pengiriman`: `portal|exambro|direct`.
 - `published_at` wajib bila `active`.
+- `tingkat_label` opsional; dipakai untuk memilih modul bila judul modul sama di beberapa tingkat.
 - Natural key: `kode` per sekolah.
 - `modul_judul`/`topik_judul` opsional; jika diisi harus ada pada batch/existing.
+- Asesmen yang sudah `package_frozen_at` dilewati (tidak diubah).
 
 ## 14. `soal_asesmen.csv` (tambahan wajib untuk LKPD)
 
@@ -229,6 +230,10 @@ tahun_label,kelas_label,siswa_username,asesmen_kode,skor,max_skor,sumber,catatan
 6. File maksimum: 2 MB / 2.000 baris (dapat dinaikkan hati-hati).
 7. Baris error tidak menggagalkan baris valid lain pada dry-run, tetapi
    commit akademik bersifat **all-or-nothing** untuk batch yang sama.
+8. Import konten mengikuti status entitas: asesmen/soal yang sudah beku
+   dilewati; nilai `auto` tidak ditimpa nilai historis.
+9. Modul/topik/materi, asesmen, soal, bank soal, dan nilai historis sudah aktif.
+   Prasyarat asesmen harus sudah ada (DB atau baris sebelumnya dalam file).
 
 ## Catatan Relasi
 

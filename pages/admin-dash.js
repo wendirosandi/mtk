@@ -21,6 +21,7 @@ Router.register('admin-dash', async () => {
         ${live('admin-sekolah', 'fa-building', 'bg-sky-100 text-sky-700', 'Profil Sekolah')}
         ${live('admin-monitoring', 'fa-desktop', 'bg-cyan-100 text-cyan-600', 'Monitoring')}
         ${live('admin-akademik', 'fa-school', 'bg-amber-100 text-amber-600', 'Akademik')}
+        ${live('admin-import', 'fa-file-import', 'bg-emerald-100 text-emerald-700', 'Import Data')}
         ${live('admin-pengaturan', 'fa-sliders', 'bg-violet-100 text-violet-600', 'Pengaturan')}
         ${soon('fa-layer-group', 'bg-indigo-100 text-indigo-600', 'Kurikulum')}
       </div>

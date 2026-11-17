@@ -53,12 +53,21 @@ window.init_admin_pengguna = async () => {
             <td class="p-2">${UI.badge(u.role, ROLE_TONE[u.role] || '')}</td>
             <td class="p-2">${esc(u.status || '-')}</td>
             <td class="p-2">${esc((u.settings || {}).kelas || '-')}</td>
-            <td class="p-2 text-right"><button class="btn btn-secondary btn-sm" data-reset="${esc(u.id)}" data-name="${esc(u.full_name)}">Reset</button></td>
+            <td class="p-2 text-right">
+              <button class="btn btn-secondary btn-sm" data-reset="${esc(u.id)}" data-name="${esc(u.full_name)}">Reset</button>
+              ${u.role !== 'admin' || u.status === 'nonaktif'
+                ? (u.status === 'nonaktif'
+                  ? `<button class="btn btn-primary btn-sm" data-activate="${esc(u.id)}">Aktifkan</button>`
+                  : `<button class="btn btn-danger btn-sm" data-deactivate="${esc(u.id)}">Nonaktifkan</button>`)
+                : ''}
+            </td>
           </tr>`).join('')
         + '</tbody></table></div>'
       : UI.empty('Tidak ada pengguna', 'Ubah filter atau tambahkan pengguna.');
     $('#ap-req-count').textContent = '(' + state.requests.filter(r => r.status === 'pending').length + ')';
     $('#ap-list').querySelectorAll('[data-reset]').forEach(b => b.onclick = () => resetUser(b.dataset.reset, b.dataset.name));
+    $('#ap-list').querySelectorAll('[data-deactivate]').forEach(b => b.onclick = () => setActive(b.dataset.deactivate, false));
+    $('#ap-list').querySelectorAll('[data-activate]').forEach(b => b.onclick = () => setActive(b.dataset.activate, true));
   }
 
   function modal(title, fields, submitLabel, onSubmit) {
@@ -102,16 +111,55 @@ window.init_admin_pengguna = async () => {
       { name: 'role', label: 'Peran', type: 'select', options: [
         { value: 'siswa', label: 'Siswa' }, { value: 'guru', label: 'Guru' }, { value: 'admin', label: 'Admin' }
       ] },
-      { name: 'password', label: 'Password awal (min. 8)', type: 'password' }
+      { name: 'gender', label: 'Jenis kelamin', type: 'select', options: [
+        { value: '', label: '-' }, { value: 'L', label: 'Laki-laki' }, { value: 'P', label: 'Perempuan' }
+      ] },
+      { name: 'status', label: 'Status', type: 'select', options: [
+        { value: 'aktif', label: 'Aktif' }, { value: 'nonaktif', label: 'Nonaktif' }
+      ] }
     ], 'Buat Akun', async v => {
       const r = await LMS.supabase.functions.invoke('admin-users', {
         body: Object.assign({ action: 'create' }, v)
       });
       if (r.error) { API.toast('❌ ' + r.error.message); return false; }
       if (!r.data || !r.data.ok) { API.toast('❌ ' + ((r.data && r.data.msg) || 'Gagal')); return false; }
-      API.toast('✅ Akun dibuat');
+      if (r.data.temp_password) showCredential(v.username, r.data.email, r.data.temp_password);
+      else API.toast('✅ Akun dibuat');
       return true;
     });
+  }
+
+  function showCredential(username, email, password) {
+    const wrap = document.createElement('div');
+    wrap.className = 'modal-bg';
+    wrap.innerHTML = '<div style="background:#fff;border-radius:20px;padding:20px;width:100%;max-width:460px">'
+      + '<h3 style="font-weight:800;font-size:18px;margin-bottom:8px">Kredensial Sementara</h3>'
+      + '<div style="font-size:13px;color:#b45309;margin-bottom:10px">Tampil sekali. Simpan di tempat aman; password tidak disimpan server.</div>'
+      + '<div style="font-size:13px"><b>Username:</b> ' + esc(username) + '<br><b>Email login:</b> ' + esc(email)
+      + '<br><b>Password:</b> <code>' + esc(password) + '</code></div>'
+      + '<div class="flex gap-2" style="margin-top:16px"><button type="button" data-copy class="btn btn-primary flex-1">Salin</button>'
+      + '<button type="button" data-close class="btn btn-secondary">Tutup</button></div></div>';
+    document.body.appendChild(wrap);
+    wrap.querySelector('[data-close]').onclick = () => wrap.remove();
+    wrap.onclick = e => { if (e.target === wrap) wrap.remove(); };
+    wrap.querySelector('[data-copy]').onclick = async () => {
+      try {
+        await navigator.clipboard.writeText('Username: ' + username + '\nEmail: ' + email + '\nPassword: ' + password);
+        API.toast('✅ Disalin');
+      } catch (e) { API.toast('Salin manual dari layar'); }
+    };
+  }
+
+  async function setActive(id, active) {
+    if (!confirm(active ? 'Aktifkan akun ini?' : 'Nonaktifkan akun ini? Riwayat akademik tetap disimpan.')) return;
+    const r = await LMS.supabase.functions.invoke('admin-users', {
+      body: { action: active ? 'reactivate' : 'deactivate', user_id: id }
+    });
+    let data = r.data;
+    if (r.error) data = { ok: false, msg: r.error.message };
+    if (!data || !data.ok) { API.toast('❌ ' + ((data && data.msg) || 'Gagal')); return; }
+    API.toast(active ? '✅ Akun diaktifkan' : '✅ Akun dinonaktifkan');
+    await load();
   }
 
   function resetUser(id, name) {

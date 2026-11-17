@@ -1,6 +1,6 @@
 # ACCOUNT PROVISIONING (ADMIN)
 
-**Status: rancangan. Belum ada perubahan auth/Edge Function pada tahap ini.**
+**Status: diimplementasikan (lokal). Perubahan login, kredensial sekali-tampil, deaktivasi, dan ganti password wajib sudah aktif di kode.**
 
 ## 1. Kondisi Saat Ini
 
@@ -152,9 +152,14 @@ Kunci:
 
 ## 11. Perubahan yang Diperlukan (Tahap C)
 
-- [ ] Perluas `admin-users`: `must_change_password`, `deactivate`, `reactivate`,
-      `create_batch`, validasi gender/status, audit.
-- [ ] Login flow: cek `status` + paksa ganti password.
-- [ ] Halaman admin-import memakai Edge Function ini untuk template guru/siswa.
-- [ ] Tabel batch/row (0017) untuk laporan akun.
-- [ ] Dokumentasi kredensial dan prosedur reset.
+- [x] Perluas `admin-users`: `must_change_password`, `deactivate`, `reactivate`,
+      `change_password`, validasi gender/status, audit.
+- [x] Login flow: cek `status` + paksa ganti password.
+- [x] Halaman admin-import memakai Edge Function ini untuk template guru/siswa.
+- [x] Tabel batch/row (0017) untuk laporan akun.
+- [x] Dokumentasi kredensial dan prosedur reset.
+
+Catatan implementasi: password sementara dibuat server dan hanya dikembalikan
+sekali pada respons commit; `change_password` memverifikasi password saat ini
+sebelum mengganti dan menghapus flag wajib-ganti. Deaktivasi memakai ban Auth +
+`profiles.status='nonaktif'`; tidak ada penghapusan akun/histori.

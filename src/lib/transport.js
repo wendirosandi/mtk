@@ -68,6 +68,7 @@
     var m = r.meta;
     return {
       ok: true, username: m.username, nama: m.nama, kelas: m.kelas, kategori: m.kategori,
+      mustChangePassword: m.mustChangePassword,
       status: {}, info: { namaSekolah: m.namaSekolah }
     };
   }
@@ -78,6 +79,7 @@
     var m = r.meta;
     return {
       ok: true,
+      mustChangePassword: m.mustChangePassword,
       info: { namaGuru: m.nama, namaSekolah: m.namaSekolah, username: m.username, role: m.role }
     };
   }
@@ -88,6 +90,7 @@
     var m = r.meta;
     return {
       ok: true,
+      mustChangePassword: m.mustChangePassword,
       info: { namaGuru: m.nama, namaSekolah: m.namaSekolah, username: m.username, role: m.role }
     };
   }

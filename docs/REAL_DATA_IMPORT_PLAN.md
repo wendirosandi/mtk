@@ -1,6 +1,6 @@
 # RENCANA IMPORT DATA SEKOLAH
 
-**Status: DRAFT — desain saja. Belum ada tabel import, belum ada data produksi yang dimasukkan.**
+**Status: IMPLEMENTASI TAHAP C SELESAI (lokal), belum diterapkan ke produksi.**
 
 Dokumen ini menjadi acuan Tahap A–E untuk memasukkan data sekolah nyata melalui Admin LMS.
 
@@ -248,11 +248,42 @@ status batch harus eksplisit dan commit akun tidak boleh mengklaim atomik penuh.
 
 | Tahap | Isi | Status |
 |---|---|---|
-| A | Audit database/Admin | ✅ (dokumen ini) |
-| B | Template CSV & alur import | ✅ (dokumen terkait) |
-| C | Migrasi 0017 + Edge Function + halaman admin-import | ⏳ |
-| D | Uji data fiktif lokal/staging | ⏳ |
+| A | Audit database/Admin | ✅ |
+| B | Template CSV & alur import | ✅ |
+| C | Migrasi 0017 + Edge Function + halaman admin-import | ✅ lokal, belum deploy |
+| D | Uji data fiktif lokal/staging | ✅ lokal (lihat bagian 9) |
 | E | Import produksi setelah approval | ⏳ |
+
+## 11. Status Implementasi dan Hasil Uji (Lokal)
+
+Sudah dibuat:
+
+| File | Isi |
+|---|---|
+| `supabase/migrations/0017_data_import.sql` | tabel batch/row, RLS select admin, RPC `app_import_commit` untuk 14 jenis data non-akun |
+| `supabase/functions/admin-import/index.ts` | validasi, dry-run, commit, riwayat, akun via Auth Admin API |
+| `supabase/functions/admin-users/index.ts` | create/reset/deactivate/reactivate + ganti password sendiri |
+| `src/lib/import-schema.js` | 16 template, alias kolom, template CSV |
+| `pages/admin-import.js` | wizard upload → mapping → validasi → konfirmasi → hasil/riwayat |
+| `pages/ganti-password.js` | pemaksaan ganti password login pertama |
+| `tests/imports/` | uji schema + 11 fixture CSV fiktif |
+
+Hasil uji lokal (Supabase lokal + data fiktif):
+
+- Migrasi `0001`–`0017` applied; `supabase db lint --local` tanpa error.
+- Core: sekolah, tahun, kelas, mapel, wali, penugasan, keanggotaan, kategori berhasil; re-import tidak membuat duplikat.
+- Konten: modul/materi, asesmen, soal, bank soal, nilai historis berhasil; re-import memperbarui tanpa duplikat.
+- Nilai `auto` tidak ditimpa; asesmen/soal beku dilewati.
+- Validasi menolak kode sekolah lain, referensi hilang, aktif tanpa `published_at`, skor di luar rentang, dan duplikat dalam file.
+- Akun: password dibuat server, login berhasil, wajib ganti password, password lama ditolak, nonaktif memblokir login, reaktivasi berhasil, re-import tidak membuat akun kedua.
+- UI: login admin → Import Data → pilih guru → upload → mapping otomatis → validasi → centang konfirmasi → commit → kredensial tampil sekali → riwayat batch muncul.
+
+Belum dilakukan:
+
+- `0017` belum diterapkan ke database cloud.
+- Edge Function `admin-import`/`admin-users` belum di-deploy ke cloud.
+- Import data sekolah nyata belum dilakukan.
+- Uji staging dengan data sekolah lengkap belum dilakukan.
 
 Lihat:
 - `docs/CSV_IMPORT_TEMPLATE.md`
