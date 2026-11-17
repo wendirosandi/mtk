@@ -24,8 +24,8 @@ Legenda status:
 | `MTK-8104` | LKPD lama MTK-003 | `/LKPD/MTK003.html` | `lkpd` (asesmen) | GAS | GAS | **Legacy** |
 | `MTK-8203` | LKPD lama MTK-005 | `/LKPD/MTK005.html` | `lkpd` (asesmen) | GAS | GAS | **Legacy** |
 | `MTK-8204` | LKPD lama MTK-8204 | `/LKPD/MTK8204.html` | `lkpd` (asesmen) | GAS | GAS | **Legacy** |
-| `TOOLS-MATH` | ToolsMathPro (7 section interaktif) | `/toolsmathpro/index.html` | `app` | Supabase (kode) | `open/use` (kode) | **Partial** |
-| `KALENDER-PYT` | Kalender Pythagoras 2027 | `/kalender-pythagoras/index.html` | `app` | Supabase (kode) | `open/use` (kode) | **Partial** |
+| `TOOLS-MATH` | ToolsMathPro (7 section interaktif) | `toolsmathpro/index.html` | `app` | Supabase | `open/use` | **Integrated** |
+| `KALENDER-PYT` | Kalender Pythagoras 2027 | `kalender-pythagoras/index.html` | `app` | Supabase | `open/use` | **Integrated** |
 | `BANK-SOAL` | Alat guru bank soal & kisi-kisi | `/LKPD/page/Bank_soal.html` | `app` (internal) | belum | — | **Standalone** |
 | `RASIONAL-POLA` | Aplikasi rasionalisasi pecahan | `/LKPD/page/aplikasi_rasionalisasi_pecahan-POLA.html` | `app` (internal) | belum | — | **Standalone** |
 | `MTK005-PRINT` | Versi cetak MTK-005 | `/LKPD/page/MTK005_print.html` | `pdf`/print | — | — | **Standalone** |
@@ -49,17 +49,17 @@ Setiap modul baru wajib memenuhi 8 poin berikut:
 
 ### Aktivitas yang dibedakan
 
-| Event | Kapan | `p_kind` (v1) | `p_event` (v2, draft) |
+| Event | Kapan | `p_kind` (v1) | `p_event` (v2) |
 |---|---|---|---|
 | Membuka aplikasi | setelah sesi valid + 30 detik | `section` | `open` |
 | Menggunakan fitur | saat fitur dibuka/dipakai | `section` | `use` |
 | Menyelesaikan aktivitas | saat selesai/ekspor/submit | `submit` | `complete` |
 
-Catatan: `p_event` memerlukan migrasi `0011` (draft). Sebelum diterapkan, gunakan `p_kind`.
+Catatan: `p_event` tersedia via migrasi `0011` yang sudah diterapkan.
 
 ---
 
-## 3. Registrasi Materi (belum diterapkan)
+## 3. Registrasi Materi (sudah diterapkan via `0012`)
 
 Kedua modul akan didaftarkan pada topik **“Konsep Dasar & Tripel Pythagoras”**
 (modul “Teorema Pythagoras”, mapel MTK, tingkat 8):
@@ -67,7 +67,7 @@ Kedua modul akan didaftarkan pada topik **“Konsep Dasar & Tripel Pythagoras”
 ```sql
 -- Contoh idempoten; jalankan hanya setelah disetujui
 insert into public.materials (topic_id, kind, title, url, sort_order)
-select t.id, 'app', 'ToolsMathPro', '/mtk/toolsmathpro/index.html', 10
+select t.id, 'app', 'ToolsMathPro', 'toolsmathpro/index.html', 10
 from public.topics t
 join public.modules m on m.id = t.module_id
 join public.subjects s on s.id = m.subject_id
@@ -75,11 +75,11 @@ where s.code = 'MTK' and m.title = 'Teorema Pythagoras'
   and t.title = 'Konsep Dasar & Tripel Pythagoras'
   and not exists (
     select 1 from public.materials x
-    where x.topic_id = t.id and x.url = '/mtk/toolsmathpro/index.html'
+    where x.topic_id = t.id and x.url = 'toolsmathpro/index.html'
   );
 
 insert into public.materials (topic_id, kind, title, url, sort_order)
-select t.id, 'app', 'Kalender Pythagoras 2027', '/mtk/kalender-pythagoras/index.html', 11
+select t.id, 'app', 'Kalender Pythagoras 2027', 'kalender-pythagoras/index.html', 11
 from public.topics t
 join public.modules m on m.id = t.module_id
 join public.subjects s on s.id = m.subject_id
@@ -87,13 +87,12 @@ where s.code = 'MTK' and m.title = 'Teorema Pythagoras'
   and t.title = 'Konsep Dasar & Tripel Pythagoras'
   and not exists (
     select 1 from public.materials x
-    where x.topic_id = t.id and x.url = '/mtk/kalender-pythagoras/index.html'
+    where x.topic_id = t.id and x.url = 'kalender-pythagoras/index.html'
   );
 ```
 
-Status integrasi saat ini: **Partial** — kode gate sesi + aktivitas sudah dipasang
-(`src/lib/module-boot.js`), tetapi materi belum terdaftar di cloud (draft `0012`)
-dan jalur dengan sesi nyata belum diuji end-to-end.
+Status integrasi: **Integrated** — materi terdaftar via `0012`, sesi Supabase,
+aktivitas `open/use` aktif, dan input identitas manual disembunyikan (diisi profil).
 
 ---
 
@@ -102,8 +101,8 @@ dan jalur dengan sesi nyata belum diuji end-to-end.
 ### ToolsMathPro
 - 7 section: perkalian, pangkat, akar, bentuk akar, notasi baku, dll.
 - Menyimpan tema dan log aktivitas di `localStorage`.
-- Input nama/kelas manual; parameter URL dari dashboard saat ini **diabaikan**.
-- Rencana: hapus input manual, isi dari profil, sinkronkan aktivitas, pertahankan tema.
+- Input nama/kelas sudah diisi otomatis dari profil dan disembunyikan.
+- Rencana lanjutan: sinkronisasi log lokal ke Supabase (saat ini keduanya berjalan).
 
 ### Kalender Pythagoras
 - 12 halaman pembuktian + halaman GeoGebra + ekspor PDF.

@@ -249,7 +249,8 @@ aktivitas, dan uji negatif RLS.
    Sudah diganti tanggal konkret.
 5. `config.toml` `site_url` belum menunjuk `/mtk`. Sudah diperbaiki di file.
 6. Data user dimasukkan ke `innerHTML` tanpa escaping.
-7. ToolsMathPro masih meminta identitas manual dan belum mencatat aktivitas ke Supabase.
+7. ToolsMathPro sudah terintegrasi (identitas otomatis, aktivitas Supabase); sisa
+   konten video yang belum memiliki URL aktif.
 8. Admin mencakup dashboard, pengguna (buat/reset/approval), profil sekolah, akademik,
    monitoring, dan pengaturan/feature flags. AI Guru belum aktif karena `AI_API_KEY` belum diatur.
 9. `docs/MODULE_REGISTRY.md` sebelumnya tidak ada (kini tersedia).

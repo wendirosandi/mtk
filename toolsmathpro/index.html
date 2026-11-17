@@ -2195,6 +2195,8 @@ trackSectionOpen(1);
     if (classInput) { classInput.value = meta.kelas || ''; classInput.readOnly = true; classInput.style.background = '#f1f5f9'; }
 
     const form = document.getElementById('identityForm');
+    if (nameInput) { nameInput.closest('.identity-row').style.display = 'none'; }
+    if (classInput) { classInput.closest('.identity-row').style.display = 'none'; }
     if (form) {
       const note = document.createElement('p');
       note.style.cssText = 'grid-column:1/-1;font-size:12px;color:#0f766e;font-weight:700;margin:6px 0 0';
