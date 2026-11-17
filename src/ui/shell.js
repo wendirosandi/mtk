@@ -12,13 +12,13 @@ window.Shell = (function () {
     ],
     guru: [
       { route: 'guru-dash', label: 'Dashboard', icon: 'fa-gauge-high' },
+      { route: 'guru-kelas', label: 'Kelas Saya', icon: 'fa-users' },
       { route: 'guru-rekap', label: 'Nilai', icon: 'fa-table-list' },
+      { route: 'guru-monitor', label: 'Monitoring', icon: 'fa-desktop' },
       { route: 'guru-aktifitas', label: 'Aktivitas', icon: 'fa-wave-square' },
-      { route: 'guru-kelas', label: 'Kelas Saya', icon: 'fa-users', soon: true },
       { route: 'guru-asesmen', label: 'Asesmen', icon: 'fa-file-pen', soon: true },
       { route: 'guru-bank', label: 'Bank Soal', icon: 'fa-database', soon: true },
       { route: 'guru-kolab', label: 'Kolaborasi', icon: 'fa-handshake', soon: true },
-      { route: 'guru-monitor', label: 'Monitoring', icon: 'fa-desktop', soon: true },
       { route: 'guru-permintaan', label: 'Permintaan', icon: 'fa-inbox', soon: true },
       { route: 'guru-profil', label: 'Profil', icon: 'fa-id-badge', soon: true }
     ],

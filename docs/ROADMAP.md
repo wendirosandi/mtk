@@ -87,11 +87,12 @@ kembali → aktivitas tercatat; tanpa sesi selalu kembali ke login dengan `next`
 
 ### Pekerjaan teknis
 - [ ] CRUD dengan validasi server (RPC/trigger)
-- [ ] Gradebook unik + input manual dengan audit
-- [ ] Monitoring attempt (tanpa membocorkan kunci)
+- [x] Gradebook unik + input manual dengan audit (matriks `guru-rekap`)
+- [x] Monitoring attempt (tanpa membocorkan kunci) — `guru-monitor`
 - [ ] Builder asesmen memakai `question_items`
-- [ ] Role guru diuji dengan akun nyata
-- [ ] Uji negatif: guru tidak bisa kelas di luar scope
+- [x] Role guru diuji dengan akun nyata (`guru.uji`)
+- [x] Uji negatif: guru tidak bisa kelas di luar scope (RLS 8.F/8.G di lokal)
+- [x] Dashboard guru + daftar kelas yang diampu (`guru-kelas`)
 
 **Kriteria selesai:** guru dapat membuat satu modul + satu LKPD + satu kuis, siswa
 mengerjakan, nilai masuk, guru melihat dan mengoreksi.

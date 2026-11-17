@@ -71,6 +71,7 @@ Supabase
 |---|---|---|
 | siswa | `8-f-syakirah` | password uji diketahui tim |
 | guru | `guru1` | **password belum tersedia** |
+| guru uji | `guru.uji` | akun uji Fase 2, penugasan MTK 8.F (password dipegang tim) |
 | admin | — | **belum ada akun uji** |
 
 ---

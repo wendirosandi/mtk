@@ -227,10 +227,250 @@
   }
 
   /* ---------- guru ---------- */
+  async function guruDashboard() {
+    var meta = await currentMeta();
+    var db = await sb();
+    var ta = await db.from('teacher_assignments')
+      .select('class_id,subject_id,academic_year_id')
+      .eq('teacher_id', meta.id);
+    if (ta.error) throw ta.error;
+
+    var assignments = ta.data || [];
+    var classIds = assignments.map(function (x) { return x.class_id; }).filter(Boolean);
+    var yearsWithAll = assignments.filter(function (x) { return !x.class_id; })
+      .map(function (x) { return x.academic_year_id; }).filter(Boolean);
+    if (yearsWithAll.length) {
+      var allCls = await db.from('classes').select('id').in('academic_year_id', yearsWithAll);
+      classIds = classIds.concat((allCls.data || []).map(function (c) { return c.id; }));
+    }
+    classIds = Array.from(new Set(classIds));
+
+    var subjectIds = Array.from(new Set(assignments.map(function (x) { return x.subject_id; }).filter(Boolean)));
+
+    var students = 0, grades = 0, assessments = 0, pending = 0, activity = 0;
+    if (classIds.length) {
+      var s = await db.from('class_memberships').select('*', { count: 'exact', head: true })
+        .in('class_id', classIds).is('left_at', null);
+      students = s.count || 0;
+      var g = await db.from('gradebook_entries').select('*', { count: 'exact', head: true })
+        .in('class_id', classIds);
+      grades = g.count || 0;
+    }
+    if (subjectIds.length) {
+      var a = await db.from('assessments').select('id', { count: 'exact' })
+        .in('subject_id', subjectIds).neq('status', 'deleted');
+      assessments = a.count || 0;
+      var aids = (a.data || []).map(function (x) { return x.id; });
+      if (aids.length) {
+        var p = await db.from('attempts').select('*', { count: 'exact', head: true })
+          .in('assessment_id', aids).in('status', ['in_progress', 'submitted']);
+        pending = p.count || 0;
+      }
+    }
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var act = await db.from('activity_logs').select('*', { count: 'exact', head: true })
+      .gte('logged_at', today.toISOString());
+    activity = act.count || 0;
+
+    return {
+      ok: true,
+      stats: {
+        classes: classIds.length, students: students, assessments: assessments,
+        pendingGrades: pending, grades: grades, activityToday: activity
+      }
+    };
+  }
+
+  async function guruKelas() {
+    var meta = await currentMeta();
+    var db = await sb();
+    var ta = await db.from('teacher_assignments')
+      .select('id,class_id,subject_id,academic_year_id,subjects(code,name),classes(id,label,grade_levels(label)),academic_years(label)')
+      .eq('teacher_id', meta.id);
+    if (ta.error) throw ta.error;
+
+    var assignments = ta.data || [];
+    var allRows = [];
+    var yearsWithAll = assignments.filter(function (x) { return !x.class_id; })
+      .map(function (x) { return x.academic_year_id; }).filter(Boolean);
+    var allClasses = [];
+    if (yearsWithAll.length) {
+      var ac = await db.from('classes')
+        .select('id,label,academic_year_id,grade_levels(label)')
+        .in('academic_year_id', yearsWithAll);
+      allClasses = ac.data || [];
+    }
+
+    assignments.forEach(function (a) {
+      var clsList = a.class_id
+        ? [a.classes || { id: a.class_id, label: '-' }]
+        : allClasses.filter(function (c) { return c.academic_year_id === a.academic_year_id; });
+      clsList.forEach(function (c) {
+        if (!c) return;
+        allRows.push({
+          assignmentId: a.id,
+          classId: c.id,
+          kelas: c.label || '-',
+          tingkat: c.grade_levels ? c.grade_levels.label : '',
+          subjectId: a.subject_id,
+          subjectCode: a.subjects ? a.subjects.code : '-',
+          subjectName: a.subjects ? a.subjects.name : '-',
+          tahun: a.academic_years ? a.academic_years.label : ''
+        });
+      });
+    });
+
+    var classIds = Array.from(new Set(allRows.map(function (r) { return r.classId; }).filter(Boolean)));
+    var subjectIds = Array.from(new Set(allRows.map(function (r) { return r.subjectId; }).filter(Boolean)));
+    var memberCount = {}, assessCount = {};
+
+    if (classIds.length) {
+      var cm = await db.from('class_memberships').select('class_id').in('class_id', classIds).is('left_at', null);
+      (cm.data || []).forEach(function (r) { memberCount[r.class_id] = (memberCount[r.class_id] || 0) + 1; });
+    }
+    if (subjectIds.length) {
+      var as = await db.from('assessments').select('subject_id,id').in('subject_id', subjectIds).neq('status', 'deleted');
+      (as.data || []).forEach(function (r) { assessCount[r.subject_id] = (assessCount[r.subject_id] || 0) + 1; });
+    }
+
+    allRows.forEach(function (r) {
+      r.studentCount = memberCount[r.classId] || 0;
+      r.assessmentCount = assessCount[r.subjectId] || 0;
+    });
+
+    return { ok: true, rows: allRows };
+  }
+
+  async function guruNilaiMatrix(payload) {
+    var meta = await currentMeta();
+    var db = await sb();
+
+    var ta = await db.from('teacher_assignments')
+      .select('class_id,subject_id,academic_year_id')
+      .eq('teacher_id', meta.id);
+    if (ta.error) throw ta.error;
+    var assignments = ta.data || [];
+
+    var classId = payload && payload.classId;
+    if (!classId) {
+      var first = assignments.filter(function (a) { return a.class_id; })[0];
+      if (first) classId = first.class_id;
+    }
+    if (!classId) return { ok: true, class: null, students: [], assessments: [], scores: [] };
+
+    var cls = await db.from('classes')
+      .select('id,label,academic_year_id,school_id,grade_levels(label)')
+      .eq('id', classId).single();
+    if (cls.error) throw cls.error;
+
+    var subjectIds = Array.from(new Set(assignments.filter(function (a) {
+      return a.class_id === classId || (!a.class_id && a.academic_year_id === cls.data.academic_year_id);
+    }).map(function (a) { return a.subject_id; }).filter(Boolean)));
+
+    if (!subjectIds.length) return { ok: true, class: cls.data, students: [], assessments: [], scores: [] };
+
+    var members = await db.from('class_memberships')
+      .select('profile_id,profiles(id,username,full_name)')
+      .eq('class_id', classId).is('left_at', null);
+    if (members.error) throw members.error;
+
+    var assessments = await db.from('assessments')
+      .select('id,code,title,subject_id,kind')
+      .in('subject_id', subjectIds)
+      .in('status', ['active', 'exambro', 'archived'])
+      .order('title');
+    if (assessments.error) throw assessments.error;
+
+    var aids = (assessments.data || []).map(function (a) { return a.id; });
+    var scores = [];
+    if (aids.length) {
+      var sc = await db.from('gradebook_entries')
+        .select('assessment_id,profile_id,score,source,updated_at')
+        .eq('class_id', classId).eq('entry_kind', 'assessment').in('assessment_id', aids);
+      if (sc.error) throw sc.error;
+      scores = sc.data || [];
+    }
+
+    return {
+      ok: true,
+      class: cls.data,
+      students: (members.data || []).map(function (m) { return m.profiles; }).filter(Boolean),
+      assessments: assessments.data || [],
+      scores: scores
+    };
+  }
+
+  async function guruSaveScore(payload) {
+    var meta = await currentMeta();
+    var db = await sb();
+    var score = payload.score === '' || payload.score == null ? null : Number(payload.score);
+    if (score != null && (isNaN(score) || score < 0 || score > 100)) {
+      return { ok: false, msg: 'Nilai harus 0–100' };
+    }
+    if (!payload.classId || !payload.profileId || !payload.assessmentId) {
+      return { ok: false, msg: 'Data nilai tidak lengkap' };
+    }
+
+    var cls = await db.from('classes')
+      .select('id,school_id,academic_year_id').eq('id', payload.classId).single();
+    if (cls.error) throw cls.error;
+
+    var upd = await db.from('gradebook_entries')
+      .update({ score: score, source: 'manual', updated_at: new Date().toISOString() })
+      .eq('class_id', payload.classId)
+      .eq('profile_id', payload.profileId)
+      .eq('assessment_id', payload.assessmentId)
+      .eq('entry_kind', 'assessment')
+      .select('id');
+    if (upd.error) throw upd.error;
+    if (upd.data && upd.data.length) return { ok: true, updated: true };
+
+    var ins = await db.from('gradebook_entries').insert({
+      school_id: cls.data.school_id,
+      academic_year_id: cls.data.academic_year_id,
+      class_id: payload.classId,
+      profile_id: payload.profileId,
+      entry_kind: 'assessment',
+      assessment_id: payload.assessmentId,
+      score: score,
+      max_score: 100,
+      source: 'manual',
+      created_by: meta.id
+    }).select('id');
+    if (ins.error) throw ins.error;
+    return { ok: true, inserted: true };
+  }
+
+  async function guruMonitor() {
+    var db = await sb();
+    var r = await db.from('attempts')
+      .select('id,status,started_at,submitted_at,client_duration_sec,flags,profiles!attempts_profile_id_fkey(full_name,username),assessments(code,title)')
+      .order('started_at', { ascending: false })
+      .limit(200);
+    if (r.error) throw r.error;
+    return {
+      ok: true,
+      rows: (r.data || []).map(function (a) {
+        return {
+          id: a.id,
+          nama: (a.profiles && a.profiles.full_name) || '-',
+          username: (a.profiles && a.profiles.username) || '-',
+          kode: (a.assessments && a.assessments.code) || '-',
+          judul: (a.assessments && a.assessments.title) || '-',
+          status: a.status,
+          mulai: fmtDate(a.started_at),
+          selesai: fmtDate(a.submitted_at),
+          durasi: a.client_duration_sec == null ? '' : a.client_duration_sec,
+          flags: a.flags || {}
+        };
+      })
+    };
+  }
+
   async function guruGetRekap() {
     var db = await sb();
     var r = await db.from('gradebook_entries')
-      .select('score,max_score,score_kind,source,updated_at,profiles(full_name,username),classes(label),assessments(code,title)')
+      .select('score,max_score,score_kind,source,updated_at,profiles!gradebook_entries_profile_id_fkey(full_name,username),classes(label),assessments(code,title)')
       .order('updated_at', { ascending: false })
       .limit(500);
     if (r.error) throw r.error;
@@ -319,6 +559,11 @@
     if (a === 'siswaRequestAkun') return siswaRequestAkun(payload);
     if (a === 'guruGetRekap') return guruGetRekap();
     if (a === 'guruGetAktifitas') return guruGetAktifitas();
+    if (a === 'guruDashboard') return guruDashboard();
+    if (a === 'guruKelas') return guruKelas();
+    if (a === 'guruNilaiMatrix') return guruNilaiMatrix(payload);
+    if (a === 'guruSaveScore') return guruSaveScore(payload);
+    if (a === 'guruMonitor') return guruMonitor();
 
     if (a === 'getSubjects') return { ok: true, rows: await rpc('app_get_subjects') };
     if (a === 'getModules') return { ok: true, rows: await rpc('app_get_modules', { p_subject_id: payload.subjectId }) };

@@ -2,31 +2,48 @@
 Router.register('guru-dash', async () => {
   const m = API.getMeta();
   const live = (route, ic, icCls, label) =>
-    `<div class="svc" onclick="Router.go('${route}')">
-       <div class="ic ${icCls}"><i class="fas ${ic}"></i></div>${label}</div>`;
+    `<a class="svc" href="#${route}" style="text-decoration:none">
+       <div class="ic ${icCls}"><i class="fas ${ic}"></i></div>${label}</a>`;
   const soon = (ic, icCls, label) =>
     `<div class="svc opacity-50 cursor-not-allowed" title="Belum tersedia">
        <div class="ic ${icCls}"><i class="fas ${ic}"></i></div>${label}
        <span class="block text-[9px] text-gray-400 mt-1">Segera</span></div>`;
+
   return `
-    <div class="max-w-md mx-auto">
-      <div class="bg-indigo-700 text-white rounded-2xl p-5">
-        <div class="text-xs opacity-80">🏫 Guru</div>
-        <div class="text-lg font-extrabold">${m.namaGuru || m.nama || '-'}</div>
-        <div class="text-sm opacity-90">${m.namaSekolah || ''}</div>
-      </div>
+    <div class="page-wrap">
+      ${UI.pageHeader({
+        title: m.namaGuru || m.nama || 'Dashboard Guru',
+        subtitle: (m.namaSekolah || '') + ' · ringkasan kelas yang Anda ampu'
+      })}
+      <div id="gd-stats">${UI.skeleton(3)}</div>
       <div class="grid grid-cols-2 gap-3 mt-4">
-        ${live('guru-rekap', 'fa-chart-simple', 'bg-teal-100 text-teal-600', 'Rekap Nilai')}
-        ${live('guru-aktifitas', 'fa-wave-square', 'bg-cyan-100 text-cyan-600', 'Aktifitas')}
-        ${soon('fa-star-half-stroke', 'bg-amber-100 text-amber-600', 'Performa')}
-        ${soon('fa-handshake', 'bg-pink-100 text-pink-600', 'Kolaborasi')}
-        ${soon('fa-user-plus', 'bg-green-100 text-green-600', 'Akses Susulan')}
-        ${soon('fa-user-pen', 'bg-purple-100 text-purple-600', 'Permintaan Akun')}
-        ${soon('fa-key', 'bg-orange-100 text-orange-600', 'Reset Password')}
-        ${soon('fa-id-badge', 'bg-violet-100 text-violet-600', 'Profil')}
+        ${live('guru-kelas', 'fa-users', 'bg-teal-100 text-teal-600', 'Kelas Saya')}
+        ${live('guru-rekap', 'fa-table-list', 'bg-sky-100 text-sky-700', 'Nilai')}
+        ${live('guru-monitor', 'fa-desktop', 'bg-indigo-100 text-indigo-600', 'Monitoring')}
+        ${live('guru-aktifitas', 'fa-wave-square', 'bg-cyan-100 text-cyan-600', 'Aktivitas')}
+        ${soon('fa-file-pen', 'bg-amber-100 text-amber-600', 'Asesmen')}
+        ${soon('fa-database', 'bg-pink-100 text-pink-600', 'Bank Soal')}
+        ${soon('fa-handshake', 'bg-purple-100 text-purple-600', 'Kolaborasi')}
+        ${soon('fa-inbox', 'bg-green-100 text-green-600', 'Permintaan')}
       </div>
-      <button onclick="API.logout()" class="w-full mt-6 text-rose-600 font-bold py-3 bg-rose-50 rounded-xl">Keluar</button>
     </div>
   `;
 });
-window.init_guru_dash = async () => {};
+
+window.init_guru_dash = async () => {
+  const $ = s => document.querySelector(s);
+  const r = await API.auth('guruDashboard');
+  if (!r || !r.ok) {
+    $('#gd-stats').innerHTML = UI.empty('Gagal memuat ringkasan', (r && r.msg) || 'Coba lagi nanti.');
+    return;
+  }
+  const s = r.stats || {};
+  $('#gd-stats').innerHTML = UI.statGrid([
+    { label: 'Kelas diampu', value: s.classes || 0 },
+    { label: 'Siswa', value: s.students || 0 },
+    { label: 'Asesmen', value: s.assessments || 0 },
+    { label: 'Perlu dinilai', value: s.pendingGrades || 0, hint: 'attempt belum selesai' },
+    { label: 'Baris nilai', value: s.grades || 0 },
+    { label: 'Aktivitas hari ini', value: s.activityToday || 0 }
+  ]);
+};
