@@ -8,20 +8,22 @@ window.Shell = (function () {
       { route: 'siswa-mapel', label: 'Mapel', icon: 'fa-book-open' },
       { route: 'siswa-nilai', label: 'Nilai', icon: 'fa-chart-line' },
       { route: 'siswa-aktifitas', label: 'Aktivitas', icon: 'fa-wave-square' },
-      { route: 'siswa-kolab', label: 'Kolaborasi', icon: 'fa-handshake' },
+      { route: 'siswa-kolab', label: 'Kolaborasi', icon: 'fa-handshake', feature: 'collaboration' },
       { route: 'siswa-profil', label: 'Profil', icon: 'fa-user' }
     ],
     guru: [
       { route: 'guru-dash', label: 'Dashboard', icon: 'fa-gauge-high' },
       { route: 'guru-kelas', label: 'Kelas Saya', icon: 'fa-users' },
+      { route: 'guru-walas', label: 'Walas', icon: 'fa-house-user' },
+      { route: 'guru-kategori', label: 'Kategori', icon: 'fa-tags' },
       { route: 'guru-rekap', label: 'Nilai', icon: 'fa-table-list' },
       { route: 'guru-kurikulum', label: 'Kurikulum', icon: 'fa-layer-group' },
       { route: 'guru-monitor', label: 'Monitoring', icon: 'fa-desktop' },
       { route: 'guru-aktifitas', label: 'Aktivitas', icon: 'fa-wave-square' },
       { route: 'guru-asesmen', label: 'Asesmen', icon: 'fa-file-pen' },
-      { route: 'guru-bank', label: 'Bank Soal', icon: 'fa-database' },
-      { route: 'guru-ai', label: 'AI Guru', icon: 'fa-wand-magic-sparkles' },
-      { route: 'guru-kolab', label: 'Kolaborasi', icon: 'fa-handshake' },
+      { route: 'guru-bank', label: 'Bank Soal', icon: 'fa-database', feature: 'bank_soal' },
+      { route: 'guru-ai', label: 'AI Guru', icon: 'fa-wand-magic-sparkles', feature: 'ai' },
+      { route: 'guru-kolab', label: 'Kolaborasi', icon: 'fa-handshake', feature: 'collaboration' },
       { route: 'guru-permintaan', label: 'Permintaan', icon: 'fa-inbox', soon: true },
       { route: 'guru-profil', label: 'Profil', icon: 'fa-id-badge', soon: true }
     ],
@@ -31,16 +33,21 @@ window.Shell = (function () {
       { route: 'admin-sekolah', label: 'Sekolah', icon: 'fa-building' },
       { route: 'admin-monitoring', label: 'Monitoring', icon: 'fa-desktop' },
       { route: 'admin-akademik', label: 'Akademik', icon: 'fa-school' },
-      { route: 'admin-pengaturan', label: 'Pengaturan', icon: 'fa-sliders', soon: true }
+      { route: 'admin-pengaturan', label: 'Pengaturan', icon: 'fa-sliders' }
     ]
   };
 
   function roleKey(role) { return role === 'admin' ? 'admin' : role === 'guru' ? 'guru' : 'siswa'; }
   function items(role) { return NAV[roleKey(role)] || NAV.siswa; }
+  function enabled(it) {
+    if (!it.feature) return true;
+    var f = (window.API && API.getMeta().features) || {};
+    return f[it.feature] !== false;
+  }
   function esc(v) { return window.UI ? UI.esc(v) : String(v == null ? '' : v); }
 
   function navHtml(role, active, bottom) {
-    var list = items(role).filter(function (it) { return !bottom || !it.soon; });
+    var list = items(role).filter(function (it) { return (!bottom || !it.soon) && enabled(it); });
     return list.map(function (it) {
       var cls = 'nav-item' + (it.route === active ? ' active' : '') + (it.soon ? ' disabled' : '');
       var inner = '<i class="fas ' + it.icon + '"></i><span>' + esc(it.label) + '</span>'
@@ -52,7 +59,7 @@ window.Shell = (function () {
   }
 
   function bottomHtml(role, active) {
-    return '<div class="bnav-grid">' + items(role).filter(function (it) { return !it.soon; }).slice(0, 5).map(function (it) {
+    return '<div class="bnav-grid">' + items(role).filter(function (it) { return !it.soon && enabled(it); }).slice(0, 5).map(function (it) {
       var cls = it.route === active ? 'active' : '';
       return '<a class="' + cls + '" href="#' + it.route + '"'
         + (it.route === active ? ' aria-current="page"' : '') + '>'

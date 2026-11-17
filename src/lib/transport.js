@@ -907,9 +907,23 @@
       var p = await db.from('profiles').select('id,username,settings').eq('id', q.data.profile_id).single();
       if (p.error) throw p.error;
       if (q.data.kind === 'kategori') {
-        var settings = Object.assign({}, p.data.settings || {}, { kategori: q.data.requested_value });
-        var u1 = await db.from('profiles').update({ settings: settings }).eq('id', p.data.id).select('id');
-        if (u1.error) throw u1.error;
+        var cat = await db.rpc('app_set_general_category', {
+          p_profile: p.data.id,
+          p_category: q.data.requested_value,
+          p_note: 'Approval permintaan akun'
+        });
+        if (cat.error) {
+          if (/function|schema cache|does not exist/i.test(cat.error.message)) {
+            /* fallback sebelum migrasi 0016 */
+            var settings = Object.assign({}, p.data.settings || {}, { kategori: q.data.requested_value });
+            var u0 = await db.from('profiles').update({ settings: settings }).eq('id', p.data.id).select('id');
+            if (u0.error) throw u0.error;
+          } else {
+            throw cat.error;
+          }
+        } else if (!cat.data || !cat.data.ok) {
+          return { ok: false, msg: (cat.data && cat.data.msg) || 'Gagal menetapkan kategori' };
+        }
       } else if (q.data.kind === 'username') {
         var u2 = await db.from('profiles').update({ username: q.data.requested_value }).eq('id', p.data.id).select('id');
         if (u2.error) {
@@ -1336,6 +1350,85 @@
     return { ok: true };
   }
 
+  async function adminSettingsData() {
+    var school = await adminSchoolGet();
+    var db = await sb();
+    var m = await db.from('materials')
+      .select('id,title,url,kind,meta')
+      .eq('kind', 'app').order('title');
+    if (m.error) throw m.error;
+    return { ok: true, school: school.school, apps: m.data || [] };
+  }
+
+  /* ---------- kategori ---------- */
+  async function getMyCategories() {
+    return { ok: true, rows: await rpc('app_get_my_categories') };
+  }
+
+  async function getClassGeneralCategories(payload) {
+    return { ok: true, rows: await rpc('app_get_class_general_categories', { p_class: payload.classId }) };
+  }
+
+  async function getClassSubjectCategories(payload) {
+    return {
+      ok: true,
+      rows: await rpc('app_get_class_subject_categories', {
+        p_class: payload.classId, p_subject: payload.subjectId
+      })
+    };
+  }
+
+  async function getCategoryHistory(payload) {
+    return {
+      ok: true,
+      rows: await rpc('app_get_category_history', {
+        p_profile: payload.profileId, p_limit: payload.limit || 50
+      })
+    };
+  }
+
+  async function saveGeneralCategory(payload) {
+    return rpc('app_set_general_category', {
+      p_profile: payload.profileId, p_category: payload.category, p_note: payload.note || null
+    });
+  }
+
+  async function saveSubjectCategory(payload) {
+    return rpc('app_set_subject_category', {
+      p_profile: payload.profileId, p_subject: payload.subjectId,
+      p_category: payload.category, p_note: payload.note || null
+    });
+  }
+
+  async function walasClasses() {
+    var meta = await currentMeta();
+    var db = await sb();
+    var r = await db.from('classes')
+      .select('id,label,academic_year_id,grade_level_id,academic_years(label,is_active),grade_levels(label)')
+      .eq('homeroom_id', meta.id)
+      .order('label');
+    if (r.error) throw r.error;
+    var ids = (r.data || []).map(function (c) { return c.id; });
+    var counts = {};
+    if (ids.length) {
+      var m = await db.from('class_memberships').select('class_id')
+        .in('class_id', ids).is('left_at', null);
+      (m.data || []).forEach(function (x) { counts[x.class_id] = (counts[x.class_id] || 0) + 1; });
+    }
+    return {
+      ok: true,
+      rows: (r.data || []).map(function (c) {
+        return {
+          id: c.id, label: c.label,
+          tahun: c.academic_years ? c.academic_years.label : '',
+          active: !!(c.academic_years && c.academic_years.is_active),
+          tingkat: c.grade_levels ? c.grade_levels.label : '',
+          studentCount: counts[c.id] || 0
+        };
+      })
+    };
+  }
+
   /* ---------- router aksi ---------- */
   async function route(payload) {
     var a = payload.action;
@@ -1397,6 +1490,7 @@
     if (a === 'adminSchoolGet') return adminSchoolGet();
     if (a === 'adminSchoolSave') return adminSchoolSave(payload);
     if (a === 'adminMonitoring') return adminMonitoring();
+    if (a === 'adminSettingsData') return adminSettingsData();
     if (a === 'adminAcademic') return adminAcademic();
     if (a === 'adminYearSave') return adminYearSave(payload);
     if (a === 'adminYearActivate') return adminYearActivate(payload.id);
@@ -1412,6 +1506,13 @@
     if (a === 'guruKisiSave') return guruKisiSave(payload);
     if (a === 'guruKisiDelete') return guruKisiDelete(payload.id);
     if (a === 'guruBuildPackage') return guruBuildPackage(payload.id);
+    if (a === 'getMyCategories') return getMyCategories();
+    if (a === 'getClassGeneralCategories') return getClassGeneralCategories(payload);
+    if (a === 'getClassSubjectCategories') return getClassSubjectCategories(payload);
+    if (a === 'getCategoryHistory') return getCategoryHistory(payload);
+    if (a === 'saveGeneralCategory') return saveGeneralCategory(payload);
+    if (a === 'saveSubjectCategory') return saveSubjectCategory(payload);
+    if (a === 'walasClasses') return walasClasses();
     if (a === 'siswaKolabData') return siswaKolabData();
     if (a === 'siswaKolabRequest') return siswaKolabRequest(payload);
     if (a === 'siswaKolabCancel') return siswaKolabCancel(payload.id);

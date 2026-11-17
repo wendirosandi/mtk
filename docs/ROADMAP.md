@@ -95,6 +95,7 @@ kembali → aktivitas tercatat; tanpa sesi selalu kembali ke login dengan `next`
 - [x] Uji negatif: guru tidak bisa kelas di luar scope (RLS 8.F/8.G di lokal)
 - [x] Dashboard guru + daftar kelas yang diampu (`guru-kelas`)
 - [x] Kolaborasi siswa + approval guru (`siswa-kolab`, `guru-kolab`)
+- [x] Kategori umum Walas + kategori per mapel Guru (`guru-walas`, `guru-kategori`, `0016`)
 
 **Kriteria selesai:** guru dapat membuat satu modul + satu LKPD + satu kuis, siswa
 mengerjakan, nilai masuk, guru melihat dan mengoreksi.
@@ -129,7 +130,7 @@ penugasan tanpa SQL manual.
 - [x] Wizard AI bank (UI `guru-ai` + Edge Function scaffold; butuh `AI_API_KEY`)
 - [ ] Generator template & paket per-siswa (snapshot attempt)
 - [ ] Wizard AI: modul/materi/LKPD/kuis
-- [ ] Migrasi `0015_ai_jobs` (draft) diterapkan
+- [x] Migrasi `0015_ai_jobs` diterapkan
 - [ ] Validasi JSON schema + moderasi
 - [ ] Draft → review → publish
 - [ ] `ai_jobs` + audit biaya/token

@@ -55,6 +55,7 @@ Supabase
 |---|---|---|
 | `siswa` | `siswa-*` | Mapel/materi, LKPD, nilai, aktivitas, profil |
 | `guru` | `guru-*` | Kelas diampu, kurikulum, asesmen, bank soal, nilai, monitoring |
+| Walas (guru) | `guru-walas` | Kategori umum siswa di kelas `homeroom_id` |
 | `admin` | `admin-*` | Seluruh sekolah, pengguna, akademik, pengaturan, audit |
 
 - Login memakai **username + password**. Email Supabase dibentuk oleh
@@ -78,7 +79,7 @@ Supabase
 
 ## 4. Skema Database (ringkas)
 
-30 tabel di schema `public`:
+34 tabel di schema `public`:
 
 - **Identitas & sekolah:** `schools`, `profiles`, `academic_years`, `grade_levels`,
   `classes`, `class_memberships`, `subjects`, `teacher_assignments`
@@ -90,6 +91,9 @@ Supabase
 - **Kolaborasi & akses:** `collab_pairs`, `access_grants`
 - **Aktivitas & komunikasi:** `activity_logs`, `notifications`, `notification_reads`,
   `audit_logs`
+- **Kategori:** `student_general_categories`, `student_subject_categories`,
+  `category_history`
+- **AI:** `ai_jobs`
 - **Operasional:** `account_requests`, `legacy_crosswalk`
 
 Hierarki kurikulum:
@@ -131,7 +135,14 @@ Nilai enum penting:
 | `app_build_package(assessment)` | susun paket dari bank soal |
 | `app_get_package_items(assessment)` | baca paket tanpa kunci |
 | `app_get_attempt_items(attempt)` | item snapshot per attempt |
-| `app_request_account_change(kind, value, reason)` | permintaan ubah akun |
+| `app_request_account_change(kind, value, reason)` | permintaan ubah akun (kategori ditolak) |
+| `app_get_my_categories()` | kategori umum + mapel siswa |
+| `app_get_class_general_categories(class)` | kategori umum kelas (Walas/admin) |
+| `app_get_class_subject_categories(class, subject)` | kategori mapel kelas (guru mapel/Walas/admin) |
+| `app_get_category_history(profile, limit)` | riwayat kategori |
+| `app_set_general_category(profile, category, note)` | ubah kategori umum (Walas/admin) |
+| `app_set_subject_category(profile, subject, category, note)` | ubah kategori mapel (guru/admin) |
+| `app_assign_homeroom(class, teacher)` | tetapkan Walas (admin) |
 | `app_verify_legacy_password(user, pass)` | verifikasi hash lama (migrasi) |
 | helper RLS | `app_profile`, `app_role`, `app_school`, `app_is_admin`, `app_is_guru`, `app_can_see_class`, `app_my_class_ids`, `app_teacher_class_ids`, `app_guru_scope_assessment` |
 
@@ -230,33 +241,32 @@ aktivitas, dan uji negatif RLS.
 ## 11. Masalah yang Diketahui
 
 1. `0002_rls.sql` pernah rusak sintaks (policy `ad_ins` disisipkan di tengah `ad_sel`).
-   Sudah diperbaiki di file dan lolos `db reset` lokal, **belum diterapkan ke cloud**.
-2. Tidak ada unique index `(assessment_id, profile_id)` pada gradebook → risiko nilai ganda.
-   Perbaikan ada di draft `0011` (dedupe + index + upsert scoring).
-3. `prof_upd_self` mengizinkan siswa mengubah `settings`, `username`, dan `status` sendiri.
-   Draft `0011` menambahkan trigger proteksi + policy update admin.
+   Sudah diperbaiki dan diterapkan; lolos `db reset` lokal.
+2. (Selesai) Unique index `(assessment_id, profile_id)` pada gradebook → risiko nilai ganda.
+   Sudah diterapkan via `0011` (dedupe + index + upsert scoring).
+3. `prof_upd_self` sudah diperketat via `0011` (trigger proteksi + policy admin).
 4. Seed `0001` memakai `date '{{TA_START}}'` yang tidak valid untuk instalasi baru.
    Sudah diganti tanggal konkret.
 5. `config.toml` `site_url` belum menunjuk `/mtk`. Sudah diperbaiki di file.
 6. Data user dimasukkan ke `innerHTML` tanpa escaping.
 7. ToolsMathPro masih meminta identitas manual dan belum mencatat aktivitas ke Supabase.
 8. Admin mencakup dashboard, pengguna (buat/reset/approval), profil sekolah, akademik,
-   dan monitoring; pengaturan lanjutan (feature flags/registry) belum tersedia.
+   monitoring, dan pengaturan/feature flags. AI Guru belum aktif karena `AI_API_KEY` belum diatur.
 9. `docs/MODULE_REGISTRY.md` sebelumnya tidak ada (kini tersedia).
-10. Belum ada CI dan akun uji guru/admin.
-11. Policy `gb_ins/gb_upd` belum memeriksa `app_guru_scope_assessment(assessment_id)` — guru
-    dapat menulis nilai manual untuk asesmen di luar mapelnya lewat API langsung.
-12. Policy tulis `topics`/`materials` hanya memeriksa role guru, belum memeriksa sekolah/modul.
-13. Policy tulis `question_items`/`assessments` juga belum memeriksa kepemilikan mapel guru;
-    builder membatasi di UI, tetapi backend belum menegakkannya.
+10. CI otomatis belum ada; akun uji guru/admin sudah tersedia (`guru.uji`, `admin.uji`).
+11. (Selesai) Policy `gb_ins/gb_upd` sudah memeriksa `app_guru_scope_assessment(assessment_id)` — guru
+    tidak dapat lagi menulis nilai manual untuk asesmen di luar mapelnya lewat API langsung.
+12. (Selesai) Policy tulis `topics`/`materials` sudah memeriksa sekolah/modul via `0013`.
+13. (Selesai) Policy tulis `question_items`/`assessments` sudah memeriksa kepemilikan mapel guru;
+    builder membatasi di UI dan backend sudah menegakkannya via `0013`.
 14. Policy bank soal (`question_pools`, `bank_items`, `kisi_kisi`) belum diperketat ke
     mapel/asesmen yang diampu; baru dibatasi role guru + sekolah.
 15. `0014_collab_guard.sql` sudah diterapkan: siswa tidak bisa menyetujui pasangannya
     sendiri; persetujuan hanya guru/admin.
-16. AI Guru: Edge Function `ai-content` sudah di-deploy sebagai scaffold, tetapi
-    `AI_API_KEY` belum diatur dan migrasi `0015_ai_jobs` belum diterapkan.
+16. AI Guru: Edge Function `ai-content` sudah di-deploy sebagai scaffold, migrasi
+    `0015_ai_jobs` sudah diterapkan, tetapi `AI_API_KEY` belum diatur.
 
-Seluruh migrasi `0001`–`0014` sudah diterapkan ke cloud. Rencana generator & AI:
+Seluruh migrasi `0001`–`0016` sudah diterapkan ke cloud. Rencana generator & AI:
 [`docs/AI_GURU.md`](docs/AI_GURU.md).
 
 ---

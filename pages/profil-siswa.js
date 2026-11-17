@@ -11,7 +11,7 @@ Router.register('siswa-profil', async () => {
           <div>Username: <b>${m.username}</b></div>
           <div>Nama Lengkap: <b>${m.nama}</b></div>
           <div>Kelas: <b>${m.kelas}</b></div>
-          <div>Kategori: <b>${m.kategori}</b></div>
+          <div>Kategori Umum: <b>${m.kategori || '—'}</b></div>
         </div>
 
         <div class="border rounded-xl">
@@ -24,18 +24,10 @@ Router.register('siswa-profil', async () => {
           </div>
         </div>
 
-        <div class="border rounded-xl">
-          <button id="acc-kat-head" class="w-full flex justify-between px-3 py-2.5 font-bold text-sm">🔄 Ubah Kategori <span id="acc-kat-chev">▸</span></button>
-          <div id="acc-kat-body" class="hidden px-3 pb-3 space-y-2">
-            <p class="text-xs text-gray-500">Kategori saat ini: <b>${m.kategori}</b></p>
-            <select id="pf-kat-sel" class="w-full border rounded-lg px-3 py-2 text-sm">
-              <option ${m.kategori==='A'?'selected':''}>A</option>
-              <option ${m.kategori==='B'?'selected':''}>B</option>
-              <option ${m.kategori==='C'?'selected':''}>C</option>
-            </select>
-            <textarea id="pf-kat-alasan" rows="2" placeholder="Alasan (opsional)" class="w-full border rounded-lg px-3 py-2 text-sm"></textarea>
-            <button id="pf-kat-send" class="w-full bg-green-600 text-white font-bold py-2 rounded-lg text-sm">Kirim Permintaan</button>
-          </div>
+        <div class="border rounded-xl p-3">
+          <div class="font-bold text-sm mb-2">🎓 Kategori Akademik</div>
+          <div id="pf-cat"><span class="text-xs text-gray-500">Memuat...</span></div>
+          <p class="text-[11px] text-gray-500 mt-2">Kategori umum dikelola Walas; kategori mapel dikelola Guru pengampu.</p>
         </div>
 
         <div class="border rounded-xl">
@@ -54,7 +46,7 @@ Router.register('siswa-profil', async () => {
 window.init_siswa_profil = async () => {
   const $ = s => document.querySelector(s);
   function pfOpen(acc) {
-    ['pwd', 'kat', 'user'].forEach(a => {
+    ['pwd', 'user'].forEach(a => {
       const open = (a === acc);
       $('#acc-' + a + '-body').classList.toggle('hidden', !open);
       $('#acc-' + a + '-chev').textContent = open ? '▾' : '▸';
@@ -62,7 +54,6 @@ window.init_siswa_profil = async () => {
   }
 
   $('#acc-pwd-head').onclick = () => pfOpen('pwd');
-  $('#acc-kat-head').onclick = () => pfOpen('kat');
   $('#acc-user-head').onclick = () => pfOpen('user');
 
   $('#pf-pwd-save').onclick = async () => {
@@ -71,16 +62,6 @@ window.init_siswa_profil = async () => {
     if (n !== n2) return API.toast('Konfirmasi tidak sama.');
         const r = await API.auth('siswaGantiPassword', { oldP: o, newP: n });
     if (r.ok) { API.toast('✅ Password diganti.'); pfOpen(null); }
-    else API.toast('❌ ' + r.msg);
-  };
-
-  $('#pf-kat-send').onclick = async () => {
-    const r = await API.auth('siswaRequestAkun', {
-      jenis: 'Kategori',
-      nilaiBaru: $('#pf-kat-sel').value,
-      alasan: $('#pf-kat-alasan').value
-    });
-    if (r.ok) API.toast('✅ Permintaan kategori terkirim');
     else API.toast('❌ ' + r.msg);
   };
 
@@ -93,4 +74,28 @@ window.init_siswa_profil = async () => {
     if (r.ok) API.toast('✅ Username baru → ' + r.nilaiBaru);
     else API.toast('❌ ' + r.msg);
   };
+
+  async function loadCategories() {
+    const esc = UI.esc;
+    const r = await API.auth('getMyCategories');
+    const rows = (r && r.rows) || [];
+    const gen = rows.find(x => x.scope === 'umum');
+    const subjects = rows.filter(x => x.scope === 'mapel');
+    if (!rows.length) {
+      $('#pf-cat').innerHTML = '<span class="text-xs text-gray-500">Kategori belum tersedia. Hubungi Walas/Guru.</span>';
+      return;
+    }
+    let html = '<div class="text-xs" style="margin-bottom:8px">Umum: <b>' +
+      esc(gen && gen.category ? gen.category : '—') + '</b></div>';
+    if (subjects.length) {
+      html += '<div style="overflow-x:auto"><table class="w-full text-xs"><thead><tr class="bg-slate-100">'
+        + '<th class="p-2 text-left">Mapel</th><th class="p-2 text-left">Kategori</th></tr></thead><tbody>'
+        + subjects.map(s => `<tr class="border-t"><td class="p-2">${esc(s.subject_name || s.subject_code)}</td>
+            <td class="p-2"><b>${esc(s.category || '—')}</b></td></tr>`).join('')
+        + '</tbody></table></div>';
+    }
+    $('#pf-cat').innerHTML = html;
+  }
+
+  await loadCategories();
 };

@@ -18,6 +18,8 @@ Router.register('guru-dash', async () => {
       <div id="gd-stats">${UI.skeleton(3)}</div>
       <div class="grid grid-cols-2 gap-3 mt-4">
         ${live('guru-kelas', 'fa-users', 'bg-teal-100 text-teal-600', 'Kelas Saya')}
+        ${live('guru-walas', 'fa-house-user', 'bg-emerald-100 text-emerald-600', 'Walas')}
+        ${live('guru-kategori', 'fa-tags', 'bg-cyan-100 text-cyan-600', 'Kategori')}
         ${live('guru-kurikulum', 'fa-layer-group', 'bg-amber-100 text-amber-600', 'Kurikulum')}
         ${live('guru-rekap', 'fa-table-list', 'bg-sky-100 text-sky-700', 'Nilai')}
         ${live('guru-monitor', 'fa-desktop', 'bg-indigo-100 text-indigo-600', 'Monitoring')}

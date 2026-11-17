@@ -186,9 +186,9 @@ AI yang terbit otomatis; key tidak pernah terlihat di browser.
 ## 11. Status Implementasi Saat Ini
 
 - `docs/AI_GURU.md` — selesai (dokumen ini).
-- `supabase/migrations/0015_ai_jobs.sql` — draft, **belum diterapkan**.
-- `supabase/functions/ai-content/index.ts` — **sudah di-deploy** sebagai scaffold
-  (tanpa key → pesan “AI belum dikonfigurasi”, tidak menulis apa pun).
+- `supabase/migrations/0015_ai_jobs.sql` — **sudah diterapkan**.
+- `supabase/functions/ai-content/index.ts` — **sudah di-deploy**; action `health`
+  tersedia. Tanpa key → pesan “AI belum dikonfigurasi”, tidak menulis apa pun.
 - UI `guru-ai` — wizard Bank Soal; memanggil Edge Function dan menampilkan draft.
 - API key AI — belum dikonfigurasi.
 - Wizard LKPD/Kuis/Modul — belum dibuat (menunggu key & review bank).

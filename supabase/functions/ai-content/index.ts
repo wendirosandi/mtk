@@ -33,12 +33,17 @@ Deno.serve(async (req) => {
     return json({ ok: false, msg: "Akses guru diperlukan" }, 403);
   }
 
+  let body: any;
+  try { body = await req.json(); } catch { return json({ ok: false, msg: "Body tidak valid" }, 400); }
+
+  if (body.action === "health") {
+    return json({ ok: true, configured: !!aiKey, model: aiModel, provider: aiBase });
+  }
+
   if (!aiKey) {
     return json({ ok: false, msg: "AI belum dikonfigurasi. Hubungi admin untuk mengatur AI_API_KEY." });
   }
 
-  let body: any;
-  try { body = await req.json(); } catch { return json({ ok: false, msg: "Body tidak valid" }, 400); }
   if (body.kind !== "bank") {
     return json({ ok: false, msg: "Jenis konten ini belum diaktifkan" }, 400);
   }

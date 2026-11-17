@@ -177,3 +177,37 @@ values (<topic_id>, 'app', 'Nama Modul', '/kalender-pythagoras/index.html', <n>)
 - `DOKUMENTASI.md` — arsitektur & kondisi LMS.
 - `docs/MODULE_REGISTRY.md` — daftar modul & status integrasi.
 - `supabase/migrations/` — evolusi skema.
+
+---
+
+## 13. Kontrak Kategori Siswa
+
+Kategori **A = Tinggi, B = Sedang, C = Rendah** disimpan pada dua domain terpisah:
+
+| Domain | Tabel | Pengelola | Kunci |
+|---|---|---|---|
+| Umum | `student_general_categories` | Walas | `(profile_id, academic_year_id)` |
+| Mapel | `student_subject_categories` | Guru mapel | `(profile_id, subject_id, academic_year_id)` |
+
+Aturan wajib:
+
+1. **Independen** — perubahan umum tidak mengubah mapel, dan sebaliknya.
+2. **Walas bukan role** — walas adalah guru dengan `classes.homeroom_id = auth.uid()`.
+3. **Admin** menetapkan/mengganti Walas per kelas dan tahun; hanya profil `guru` di
+   sekolah yang sama yang valid.
+4. **Guru mapel** hanya mengubah kategori pada `teacher_assignments` yang cocok
+   subject + tahun + kelas (termasuk `class_id IS NULL`).
+5. **Siswa hanya membaca** kategori sendiri; tidak ada request/self-update kategori.
+6. **Tidak ada tulis langsung** ke tabel kategori; gunakan RPC:
+   - `app_set_general_category`
+   - `app_set_subject_category`
+   - `app_assign_homeroom` (admin)
+7. Setiap perubahan menghasilkan `category_history` + `audit_logs`.
+8. `app_access_check` memilih **kategori mapel → umum → settings legacy** dan
+   mengembalikan `kategori`, `kategori_umum`, `kategori_mapel`, `kategori_source`.
+9. `profiles.settings.kategori` hanya fallback legacy; jangan dijadikan sumber baru.
+10. Pergantian tahun tidak menghapus riwayat; kategori tahun baru ditetapkan terpisah.
+
+Pengujian minimum: admin assign walas, walas lintas kelas ditolak, guru mapel lintas
+mapel ditolak, siswa tidak dapat menulis, umum/mapel tidak saling menimpa, dan riwayat
+tetap ada setelah tahun berganti.

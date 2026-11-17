@@ -65,10 +65,27 @@
         } catch (e) { /* biarkan kosong */ }
       }
       var namaSekolah = '';
+      var schoolSettings = {};
+      var kategori = (p.settings || {}).kategori || '';
+      var kategoriMapel = {};
       try {
-        var sc = await client.from('schools').select('name').eq('id', p.school_id).single();
-        if (!sc.error && sc.data) namaSekolah = sc.data.name || '';
+        var sc = await client.from('schools').select('name,settings').eq('id', p.school_id).single();
+        if (!sc.error && sc.data) {
+          namaSekolah = sc.data.name || '';
+          schoolSettings = sc.data.settings || {};
+        }
       } catch (e) { /* biarkan kosong */ }
+
+      /* Kategori baru (0016). Fallback ke settings bila RPC belum tersedia. */
+      try {
+        var cat = await client.rpc('app_get_my_categories');
+        if (!cat.error && Array.isArray(cat.data)) {
+          cat.data.forEach(function (row) {
+            if (row.scope === 'umum' && row.category) kategori = row.category;
+            if (row.scope === 'mapel' && row.subject_code) kategoriMapel[row.subject_code] = row.category || '';
+          });
+        }
+      } catch (e) { /* fallback legacy */ }
 
       return {
         id: p.id,
@@ -78,9 +95,11 @@
         namaGuru: p.role === 'guru' || p.role === 'admin' ? p.full_name : '',
         role: p.role,
         kelas: kelas,
-        kategori: (p.settings || {}).kategori || '',
+        kategori: kategori,
+        kategoriMapel: kategoriMapel,
         ta: (p.settings || {}).ta || '',
         namaSekolah: namaSekolah,
+        features: schoolSettings.features || {},
         mustChangePassword: !!p.must_change_password,
         info: { namaSekolah: namaSekolah }
       };
