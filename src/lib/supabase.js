@@ -72,6 +72,7 @@
 
       return {
         id: p.id,
+        school_id: p.school_id,
         username: p.username,
         nama: p.full_name,
         namaGuru: p.role === 'guru' || p.role === 'admin' ? p.full_name : '',

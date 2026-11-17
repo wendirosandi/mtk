@@ -86,7 +86,7 @@ kembali → aktivitas tercatat; tanpa sesi selalu kembali ke login dengan `next`
 | `guru-bank` (MVP) | pool, bank soal, kisi-kisi |
 
 ### Pekerjaan teknis
-- [ ] CRUD dengan validasi server (RPC/trigger)
+- [x] CRUD kurikulum (modul/topik/materi) — `guru-kurikulum`, diuji buat/edit/hapus
 - [x] Gradebook unik + input manual dengan audit (matriks `guru-rekap`)
 - [x] Monitoring attempt (tanpa membocorkan kunci) — `guru-monitor`
 - [ ] Builder asesmen memakai `question_items`

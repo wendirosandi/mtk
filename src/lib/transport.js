@@ -525,6 +525,111 @@
     return { ok: true, material: r.data };
   }
 
+  /* ---------- kurikulum: CRUD modul/topik/materi (guru) ---------- */
+  async function guruModulesList(payload) {
+    var db = await sb();
+    var q = db.from('modules')
+      .select('id,title,description,sort_order,grade_level_id,subject_id')
+      .eq('subject_id', payload.subjectId)
+      .order('sort_order').order('title');
+    if (payload.gradeLevelId) q = q.eq('grade_level_id', payload.gradeLevelId);
+    var r = await q;
+    if (r.error) throw r.error;
+    return { ok: true, rows: r.data || [] };
+  }
+
+  async function guruModuleSave(payload) {
+    var meta = await currentMeta();
+    var db = await sb();
+    var title = String(payload.title || '').trim();
+    if (!title) return { ok: false, msg: 'Judul modul wajib diisi' };
+    var row = {
+      title: title,
+      description: String(payload.description || '').trim() || null,
+      sort_order: Number(payload.sortOrder) || 0
+    };
+    if (payload.id) {
+      var u = await db.from('modules').update(row).eq('id', payload.id).select('id');
+      if (u.error) throw u.error;
+      if (!u.data || !u.data.length) return { ok: false, msg: 'Modul tidak ditemukan / bukan wewenang Anda' };
+      return { ok: true, id: payload.id };
+    }
+    if (!payload.subjectId || !payload.gradeLevelId) return { ok: false, msg: 'Mapel/tingkat belum dipilih' };
+    row.school_id = meta.school_id;
+    row.subject_id = payload.subjectId;
+    row.grade_level_id = payload.gradeLevelId;
+    var ins = await db.from('modules').insert(row).select('id').single();
+    if (ins.error) throw ins.error;
+    return { ok: true, id: ins.data.id };
+  }
+
+  async function guruTopicSave(payload) {
+    var db = await sb();
+    var title = String(payload.title || '').trim();
+    if (!title) return { ok: false, msg: 'Judul topik wajib diisi' };
+    var row = { title: title, sort_order: Number(payload.sortOrder) || 0 };
+    if (payload.id) {
+      var u = await db.from('topics').update(row).eq('id', payload.id).select('id');
+      if (u.error) throw u.error;
+      if (!u.data || !u.data.length) return { ok: false, msg: 'Topik tidak ditemukan' };
+      return { ok: true, id: payload.id };
+    }
+    if (!payload.moduleId) return { ok: false, msg: 'Modul belum dipilih' };
+    row.module_id = payload.moduleId;
+    var ins = await db.from('topics').insert(row).select('id').single();
+    if (ins.error) throw ins.error;
+    return { ok: true, id: ins.data.id };
+  }
+
+  async function guruTopicDelete(payload) {
+    var db = await sb();
+    if (!payload.id) return { ok: false, msg: 'ID topik kosong' };
+    var r = await db.from('topics').delete().eq('id', payload.id).select('id');
+    if (r.error) throw r.error;
+    if (!r.data || !r.data.length) return { ok: false, msg: 'Topik tidak dapat dihapus' };
+    return { ok: true };
+  }
+
+  async function guruMaterialSave(payload) {
+    var db = await sb();
+    var title = String(payload.title || '').trim();
+    if (!title) return { ok: false, msg: 'Judul materi wajib diisi' };
+    var kind = String(payload.kind || 'dokumen');
+    if (['dokumen', 'video', 'app', 'geogebra', 'pdf', 'lkpd_ref'].indexOf(kind) < 0) {
+      return { ok: false, msg: 'Jenis materi tidak dikenal' };
+    }
+    var url = String(payload.url || '').trim() || null;
+    if (url) {
+      var isHttp = /^https?:\/\//i.test(url);
+      var isPath = url.charAt(0) === '/' && url.indexOf('//') !== 0;
+      if (!isHttp && !isPath) return { ok: false, msg: 'URL harus http(s) atau path relatif' };
+    }
+    var row = {
+      title: title, kind: kind, url: url,
+      meta: payload.meta || {}, sort_order: Number(payload.sortOrder) || 0
+    };
+    if (payload.id) {
+      var u = await db.from('materials').update(row).eq('id', payload.id).select('id');
+      if (u.error) throw u.error;
+      if (!u.data || !u.data.length) return { ok: false, msg: 'Materi tidak ditemukan' };
+      return { ok: true, id: payload.id };
+    }
+    if (!payload.topicId) return { ok: false, msg: 'Topik belum dipilih' };
+    row.topic_id = payload.topicId;
+    var ins = await db.from('materials').insert(row).select('id').single();
+    if (ins.error) throw ins.error;
+    return { ok: true, id: ins.data.id };
+  }
+
+  async function guruMaterialDelete(payload) {
+    var db = await sb();
+    if (!payload.id) return { ok: false, msg: 'ID materi kosong' };
+    var r = await db.from('materials').delete().eq('id', payload.id).select('id');
+    if (r.error) throw r.error;
+    if (!r.data || !r.data.length) return { ok: false, msg: 'Materi tidak dapat dihapus' };
+    return { ok: true };
+  }
+
   /* ---------- router aksi ---------- */
   async function route(payload) {
     var a = payload.action;
@@ -564,6 +669,11 @@
     if (a === 'guruNilaiMatrix') return guruNilaiMatrix(payload);
     if (a === 'guruSaveScore') return guruSaveScore(payload);
     if (a === 'guruMonitor') return guruMonitor();
+    if (a === 'guruModuleSave') return guruModuleSave(payload);
+    if (a === 'guruModulesList') return guruModulesList(payload);    if (a === 'guruTopicSave') return guruTopicSave(payload);
+    if (a === 'guruTopicDelete') return guruTopicDelete(payload);
+    if (a === 'guruMaterialSave') return guruMaterialSave(payload);
+    if (a === 'guruMaterialDelete') return guruMaterialDelete(payload);
 
     if (a === 'getSubjects') return { ok: true, rows: await rpc('app_get_subjects') };
     if (a === 'getModules') return { ok: true, rows: await rpc('app_get_modules', { p_subject_id: payload.subjectId }) };

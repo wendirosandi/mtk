@@ -14,6 +14,7 @@ window.Shell = (function () {
       { route: 'guru-dash', label: 'Dashboard', icon: 'fa-gauge-high' },
       { route: 'guru-kelas', label: 'Kelas Saya', icon: 'fa-users' },
       { route: 'guru-rekap', label: 'Nilai', icon: 'fa-table-list' },
+      { route: 'guru-kurikulum', label: 'Kurikulum', icon: 'fa-layer-group' },
       { route: 'guru-monitor', label: 'Monitoring', icon: 'fa-desktop' },
       { route: 'guru-aktifitas', label: 'Aktivitas', icon: 'fa-wave-square' },
       { route: 'guru-asesmen', label: 'Asesmen', icon: 'fa-file-pen', soon: true },
@@ -51,7 +52,7 @@ window.Shell = (function () {
   }
 
   function bottomHtml(role, active) {
-    return '<div class="bnav-grid">' + items(role).filter(function (it) { return !it.soon; }).map(function (it) {
+    return '<div class="bnav-grid">' + items(role).filter(function (it) { return !it.soon; }).slice(0, 5).map(function (it) {
       var cls = it.route === active ? 'active' : '';
       return '<a class="' + cls + '" href="#' + it.route + '"'
         + (it.route === active ? ' aria-current="page"' : '') + '>'

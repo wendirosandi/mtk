@@ -239,6 +239,9 @@ aktivitas, dan uji negatif RLS.
 8. Belum ada halaman Admin; dashboard Guru baru 2 halaman.
 9. `docs/MODULE_REGISTRY.md` sebelumnya tidak ada (kini tersedia).
 10. Belum ada CI dan akun uji guru/admin.
+11. Policy `gb_ins/gb_upd` belum memeriksa `app_guru_scope_assessment(assessment_id)` — guru
+    dapat menulis nilai manual untuk asesmen di luar mapelnya lewat API langsung.
+12. Policy tulis `topics`/`materials` hanya memeriksa role guru, belum memeriksa sekolah/modul.
 
 Draft `0011_integrity_fixes.sql` sudah **lolos `supabase db reset` + fixtures + `db lint` lokal**,
 tetapi **belum diterapkan ke database cloud** dan menunggu persetujuan.
