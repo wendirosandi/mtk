@@ -11,6 +11,8 @@ window.GENERATORS = (function() {
   const PICK = a => a[Math.floor(Math.random() * a.length)];
   const RI = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
   const shuffle = a => { const r = [...a]; for (let i = r.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [r[i], r[j]] = [r[j], r[i]]; } return r; };
+  /* Normalisasi tingkat: angka 1/2/3 atau A/B/C -> kunci pool U/M/S */
+  const DK = d => ({ 1:'U', 2:'M', 3:'S', A:'S', B:'M', C:'U', U:'U', M:'M', S:'S' }[d] || 'M');
 
   // ===== PENGECOH CERDAS untuk soal akar =====
   function smartAlts(key) {
@@ -73,7 +75,7 @@ window.GENERATORS = (function() {
     genAkarMC: d => buildMCFromPool('m013', d),
     // m014 rasionalisasi kartu
     genRasionalKartu: d => {
-      const pool = window.DATA_POOL.m014.pool[d] || [];
+      const pool = window.DATA_POOL.m014.pool[DK(d)] || [];
       if (!pool.length) return null;
       return { type: 'kartu', item: PICK(pool) };
     },
@@ -86,13 +88,13 @@ window.GENERATORS = (function() {
     },
     // m022 jenis segitiga
     genJenisSegitiga: d => {
-      const pool = window.DATA_POOL.m022.pool[d] || window.DATA_POOL.m022.pool.M;
+      const pool = window.DATA_POOL.m022.pool[DK(d)] || window.DATA_POOL.m022.pool.M;
       const rows = []; for (let i = 0; i < 10; i++) rows.push(PICK(pool));
       return { type: 't5', rows, total: 40 };
     },
     // m023 gabungan
     genGabungan: d => {
-      const pool = window.DATA_POOL.m023.pool[d] || window.DATA_POOL.m023.pool.M;
+      const pool = window.DATA_POOL.m023.pool[DK(d)] || window.DATA_POOL.m023.pool.M;
       const item = PICK(pool);
       const svgFn = { F1: S.buildF1, F2: S.buildF2, F3: S.buildF3, F4: S.buildF4, F5: S.buildF4 }[item.fig];
       const svg = svgFn ? svgFn(...item.seed) : '';

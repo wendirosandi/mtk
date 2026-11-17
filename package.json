@@ -1,0 +1,12 @@
+{
+  "name": "lms-mtk",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "LMS MTK static SPA + Supabase",
+  "scripts": {
+    "lint:js": "node tests/js-check.mjs",
+    "test:generators": "node tests/generators/harness.mjs",
+    "test": "npm run lint:js && npm run test:generators"
+  }
+}

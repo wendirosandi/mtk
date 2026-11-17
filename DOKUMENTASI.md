@@ -193,7 +193,7 @@ dengan sesi nyata end-to-end. Lihat `docs/MODULE_REGISTRY.md`.
 |---|---|---|
 | `src/lib/supabase.js` | URL + anon key + `SCHOOL_CODE` | anon key memang publik; jangan pernah service_role |
 | `lib/config.js` | identitas aplikasi, `SEKOLAH_KODE`, fallback legacy | `GS_URL` hanya kompatibilitas |
-| `supabase/config.toml` | konfigurasi CLI, auth redirect | `site_url` masih root, perlu `/mtk` |
+| `supabase/config.toml` | konfigurasi CLI, auth redirect | `site_url` sudah `/mtk` |
 | `supabase/migrations/` | sumber kebenaran skema | jangan edit migrasi yang sudah applied tanpa migrasi korektif |
 
 **Rahasia:** API key AI, service_role, dan DB password **tidak boleh** masuk repo.
@@ -219,8 +219,8 @@ python -m http.server 8788 --bind 127.0.0.1
 # buka http://127.0.0.1:8788/index.html
 ```
 
-Catatan: `supabase db reset` **belum bisa diandalkan** sampai migrasi `0002` dan seed
-`0001` diperbaiki (lihat §11).
+Catatan: `supabase db reset` sudah lolos dari nol (0001–0016). Jika port default
+543xx diblokir Windows, gunakan port alternatif di `config.toml` saat uji lokal.
 
 ---
 
@@ -228,10 +228,12 @@ Catatan: `supabase db reset` **belum bisa diandalkan** sampai migrasi `0002` dan
 
 | Jenis | Lokasi | Status |
 |---|---|---|
-| Generator golden test | `tests/generators/harness.mjs` | manual; golden belum di-commit |
-| Skenario RLS | `tests/rls/rls_scenarios.sql` | manual, belum otomatis |
-| Smoke test UI | `uji/*.html` | manual |
-| E2E | — | belum ada |
+| Cek sintaks JS | `tests/js-check.mjs` | CI (`npm run lint:js`) |
+| Generator golden test | `tests/generators/harness.mjs` + `golden/` | CI |
+| SQL lint (migrasi + fungsi) | `.github/workflows/ci.yml` | CI (`supabase db lint`) |
+| Skenario RLS | `tests/rls/rls_scenarios.sql` | manual; panduan di `tests/rls/README.md` |
+| Smoke test UI | `uji/*.html` + halaman LMS | manual |
+| E2E kategori | `tests/rls/README.md` | manual |
 
 Uji minimum sebelum rilis: login tiap role, akses mapel, buka LKPD, submit, nilai,
 aktivitas, dan uji negatif RLS.

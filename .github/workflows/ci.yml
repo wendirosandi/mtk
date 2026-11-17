@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  js:
+    name: JavaScript checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax check
+        run: node tests/js-check.mjs
+      - name: Generator golden test
+        run: node tests/generators/harness.mjs
+
+  sql:
+    name: Supabase migration lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Start local Supabase
+        run: supabase start
+      - name: Reset database (apply migrations)
+        run: supabase db reset
+      - name: Lint schema/functions
+        run: supabase db lint --local
+      - name: Stop local Supabase
+        if: always()
+        run: supabase stop --no-backup
