@@ -134,6 +134,7 @@ penugasan tanpa SQL manual.
 - [x] Edge Function `admin-import` + perluasan `admin-users`
 - [x] Halaman `admin-import` (upload, mapping, dry-run, commit, riwayat)
 - [x] Uji data fiktif lokal
+- [x] Deploy migrasi `0017` + Edge Function ke cloud
 - [ ] Import produksi setelah approval
 
 **Kriteria selesai:** satu sekolah fiktif lengkap dapat diimpor ulang secara

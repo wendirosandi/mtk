@@ -254,7 +254,7 @@ status batch harus eksplisit dan commit akun tidak boleh mengklaim atomik penuh.
 | D | Uji data fiktif lokal/staging | ✅ lokal (lihat bagian 9) |
 | E | Import produksi setelah approval | ⏳ |
 
-## 11. Status Implementasi dan Hasil Uji (Lokal)
+## 11. Status Implementasi dan Hasil Uji (Lokal + Cloud)
 
 Sudah dibuat:
 
@@ -278,14 +278,21 @@ Hasil uji lokal (Supabase lokal + data fiktif):
 - Akun: password dibuat server, login berhasil, wajib ganti password, password lama ditolak, nonaktif memblokir login, reaktivasi berhasil, re-import tidak membuat akun kedua.
 - UI: login admin → Import Data → pilih guru → upload → mapping otomatis → validasi → centang konfirmasi → commit → kredensial tampil sekali → riwayat batch muncul.
 
+Sudah diterapkan ke cloud:
+
+- Migrasi `0017` applied (`supabase migration list --linked`: 0001–0017).
+- Edge Function `admin-import` dan `admin-users` aktif (`verify_jwt: true`).
+- Smoke test cloud memakai admin sementara + data fiktif:
+  validasi sekolah/guru berhasil, referensi hilang ditolak, commit batch
+  invalid ditolak, riwayat/detail batch terbaca. **Tidak ada data akademik
+  atau akun yang di-commit**; admin dan batch smoke langsung dibersihkan.
+
 Belum dilakukan:
 
-- `0017` belum diterapkan ke database cloud.
-- Edge Function `admin-import`/`admin-users` belum di-deploy ke cloud.
 - Import data sekolah nyata belum dilakukan.
-- Uji staging dengan data sekolah lengkap belum dilakukan.
-
-Lihat:
+- Uji staging dengan volume data sekolah lengkap belum dilakukan.
+- Rate limit, hash konfirmasi batch, dan E2E otomatis belum ada.
+- Data Google Sheets lama masih perlu pemetaan terpisah.Lihat:
 - `docs/CSV_IMPORT_TEMPLATE.md`
 - `docs/ACCOUNT_PROVISIONING.md`
 - `docs/ADMIN_DATA_MANAGEMENT.md`

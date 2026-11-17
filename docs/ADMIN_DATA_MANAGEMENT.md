@@ -1,6 +1,6 @@
 # ADMIN DATA MANAGEMENT
 
-**Status: diimplementasikan (lokal). Halaman `admin-import` dan backend sudah tersedia; belum di-deploy ke cloud.**
+**Status: diimplementasikan dan sudah di-deploy ke cloud. Smoke test memakai data fiktif tanpa commit data.**
 
 ## 1. Kapabilitas Admin Saat Ini
 

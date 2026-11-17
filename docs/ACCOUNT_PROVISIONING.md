@@ -1,6 +1,6 @@
 # ACCOUNT PROVISIONING (ADMIN)
 
-**Status: diimplementasikan (lokal). Perubahan login, kredensial sekali-tampil, deaktivasi, dan ganti password wajib sudah aktif di kode.**
+**Status: diimplementasikan dan sudah di-deploy ke cloud. Kredensial sekali-tampil, deaktivasi, dan ganti password wajib sudah aktif.**
 
 ## 1. Kondisi Saat Ini
 
