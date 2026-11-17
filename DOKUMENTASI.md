@@ -56,7 +56,7 @@ Supabase
 | `siswa` | `siswa-*` | Mapel/materi, LKPD, nilai, aktivitas, profil |
 | `guru` | `guru-*` | Kelas diampu, kurikulum, asesmen, bank soal, nilai, monitoring |
 | Walas (guru) | `guru-walas` | Kategori umum siswa di kelas `homeroom_id` |
-| `admin` | `admin-*` | Seluruh sekolah, pengguna, akademik, pengaturan, audit |
+| `admin` | `admin-*` | Seluruh sekolah, pengguna, akademik, pengaturan, audit, import data |
 
 - Login memakai **username + password**. Email Supabase dibentuk oleh
   `LMS.loginId(username, role)` menjadi `username@<school-code>.<role>.lms`.
@@ -283,3 +283,17 @@ Seluruh migrasi `0001`–`0016` sudah diterapkan ke cloud. Rencana generator & A
 - Perubahan skema = migrasi baru; jangan mengedit migrasi yang sudah applied.
 - Fitur baru wajib: RLS, aktivitas, dan update `MODULE_REGISTRY`.
 - Jangan commit kredensial atau artefak `supabase/.temp/`.
+
+---
+
+## 13. Import Data Sekolah
+
+Rancangan lengkap ada di:
+
+- `docs/REAL_DATA_IMPORT_PLAN.md` — arsitektur, tabel batch, urutan import
+- `docs/CSV_IMPORT_TEMPLATE.md` — 16 template CSV + contoh fiktif
+- `docs/ACCOUNT_PROVISIONING.md` — akun, password sementara, deaktivasi
+- `docs/ADMIN_DATA_MANAGEMENT.md` — wizard `admin-import`, validasi, riwayat
+
+**Status:** desain selesai; implementasi (migrasi `0017`, Edge Function,
+halaman Admin) belum dilakukan. Tidak ada data sekolah nyata yang diimpor.

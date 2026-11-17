@@ -114,13 +114,30 @@ mengerjakan, nilai masuk, guru melihat dan mengoreksi.
 | `admin-penugasan` | guru ↔ mapel ↔ kelas | ✅ (di admin-akademik) |
 | `admin-monitoring` | aktivitas + audit log | ✅ |
 | `admin-permintaan` | review permintaan akun | ✅ (di admin-pengguna) |
-| `admin-pengaturan` | feature flags, registry modul | ⏳ |
+| `admin-pengaturan` | feature flags, registry modul, audit UI | ✅ (sebagian) |
+| `admin-import` | import CSV sekolah, akun, akademik, konten, nilai | ⏳ desain selesai |
 
 **Catatan arsitektur:** pembuatan akun Auth memakai Edge Function
 `supabase/functions/admin-users` (service role hanya di backend) + verifikasi role admin.
 
 **Kriteria selesai:** admin dapat menyiapkan tahun ajaran, kelas, guru, siswa, dan
 penugasan tanpa SQL manual.
+
+---
+
+## Fase 3.5 — Import Data Sekolah
+
+- [x] Audit database/Admin dan rancangan import
+- [x] Template CSV + alur validasi (`docs/CSV_IMPORT_TEMPLATE.md`)
+- [x] Rancangan akun & kredensial (`docs/ACCOUNT_PROVISIONING.md`)
+- [ ] Migrasi `0017` batch/row import
+- [ ] Edge Function `admin-import` + perluasan `admin-users`
+- [ ] Halaman `admin-import` (upload, mapping, dry-run, commit, riwayat)
+- [ ] Uji data fiktif lokal/staging
+- [ ] Import produksi setelah approval
+
+**Kriteria selesai:** satu sekolah fiktif lengkap dapat diimpor ulang secara
+idempotent, akun dapat login, dan laporan batch tersedia.
 
 ---
 
