@@ -24,13 +24,11 @@ window.Shell = (function () {
       { route: 'guru-profil', label: 'Profil', icon: 'fa-id-badge', soon: true }
     ],
     admin: [
-      { route: 'guru-dash', label: 'Ringkasan', icon: 'fa-gauge-high' },
-      { route: 'guru-rekap', label: 'Nilai', icon: 'fa-table-list' },
-      { route: 'guru-aktifitas', label: 'Aktivitas', icon: 'fa-wave-square' },
-      { route: 'admin-pengguna', label: 'Pengguna', icon: 'fa-user-gear', soon: true },
+      { route: 'admin-dash', label: 'Ringkasan', icon: 'fa-gauge-high' },
+      { route: 'admin-pengguna', label: 'Pengguna', icon: 'fa-user-gear' },
+      { route: 'admin-sekolah', label: 'Sekolah', icon: 'fa-building' },
+      { route: 'admin-monitoring', label: 'Monitoring', icon: 'fa-desktop' },
       { route: 'admin-akademik', label: 'Akademik', icon: 'fa-school', soon: true },
-      { route: 'admin-sekolah', label: 'Sekolah', icon: 'fa-building', soon: true },
-      { route: 'admin-monitoring', label: 'Monitoring', icon: 'fa-desktop', soon: true },
       { route: 'admin-pengaturan', label: 'Pengaturan', icon: 'fa-sliders', soon: true }
     ]
   };

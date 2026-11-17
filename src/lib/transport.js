@@ -82,6 +82,16 @@
     };
   }
 
+  async function loginAdmin(payload) {
+    var r = await window.LMS.signIn(payload.u || payload.username, payload.p || payload.password, 'admin');
+    if (!r.ok) return { ok: false, msg: r.msg || 'Username/password admin salah' };
+    var m = r.meta;
+    return {
+      ok: true,
+      info: { namaGuru: m.nama, namaSekolah: m.namaSekolah, username: m.username, role: m.role }
+    };
+  }
+
   async function getPublicInfo() {
     var cfg = window.CFG || {};
     return {
@@ -829,6 +839,148 @@
     return { ok: true };
   }
 
+  /* ---------- admin ---------- */
+  async function adminDashboard() {
+    var meta = await currentMeta();
+    var db = await sb();
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    async function count(table, apply) {
+      var q = db.from(table).select('*', { count: 'exact', head: true });
+      if (apply) q = apply(q);
+      var r = await q;
+      return r.count || 0;
+    }
+    var users = await count('profiles');
+    var classes = await count('classes');
+    var subjects = await count('subjects');
+    var modules = await count('modules');
+    var assessments = await count('assessments', function (q) { return q.neq('status', 'deleted'); });
+    var activities = await count('activity_logs', function (q) { return q.gte('logged_at', today.toISOString()); });
+    var requests = await count('account_requests', function (q) { return q.eq('status', 'pending'); });
+    var grades = await count('gradebook_entries');
+    return {
+      ok: true,
+      stats: { users: users, classes: classes, subjects: subjects, modules: modules,
+               assessments: assessments, activities: activities, requests: requests, grades: grades }
+    };
+  }
+
+  async function adminUsers() {
+    var db = await sb();
+    var r = await db.from('profiles')
+      .select('id,username,full_name,role,status,settings')
+      .order('role').order('full_name');
+    if (r.error) throw r.error;
+    return { ok: true, rows: r.data || [] };
+  }
+
+  async function adminRequests() {
+    var db = await sb();
+    var r = await db.from('account_requests')
+      .select('id,kind,current_value,requested_value,reason,status,created_at,profiles!account_requests_profile_id_fkey(username,full_name)')
+      .order('created_at', { ascending: false }).limit(200);
+    if (r.error) throw r.error;
+    return {
+      ok: true,
+      rows: (r.data || []).map(function (x) {
+        return {
+          id: x.id, kind: x.kind, current: x.current_value, requested: x.requested_value,
+          reason: x.reason, status: x.status, at: fmtDate(x.created_at),
+          username: x.profiles && x.profiles.username,
+          nama: x.profiles && x.profiles.full_name
+        };
+      })
+    };
+  }
+
+  async function adminRequestDecide(payload) {
+    var meta = await currentMeta();
+    var db = await sb();
+    var action = payload.decision === 'approve' ? 'approved' : 'rejected';
+    var q = await db.from('account_requests')
+      .select('id,profile_id,kind,current_value,requested_value,status')
+      .eq('id', payload.id).single();
+    if (q.error) throw q.error;
+    if (q.data.status !== 'pending') return { ok: false, msg: 'Permintaan sudah diputuskan' };
+
+    if (action === 'approved') {
+      var p = await db.from('profiles').select('id,username,settings').eq('id', q.data.profile_id).single();
+      if (p.error) throw p.error;
+      if (q.data.kind === 'kategori') {
+        var settings = Object.assign({}, p.data.settings || {}, { kategori: q.data.requested_value });
+        var u1 = await db.from('profiles').update({ settings: settings }).eq('id', p.data.id).select('id');
+        if (u1.error) throw u1.error;
+      } else if (q.data.kind === 'username') {
+        var u2 = await db.from('profiles').update({ username: q.data.requested_value }).eq('id', p.data.id).select('id');
+        if (u2.error) {
+          if (String(u2.error.code) === '23505') return { ok: false, msg: 'Username sudah dipakai' };
+          throw u2.error;
+        }
+      }
+    }
+
+    var upd = await db.from('account_requests').update({
+      status: action, decided_by: meta.id, decided_at: new Date().toISOString(),
+      decision_note: payload.note || null
+    }).eq('id', q.data.id).select('id');
+    if (upd.error) throw upd.error;
+    return { ok: true, status: action };
+  }
+
+  async function adminSchoolGet() {
+    var meta = await currentMeta();
+    var db = await sb();
+    var r = await db.from('schools')
+      .select('id,code,name,headmaster,settings').eq('id', meta.school_id).single();
+    if (r.error) throw r.error;
+    return { ok: true, school: r.data };
+  }
+
+  async function adminSchoolSave(payload) {
+    var meta = await currentMeta();
+    var db = await sb();
+    var name = String(payload.name || '').trim();
+    if (!name) return { ok: false, msg: 'Nama sekolah wajib diisi' };
+    var settings = payload.settings || {};
+    var r = await db.from('schools').update({
+      name: name,
+      headmaster: String(payload.headmaster || '').trim() || null,
+      settings: settings
+    }).eq('id', meta.school_id).select('id');
+    if (r.error) throw r.error;
+    if (!r.data || !r.data.length) return { ok: false, msg: 'Sekolah tidak dapat diubah' };
+    return { ok: true };
+  }
+
+  async function adminMonitoring() {
+    var db = await sb();
+    var act = await db.from('activity_logs')
+      .select('app_code,section,kind,event,duration_sec,score,logged_at,profiles!activity_logs_profile_id_fkey(full_name,username)')
+      .order('logged_at', { ascending: false }).limit(150);
+    if (act.error) throw act.error;
+    var aud = await db.from('audit_logs')
+      .select('action,entity,entity_id,detail,at,profiles!audit_logs_actor_id_fkey(full_name,username)')
+      .order('at', { ascending: false }).limit(100);
+    if (aud.error) throw aud.error;
+    return {
+      ok: true,
+      activity: (act.data || []).map(function (a) {
+        return {
+          nama: a.profiles && a.profiles.full_name, username: a.profiles && a.profiles.username,
+          app: a.app_code, section: a.section, kind: a.kind, event: a.event,
+          durasi: a.duration_sec, skor: a.score, at: fmtDate(a.logged_at)
+        };
+      }),
+      audit: (aud.data || []).map(function (a) {
+        return {
+          nama: a.profiles && a.profiles.full_name, username: a.profiles && a.profiles.username,
+          action: a.action, entity: a.entity, entityId: a.entity_id,
+          detail: a.detail, at: fmtDate(a.at)
+        };
+      })
+    };
+  }
+
   /* ---------- router aksi ---------- */
   async function route(payload) {
     var a = payload.action;
@@ -836,6 +988,7 @@
     if (a === 'getPublicInfo') return getPublicInfo();
     if (a === 'directLogin' || a === 'loginSiswa') return loginSiswa(payload);
     if (a === 'loginGuru') return loginGuru(payload);
+    if (a === 'loginAdmin') return loginAdmin(payload);
 
     if (a === 'directExamList') {
       var db = await sb();
@@ -882,6 +1035,13 @@
     if (a === 'guruAssessmentArchive') return guruAssessmentArchive(payload.id);
     if (a === 'guruQuestionSave') return guruQuestionSave(payload);
     if (a === 'guruQuestionDelete') return guruQuestionDelete(payload.id);
+    if (a === 'adminDashboard') return adminDashboard();
+    if (a === 'adminUsers') return adminUsers();
+    if (a === 'adminRequests') return adminRequests();
+    if (a === 'adminRequestDecide') return adminRequestDecide(payload);
+    if (a === 'adminSchoolGet') return adminSchoolGet();
+    if (a === 'adminSchoolSave') return adminSchoolSave(payload);
+    if (a === 'adminMonitoring') return adminMonitoring();
 
     if (a === 'getSubjects') return { ok: true, rows: await rpc('app_get_subjects') };
     if (a === 'getModules') return { ok: true, rows: await rpc('app_get_modules', { p_subject_id: payload.subjectId }) };

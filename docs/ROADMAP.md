@@ -104,15 +104,15 @@ mengerjakan, nilai masuk, guru melihat dan mengoreksi.
 
 | Route | Isi |
 |---|---|
-| `admin-dash` | statistik sekolah, antrean, kesehatan data |
-| `admin-sekolah` | profil sekolah, pengaturan aktivitas/semester |
-| `admin-pengguna` | daftar/filter/impor/reset pengguna |
-| `admin-akademik` | tahun pelajaran, tingkat, kelas, membership |
-| `admin-mapel` | CRUD mata pelajaran |
-| `admin-penugasan` | guru ↔ mapel ↔ kelas |
-| `admin-monitoring` | aktivitas + audit log |
-| `admin-permintaan` | review permintaan akun |
-| `admin-pengaturan` | feature flags, registry modul |
+| `admin-dash` | statistik sekolah, antrean, kesehatan data | ✅ |
+| `admin-sekolah` | profil sekolah, pengaturan aktivitas/semester | ✅ |
+| `admin-pengguna` | daftar/filter pengguna + approval permintaan akun | ✅ (baca + approval) |
+| `admin-akademik` | tahun pelajaran, tingkat, kelas, membership | ⏳ |
+| `admin-mapel` | CRUD mata pelajaran | ⏳ |
+| `admin-penugasan` | guru ↔ mapel ↔ kelas | ⏳ |
+| `admin-monitoring` | aktivitas + audit log | ✅ |
+| `admin-permintaan` | review permintaan akun | ✅ (di admin-pengguna) |
+| `admin-pengaturan` | feature flags, registry modul | ⏳ |
 
 **Catatan arsitektur:** pembuatan akun Auth **tidak bisa** dari browser dengan anon key.
 Perlu Edge Function `admin-users` dengan service role + verifikasi admin.

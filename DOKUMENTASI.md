@@ -72,7 +72,7 @@ Supabase
 | siswa | `8-f-syakirah` | password uji diketahui tim |
 | guru | `guru1` | **password belum tersedia** |
 | guru uji | `guru.uji` | akun uji Fase 2, penugasan MTK 8.F (password dipegang tim) |
-| admin | — | **belum ada akun uji** |
+| admin uji | `admin.uji` | akun uji Fase 3 (password dipegang tim) |
 
 ---
 
@@ -236,7 +236,8 @@ aktivitas, dan uji negatif RLS.
 5. `config.toml` `site_url` belum menunjuk `/mtk`. Sudah diperbaiki di file.
 6. Data user dimasukkan ke `innerHTML` tanpa escaping.
 7. ToolsMathPro masih meminta identitas manual dan belum mencatat aktivitas ke Supabase.
-8. Belum ada halaman Admin; dashboard Guru baru 2 halaman.
+8. Admin baru mencakup dashboard, pengguna/permintaan akun, profil sekolah, dan monitoring;
+   akademik/pengaturan penuh belum tersedia.
 9. `docs/MODULE_REGISTRY.md` sebelumnya tidak ada (kini tersedia).
 10. Belum ada CI dan akun uji guru/admin.
 11. Policy `gb_ins/gb_upd` belum memeriksa `app_guru_scope_assessment(assessment_id)` — guru
