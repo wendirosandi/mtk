@@ -89,7 +89,8 @@ kembali → aktivitas tercatat; tanpa sesi selalu kembali ke login dengan `next`
 - [x] CRUD kurikulum (modul/topik/materi) — `guru-kurikulum`, diuji buat/edit/hapus
 - [x] Gradebook unik + input manual dengan audit (matriks `guru-rekap`)
 - [x] Monitoring attempt (tanpa membocorkan kunci) — `guru-monitor`
-- [ ] Builder asesmen memakai `question_items`
+- [x] Builder asesmen memakai `question_items` — `guru-asesmen` + `guru-asesmen-edit`
+      (numerik, PG/BS, menjodohkan, bertahap, uraian; publish/arsip; prasyarat)
 - [x] Role guru diuji dengan akun nyata (`guru.uji`)
 - [x] Uji negatif: guru tidak bisa kelas di luar scope (RLS 8.F/8.G di lokal)
 - [x] Dashboard guru + daftar kelas yang diampu (`guru-kelas`)

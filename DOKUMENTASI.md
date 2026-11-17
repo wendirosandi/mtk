@@ -242,6 +242,8 @@ aktivitas, dan uji negatif RLS.
 11. Policy `gb_ins/gb_upd` belum memeriksa `app_guru_scope_assessment(assessment_id)` — guru
     dapat menulis nilai manual untuk asesmen di luar mapelnya lewat API langsung.
 12. Policy tulis `topics`/`materials` hanya memeriksa role guru, belum memeriksa sekolah/modul.
+13. Policy tulis `question_items`/`assessments` juga belum memeriksa kepemilikan mapel guru;
+    builder membatasi di UI, tetapi backend belum menegakkannya.
 
 Draft `0011_integrity_fixes.sql` sudah **lolos `supabase db reset` + fixtures + `db lint` lokal**,
 tetapi **belum diterapkan ke database cloud** dan menunggu persetujuan.

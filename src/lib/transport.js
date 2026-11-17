@@ -630,6 +630,205 @@
     return { ok: true };
   }
 
+  /* ---------- asesmen: daftar, builder, soal ---------- */
+  async function guruContext() {
+    var meta = await currentMeta();
+    var db = await sb();
+    var r = await db.from('teacher_assignments')
+      .select('subject_id,academic_year_id,subjects(code,name),academic_years(id,label)')
+      .eq('teacher_id', meta.id);
+    if (r.error) throw r.error;
+    var subjects = {}, years = {};
+    (r.data || []).forEach(function (a) {
+      if (a.subject_id) subjects[a.subject_id] = a.subjects || { code: '-', name: '-' };
+      if (a.academic_year_id) years[a.academic_year_id] = a.academic_years || { label: '-' };
+    });
+    return {
+      ok: true,
+      subjects: Object.keys(subjects).map(function (id) { return { id: id, code: subjects[id].code, name: subjects[id].name }; }),
+      years: Object.keys(years).map(function (id) { return { id: id, label: years[id].label }; })
+    };
+  }
+
+  async function guruAssessments() {
+    var ctx = await guruContext();
+    var db = await sb();
+    var subjectIds = ctx.subjects.map(function (s) { return s.id; });
+    if (!subjectIds.length) return { ok: true, rows: [] };
+    var r = await db.from('assessments')
+      .select('id,code,title,kind,status,semester,delivery,published_at,package_frozen_at,subject_id,academic_year_id,subjects(code,name),topics(title)')
+      .in('subject_id', subjectIds)
+      .neq('status', 'deleted')
+      .order('title');
+    if (r.error) throw r.error;
+    var ids = (r.data || []).map(function (a) { return a.id; });
+    var counts = {};
+    if (ids.length) {
+      var q = await db.from('question_items').select('assessment_id').in('assessment_id', ids);
+      (q.data || []).forEach(function (x) { counts[x.assessment_id] = (counts[x.assessment_id] || 0) + 1; });
+    }
+    return {
+      ok: true,
+      rows: (r.data || []).map(function (a) {
+        return {
+          id: a.id, code: a.code, title: a.title, kind: a.kind, status: a.status,
+          semester: a.semester, delivery: a.delivery, publishedAt: fmtDate(a.published_at),
+          frozen: !!a.package_frozen_at, subject: a.subjects, topic: a.topics,
+          questionCount: counts[a.id] || 0
+        };
+      })
+    };
+  }
+
+  async function guruAssessmentGet(id) {
+    var db = await sb();
+    var a = await db.from('assessments')
+      .select('id,code,title,kind,status,semester,delivery,collab_mode,published_at,package_frozen_at,subject_id,module_id,topic_id,academic_year_id,prerequisite_assessment_id,subjects(code,name),topics(title),modules(title),academic_years(label)')
+      .eq('id', id).single();
+    if (a.error) throw a.error;
+    var qs = await db.from('question_items')
+      .select('id,item_key,kind,difficulty,payload,weight,sort_order')
+      .eq('assessment_id', id).order('sort_order');
+    if (qs.error) throw qs.error;
+    var cand = await db.from('assessments')
+      .select('id,code,title')
+      .eq('subject_id', a.data.subject_id)
+      .neq('id', id).neq('status', 'deleted').order('title');
+    return { ok: true, assessment: a.data, questions: qs.data || [], candidates: cand.data || [] };
+  }
+
+  async function guruAssessmentCreate(payload) {
+    var meta = await currentMeta();
+    var db = await sb();
+    var code = String(payload.code || '').trim().toUpperCase();
+    var title = String(payload.title || '').trim();
+    if (!code || !title) return { ok: false, msg: 'Kode dan judul wajib diisi' };
+    if (!payload.subjectId || !payload.academicYearId) return { ok: false, msg: 'Mapel/tahun belum dipilih' };
+    var row = {
+      school_id: meta.school_id,
+      code: code,
+      title: title,
+      kind: payload.kind || 'lkpd',
+      status: 'draft',
+      subject_id: payload.subjectId,
+      academic_year_id: payload.academicYearId,
+      semester: payload.semester ? Number(payload.semester) : null,
+      collab_mode: payload.collabMode || 'none',
+      delivery: payload.delivery || 'portal',
+      module_id: payload.moduleId || null,
+      topic_id: payload.topicId || null,
+      prerequisite_assessment_id: payload.prerequisiteId || null,
+      created_by: meta.id
+    };
+    var r = await db.from('assessments').insert(row).select('id').single();
+    if (r.error) {
+      if (String(r.error.code) === '23505') return { ok: false, msg: 'Kode asesmen sudah dipakai' };
+      throw r.error;
+    }
+    return { ok: true, id: r.data.id };
+  }
+
+  async function guruAssessmentUpdate(payload) {
+    var db = await sb();
+    var cur = await db.from('assessments').select('id,package_frozen_at').eq('id', payload.id).single();
+    if (cur.error) throw cur.error;
+    if (cur.data.package_frozen_at) return { ok: false, msg: 'Paket sudah beku; metadata tidak dapat diubah' };
+    var title = String(payload.title || '').trim();
+    if (!title) return { ok: false, msg: 'Judul wajib diisi' };
+    var row = {
+      title: title,
+      kind: payload.kind || 'lkpd',
+      semester: payload.semester ? Number(payload.semester) : null,
+      collab_mode: payload.collabMode || 'none',
+      delivery: payload.delivery || 'portal'
+    };
+    if (Object.prototype.hasOwnProperty.call(payload, 'prerequisiteId')) row.prerequisite_assessment_id = payload.prerequisiteId || null;
+    if (Object.prototype.hasOwnProperty.call(payload, 'moduleId')) row.module_id = payload.moduleId || null;
+    if (Object.prototype.hasOwnProperty.call(payload, 'topicId')) row.topic_id = payload.topicId || null;
+    var upd = await db.from('assessments').update(row).eq('id', payload.id).select('id');
+    if (upd.error) throw upd.error;
+    if (!upd.data || !upd.data.length) return { ok: false, msg: 'Asesmen tidak ditemukan' };
+    return { ok: true };
+  }
+
+  async function guruAssessmentPublish(id) {
+    var db = await sb();
+    var q = await db.from('question_items').select('id', { count: 'exact', head: true }).eq('assessment_id', id);
+    if (!q.count) return { ok: false, msg: 'Tambahkan minimal satu soal sebelum menerbitkan' };
+    var r = await db.from('assessments').update({ status: 'active', published_at: new Date().toISOString() })
+      .eq('id', id).select('id');
+    if (r.error) throw r.error;
+    return { ok: true };
+  }
+
+  async function guruAssessmentArchive(id) {
+    var db = await sb();
+    var r = await db.from('assessments').update({ status: 'archived' }).eq('id', id).select('id');
+    if (r.error) throw r.error;
+    return { ok: true };
+  }
+
+  async function guruQuestionSave(payload) {
+    var db = await sb();
+    if (!payload.assessmentId) return { ok: false, msg: 'Asesmen belum dipilih' };
+    var a = await db.from('assessments').select('id,package_frozen_at').eq('id', payload.assessmentId).single();
+    if (a.error) throw a.error;
+    if (a.data.package_frozen_at) return { ok: false, msg: 'Paket sudah beku; soal tidak dapat diubah' };
+
+    var prompt = String(payload.prompt || '').trim();
+    if (!prompt) return { ok: false, msg: 'Teks soal wajib diisi' };
+    var kind = payload.kind || 'text';
+    var body = { prompt: prompt };
+    if (kind === 'num') {
+      if (payload.answer === '' || payload.answer == null || isNaN(Number(payload.answer))) return { ok: false, msg: 'Kunci numerik wajib' };
+      body.answer = Number(payload.answer);
+      body.tol = payload.tol === '' || payload.tol == null ? 0 : Number(payload.tol);
+      if (isNaN(body.tol) || body.tol < 0) return { ok: false, msg: 'Toleransi tidak valid' };
+    } else if (kind === 'mc' || kind === 'bs') {
+      if (!String(payload.key || '').trim()) return { ok: false, msg: 'Kunci jawaban wajib' };
+      body.key = String(payload.key).trim();
+      if (payload.options) body.options = String(payload.options).split('|').map(function (x) { return x.trim(); }).filter(Boolean);
+    } else if (kind === 'match') {
+      var keys = String(payload.keys || '').split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+      if (!keys.length) return { ok: false, msg: 'Daftar kunci menjodohkan wajib' };
+      body.keys = keys;
+    } else if (kind === 'scaffold') {
+      var ans = String(payload.answers || '').split(',').map(function (x) { return x.trim(); }).filter(function (x) { return x !== ''; });
+      if (!ans.length || ans.some(function (x) { return isNaN(Number(x)); })) return { ok: false, msg: 'Jawaban scaffold harus angka dipisah koma' };
+      body.answers = ans.map(Number);
+      body.tol = 0;
+    }
+
+    var weight = payload.weight === '' || payload.weight == null ? 1 : Number(payload.weight);
+    if (isNaN(weight) || weight < 0) return { ok: false, msg: 'Bobot tidak valid' };
+    var sort = payload.sortOrder === '' || payload.sortOrder == null ? 0 : Number(payload.sortOrder);
+
+    if (payload.id) {
+      var u = await db.from('question_items').update({
+        kind: kind, difficulty: payload.difficulty || null, payload: body, weight: weight, sort_order: sort
+      }).eq('id', payload.id).select('id');
+      if (u.error) throw u.error;
+      return { ok: true, id: payload.id };
+    }
+
+    var itemKey = 'q-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+    var ins = await db.from('question_items').insert({
+      assessment_id: payload.assessmentId, item_key: itemKey, kind: kind,
+      difficulty: payload.difficulty || null, payload: body, weight: weight, sort_order: sort
+    }).select('id').single();
+    if (ins.error) throw ins.error;
+    return { ok: true, id: ins.data.id };
+  }
+
+  async function guruQuestionDelete(id) {
+    var db = await sb();
+    var q = await db.from('question_items').select('id,assessment_id').eq('id', id).single();
+    if (q.error) throw q.error;
+    var d = await db.from('question_items').delete().eq('id', id).select('id');
+    if (d.error) throw d.error;
+    return { ok: true };
+  }
+
   /* ---------- router aksi ---------- */
   async function route(payload) {
     var a = payload.action;
@@ -674,6 +873,15 @@
     if (a === 'guruTopicDelete') return guruTopicDelete(payload);
     if (a === 'guruMaterialSave') return guruMaterialSave(payload);
     if (a === 'guruMaterialDelete') return guruMaterialDelete(payload);
+    if (a === 'guruContext') return guruContext();
+    if (a === 'guruAssessments') return guruAssessments();
+    if (a === 'guruAssessmentGet') return guruAssessmentGet(payload.id);
+    if (a === 'guruAssessmentCreate') return guruAssessmentCreate(payload);
+    if (a === 'guruAssessmentUpdate') return guruAssessmentUpdate(payload);
+    if (a === 'guruAssessmentPublish') return guruAssessmentPublish(payload.id);
+    if (a === 'guruAssessmentArchive') return guruAssessmentArchive(payload.id);
+    if (a === 'guruQuestionSave') return guruQuestionSave(payload);
+    if (a === 'guruQuestionDelete') return guruQuestionDelete(payload.id);
 
     if (a === 'getSubjects') return { ok: true, rows: await rpc('app_get_subjects') };
     if (a === 'getModules') return { ok: true, rows: await rpc('app_get_modules', { p_subject_id: payload.subjectId }) };
