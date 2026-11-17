@@ -24,8 +24,8 @@ Legenda status:
 | `MTK-8104` | LKPD lama MTK-003 | `/LKPD/MTK003.html` | `lkpd` (asesmen) | GAS | GAS | **Legacy** |
 | `MTK-8203` | LKPD lama MTK-005 | `/LKPD/MTK005.html` | `lkpd` (asesmen) | GAS | GAS | **Legacy** |
 | `MTK-8204` | LKPD lama MTK-8204 | `/LKPD/MTK8204.html` | `lkpd` (asesmen) | GAS | GAS | **Legacy** |
-| `TOOLS-MATH` | ToolsMathPro (7 section interaktif) | `/toolsmathpro/index.html` | `app` | belum | localStorage | **Standalone** |
-| `KALENDER-PYT` | Kalender Pythagoras 2027 | `/kalender-pythagoras/index.html` | `app` | belum | — | **Standalone** |
+| `TOOLS-MATH` | ToolsMathPro (7 section interaktif) | `/toolsmathpro/index.html` | `app` | Supabase (kode) | `open/use` (kode) | **Partial** |
+| `KALENDER-PYT` | Kalender Pythagoras 2027 | `/kalender-pythagoras/index.html` | `app` | Supabase (kode) | `open/use` (kode) | **Partial** |
 | `BANK-SOAL` | Alat guru bank soal & kisi-kisi | `/LKPD/page/Bank_soal.html` | `app` (internal) | belum | — | **Standalone** |
 | `RASIONAL-POLA` | Aplikasi rasionalisasi pecahan | `/LKPD/page/aplikasi_rasionalisasi_pecahan-POLA.html` | `app` (internal) | belum | — | **Standalone** |
 | `MTK005-PRINT` | Versi cetak MTK-005 | `/LKPD/page/MTK005_print.html` | `pdf`/print | — | — | **Standalone** |
@@ -91,7 +91,9 @@ where s.code = 'MTK' and m.title = 'Teorema Pythagoras'
   );
 ```
 
-Status: **draft** — menunggu persetujuan dan penerapan migrasi.
+Status integrasi saat ini: **Partial** — kode gate sesi + aktivitas sudah dipasang
+(`src/lib/module-boot.js`), tetapi materi belum terdaftar di cloud (draft `0012`)
+dan jalur dengan sesi nyata belum diuji end-to-end.
 
 ---
 

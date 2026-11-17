@@ -169,7 +169,9 @@ Modul seperti **ToolsMathPro** dan **Kalender Pythagoras**:
 6. Tidak membuat tabel pengguna atau login sendiri.
 7. Tidak menaruh token di URL.
 
-Status integrasi saat ini: **belum terpasang** (lihat `docs/MODULE_REGISTRY.md`).
+Status integrasi saat ini: **kode sudah dipasang** (gate sesi, profil, aktivitas,
+`next=`), tetapi materi belum terdaftar di cloud (`0012` draft) dan belum diuji
+dengan sesi nyata end-to-end. Lihat `docs/MODULE_REGISTRY.md`.
 
 ---
 

@@ -1387,6 +1387,9 @@ const sectionNames = {
   let activities = JSON.parse(localStorage.getItem('mtk_activities') || '[]');
   activities.push(activity);
   localStorage.setItem('mtk_activities', JSON.stringify(activities));
+  if (window.LMSModule) {
+    LMSModule.log('use', activity.section, clampedDuration, null, { source: 'toolsmathpro' });
+  }
   renderActivityList();
 }
 
@@ -2171,6 +2174,39 @@ trackSectionOpen(1);
 // Pre-generate angka untuk Section 6 (agar siap saat dibuka)
 //generateBakuNumber(); // Uncomment jika ingin auto-generate saat load
  
+</script>
+
+<script src="../lib/config.js"></script>
+<script src="../src/lib/supabase.js"></script>
+<script src="../src/lib/module-boot.js"></script>
+<script>
+(async function () {
+  try {
+    const meta = await LMSModule.boot({
+      app: 'TOOLS-MATH',
+      loginUrl: '../index.html',
+      materialUrl: '/mtk/toolsmathpro/index.html'
+    });
+    if (!meta) return;
+
+    const nameInput = document.getElementById('studentName');
+    const classInput = document.getElementById('studentClass');
+    if (nameInput) { nameInput.value = meta.nama || meta.username || ''; nameInput.readOnly = true; nameInput.style.background = '#f1f5f9'; }
+    if (classInput) { classInput.value = meta.kelas || ''; classInput.readOnly = true; classInput.style.background = '#f1f5f9'; }
+
+    const form = document.getElementById('identityForm');
+    if (form) {
+      const note = document.createElement('p');
+      note.style.cssText = 'grid-column:1/-1;font-size:12px;color:#0f766e;font-weight:700;margin:6px 0 0';
+      note.textContent = 'Terhubung ke LMS sebagai ' + (meta.nama || meta.username) + '. Identitas diisi otomatis.';
+      form.appendChild(note);
+    }
+    checkIdentity();
+    await LMSModule.log('open', 'APP', 30);
+  } catch (e) {
+    console.error('[ToolsMathPro] LMS boot gagal', e);
+  }
+})();
 </script>
 </body>
 </html>

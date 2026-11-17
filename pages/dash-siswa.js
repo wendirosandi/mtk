@@ -9,9 +9,10 @@ Router.register('siswa-dash', async () => {
         <div class="text-sm opacity-90">${m.kelas||''} • Kategori ${m.kategori||''}</div>
       </div>
       <div class="grid grid-cols-2 gap-3 mt-4">
-        <div class="svc" onclick="Router.go('siswa-nilai')"><div class="ic bg-teal-100 text-teal-600"><i class="fas fa-chart-line"></i></div>LKPD & Nilai</div>
+        <div class="svc" onclick="Router.go('siswa-mapel')"><div class="ic bg-teal-100 text-teal-600"><i class="fas fa-book-open"></i></div>Mata Pelajaran</div>
+        <div class="svc" onclick="Router.go('siswa-nilai')"><div class="ic bg-sky-100 text-sky-700"><i class="fas fa-chart-line"></i></div>LKPD & Nilai</div>
         <div class="svc" onclick="Router.go('siswa-aktifitas')"><div class="ic bg-cyan-100 text-cyan-600"><i class="fas fa-wave-square"></i></div>Aktifitas</div>
-        <div class="svc" onclick="window.openToolsMath()"><div class="ic bg-sky-100 text-sky-700"><i class="fas fa-calculator"></i></div>Tools Math</div>
+        <div class="svc" onclick="window.openToolsMath()"><div class="ic bg-indigo-100 text-indigo-600"><i class="fas fa-calculator"></i></div>Tools Math</div>
         <div class="svc" onclick="Router.go('siswa-profil')"><div class="ic bg-violet-100 text-violet-600"><i class="fas fa-user-graduate"></i></div>Profil</div>
       </div>
       <button onclick="API.logout()" class="w-full mt-6 text-rose-600 font-bold py-3 bg-rose-50 rounded-xl">Keluar</button>
@@ -20,13 +21,6 @@ Router.register('siswa-dash', async () => {
 });
 /* global, tidak bergantung init */
 window.openToolsMath = () => {
-  const m = API.getMeta();
-  const p = new URLSearchParams({
-    nama: m.nama || '',
-    kelas: m.kelas || '',
-    username: m.username || '',
-    sekolah: (m.info && m.info.namaSekolah) || ''
-  });
-  window.open('https://wendirosandi.github.io/mtk/toolsmathpro/index.html?' + p.toString(), '_blank');
+  window.open(new URL('toolsmathpro/index.html', location.href).href, '_blank', 'noopener');
 };
 window.init_siswa_dash = async () => {};

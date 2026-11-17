@@ -54,7 +54,10 @@ window.init_login = async () => {
 
   await API.ready;
 
+  const next = API.nextTarget();
+
   if (API.sess()) {
+    if (next) { API.clearNext(); location.replace(next); return; }
     Router.go(API.getRole() === 'guru' || API.getRole() === 'admin' ? 'guru-dash' : 'siswa-dash');
     return;
   }
@@ -126,6 +129,8 @@ window.init_login = async () => {
       }
 
       API.toast('✅ Masuk berhasil');
+      const dest = API.nextTarget();
+      if (dest) { API.clearNext(); location.replace(dest); return; }
       Router.go(role === 'guru' ? 'guru-dash' : 'siswa-dash');
 
     } catch (e) {

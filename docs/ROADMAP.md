@@ -53,16 +53,16 @@ policy rusak, dokumen sinkron.
 | `siswa-kolab` | status/permintaan pasangan |
 
 ### Pekerjaan teknis
-- [ ] App shell + bottom nav + breadcrumb
-- [ ] Komponen bersama (`esc`, `Card`, `EmptyState`, `Badge`, `Skeleton`)
-- [ ] Halaman mapel/materi memakai RPC `app_get_*`
+- [x] App shell + bottom nav + breadcrumb
+- [x] Komponen bersama (`esc`, `Card`, `EmptyState`, `Badge`, `Skeleton`)
+- [x] Halaman mapel/materi memakai RPC `app_get_*` (diuji dengan data stub)
 - [ ] Prasyarat kuis ditampilkan (🔒 + pesan)
-- [ ] Integrasi ToolsMathPro: sesi, profil, aktivitas
-- [ ] Integrasi Kalender: sesi, aktivitas, tombol kembali
-- [ ] Registrasi `materials` untuk kedua modul
-- [ ] `next=` pada login + validasi same-origin
-- [ ] Hapus input identitas manual ToolsMathPro
-- [ ] Perbaiki escaping HTML di halaman siswa
+- [x] Integrasi ToolsMathPro: sesi, profil, aktivitas (kode; uji sesi nyata pending)
+- [x] Integrasi Kalender: sesi, aktivitas, tombol kembali (kode; uji sesi nyata pending)
+- [x] Registrasi `materials` untuk kedua modul (draft `0012`)
+- [x] `next=` pada login + validasi same-origin (diuji)
+- [x] Hapus input identitas manual ToolsMathPro (readonly + prefill)
+- [ ] Perbaiki escaping HTML di halaman siswa lama (halaman baru sudah aman)
 
 **Kriteria selesai:** siswa login → pilih mapel → buka materi → buka Tools/Kalender →
 kembali → aktivitas tercatat; tanpa sesi selalu kembali ke login dengan `next` benar.

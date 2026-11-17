@@ -47,6 +47,10 @@
     catch (e) { return String(v); }
   }
 
+  function assessmentTarget(code, fileUrl) {
+    return SUPABASE_NATIVE[code] || fileUrl || FILE_FALLBACK[code] || '';
+  }
+
   function classPrefix(kelas) {
     return String(kelas || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') + '-';
   }
@@ -136,7 +140,7 @@
         status: STATUS_LABEL[status] || status,
         locked: status === 'locked',
         readOnly: status === 'archived',
-        target: SUPABASE_NATIVE[a.code] || a.file_url || FILE_FALLBACK[a.code] || '',
+        target: assessmentTarget(a.code, a.file_url),
         nilaiLkpd: lk.score == null ? 'X' : lk.score,
         nilaiKuis: ku.score == null ? 'X' : ku.score,
         jawabanL: '', jawabanK: '',
@@ -270,6 +274,17 @@
     };
   }
 
+  /* ---------- kurikulum (mapel → modul → materi) ---------- */
+  async function getMaterial(id) {
+    var db = await sb();
+    var r = await db.from('materials')
+      .select('id,title,kind,url,meta,sort_order,topics(id,title,modules(id,title,subjects(id,code,name)))')
+      .eq('id', id)
+      .single();
+    if (r.error) throw r.error;
+    return { ok: true, material: r.data };
+  }
+
   /* ---------- router aksi ---------- */
   async function route(payload) {
     var a = payload.action;
@@ -305,6 +320,12 @@
     if (a === 'guruGetRekap') return guruGetRekap();
     if (a === 'guruGetAktifitas') return guruGetAktifitas();
 
+    if (a === 'getSubjects') return { ok: true, rows: await rpc('app_get_subjects') };
+    if (a === 'getModules') return { ok: true, rows: await rpc('app_get_modules', { p_subject_id: payload.subjectId }) };
+    if (a === 'getMaterials') return { ok: true, rows: await rpc('app_get_materials', { p_module_id: payload.moduleId }) };
+    if (a === 'getAssessments') return { ok: true, rows: await rpc('app_get_assessments', { p_topic_id: payload.topicId }) };
+    if (a === 'getMaterial') return getMaterial(payload.id);
+
     /* alur pengerjaan LKPD/KUIS */
     if (a === 'startAttempt') return rpc('app_start_attempt', { p_code: payload.kode, p_partner: payload.partner || null, p_source: payload.source || 'portal' });
     if (a === 'saveAnswers') return rpc('app_save_answers', { p_attempt: payload.attemptId, p_answers: payload.answers });
@@ -334,5 +355,5 @@
     }
   }
 
-  window.Transport = { post: post, rpc: rpc };
+  window.Transport = { post: post, rpc: rpc, assessmentTarget: assessmentTarget };
 })();

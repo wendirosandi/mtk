@@ -203,8 +203,33 @@
         <p><strong>Projek Kalender Pythagoras 2027</strong></p>
         <p>SMPN 2 Karawang Barat - Dibimbing oleh: Wendi Rosandi, S.Pd.,M.Pd. </p>
         <p>© 2026 | <a href="https://wendirosandi.github.io/mtk/" target="_blank">View on GitHub</a></p>
+        <p><a href="../index.html#siswa-mapel">← Kembali ke LMS</a></p>
     </footer>
 <script src="assets/js/project-checklist.js?v=20"></script>
     <script src="assets/js/kalender.js"></script>
+<script src="../lib/config.js"></script>
+<script src="../src/lib/supabase.js"></script>
+<script src="../src/lib/module-boot.js"></script>
+<script>
+(async function () {
+  try {
+    const meta = await LMSModule.boot({
+      app: 'KALENDER-PYT',
+      loginUrl: '../index.html',
+      materialUrl: '/mtk/kalender-pythagoras/index.html'
+    });
+    if (!meta) return;
+    await LMSModule.log('open', 'APP', 30);
+    document.addEventListener('click', function (e) {
+      const a = e.target.closest('a[href*="pages/"]');
+      if (!a) return;
+      const section = (a.getAttribute('href') || '').split('/').pop().replace('.html', '') || 'BUKTI';
+      LMSModule.log('use', section, 30, null, { source: 'kalender' });
+    });
+  } catch (e) {
+    console.error('[Kalender] LMS boot gagal', e);
+  }
+})();
+</script>
 </body>
 </html>
