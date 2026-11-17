@@ -1101,6 +1101,150 @@
     return { ok: true };
   }
 
+  /* ---------- bank soal ---------- */
+  async function guruBankData() {
+    var ctx = await guruContext();
+    var db = await sb();
+    var subjectIds = ctx.subjects.map(function (s) { return s.id; });
+    if (!subjectIds.length) {
+      return { ok: true, subjects: [], pools: [], items: [], kisi: [], assessments: [], templates: [] };
+    }
+    var assessments = await guruAssessments();
+    var aids = (assessments.rows || []).map(function (a) { return a.id; });
+    var res = await Promise.all([
+      db.from('question_pools').select('id,subject_id,title,description,created_at').in('subject_id', subjectIds).order('title'),
+      db.from('bank_items').select('id,subject_id,pool_id,indicator,kind,difficulty,payload,status,generator_template_id,created_at').in('subject_id', subjectIds).order('created_at', { ascending: false }).limit(500),
+      aids.length ? db.from('kisi_kisi').select('id,assessment_id,indicator,difficulty,kind,pool_id,count,weight,sort_order').in('assessment_id', aids).order('sort_order') : Promise.resolve({ data: [] }),
+      db.from('generator_templates').select('id,code,name,status').in('subject_id', subjectIds).order('name')
+    ]);
+    for (var i = 0; i < res.length; i++) if (res[i].error) throw res[i].error;
+    return {
+      ok: true,
+      subjects: ctx.subjects,
+      assessments: assessments.rows || [],
+      pools: res[0].data || [],
+      items: res[1].data || [],
+      kisi: res[2].data || [],
+      templates: res[3].data || []
+    };
+  }
+
+  async function guruPoolSave(payload) {
+    var meta = await currentMeta();
+    var db = await sb();
+    var title = String(payload.title || '').trim();
+    if (!title || !payload.subjectId) return { ok: false, msg: 'Judul dan mapel wajib' };
+    var row = { title: title, description: String(payload.description || '').trim() || null };
+    if (payload.id) {
+      var u = await db.from('question_pools').update(row).eq('id', payload.id).select('id');
+      if (u.error) throw u.error;
+      return { ok: true, id: payload.id };
+    }
+    row.school_id = meta.school_id; row.subject_id = payload.subjectId;
+    var r = await db.from('question_pools').insert(row).select('id').single();
+    if (r.error) {
+      if (String(r.error.code) === '23505') return { ok: false, msg: 'Judul pool sudah ada' };
+      throw r.error;
+    }
+    return { ok: true, id: r.data.id };
+  }
+
+  async function guruPoolDelete(id) {
+    var db = await sb();
+    var r = await db.from('question_pools').delete().eq('id', id).select('id');
+    if (r.error) throw r.error;
+    return { ok: true };
+  }
+
+  async function guruBankItemSave(payload) {
+    var meta = await currentMeta();
+    var db = await sb();
+    var prompt = String(payload.prompt || '').trim();
+    if (!prompt || !payload.subjectId) return { ok: false, msg: 'Soal dan mapel wajib' };
+    var kind = payload.kind || 'text';
+    var body = { prompt: prompt };
+    if (kind === 'num') {
+      if (payload.answer === '' || isNaN(Number(payload.answer))) return { ok: false, msg: 'Kunci numerik wajib' };
+      body.answer = Number(payload.answer);
+      body.tol = payload.tol === '' ? 0 : Number(payload.tol);
+    } else if (kind === 'mc' || kind === 'bs') {
+      if (!String(payload.key || '').trim()) return { ok: false, msg: 'Kunci wajib' };
+      body.key = String(payload.key).trim();
+      if (payload.options) body.options = String(payload.options).split('|').map(function (x) { return x.trim(); }).filter(Boolean);
+    } else if (kind === 'match') {
+      var keys = String(payload.keys || '').split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+      if (!keys.length) return { ok: false, msg: 'Kunci menjodohkan wajib' };
+      body.keys = keys;
+    } else if (kind === 'scaffold') {
+      var ans = String(payload.answers || '').split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+      if (!ans.length || ans.some(function (x) { return isNaN(Number(x)); })) return { ok: false, msg: 'Jawaban harus angka' };
+      body.answers = ans.map(Number);
+    }
+    var row = {
+      subject_id: payload.subjectId,
+      pool_id: payload.poolId || null,
+      indicator: String(payload.indicator || '').trim() || null,
+      kind: kind,
+      difficulty: payload.difficulty || null,
+      payload: body,
+      status: payload.status || 'active'
+    };
+    if (payload.id) {
+      var u = await db.from('bank_items').update(row).eq('id', payload.id).select('id');
+      if (u.error) throw u.error;
+      return { ok: true, id: payload.id };
+    }
+    row.school_id = meta.school_id;
+    var r = await db.from('bank_items').insert(row).select('id').single();
+    if (r.error) throw r.error;
+    return { ok: true, id: r.data.id };
+  }
+
+  async function guruBankItemDelete(id) {
+    var db = await sb();
+    var r = await db.from('bank_items').delete().eq('id', id).select('id');
+    if (r.error) throw r.error;
+    return { ok: true };
+  }
+
+  async function guruKisiSave(payload) {
+    var db = await sb();
+    if (!payload.assessmentId) return { ok: false, msg: 'Asesmen wajib dipilih' };
+    var row = {
+      assessment_id: payload.assessmentId,
+      indicator: String(payload.indicator || '').trim() || null,
+      difficulty: payload.difficulty || null,
+      kind: payload.kind || null,
+      pool_id: payload.poolId || null,
+      count: Math.max(1, Number(payload.count) || 1),
+      weight: Math.max(0, Number(payload.weight) || 1),
+      sort_order: Number(payload.sortOrder) || 0
+    };
+    if (payload.id) {
+      var u = await db.from('kisi_kisi').update(row).eq('id', payload.id).select('id');
+      if (u.error) throw u.error;
+      return { ok: true, id: payload.id };
+    }
+    var r = await db.from('kisi_kisi').insert(row).select('id').single();
+    if (r.error) {
+      if (String(r.error.code) === '23505') return { ok: false, msg: 'Urutan kisi sudah dipakai' };
+      throw r.error;
+    }
+    return { ok: true, id: r.data.id };
+  }
+
+  async function guruKisiDelete(id) {
+    var db = await sb();
+    var r = await db.from('kisi_kisi').delete().eq('id', id).select('id');
+    if (r.error) throw r.error;
+    return { ok: true };
+  }
+
+  async function guruBuildPackage(assessmentId) {
+    var data = await rpc('app_build_package', { p_assessment_id: assessmentId });
+    return data || { ok: false, msg: 'Tidak ada respons' };
+  }
+
   /* ---------- router aksi ---------- */
   async function route(payload) {
     var a = payload.action;
@@ -1169,6 +1313,14 @@
     if (a === 'adminSubjectSave') return adminSubjectSave(payload);
     if (a === 'adminAssignmentSave') return adminAssignmentSave(payload);
     if (a === 'adminAssignmentDelete') return adminAssignmentDelete(payload.id);
+    if (a === 'guruBankData') return guruBankData();
+    if (a === 'guruPoolSave') return guruPoolSave(payload);
+    if (a === 'guruPoolDelete') return guruPoolDelete(payload.id);
+    if (a === 'guruBankItemSave') return guruBankItemSave(payload);
+    if (a === 'guruBankItemDelete') return guruBankItemDelete(payload.id);
+    if (a === 'guruKisiSave') return guruKisiSave(payload);
+    if (a === 'guruKisiDelete') return guruKisiDelete(payload.id);
+    if (a === 'guruBuildPackage') return guruBuildPackage(payload.id);
 
     if (a === 'getSubjects') return { ok: true, rows: await rpc('app_get_subjects') };
     if (a === 'getModules') return { ok: true, rows: await rpc('app_get_modules', { p_subject_id: payload.subjectId }) };

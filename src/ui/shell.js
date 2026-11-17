@@ -18,7 +18,7 @@ window.Shell = (function () {
       { route: 'guru-monitor', label: 'Monitoring', icon: 'fa-desktop' },
       { route: 'guru-aktifitas', label: 'Aktivitas', icon: 'fa-wave-square' },
       { route: 'guru-asesmen', label: 'Asesmen', icon: 'fa-file-pen' },
-      { route: 'guru-bank', label: 'Bank Soal', icon: 'fa-database', soon: true },
+      { route: 'guru-bank', label: 'Bank Soal', icon: 'fa-database' },
       { route: 'guru-kolab', label: 'Kolaborasi', icon: 'fa-handshake', soon: true },
       { route: 'guru-permintaan', label: 'Permintaan', icon: 'fa-inbox', soon: true },
       { route: 'guru-profil', label: 'Profil', icon: 'fa-id-badge', soon: true }

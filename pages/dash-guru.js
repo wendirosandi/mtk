@@ -23,7 +23,7 @@ Router.register('guru-dash', async () => {
         ${live('guru-monitor', 'fa-desktop', 'bg-indigo-100 text-indigo-600', 'Monitoring')}
         ${live('guru-aktifitas', 'fa-wave-square', 'bg-cyan-100 text-cyan-600', 'Aktivitas')}
         ${live('guru-asesmen', 'fa-file-pen', 'bg-amber-100 text-amber-600', 'Asesmen')}
-        ${soon('fa-database', 'bg-pink-100 text-pink-600', 'Bank Soal')}
+        ${live('guru-bank', 'fa-database', 'bg-pink-100 text-pink-600', 'Bank Soal')}
         ${soon('fa-handshake', 'bg-purple-100 text-purple-600', 'Kolaborasi')}
         ${soon('fa-inbox', 'bg-green-100 text-green-600', 'Permintaan')}
       </div>

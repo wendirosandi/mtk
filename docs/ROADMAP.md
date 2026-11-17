@@ -124,8 +124,9 @@ penugasan tanpa SQL manual.
 
 ## Fase 4 — Bank Soal Lanjutan & AI Guru
 
-- [ ] Pool, kisi-kisi, generator template (UI)
-- [ ] Paket beku + snapshot attempt
+- [x] Pool, bank soal, kisi-kisi, dan susun paket (UI `guru-bank`)
+- [ ] Generator template & paket per-siswa (snapshot attempt)
+- [ ] Paket beku + snapshot attempt per siswa
 - [ ] Wizard AI: modul/materi/LKPD/kuis/bank
 - [ ] Validasi JSON schema + moderasi
 - [ ] Draft → review → publish
