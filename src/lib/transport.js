@@ -981,6 +981,126 @@
     };
   }
 
+  async function adminAcademic() {
+    var meta = await currentMeta();
+    var db = await sb();
+    var res = await Promise.all([
+      db.from('academic_years').select('id,label,start_date,end_date,is_active').order('label', { ascending: false }),
+      db.from('grade_levels').select('id,label,rank').order('rank'),
+      db.from('classes').select('id,label,academic_year_id,grade_level_id,homeroom_id,academic_years(label),grade_levels(label),profiles!classes_homeroom_id_fkey(full_name)').order('label'),
+      db.from('subjects').select('id,code,name').order('code'),
+      db.from('profiles').select('id,full_name,username').eq('role', 'guru').order('full_name'),
+      db.from('teacher_assignments').select('id,subject_id,teacher_id,academic_year_id,class_id,subjects(code,name),classes(label),academic_years(label),profiles!teacher_assignments_teacher_id_fkey(full_name)')
+    ]);
+    for (var i = 0; i < res.length; i++) if (res[i].error) throw res[i].error;
+    return {
+      ok: true,
+      schoolId: meta.school_id,
+      years: res[0].data || [], grades: res[1].data || [], classes: res[2].data || [],
+      subjects: res[3].data || [], teachers: res[4].data || [], assignments: res[5].data || []
+    };
+  }
+
+  async function adminYearSave(payload) {
+    var meta = await currentMeta();
+    var db = await sb();
+    var label = String(payload.label || '').trim();
+    if (!label || !payload.start || !payload.end) return { ok: false, msg: 'Label dan tanggal wajib' };
+    if (new Date(payload.end) <= new Date(payload.start)) return { ok: false, msg: 'Tanggal selesai harus setelah mulai' };
+    var row = { label: label, start_date: payload.start, end_date: payload.end };
+    if (payload.id) {
+      var u = await db.from('academic_years').update(row).eq('id', payload.id).select('id');
+      if (u.error) throw u.error;
+      return { ok: true };
+    }
+    row.school_id = meta.school_id; row.is_active = false;
+    var r = await db.from('academic_years').insert(row).select('id').single();
+    if (r.error) {
+      if (String(r.error.code) === '23505') return { ok: false, msg: 'Label tahun sudah ada' };
+      throw r.error;
+    }
+    return { ok: true, id: r.data.id };
+  }
+
+  async function adminYearActivate(id) {
+    var meta = await currentMeta();
+    var db = await sb();
+    var off = await db.from('academic_years').update({ is_active: false }).eq('school_id', meta.school_id);
+    if (off.error) throw off.error;
+    var on = await db.from('academic_years').update({ is_active: true }).eq('id', id).select('id');
+    if (on.error) throw on.error;
+    return { ok: true };
+  }
+
+  async function adminClassSave(payload) {
+    var meta = await currentMeta();
+    var db = await sb();
+    var label = String(payload.label || '').trim();
+    if (!label || !payload.yearId || !payload.gradeId) return { ok: false, msg: 'Label, tahun, dan tingkat wajib' };
+    var row = {
+      label: label, academic_year_id: payload.yearId, grade_level_id: payload.gradeId,
+      homeroom_id: payload.homeroomId || null
+    };
+    if (payload.id) {
+      var u = await db.from('classes').update(row).eq('id', payload.id).select('id');
+      if (u.error) throw u.error;
+      return { ok: true };
+    }
+    row.school_id = meta.school_id;
+    var r = await db.from('classes').insert(row).select('id').single();
+    if (r.error) {
+      if (String(r.error.code) === '23505') return { ok: false, msg: 'Kelas sudah ada di tahun tersebut' };
+      throw r.error;
+    }
+    return { ok: true, id: r.data.id };
+  }
+
+  async function adminSubjectSave(payload) {
+    var meta = await currentMeta();
+    var db = await sb();
+    var code = String(payload.code || '').trim().toUpperCase();
+    var name = String(payload.name || '').trim();
+    if (!code || !name) return { ok: false, msg: 'Kode dan nama mapel wajib' };
+    if (payload.id) {
+      var u = await db.from('subjects').update({ code: code, name: name }).eq('id', payload.id).select('id');
+      if (u.error) throw u.error;
+      return { ok: true };
+    }
+    var r = await db.from('subjects').insert({ school_id: meta.school_id, code: code, name: name }).select('id').single();
+    if (r.error) {
+      if (String(r.error.code) === '23505') return { ok: false, msg: 'Kode mapel sudah ada' };
+      throw r.error;
+    }
+    return { ok: true, id: r.data.id };
+  }
+
+  async function adminAssignmentSave(payload) {
+    var meta = await currentMeta();
+    var db = await sb();
+    if (!payload.teacherId || !payload.subjectId || !payload.yearId) {
+      return { ok: false, msg: 'Guru, mapel, dan tahun wajib' };
+    }
+    var r = await db.from('teacher_assignments').insert({
+      school_id: meta.school_id,
+      teacher_id: payload.teacherId,
+      subject_id: payload.subjectId,
+      academic_year_id: payload.yearId,
+      class_id: payload.classId || null
+    }).select('id').single();
+    if (r.error) {
+      if (String(r.error.code) === '23505') return { ok: false, msg: 'Penugasan sudah ada' };
+      throw r.error;
+    }
+    return { ok: true, id: r.data.id };
+  }
+
+  async function adminAssignmentDelete(id) {
+    var db = await sb();
+    var r = await db.from('teacher_assignments').delete().eq('id', id).select('id');
+    if (r.error) throw r.error;
+    return { ok: true };
+  }
+
   /* ---------- router aksi ---------- */
   async function route(payload) {
     var a = payload.action;
@@ -1042,6 +1162,13 @@
     if (a === 'adminSchoolGet') return adminSchoolGet();
     if (a === 'adminSchoolSave') return adminSchoolSave(payload);
     if (a === 'adminMonitoring') return adminMonitoring();
+    if (a === 'adminAcademic') return adminAcademic();
+    if (a === 'adminYearSave') return adminYearSave(payload);
+    if (a === 'adminYearActivate') return adminYearActivate(payload.id);
+    if (a === 'adminClassSave') return adminClassSave(payload);
+    if (a === 'adminSubjectSave') return adminSubjectSave(payload);
+    if (a === 'adminAssignmentSave') return adminAssignmentSave(payload);
+    if (a === 'adminAssignmentDelete') return adminAssignmentDelete(payload.id);
 
     if (a === 'getSubjects') return { ok: true, rows: await rpc('app_get_subjects') };
     if (a === 'getModules') return { ok: true, rows: await rpc('app_get_modules', { p_subject_id: payload.subjectId }) };

@@ -25,3 +25,7 @@ jwt_expiry = 3600
 
 [storage]
 enabled = true
+
+[functions.admin-users]
+enabled = true
+verify_jwt = true

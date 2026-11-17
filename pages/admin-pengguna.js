@@ -16,6 +16,7 @@ Router.register('admin-pengguna', async () => `
             <option value="siswa">Siswa</option>
           </select>
           <input id="ap-q" class="border rounded-xl px-3 py-2 text-sm flex-1 min-w-[160px]" placeholder="Cari nama / username">
+          <button id="ap-new" type="button" class="btn btn-primary btn-sm">+ Pengguna</button>
           <button id="ap-refresh" type="button" class="btn btn-secondary btn-sm">Muat ulang</button>
         </div>
       </div>
@@ -45,17 +46,86 @@ window.init_admin_pengguna = async () => {
     $('#ap-list').innerHTML = rows.length
       ? '<div class="card" style="padding:0;overflow-x:auto"><table class="w-full text-xs">'
         + '<thead><tr class="bg-slate-100"><th class="p-2 text-left">Nama</th><th class="p-2 text-left">Username</th>'
-        + '<th class="p-2 text-left">Peran</th><th class="p-2 text-left">Status</th><th class="p-2 text-left">Kelas</th></tr></thead><tbody>'
+        + '<th class="p-2 text-left">Peran</th><th class="p-2 text-left">Status</th><th class="p-2 text-left">Kelas</th><th class="p-2"></th></tr></thead><tbody>'
         + rows.map(u => `<tr class="border-t">
             <td class="p-2"><b>${esc(u.full_name)}</b></td>
             <td class="p-2">${esc(u.username)}</td>
             <td class="p-2">${UI.badge(u.role, ROLE_TONE[u.role] || '')}</td>
             <td class="p-2">${esc(u.status || '-')}</td>
             <td class="p-2">${esc((u.settings || {}).kelas || '-')}</td>
+            <td class="p-2 text-right"><button class="btn btn-secondary btn-sm" data-reset="${esc(u.id)}" data-name="${esc(u.full_name)}">Reset</button></td>
           </tr>`).join('')
         + '</tbody></table></div>'
       : UI.empty('Tidak ada pengguna', 'Ubah filter atau tambahkan pengguna.');
     $('#ap-req-count').textContent = '(' + state.requests.filter(r => r.status === 'pending').length + ')';
+    $('#ap-list').querySelectorAll('[data-reset]').forEach(b => b.onclick = () => resetUser(b.dataset.reset, b.dataset.name));
+  }
+
+  function modal(title, fields, submitLabel, onSubmit) {
+    const wrap = document.createElement('div');
+    wrap.className = 'modal-bg';
+    wrap.innerHTML = '<div style="background:#fff;border-radius:20px;padding:20px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto">'
+      + '<h3 style="font-weight:800;font-size:18px;margin-bottom:12px">' + esc(title) + '</h3>'
+      + '<form id="ap-form" class="space-y-3">'
+      + fields.map(f => {
+          const label = '<label style="font-size:12px;font-weight:700">' + esc(f.label) + '</label>';
+          if (f.type === 'select') {
+            return '<div>' + label + '<select name="' + esc(f.name) + '" class="w-full border rounded-xl px-3 py-2 text-sm">'
+              + (f.options || []).map(o => `<option value="${esc(o.value)}">${esc(o.label)}</option>`).join('')
+              + '</select></div>';
+          }
+          return '<div>' + label + '<input name="' + esc(f.name) + '" type="' + esc(f.type || 'text') + '" class="w-full border rounded-xl px-3 py-2 text-sm"></div>';
+        }).join('')
+      + '<div class="flex gap-2" style="margin-top:16px"><button type="submit" class="btn btn-primary flex-1">' + esc(submitLabel) + '</button>'
+      + '<button type="button" data-cancel class="btn btn-secondary">Batal</button></div></form></div>';
+    document.body.appendChild(wrap);
+    const close = () => wrap.remove();
+    wrap.querySelector('[data-cancel]').onclick = close;
+    wrap.onclick = e => { if (e.target === wrap) close(); };
+    wrap.querySelector('#ap-form').onsubmit = async e => {
+      e.preventDefault();
+      const f = wrap.querySelector('#ap-form');
+      const v = {};
+      fields.forEach(x => { v[x.name] = f.querySelector('[name="' + x.name + '"]').value.trim(); });
+      const btn = f.querySelector('button[type="submit"]');
+      btn.disabled = true; btn.textContent = 'Memproses...';
+      const ok = await onSubmit(v);
+      if (ok) { close(); await load(); }
+      else { btn.disabled = false; btn.textContent = submitLabel; }
+    };
+  }
+
+  function createUser() {
+    modal('Tambah Pengguna', [
+      { name: 'username', label: 'Username' },
+      { name: 'full_name', label: 'Nama lengkap' },
+      { name: 'role', label: 'Peran', type: 'select', options: [
+        { value: 'siswa', label: 'Siswa' }, { value: 'guru', label: 'Guru' }, { value: 'admin', label: 'Admin' }
+      ] },
+      { name: 'password', label: 'Password awal (min. 8)', type: 'password' }
+    ], 'Buat Akun', async v => {
+      const r = await LMS.supabase.functions.invoke('admin-users', {
+        body: Object.assign({ action: 'create' }, v)
+      });
+      if (r.error) { API.toast('❌ ' + r.error.message); return false; }
+      if (!r.data || !r.data.ok) { API.toast('❌ ' + ((r.data && r.data.msg) || 'Gagal')); return false; }
+      API.toast('✅ Akun dibuat');
+      return true;
+    });
+  }
+
+  function resetUser(id, name) {
+    modal('Reset Password — ' + name, [
+      { name: 'password', label: 'Password baru (min. 8)', type: 'password' }
+    ], 'Simpan', async v => {
+      const r = await LMS.supabase.functions.invoke('admin-users', {
+        body: { action: 'reset', user_id: id, password: v.password }
+      });
+      if (r.error) { API.toast('❌ ' + r.error.message); return false; }
+      if (!r.data || !r.data.ok) { API.toast('❌ ' + ((r.data && r.data.msg) || 'Gagal')); return false; }
+      API.toast('✅ Password direset');
+      return true;
+    });
   }
 
   function renderRequests() {
@@ -117,6 +187,7 @@ window.init_admin_pengguna = async () => {
 
   $('#ap-tab-users').onclick = () => show('users');
   $('#ap-tab-req').onclick = () => show('requests');
+  $('#ap-new').onclick = createUser;
   $('#ap-role').onchange = renderUsers;
   $('#ap-q').oninput = renderUsers;
   $('#ap-refresh').onclick = load;

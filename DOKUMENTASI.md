@@ -188,6 +188,10 @@ dengan sesi nyata end-to-end. Lihat `docs/MODULE_REGISTRY.md`.
 **Rahasia:** API key AI, service_role, dan DB password **tidak boleh** masuk repo.
 Gunakan Supabase Secrets / environment CI.
 
+**Edge Function:** `supabase/functions/admin-users` membuat/mengatur akun Auth.
+Service role hanya ada di runtime Supabase, bukan di browser. Deploy:
+`supabase functions deploy admin-users`.
+
 ---
 
 ## 9. Menjalankan Lokal
@@ -236,8 +240,8 @@ aktivitas, dan uji negatif RLS.
 5. `config.toml` `site_url` belum menunjuk `/mtk`. Sudah diperbaiki di file.
 6. Data user dimasukkan ke `innerHTML` tanpa escaping.
 7. ToolsMathPro masih meminta identitas manual dan belum mencatat aktivitas ke Supabase.
-8. Admin baru mencakup dashboard, pengguna/permintaan akun, profil sekolah, dan monitoring;
-   akademik/pengaturan penuh belum tersedia.
+8. Admin mencakup dashboard, pengguna (buat/reset/approval), profil sekolah, akademik,
+   dan monitoring; pengaturan lanjutan (feature flags/registry) belum tersedia.
 9. `docs/MODULE_REGISTRY.md` sebelumnya tidak ada (kini tersedia).
 10. Belum ada CI dan akun uji guru/admin.
 11. Policy `gb_ins/gb_upd` belum memeriksa `app_guru_scope_assessment(assessment_id)` — guru

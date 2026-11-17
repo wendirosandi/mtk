@@ -28,7 +28,7 @@ window.Shell = (function () {
       { route: 'admin-pengguna', label: 'Pengguna', icon: 'fa-user-gear' },
       { route: 'admin-sekolah', label: 'Sekolah', icon: 'fa-building' },
       { route: 'admin-monitoring', label: 'Monitoring', icon: 'fa-desktop' },
-      { route: 'admin-akademik', label: 'Akademik', icon: 'fa-school', soon: true },
+      { route: 'admin-akademik', label: 'Akademik', icon: 'fa-school' },
       { route: 'admin-pengaturan', label: 'Pengaturan', icon: 'fa-sliders', soon: true }
     ]
   };

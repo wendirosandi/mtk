@@ -106,16 +106,16 @@ mengerjakan, nilai masuk, guru melihat dan mengoreksi.
 |---|---|
 | `admin-dash` | statistik sekolah, antrean, kesehatan data | ✅ |
 | `admin-sekolah` | profil sekolah, pengaturan aktivitas/semester | ✅ |
-| `admin-pengguna` | daftar/filter pengguna + approval permintaan akun | ✅ (baca + approval) |
-| `admin-akademik` | tahun pelajaran, tingkat, kelas, membership | ⏳ |
-| `admin-mapel` | CRUD mata pelajaran | ⏳ |
-| `admin-penugasan` | guru ↔ mapel ↔ kelas | ⏳ |
+| `admin-pengguna` | daftar/filter pengguna + approval, buat akun, reset password | ✅ |
+| `admin-akademik` | tahun pelajaran, kelas, mapel, penugasan guru | ✅ |
+| `admin-mapel` | CRUD mata pelajaran | ✅ (di admin-akademik) |
+| `admin-penugasan` | guru ↔ mapel ↔ kelas | ✅ (di admin-akademik) |
 | `admin-monitoring` | aktivitas + audit log | ✅ |
 | `admin-permintaan` | review permintaan akun | ✅ (di admin-pengguna) |
 | `admin-pengaturan` | feature flags, registry modul | ⏳ |
 
-**Catatan arsitektur:** pembuatan akun Auth **tidak bisa** dari browser dengan anon key.
-Perlu Edge Function `admin-users` dengan service role + verifikasi admin.
+**Catatan arsitektur:** pembuatan akun Auth memakai Edge Function
+`supabase/functions/admin-users` (service role hanya di backend) + verifikasi role admin.
 
 **Kriteria selesai:** admin dapat menyiapkan tahun ajaran, kelas, guru, siswa, dan
 penugasan tanpa SQL manual.

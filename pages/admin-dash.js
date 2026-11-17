@@ -20,7 +20,7 @@ Router.register('admin-dash', async () => {
         ${live('admin-pengguna', 'fa-user-gear', 'bg-teal-100 text-teal-600', 'Pengguna')}
         ${live('admin-sekolah', 'fa-building', 'bg-sky-100 text-sky-700', 'Profil Sekolah')}
         ${live('admin-monitoring', 'fa-desktop', 'bg-cyan-100 text-cyan-600', 'Monitoring')}
-        ${soon('fa-school', 'bg-amber-100 text-amber-600', 'Akademik')}
+        ${live('admin-akademik', 'fa-school', 'bg-amber-100 text-amber-600', 'Akademik')}
         ${soon('fa-sliders', 'bg-violet-100 text-violet-600', 'Pengaturan')}
         ${soon('fa-layer-group', 'bg-indigo-100 text-indigo-600', 'Kurikulum')}
       </div>
