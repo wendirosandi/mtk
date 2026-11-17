@@ -19,8 +19,8 @@ port = 54323
 
 [auth]
 enabled = true
-site_url = "https://wendirosandi.github.io"
-additional_redirect_urls = ["https://wendirosandi.github.io/mtk"]
+site_url = "https://wendirosandi.github.io/mtk"
+additional_redirect_urls = ["https://wendirosandi.github.io/mtk", "https://wendirosandi.github.io/mtk/"]
 jwt_expiry = 3600
 
 [storage]

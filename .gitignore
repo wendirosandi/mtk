@@ -5,6 +5,7 @@
 
 # ---- artefak Supabase CLI ----
 supabase/.temp/
+supabase/.branches/
 
 # ---- dependency & build ----
 node_modules/

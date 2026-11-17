@@ -9,7 +9,7 @@ values
 on conflict (id) do nothing;
 
 insert into public.profiles (id, school_id, role, username, full_name, settings)
-select u.id, s.id, v.role, v.un, v.fn, v.st::jsonb
+select u.id, s.id, v.role::public.user_role, v.un, v.fn, v.st::jsonb
 from (values
  ('11111111-1111-4111-8111-111111111111','admin','admin','Admin Sekolah','{}'),
  ('22222222-2222-4222-8222-222222222222','guru','guru1','GURU SATU','{"kategori":""}'),

@@ -32,7 +32,7 @@ begin
     join public.classes c on c.id = ta.class_id or ta.class_id is null
     join public.grade_levels gl on gl.id = c.grade_level_id
     where ta.teacher_id = p.id
-      and ta.academic_year_id = (select id from public.academic_years where school_id = p.school_id and is_active limit 1)
+      and ta.academic_year_id = (select public.academic_years.id from public.academic_years where school_id = p.school_id and is_active limit 1)
     order by s.code, gl.label;
   else -- siswa
     return query

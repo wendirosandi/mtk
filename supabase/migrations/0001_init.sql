@@ -386,7 +386,7 @@ where s.code='PLACEHOLDER-SCHOOL'
 on conflict (school_id, rank) do nothing;
 
 insert into public.academic_years (school_id, label, start_date, end_date, is_active)
-select s.id, '{{TA_ACTIVE}}', date '{{TA_START}}', date '{{TA_END}}', true
+select s.id, '2026/2027', date '2026-07-01', date '2027-06-30', true
 from public.schools s where s.code='PLACEHOLDER-SCHOOL'
 on conflict (school_id, label) do nothing;
 

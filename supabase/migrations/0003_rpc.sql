@@ -262,7 +262,7 @@ end $$;
 
 -- ---------- Verifikasi password legacy (migrasi login) ----------
 create or replace function public.app_verify_legacy_password(p_username text, p_password text)
-returns boolean language plpgsql security definer set search_path = public as $$
+returns boolean language plpgsql security definer set search_path = public, extensions as $$
 declare h text;
 begin
   select legacy_password_hash into h from public.profiles
