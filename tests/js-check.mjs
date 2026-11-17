@@ -3,7 +3,7 @@ import { readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { spawnSync } from "node:child_process";
 
-const roots = ["lib", "src", "pages", "tests", "LKPD/core", "LKPD/data", "kalender-pythagoras/assets/js"];
+const roots = ["lib", "src", "pages", "scripts", "tests", "LKPD/core", "LKPD/data", "kalender-pythagoras/assets/js"];
 const skip = /node_modules|\.git|golden|ringkasan-proyek/;
 const files = [];
 

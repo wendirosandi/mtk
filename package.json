@@ -8,6 +8,7 @@
     "lint:js": "node tests/js-check.mjs",
     "test:generators": "node tests/generators/harness.mjs",
     "test:imports": "node tests/imports/schema-check.mjs",
+    "bootstrap:school": "node scripts/bootstrap-school.mjs",
     "test": "npm run lint:js && npm run test:generators && npm run test:imports"
   }
 }

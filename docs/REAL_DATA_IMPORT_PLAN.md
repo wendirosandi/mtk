@@ -129,7 +129,7 @@ untuk authenticated. Penulisan hanya lewat Edge Function service role.
 
 ## 4. Urutan Import (dependency-safe)
 
-1. **Bootstrap** sekolah + admin pertama (service/CLI, di luar CSV).
+1. **Bootstrap** sekolah + admin pertama (service/CLI, di luar CSV; lihat `docs/BOOTSTRAP_SEKOLAH.md`).
 2. `sekolah` — update profil sekolah yang sudah ada.
 3. `tahun_pelajaran` — tahun + status aktif.
 4. `kelas` — tahun + tingkat + label.
@@ -296,3 +296,4 @@ Belum dilakukan:
 - `docs/CSV_IMPORT_TEMPLATE.md`
 - `docs/ACCOUNT_PROVISIONING.md`
 - `docs/ADMIN_DATA_MANAGEMENT.md`
+- `docs/BOOTSTRAP_SEKOLAH.md`

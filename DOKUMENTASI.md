@@ -294,6 +294,8 @@ Rancangan lengkap ada di:
 - `docs/CSV_IMPORT_TEMPLATE.md` — 16 template CSV + contoh fiktif
 - `docs/ACCOUNT_PROVISIONING.md` — akun, password sementara, deaktivasi
 - `docs/ADMIN_DATA_MANAGEMENT.md` — wizard `admin-import`, validasi, riwayat
+- `docs/BOOTSTRAP_SEKOLAH.md` — prosedur sekolah baru + admin pertama
+- `scripts/bootstrap-school.mjs` — skrip bootstrap (dry-run dulu)
 
 **Status:** implementasi Tahap C selesai, diuji di Supabase lokal dengan data
 fiktif, dan sudah diterapkan ke cloud (migrasi `0017` + Edge Function).

@@ -38,6 +38,9 @@ Karena admin tidak boleh membuat sekolah baru sendiri:
 Alternatif jangka panjang: role `super_admin` platform + RPC khusus. **Belum**
 dirancang di skema saat ini; jangan menambah role tanpa migrasi/RLS baru.
 
+Prosedur operasional: `docs/BOOTSTRAP_SEKOLAH.md` + `scripts/bootstrap-school.mjs`
+(wajib dry-run lebih dulu).
+
 ## 4. Alur Pembuatan Akun (single & batch)
 
 ```

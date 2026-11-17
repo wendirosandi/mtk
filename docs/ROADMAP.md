@@ -135,6 +135,7 @@ penugasan tanpa SQL manual.
 - [x] Halaman `admin-import` (upload, mapping, dry-run, commit, riwayat)
 - [x] Uji data fiktif lokal
 - [x] Deploy migrasi `0017` + Edge Function ke cloud
+- [x] Prosedur bootstrap sekolah nyata + admin pertama (`docs/BOOTSTRAP_SEKOLAH.md`)
 - [ ] Import produksi setelah approval
 
 **Kriteria selesai:** satu sekolah fiktif lengkap dapat diimpor ulang secara
